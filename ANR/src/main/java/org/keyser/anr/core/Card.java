@@ -16,7 +16,7 @@ public abstract class Card extends AbstractGameContent {
 
 	private final Cost cost;
 
-	private final List<Ability> paidAbilities = new ArrayList<>();
+	private final List<PaidAbility> paidAbilities = new ArrayList<>();
 
 	private int id;
 
@@ -26,12 +26,12 @@ public abstract class Card extends AbstractGameContent {
 		this.cost = cost;
 	}
 
-	protected Card addAction(Ability paidAbility) {
+	protected Card addAction(PaidAbility paidAbility) {
 		this.paidAbilities.add(paidAbility);
 		return this;
 	}
 
-	public List<Ability> getPaidAbilities() {
+	public List<PaidAbility> getPaidAbilities() {
 		return Collections.unmodifiableList(paidAbilities);
 	}
 

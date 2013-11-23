@@ -2,6 +2,7 @@ package org.keyser.anr.core.runner;
 
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Flow;
+import org.keyser.anr.core.Wallet;
 
 public class PumpIceBreakerAbility extends IceBreakerAbility {
 
@@ -13,9 +14,9 @@ public class PumpIceBreakerAbility extends IceBreakerAbility {
 	}
 
 	@Override
-	public void trigger(int times, Flow next) {
+	public void trigger(Wallet w, int times, Flow next) {
 
-		//strengthBonus * times;
+		// strengthBonus * times;
 	}
 
 	public int getStrengthBonus() {

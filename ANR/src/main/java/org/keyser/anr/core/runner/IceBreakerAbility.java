@@ -1,10 +1,10 @@
 package org.keyser.anr.core.runner;
 
-import org.keyser.anr.core.Ability;
+import org.keyser.anr.core.PaidAbility;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Run;
 
-public abstract class IceBreakerAbility extends Ability {
+public abstract class IceBreakerAbility extends PaidAbility {
 
 	protected final IceBreaker breaker;
 

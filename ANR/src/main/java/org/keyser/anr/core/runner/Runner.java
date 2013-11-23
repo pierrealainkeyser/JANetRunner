@@ -4,8 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.keyser.anr.core.AbstractAbility;
 import org.keyser.anr.core.Flow;
-import org.keyser.anr.core.Ability;
+import org.keyser.anr.core.PaidAbility;
 import org.keyser.anr.core.PlayableUnit;
 import org.keyser.anr.core.Player;
 import org.keyser.anr.core.WalletBadPub;
@@ -28,7 +29,7 @@ public class Runner extends PlayableUnit {
 	}
 
 	@Override
-	protected void addAllAbilities(List<Ability> a) {
+	protected void addAllAbilities(List<AbstractAbility> a) {
 		// TODO à completer
 
 	}

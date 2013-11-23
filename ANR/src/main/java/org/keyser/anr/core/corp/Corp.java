@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.keyser.anr.core.AbstractAbility;
 import org.keyser.anr.core.CoreAbility;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Event;
@@ -11,9 +12,9 @@ import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.Game;
 import org.keyser.anr.core.Game.WinCondition;
 import org.keyser.anr.core.Notification;
-import org.keyser.anr.core.Ability;
 import org.keyser.anr.core.PlayableUnit;
 import org.keyser.anr.core.Player;
+import org.keyser.anr.core.Wallet;
 import org.keyser.anr.core.WalletCredits;
 
 public class Corp extends PlayableUnit {
@@ -24,13 +25,13 @@ public class Corp extends PlayableUnit {
 	 * @author PAF
 	 * 
 	 */
-	class ClickForCredit extends Ability implements CoreAbility{
+	class ClickForCredit extends CoreAbility {
 		ClickForCredit() {
-			super("click-for-credit", Cost.action(1), true);
+			super("click-for-credit", Cost.action(1));
 		}
 
 		@Override
-		public void trigger(Flow next) {
+		public void trigger(Wallet w, Flow next) {
 			Optional<WalletCredits> wc = getWallet().wallet(WalletCredits.class);
 			wc.ifPresent(WalletCredits::add);
 
@@ -43,44 +44,47 @@ public class Corp extends PlayableUnit {
 
 	/**
 	 * Le click pour piocher
+	 * 
 	 * @author PAF
-	 *
+	 * 
 	 */
-	 class ClickForDraw extends Ability implements CoreAbility {
+	class ClickForDraw extends CoreAbility {
 		ClickForDraw() {
-			super("click-for-draw", Cost.action(1), true);
+			super("click-for-draw", Cost.action(1));
 		}
 
 		@Override
-		public void trigger(Flow next) {
+		public void trigger(Wallet w, Flow next) {
 			getGame().notification(new Notification("corp-click-for-draw"));
 			draw(next);
 		}
 	}
 
-	 /**
-	  * Les 3 clicks pour purger
-	  * @author PAF
-	  *
-	  */
-	 class ClickForPurge extends Ability implements CoreAbility {
+	/**
+	 * Les 3 clicks pour purger
+	 * 
+	 * @author PAF
+	 * 
+	 */
+	class ClickForPurge extends CoreAbility {
 		ClickForPurge() {
 			super("click-for-purge", Cost.action(3));
 		}
 
 		@Override
-		public void trigger(Flow next) {
+		public void trigger(Wallet w, Flow next) {
 			Game game = getGame();
 			game.notification(new Notification("corp-click-for-purge"));
 			game.getRunner().purgeVirus(next);
 		}
 	}
 
-	 /**
-	  * L'evenement la Corp a piocher
-	  * @author PAF
-	  *
-	  */
+	/**
+	 * L'evenement la Corp a piocher
+	 * 
+	 * @author PAF
+	 * 
+	 */
 	public static class CorpCardDraw extends Event {
 		private final CorpCard card;
 
@@ -95,8 +99,9 @@ public class Corp extends PlayableUnit {
 
 	/**
 	 * L'évenement la corp à pris un credit
+	 * 
 	 * @author PAF
-	 *
+	 * 
 	 */
 	public static class CorpClickForCredit extends Event {
 
@@ -118,7 +123,7 @@ public class Corp extends PlayableUnit {
 	 * @return
 	 */
 	@Override
-	protected void addAllAbilities(List<Ability> a) {
+	protected void addAllAbilities(List<AbstractAbility> a) {
 		a.add(new ClickForCredit());
 		a.add(new ClickForDraw());
 		a.add(new ClickForPurge());
@@ -126,6 +131,7 @@ public class Corp extends PlayableUnit {
 
 	/**
 	 * Pioche une carte
+	 * 
 	 * @param next
 	 */
 	public void draw(Flow next) {

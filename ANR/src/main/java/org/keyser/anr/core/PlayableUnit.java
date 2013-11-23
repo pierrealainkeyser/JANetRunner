@@ -39,34 +39,10 @@ public abstract class PlayableUnit extends AbstractGameContent implements Instal
 	 * 
 	 * @return
 	 */
-	public Stream<Ability> getAbilities() {
-		List<Ability> a = new ArrayList<>();
+	public Stream<AbstractAbility> getAbilities() {
+		List<AbstractAbility> a = new ArrayList<>();
 		addAllAbilities(a);
 		return a.stream().filter(p -> p.isEnabled());
-	}
-
-	/**
-	 * Permet d'activer un capacite
-	 * 
-	 * @param p
-	 * @param next
-	 */
-	public void activate(Ability p, Flow next) {
-		activate(p, next, 1);
-	}
-
-	/**
-	 * Permet d'activer un capacite
-	 * 
-	 * @param p
-	 * @param next
-	 */
-	public void activate(Ability p, Flow next, int times) {
-		if (times > 0) {
-			wallet.consume(p.getCost().times(times));
-			p.trigger(times, next);
-		} else
-			next.apply();
 	}
 
 	protected void add(Builder<?> em) {
@@ -106,6 +82,6 @@ public abstract class PlayableUnit extends AbstractGameContent implements Instal
 		return wallet.isAffordable(cost, action);
 	}
 
-	protected abstract void addAllAbilities(List<Ability> a);
+	protected abstract void addAllAbilities(List<AbstractAbility> a);
 
 }

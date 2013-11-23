@@ -115,7 +115,7 @@ public class Game implements Notifier, ConfigurableEventListener {
 			init();
 		}
 
-		private void checkAction(Ability p, PlayableUnit current, Flow replay, Flow toNextPlayer) {
+		private void checkAction(AbstractAbility p, PlayableUnit current, Flow replay, Flow toNextPlayer) {
 			// si pas d'action on zappe
 			if (p == null || (p instanceof CoreAbility)) {
 				done.put(current.getPlayer(), true);
@@ -152,16 +152,16 @@ public class Game implements Notifier, ConfigurableEventListener {
 		 * @param unit
 		 * @param triggered
 		 */
-		private void trigger(PlayableUnit unit, FlowArg<Ability> triggered) {
+		private void trigger(PlayableUnit unit, FlowArg<AbstractAbility> triggered) {
 			Player player = unit.getPlayer();
 			Wallet wallet = unit.getWallet();
 
-			Stream<Ability> s = unit.getAbilities();
-			Stream<Ability> affordable = s.filter(p -> p.isAffordable(wallet));
+			Stream<AbstractAbility> s = unit.getAbilities();
+			Stream<AbstractAbility> affordable = s.filter(p -> p.isAffordable(wallet));
 
 			// s'il y a une action du noyau, on ne rajoute pas none car c'est le
 			// tour du joueur
-			Ability[] it = affordable.toArray(i -> new Ability[0]);
+			AbstractAbility[] it = affordable.toArray(i -> new AbstractAbility[0]);
 			boolean core = stream(it).anyMatch(i -> (i instanceof CoreAbility));
 
 			Question q = ask(player, "which-ability");
