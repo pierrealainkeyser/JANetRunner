@@ -1,0 +1,117 @@
+package org.keyser.anr.core;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+
+public class Wallet implements Installable {
+
+	private List<WalletUnit> wallets = new ArrayList<>();
+
+	public Wallet add(WalletUnit sw) {
+		wallets.add(sw);
+		return this;
+	}
+
+	/**
+	 * Renvoi le wallet qui va bien
+	 * 
+	 * @param type
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public <W extends WalletUnit> Optional<W> wallet(Class<W> type) {
+		return (Optional<W>) wallets.stream().filter((w) -> type.equals(w.getClass())).findFirst();
+	}
+
+	/**
+	 * Applique l'action sur le wallet s'il existe
+	 * 
+	 * @param type
+	 * @param consumer
+	 */
+	public <W extends WalletUnit> Wallet wallet(Class<W> type, Consumer<W> consumer) {
+		wallet(type).ifPresent(consumer);
+		return this;
+	}
+
+	/**
+	 * Le nombre de fois qu'on peut effectuer l'action
+	 * 
+	 * @param cost
+	 * @param action
+	 * @return
+	 */
+	public int timesAffordable(Cost cost, Object action) {
+		boolean affordable = true;
+		int nb = 0;
+		do {
+			Cost c = cost.times(nb + 1);
+			wallets.forEach(w -> w.alterCost(c, action));
+			if (affordable = c.isZero())
+				nb++;
+
+		} while (affordable);
+		return nb;
+	}
+
+	/**
+	 * Le nombre de fois qu'on peut effectuer l'action avec un maximum
+	 * 
+	 * @param cost
+	 * @param action
+	 * @param max
+	 * @return
+	 */
+	public int timesAffordable(Cost cost, Object action, int max) {
+		boolean affordable = true;
+		int nb = 0;
+		do {
+			Cost c = cost.times(nb + 1);
+			wallets.forEach(w -> w.alterCost(c, action));
+			if (affordable = c.isZero()) {
+				nb++;
+				if (nb >= max)
+					return nb;
+
+			}
+
+		} while (affordable);
+		return nb;
+	}
+
+	/**
+	 * Renvoi vrai si on peut payer le cout
+	 * 
+	 * @param cost
+	 * @param action
+	 * @return
+	 */
+	public boolean isAffordable(Cost cost, Object action) {
+		Cost c = cost.clone();
+		wallets.forEach(w -> w.alterCost(c, action));
+		return c.isZero();
+	}
+
+	public void prepare() {
+		wallets.sort((w1, w2) -> w1.getOrder() - w2.getOrder());
+	}
+
+	@Override
+	public Stream<EventMatcher<?>> getEventMatchers() {
+		return Installable.all(wallets);
+	}
+
+	public Wallet consume(Cost cost) {
+		// TODO Auto-generated method stub
+		return this;
+
+	}
+
+	@Override
+	public String toString() {
+		return "Wallet [wallets=" + wallets + "]";
+	}
+}

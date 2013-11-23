@@ -1,0 +1,15 @@
+ apply plugin: 'java'
+ apply plugin: 'eclipse'
+
+ repositories {
+    mavenCentral()
+ }
+
+ dependencies {
+ 	compile 'ch.qos.logback:logback-classic:1.0.13'
+ 	compile 'org.eclipse.jetty.websocket:websocket-server:9.1.0.M0'
+    testCompile 'junit:junit:4.8.2'
+ }
+
+ version = '1.0'
+
