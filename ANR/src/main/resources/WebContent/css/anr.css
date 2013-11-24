@@ -10,23 +10,32 @@ body>div.container,body>div.container>div.row {
 	height: 100% !important;
 }
 
-
-.card {
+div.card {
 	display: none;
-	width: 100px;
-	position: relative;
+	padding: 0px;
+	margin: 0px;
+	position: absolute;
 	box-shadow: -1px 2px 5px 1px rgba(0, 0, 0, 0.7);
 	top: 0px;
 	left: 0px;
-	font-smooth: always;
-	image-rendering:crisp-edges;
+	image-rendering: crisp-edges;
+	width: 80px;
+	height: 111px;
+	
+	background-image: url(../img/back-corp.png);
+	background-size: 100% 100%;
 }
 
-.faction.corp {
+div.card img {
+	width: 80px;
+	height: 111px;
+	
 	padding: 0px;
+	margin: 0px;
 }
 
-.faction.runner {
+
+.faction.corp,.faction.runner {
 	padding: 0px;
 }
 

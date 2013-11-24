@@ -10,30 +10,36 @@
 <script type="text/javascript" src="js/anr.js"></script>
 
 <script type="text/javascript">
-$(document).ready(function() {
-    var c1=new Card($("#c1"));
-    c1.location=new InHand(0);
-    c1.applyLocation();		
-    
-    var c2=new Card($("#c2"));
-    c2.location=new InHand(1);
-    c2.applyLocation();		
-    
-    
-    var c3=new Card($("#c3"));
-    c3.location=new InHand(2);
-    c3.applyLocation();
-    
-    var c4=new Card($("#c4"));
-    c4.location=new InHand(3);
-    c4.applyLocation();	
-    
-    var c5=new Card($("#c5"));
-    c5.location=new Server(0);
-    c5.applyLocation();	
-});
+	$(function() {
+		var c1 = new Card($("#c1"));
+		c1.location = new Server(0);
+		c1.applyLocation();
 
+		var c2 = new Card($("#c2"));
+		c2.location = new InHand(1);
+		c2.applyLocation();
 
+		var c3 = new Card($("#c3"));
+		c3.location = new InHand(2);
+		c3.applyLocation();
+
+		var c4 = new Card($("#c4"));
+		c4.location = new InHand(3);
+		c4.applyLocation();
+
+		var c5 = new Card($("#c5"));
+		c5.location = new Server(4);
+		c5.applyLocation();
+
+		var i=0;
+		c5.widget.bind('click', function() {
+			if(i%2==0)
+				c5.hide();
+			else
+				c5.show();
+			i=i+1;
+		});
+	});
 </script>
 
 </head>
@@ -58,11 +64,25 @@ $(document).ready(function() {
 
 			</div>
 			<div class="col-xs-10 main">
-				<img id="c1" class="card" src="http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03004.png" />
-				<img id="c2" class="card" src="http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03015.png" />				
-				<img id="c3" class="card" src="http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03016.png" />
-				<img id="c4" class="card" src="http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03017.png" />
-				<img id="c5" class="card" src="http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03018.png" />
+				<div id="c1" class="card">
+					<img src="http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03004.png" />
+				</div>
+
+				<div id="c2" class="card">
+					<img src="http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03015.png" />
+				</div>
+
+				<div id="c3" class="card">
+					<img src="http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03016.png" />
+				</div>
+
+				<div class="card" id="c4">
+					<img src="http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03017.png" />
+				</div>
+
+				<div class="card" id="c5">
+					<img src="http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03018.png" />
+				</div>
 			</div>
 			<div class="col-xs-1 faction runner">
 				<img src="http://netrunnerdb.com/web/bundles/netrunnerdbbuilder/images/factions/38px/shaper.png?v1.2.2" />

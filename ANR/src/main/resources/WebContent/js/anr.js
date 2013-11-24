@@ -22,6 +22,22 @@ Card.prototype.apply = function(place) {
 	});
 }
 
+Card.prototype.show = function (){
+
+	this.widget.find("img").transition({ opacity: 1});
+	this.widget.transition({
+		rotateY : '0deg'
+	});
+} 
+
+Card.prototype.hide = function (){
+	
+	this.widget.find("img").transition({ opacity: 0});
+	this.widget.transition({
+		rotateY : '180deg'
+	});
+} 
+
 Card.prototype.applyLocation = function() {
 	this.apply(this.location.toPlace());
 }
