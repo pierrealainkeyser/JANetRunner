@@ -1,0 +1,98 @@
+html,body {
+	height: 100%;
+}
+
+body>div.container,body>div.container>div.row {
+	height: 100%;
+}
+
+.main,.faction {
+	height: 100% !important;
+}
+
+
+.card {
+	display: none;
+	width: 100px;
+	position: relative;
+	box-shadow: -1px 2px 5px 1px rgba(0, 0, 0, 0.7);
+	top: 0px;
+	left: 0px;
+	font-smooth: always;
+	image-rendering:crisp-edges;
+}
+
+.faction.corp {
+	padding: 0px;
+}
+
+.faction.runner {
+	padding: 0px;
+}
+
+.faction .input-group {
+	padding: 1px 3px 1px 3px;
+}
+
+.faction .input-group-addon,.faction .form-control {
+	width: 50px;
+}
+
+.faction .form-control {
+	text-align: center;
+	font-weight: bold;
+}
+
+.faction img {
+	padding-left: 33%;
+}
+
+.sprite {
+	background:
+		url('http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/sprites.png')
+		no-repeat 0 0;
+	display: inline-block;
+	vertical-align: text-bottom;
+	height: 18px;
+	margin-left: 1px
+}
+
+.click {
+	background-position: 0 0;
+	width: 17px
+}
+
+.credits {
+	background-position: 0 -18px;
+	width: 10px
+}
+
+.link {
+	background-position: 0 -36px;
+	width: 15px
+}
+
+.memory_unit {
+	background-position: 0 -54px;
+	width: 22px
+}
+
+.recurring_credits {
+	background-position: 0 -72px;
+	width: 17px
+}
+
+.subroutine {
+	background-position: 0 -90px;
+	width: 12px
+}
+
+.trash {
+	background-position: 0 -108px;
+	width: 17px
+}
+
+.unique {
+	background-position: 0 -126px;
+	width: 7px
+}
