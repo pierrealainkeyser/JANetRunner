@@ -11,34 +11,45 @@
 
 <script type="text/javascript">
 	$(function() {
-		var c1 = new Card($("#c1"));
-		c1.location = new Server(0);
-		c1.applyLocation();
+		var main=$('div.main');
+		
+		var cards=[];
+		
+		var c1 = new Card({id:'c1',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03004.png'});
+		c1.location = {type:'server',value:{index:1}};
+		c1.init(main);
+		c1.animate();
+		cards.push(c1);
 
-		var c2 = new Card($("#c2"));
-		c2.location = new InHand(1);
-		c2.applyLocation();
+		var c2 = new Card({id:'c2',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/01057.png'});
+		c2.location = {type:'server',value:{index:0}};
+		c2.init(main);
+		c2.animate();
+		cards.push(c2);
 
-		var c3 = new Card($("#c3"));
-		c3.location = new InHand(2);
-		c3.applyLocation();
+		var c3 = new Card({id:'c3',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03016.png'});
+		c3.location = {type:'ice',value:{index:1,ice:2}};
+		c3.init(main);
+		c3.animate();
+		cards.push(c3);
 
-		var c4 = new Card($("#c4"));
-		c4.location = new InHand(3);
-		c4.applyLocation();
+		var c4 = new Card({id:'c4',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03017.png'});
+		c4.location = {type:'ice',value:{index:1,ice:1}};
+		c4.init(main);
+		c4.animate();
+		cards.push(c4);
 
-		var c5 = new Card($("#c5"));
-		c5.location = new Server(4);
-		c5.applyLocation();
+		var c5 = new Card({id:'c5',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03020.png'});
+		c5.location ={type:'ice',value:{index:0,ice:1}};
+		c5.init(main);
+		c5.animate();
+		cards.push(c5);
 
-		var i=0;
-		c5.widget.bind('click', function() {
-			if(i%2==0)
-				c5.hide();
-			else
-				c5.show();
-			i=i+1;
-		});
+		
+		for (var i = 0; i < 1; i++) {
+			var c=cards[i];
+			c.widget.bind('click', function(){c.toggle();});
+		}
 	});
 </script>
 
@@ -64,25 +75,7 @@
 
 			</div>
 			<div class="col-xs-10 main">
-				<div id="c1" class="card">
-					<img src="http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03004.png" />
-				</div>
-
-				<div id="c2" class="card">
-					<img src="http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03015.png" />
-				</div>
-
-				<div id="c3" class="card">
-					<img src="http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03016.png" />
-				</div>
-
-				<div class="card" id="c4">
-					<img src="http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03017.png" />
-				</div>
-
-				<div class="card" id="c5">
-					<img src="http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03018.png" />
-				</div>
+				
 			</div>
 			<div class="col-xs-1 faction runner">
 				<img src="http://netrunnerdb.com/web/bundles/netrunnerdbbuilder/images/factions/38px/shaper.png?v1.2.2" />
