@@ -2,16 +2,8 @@ html,body {
 	height: 100%;
 }
 
-body>div.container,body>div.container>div.row {
+body>div.container {
 	height: 100%;
-}
-
-.main{
-	background-color: fuchsia;
-}
-
-.main,.faction {
-	height: 100% !important;
 }
 
 div.card {
@@ -24,7 +16,6 @@ div.card {
 	left: 0px;
 	width: 80px;
 	height: 111px;
-	
 	background-image: url(../img/back-corp.png);
 	background-size: 100% 100%;
 }
@@ -32,31 +23,18 @@ div.card {
 div.card img {
 	width: 80px;
 	height: 111px;
-	
 	padding: 0px;
 	margin: 0px;
 }
 
-
-.faction.corp,.faction.runner {
-	padding: 0px;
+.faction div {
+	overflow: hidden;
+	position: relative;
+	display: inline-block;
 }
 
-.faction .input-group {
-	padding: 1px 3px 1px 3px;
-}
-
-.faction .input-group-addon,.faction .form-control {
-	width: 50px;
-}
-
-.faction .form-control {
-	text-align: center;
-	font-weight: bold;
-}
-
-.faction img {
-	padding-left: 33%;
+.faction div.expand{
+	white-space: nowrap;
 }
 
 .sprite {

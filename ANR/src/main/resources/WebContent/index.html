@@ -11,97 +11,129 @@
 
 <script type="text/javascript">
 	$(function() {
-		var main=$('div.main');
-		
-		var cards=[];
-		
-		var c1 = new Card({id:'c1',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03004.png'});
-		c1.location = {type:'server',value:{index:1}};
+		var main = $('div.main');
+
+		var cards = [];
+
+		var c1 = new Card(
+				{
+					id : 'c1',
+					url : 'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03004.png'
+				});
+		c1.location = {
+			type : 'server',
+			value : {
+				index : 1
+			}
+		};
 		c1.init(main);
 		c1.animate();
 		cards.push(c1);
 
-		var c2 = new Card({id:'c2',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/01057.png'});
-		c2.location = {type:'server',value:{index:0}};
+		var c2 = new Card(
+				{
+					id : 'c2',
+					url : 'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/01057.png'
+				});
+		c2.location = {
+			type : 'server',
+			value : {
+				index : 0
+			}
+		};
 		c2.init(main);
 		c2.animate();
 		cards.push(c2);
 
-		var c3 = new Card({id:'c3',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03016.png'});
-		c3.location = {type:'ice',value:{index:1,ice:2}};
+		var c3 = new Card(
+				{
+					id : 'c3',
+					url : 'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03016.png'
+				});
+		c3.location = {
+			type : 'ice',
+			value : {
+				index : 1,
+				ice : 2
+			}
+		};
 		c3.init(main);
 		c3.animate();
 		cards.push(c3);
 
-		var c4 = new Card({id:'c4',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03017.png'});
-		c4.location = {type:'ice',value:{index:1,ice:1}};
+		var c4 = new Card(
+				{
+					id : 'c4',
+					url : 'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03017.png'
+				});
+		c4.location = {
+			type : 'ice',
+			value : {
+				index : 1,
+				ice : 1
+			}
+		};
 		c4.init(main);
 		c4.animate();
 		cards.push(c4);
 
-		var c5 = new Card({id:'c5',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03020.png'});
-		c5.location ={type:'ice',value:{index:0,ice:1}};
+		var c5 = new Card(
+				{
+					id : 'c5',
+					url : 'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03020.png'
+				});
+		c5.location = {
+			type : 'ice',
+			value : {
+				index : 0,
+				ice : 1
+			}
+		};
 		c5.init(main);
 		c5.animate();
 		cards.push(c5);
 
-		
 		for (var i = 0; i < 1; i++) {
-			var c=cards[i];
-			c.widget.bind('click', function(){c.toggle();});
+			var c = cards[i];
+			c.widget.bind('click', function() {
+				c.toggle();
+			});
 		}
+
+		$(".faction.corp").find("a").bind('click', function() {
+			var $lefty = $(".faction.corp .expand")
+			$lefty.animate({width : 'toggle'},100);
+		})
 	});
 </script>
 
 </head>
 <body>
+
+
+
 	<div class="container">
+		<div class="row faction corp">
+			<div>
+				<a href="#"><img src="http://netrunnerdb.com/web/bundles/netrunnerdbbuilder/images/factions/38px/weyland-consortium.png?v1.2.2" /></a>
+			</div>
+			<div class="expand">
+				1 <i class="sprite click"></i> 6 <i class="sprite credits"></i>
+			</div>
+		</div>
+
+		<div class="row faction runner">
+			<div>
+				<a href="#"><img src="http://netrunnerdb.com/web/bundles/netrunnerdbbuilder/images/factions/38px/shaper.png?v1.2.2" /></a>
+			</div>
+			<div>
+				<i class="sprite click"></i> <i class="sprite credits"></i> <i class="sprite link"></i> <i class="sprite memory_unit"></i>
+			</div>
+		</div>
+
+
 		<div class="row">
-			<div class="col-xs-1 faction corp">
-				<img src="http://netrunnerdb.com/web/bundles/netrunnerdbbuilder/images/factions/38px/weyland-consortium.png?v1.2.2" />
-
-				<div>
-					<div class="input-group">
-						<span class="input-group-addon"></span> <span class="form-control"></span>
-					</div>
-					<div class="input-group">
-						<span class="input-group-addon"><i class="sprite click"></i></span> <span class="form-control">3</span>
-					</div>
-
-					<div class="input-group">
-						<span class="input-group-addon"><i class="sprite credits"></i></span> <span class="form-control">5</span>
-					</div>
-				</div>
-
-			</div>
-			<div class="col-xs-10 main">
-				
-			</div>
-			<div class="col-xs-1 faction runner">
-				<img src="http://netrunnerdb.com/web/bundles/netrunnerdbbuilder/images/factions/38px/shaper.png?v1.2.2" />
-
-				<div>
-					<div class="input-group">
-						<span class="input-group-addon"></span> <span class="form-control"></span>
-					</div>
-
-					<div class="input-group">
-						<span class="input-group-addon"><i class="sprite click"></i></span> <span class="form-control">3</span>
-					</div>
-
-					<div class="input-group">
-						<span class="input-group-addon"><i class="sprite credits"></i></span> <span class="form-control">5</span>
-					</div>
-
-					<div class="input-group">
-						<span class="input-group-addon"><i class="sprite link"></i></span> <span class="form-control">0</span>
-					</div>
-
-					<div class="input-group">
-						<span class="input-group-addon"><i class="sprite memory_unit"></i></span> <span class="form-control">3</span>
-					</div>
-				</div>
-			</div>
+			<div class="col-xs-12 main"></div>
 		</div>
 	</div>
 </body>
