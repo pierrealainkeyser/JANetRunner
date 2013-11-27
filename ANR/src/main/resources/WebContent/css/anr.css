@@ -27,14 +27,51 @@ div.card img {
 	margin: 0px;
 }
 
-.faction div {
-	overflow: hidden;
-	position: relative;
-	display: inline-block;
+.faction {
+	position:absolute;
+	top:0px;
+	width:55px;	
+	display: inline-block; 
+	border : 1px solid #cccccc;
+	border-top-width: 0px;
+	white-space: nowrap;
+	layout-flow: vertical-ideographic;
+	
+	color: #333333;
+  	background-color: #ffffff;
 }
 
-.faction div.expand{
-	white-space: nowrap;
+.faction:hover { 
+	background-color: #ebebeb;
+  	border-color: #adadad;
+}
+
+.faction img{	
+	margin-left: 8px;
+}
+
+.faction p{
+	padding-bottom: 2px;
+	padding-top: 2px;
+	margin: 0px;	
+}
+
+.faction div.expand span{
+	display: inline-block;
+	width: 50%;
+	text-align: center;
+}
+
+.faction.corp{
+	border-bottom-right-radius: 5px;
+	border-left-width: 0px;
+}
+
+.faction.runner{
+	border-bottom-left-radius: 5px;
+	border-right-width: 0px;
+		
+	right: 0px;
 }
 
 .sprite {
