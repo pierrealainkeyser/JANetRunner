@@ -52,6 +52,7 @@ function Card(def) {
 
 Card.prototype.init = function(parent){
 	this.widget=$("<div class='card'><img src='"+this.def.url+"'/></div>").appendTo(parent);
+	this.widget.prop("card", this);
 	this.widget.show();
 	this.widget.find("img").css("opacity",'0');
 }

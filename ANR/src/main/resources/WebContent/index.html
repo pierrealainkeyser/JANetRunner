@@ -12,27 +12,34 @@
 <script type="text/javascript">
 	$(function() {
 		var main = $('div.main');
-
 		
 		var alls=[{id:'c1',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03004.png'},
-		          {id:'c2',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/01057.png'},
-		          {id:'c3',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03016.png'},
-		      	  {id:'c4',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03017.png'},
-		      	  {id:'c5',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03020.png'}
-		   ];
+		        {id:'c2',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/01057.png'},
+		        {id:'c3',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03016.png'},
+		      	{id:'c4',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03017.png'},
+		      	{id:'c5',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03020.png'},
+		      	{id:'c6',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03022.png'},
+		      	{id:'c7',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03023.png'},
+		      	{id:'c8',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03024.png'},
+		      	{id:'c9',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03025.png'}
+		];
 		
 		var cards = [];
 		for(var k in alls){
 			var c=createCard(alls[k],main);
-			c.setLocation({type:'hand'});
+			//on place tout dans le serveur RD
+			c.setLocation({type:'server',value:{index:1}});
 			cards.push(c);
 		}
 
 		for (var i = 0; i < cards.length; i++) {
 			var c = cards[i];
-			c.widget.bind('click', function() {
-				c.toggle();
+			c.widget.click(function() {
+				$(this).prop("card").toggle();
 			});
+			c.widget.mouseover(function(){
+				
+			})
 		}
 
 		$(".faction.corp").find("a").bind('click', function() {
@@ -46,10 +53,18 @@
 		})
 		
 		setTimeout(function(){
-			cards[2].setLocation({type:'server',value:{index:1}});
-			cards[0].setLocation({type:'ice',value:{index:1,ice:1}});
-			
+			cards[2].setLocation({type:'server',value:{index:2}});
+			cards[0].setLocation({type:'ice',value:{index:1,ice:1}});			
 		},1500);
+		
+		setTimeout(function(){			
+			cards[1].setLocation({type:'hand'});
+			cards[3].setLocation({type:'server',value:{index:0}});
+			cards[4].setLocation({type:'hand'});
+			cards[5].setLocation({type:'hand'});
+			cards[6].setLocation({type:'ice',value:{index:1,ice:2}});
+			cards[7].setLocation({type:'ice',value:{index:2,ice:1}});
+		},3000);
 	});
 </script>
 </head>
