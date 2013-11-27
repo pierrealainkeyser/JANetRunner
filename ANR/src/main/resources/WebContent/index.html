@@ -21,7 +21,10 @@
 		      	{id:'c6',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03022.png'},
 		      	{id:'c7',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03023.png'},
 		      	{id:'c8',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03024.png'},
-		      	{id:'c9',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03025.png'}
+		      	{id:'c9',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03026.png'},
+		      	{id:'c10',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/02060.png'},
+		      	{id:'c11',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/01061.png'},
+		      	{id:'c12',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03015.png'}
 		];
 		
 		var cards = [];
@@ -39,21 +42,37 @@
 			});
 			c.widget.mouseover(function(){
 				console.log(JSON.stringify($(this).prop("card").def));
-			})
+			});
 		}
 
 		$(".faction.corp").find("a").bind('click', function() {
 			var l = $(".faction.corp .expand")
 			l.animate({height : 'toggle'},100);
-		})
+		});
 		
 		$(".faction.runner").find("a").bind('click', function() {
 			var l = $(".faction.runner .expand")
 			l.animate({height : 'toggle'},100);
-		})
+		});
 		
+		var rdserver=$("#rd_server");
+		var loc=placeFunction['server']({index:1});
+		rdserver.css('y',loc.y-6);
+		rdserver.css('x',loc.x-8);
+		
+		var hqserver=$("#hq_server");
+		loc=placeFunction['server']({index:2});
+		hqserver.css('y',loc.y-6);
+		hqserver.css('x',loc.x-8);
+		
+		var archiveserver=$("#archive_server");
+		loc=placeFunction['server']({index:0});
+		archiveserver.css('y',loc.y-6);
+		archiveserver.css('x',loc.x-8);
+		
+	
 		setTimeout(function(){
-			cards[7].setLocation({type:'server',value:{index:2}});
+			cards[7].setLocation({type:'server',value:{index:3}});
 			cards[4].setLocation({type:'ice',value:{index:1,ice:1}});			
 		},1500);
 		
@@ -64,6 +83,9 @@
 			cards[5].setLocation({type:'hand'});
 			cards[3].setLocation({type:'ice',value:{index:1,ice:2}});
 			cards[2].setLocation({type:'ice',value:{index:2,ice:1}});
+			cards[8].setLocation({type:'ice',value:{index:1,ice:3}});
+			cards[9].setLocation({type:'ice',value:{index:1,ice:4}});
+			cards[10].setLocation({type:'ice',value:{index:1,ice:5}});
 		},3000);
 	});
 </script>
@@ -88,11 +110,13 @@
 			<p title="Memory unit"><span><i class="sprite memory_unit"></i></span><span>4</span></p>
 		</div>
 	</div>		
-
-	<div class="container">
-		<div class="row">
-			<div class="col-xs-12 main"></div>
-		</div>
+	
+	<div class="main">			
+		<div id="rd_server">R&amp;D</div>
+		<div id="hq_server">HQ</div>
+		<div id="archive_server">Archives</div>				
 	</div>
+
+
 </body>
 </html>

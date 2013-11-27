@@ -17,17 +17,17 @@ var placeFunction = {
 		return {x : x, y : y, rot : -angleDeg};
 	},
 	'server' : function(v){
-		var bx = 30;
+		var bx = 20;
 		var by = 669;
-		var hspacing = 135;
+		var hspacing = 122;
 		var x = bx + (v.index * hspacing);
 		return {x : x,y : by,rot : 0};
 	},
 	'ice' : function(v){
-		var bx = 30;
-		var by = 654;
-		var hspacing = 135;
-		var vspacing = 90;
+		var bx = 20;
+		var by = 648;
+		var hspacing = 122;
+		var vspacing = 85;
 		var x = bx + (v.index * hspacing);
 		var y = by - (v.ice * vspacing);
 		return {x : x,y : y,rot : 90};

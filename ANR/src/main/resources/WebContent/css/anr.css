@@ -56,6 +56,10 @@ div.card img {
 	margin: 0px;	
 }
 
+.faction div.expand {
+	display: none;
+}
+
 .faction div.expand span{
 	display: inline-block;
 	width: 50%;
@@ -72,6 +76,22 @@ div.card img {
 	border-right-width: 0px;
 		
 	right: 0px;
+}
+
+
+#rd_server, #hq_server, #archive_server{
+	border-radius: 5px;
+	border: 3px dashed #cccccc;		
+	margin: 0px;
+	position: absolute;	
+	width: 96px;
+	height: 150px;
+	padding: 0px;
+	padding-top: 123px;
+	
+	text-align: center;	
+	font-weight: bold;
+	color: #cccccc;
 }
 
 .sprite {
