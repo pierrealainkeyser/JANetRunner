@@ -38,7 +38,7 @@
 				$(this).prop("card").toggle();
 			});
 			c.widget.mouseover(function(){
-				
+				console.log(JSON.stringify($(this).prop("card").def));
 			})
 		}
 
@@ -53,17 +53,17 @@
 		})
 		
 		setTimeout(function(){
-			cards[2].setLocation({type:'server',value:{index:2}});
-			cards[0].setLocation({type:'ice',value:{index:1,ice:1}});			
+			cards[7].setLocation({type:'server',value:{index:2}});
+			cards[4].setLocation({type:'ice',value:{index:1,ice:1}});			
 		},1500);
 		
 		setTimeout(function(){			
 			cards[1].setLocation({type:'hand'});
-			cards[3].setLocation({type:'server',value:{index:0}});
-			cards[4].setLocation({type:'hand'});
+			cards[6].setLocation({type:'server',value:{index:0}});
+			cards[0].setLocation({type:'hand'});
 			cards[5].setLocation({type:'hand'});
-			cards[6].setLocation({type:'ice',value:{index:1,ice:2}});
-			cards[7].setLocation({type:'ice',value:{index:2,ice:1}});
+			cards[3].setLocation({type:'ice',value:{index:1,ice:2}});
+			cards[2].setLocation({type:'ice',value:{index:2,ice:1}});
 		},3000);
 	});
 </script>

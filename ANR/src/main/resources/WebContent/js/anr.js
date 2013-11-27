@@ -54,20 +54,32 @@ Card.prototype.init = function(parent){
 	this.widget=$("<div class='card'><img src='"+this.def.url+"'/></div>").appendTo(parent);
 	this.widget.prop("card", this);
 	this.widget.show();
-	this.widget.find("img").css("opacity",'0');
+	var img=this.widget.find("img");
+	img.css("opacity",'0');
 }
 
 Card.prototype.setLocation = function (location){	
 	console.log(this.def.id+ " old location " + JSON.stringify(this.location));
 	console.log(this.def.id+ " new location " + JSON.stringify(location));
 	
-	if(this.location=='ice')
-		this.split='vertical';
-	else
+	if(location.type=='hand'){
+		this.widget.css('rotateX','0deg');
+		this.widget.css('rotateY','0deg');
+		this.split='none';
+	}
+	else if(location.type=='ice'){
+		this.split='vertical';		
+		this.widget.css('rotateX',this.isHidden()?'180deg':'0deg');
+		this.widget.css('rotateY','0deg');		
+	}
+	else {
 		this.split='horizontal';
+		this.widget.css('rotateY',this.isHidden()?'180deg':'0deg');
+		this.widget.css('rotateX','0deg');
+	}
 	
-	if(this.location.type=='hand'){
-		
+	if(this.location.type=='hand'){		
+		//suppression des cartes or de la main
 		delete inhand[this.def.id];
 		var i=0;
 		for (var h in inhand){
@@ -106,15 +118,18 @@ Card.prototype.animate = function() {
 Card.prototype.show = function() {
 	this.widget.find("img").transition({opacity : 1});	
 	if(this.split=='horizontal')
-		this.widget.transition({rotateY : '0deg'});
-	else
-		this.widget.transition({rotateX : '0deg'});
+		this.widget.transition({rotateY:'0deg'});
+	else if(this.split=='vertical')
+		this.widget.transition({rotateX:'0deg'});
+}
+
+Card.prototype.isHidden = function(){
+	var opacity=this.widget.find("img").css("opacity");
+	return opacity==0;
 }
 
 Card.prototype.toggle = function(){
-	var opacity=this.widget.find("img").css("opacity");
-	console.log("opacity "+opacity);
-	if(opacity==0)
+	if(this.isHidden())
 		this.show();
 	else
 		this.hide();
@@ -123,7 +138,7 @@ Card.prototype.toggle = function(){
 Card.prototype.hide = function() {
 	this.widget.find("img").transition({opacity : 0});	
 	if(this.split=='horizontal')
-		this.widget.transition({rotateY : '180deg'});
-	else
-		this.widget.transition({rotateX : '180deg'});
+		this.widget.transition({rotateY:'180deg'});
+	else if(this.split=='vertical')
+		this.widget.transition({rotateX:'180deg'});
 }
