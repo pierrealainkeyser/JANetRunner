@@ -13,25 +13,49 @@
 	$(function() {
 		var main = $('div.main');
 		
-		var alls=[{id:'c1',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03004.png'},
-		        {id:'c2',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/01057.png'},
-		        {id:'c3',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03016.png'},
-		      	{id:'c4',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03017.png'},
-		      	{id:'c5',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03020.png'},
-		      	{id:'c6',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03022.png'},
-		      	{id:'c7',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03023.png'},
-		      	{id:'c8',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03024.png'},
-		      	{id:'c9',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03026.png'},
-		      	{id:'c10',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/02060.png'},
-		      	{id:'c11',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/01061.png'},
-		      	{id:'c12',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03015.png'}
+		var alls=[{id:'1',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03004.png',faction:'corp'},
+		        {id:'2',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/01057.png',faction:'corp'},
+		        {id:'3',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03016.png',faction:'corp'},
+		      	{id:'4',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03017.png',faction:'corp'},
+		      	{id:'5',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03020.png',faction:'corp'},
+		      	{id:'6',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03022.png',faction:'corp'},
+		      	{id:'7',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03023.png',faction:'corp'},
+		      	{id:'8',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03024.png',faction:'corp'},
+		      	{id:'9',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03026.png',faction:'corp'},
+		      	{id:'10',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/02060.png',faction:'corp'},
+		      	{id:'11',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/01061.png',faction:'corp'},
+		      	{id:'12',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03015.png',faction:'corp'},
+		      	{id:'13',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/02089.png',faction:'runner'},
+		      	{id:'14',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/02090.png',faction:'runner'},
+		      	{id:'15',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/02088.png',faction:'runner'},
+		      	{id:'16',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/01044.png',faction:'runner'}		      	
 		];
 		
+		faction='corp';
+		locationHandler = {
+				'hq' : new CardCounter($("#hq").find("span")),
+				'archives' : new CardCounter($("#archives").find("span")),
+				'rd' : new CardCounter($("#rd").find("span")),
+				'grip' : new CardCounter($("#grip").find("span")),
+				'stack' : new CardCounter($("#stack").find("span")),
+				'heap' : new CardCounter($("#heap").find("span"))
+			};
+		
+		$("#archives").css(placeFunction['archives']());
+		$("#rd").css(placeFunction['rd']());
+		$("#hq").css(placeFunction['hq']());
+		
+		$("#grip").css(placeFunction['grip']());
+		$("#stack").css(placeFunction['stack']());
+		$("#heap").css(placeFunction['heap']());
+	
 		var cards = [];
 		for(var k in alls){
-			var c=createCard(alls[k],main);
-			//on place tout dans le serveur RD
-			c.setLocation({type:'server',value:{index:1}});
+			var c=createCard(alls[k],main);			
+			if(c.def.faction=='corp')
+				c.location({type:'rd'});
+			if(c.def.faction=='runner')
+				c.location({type:'stack'});
 			cards.push(c);
 		}
 
@@ -40,52 +64,52 @@
 			c.widget.click(function() {
 				$(this).prop("card").toggle();
 			});
-			c.widget.mouseover(function(){
-				console.log(JSON.stringify($(this).prop("card").def));
+			c.widget.mouseenter(function(){
+				var card=$(this).prop("card");
+				if(card.isPreviewable()){
+					var prev=$("#preview");
+					prev.find("img").attr("src",card.def.url);
+					prev.stop().show('slide');
+					$(this).prop("mouse_on_me",true);
+				}
+				else
+					$(this).prop("mouse_on_me",false);
+			});
+			c.widget.mouseleave(function(){
+				if($(this).prop("mouse_on_me")){
+					var prev=$("#preview");
+					prev.stop().hide('slide');
+				}
 			});
 		}
 
 		$(".faction.corp").find("a").bind('click', function() {
 			var l = $(".faction.corp .expand")
-			l.animate({height : 'toggle'},100);
+			l.animate({height : 'toggle'},150);
 		});
 		
 		$(".faction.runner").find("a").bind('click', function() {
 			var l = $(".faction.runner .expand")
-			l.animate({height : 'toggle'},100);
+			l.animate({height : 'toggle'},150);
 		});
-		
-		var rdserver=$("#rd_server");
-		var loc=placeFunction['server']({index:1});
-		rdserver.css('y',loc.y-6);
-		rdserver.css('x',loc.x-8);
-		
-		var hqserver=$("#hq_server");
-		loc=placeFunction['server']({index:2});
-		hqserver.css('y',loc.y-6);
-		hqserver.css('x',loc.x-8);
-		
-		var archiveserver=$("#archive_server");
-		loc=placeFunction['server']({index:0});
-		archiveserver.css('y',loc.y-6);
-		archiveserver.css('x',loc.x-8);
-		
 	
 		setTimeout(function(){
-			cards[7].setLocation({type:'server',value:{index:3}});
-			cards[4].setLocation({type:'ice',value:{index:1,ice:1}});			
+			cards[7].location({type:'server',value:{index:3}});
+			cards[4].location({type:'ice',value:{index:1,ice:1}});			
 		},1500);
 		
 		setTimeout(function(){			
-			cards[1].setLocation({type:'hand'});
-			cards[6].setLocation({type:'server',value:{index:0}});
-			cards[0].setLocation({type:'hand'});
-			cards[5].setLocation({type:'hand'});
-			cards[3].setLocation({type:'ice',value:{index:1,ice:2}});
-			cards[2].setLocation({type:'ice',value:{index:2,ice:1}});
-			cards[8].setLocation({type:'ice',value:{index:1,ice:3}});
-			cards[9].setLocation({type:'ice',value:{index:1,ice:4}});
-			cards[10].setLocation({type:'ice',value:{index:1,ice:5}});
+			cards[1].location({type:'hq'});
+			cards[6].location({type:'archives'});
+			cards[0].location({type:'hq'});
+			cards[5].location({type:'hq'});
+			cards[3].location({type:'ice',value:{index:1,ice:2}});
+			cards[2].location({type:'ice',value:{index:2,ice:1}});
+			cards[8].location({type:'ice',value:{index:1,ice:3}});
+			cards[9].location({type:'ice',value:{index:1,ice:4}});
+			cards[10].location({type:'ice',value:{index:1,ice:5}});
+			cards[14].location({type:'heap'});
+			cards[15].location({type:'grip'});
 		},3000);
 	});
 </script>
@@ -111,12 +135,17 @@
 		</div>
 	</div>		
 	
-	<div class="main">			
-		<div id="rd_server">R&amp;D</div>
-		<div id="hq_server">HQ</div>
-		<div id="archive_server">Archives</div>				
+	<div class="main">	
+		<div id="rd" class="cardplace">R&amp;D (<span>0</span>)</div>
+		<div id="hq" class="cardplace">HQ (<span>0</span>)</div>
+		<div id="archives" class="cardplace">Archives (<span>0</span>)</div>	
+		
+		<div id="grip" class="cardplace">Grip(<span>0</span>)</div>
+		<div id="heap" class="cardplace">Heap (<span>0</span>)</div>
+		<div id="stack" class="cardplace">Stack (<span>0</span>)</div>	
+		
+		<div id="preview"><img /></div>
 	</div>
-
 
 </body>
 </html>

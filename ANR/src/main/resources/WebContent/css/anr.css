@@ -16,8 +16,16 @@ div.card {
 	left: 0px;
 	width: 80px;
 	height: 111px;
-	background-image: url(../img/back-corp.png);
+	
 	background-size: 100% 100%;
+}
+
+div.card.corp{
+	background-image: url(../img/back-corp.png);
+}
+
+div.card.runner{
+	background-image: url(../img/back-runner.png);
 }
 
 div.card img {
@@ -35,8 +43,7 @@ div.card img {
 	border : 1px solid #cccccc;
 	border-top-width: 0px;
 	white-space: nowrap;
-	layout-flow: vertical-ideographic;
-	
+		
 	color: #333333;
   	background-color: #ffffff;
 }
@@ -78,21 +85,50 @@ div.card img {
 	right: 0px;
 }
 
+#preview img{	
+	width: 216px;
+	height: 300px;
+}
 
-#rd_server, #hq_server, #archive_server{
+#preview{		
+	position: absolute;
+	right: 0px;
+	top: 250px;
+	display: none;
+	box-shadow: -1px 2px 5px 1px rgba(0, 0, 0, 0.7);
+	
+	background-color: #ebebeb;
+	border : 1px solid #adadad;
+	border-radius: 5px;
+}
+
+
+.cardplace{
 	border-radius: 5px;
 	border: 3px dashed #cccccc;		
 	margin: 0px;
+	margin-left: -8px;
+	margin-top: -6px;
 	position: absolute;	
 	width: 96px;
 	height: 150px;
 	padding: 0px;
-	padding-top: 123px;
 	
 	text-align: center;	
 	font-weight: bold;
+	font-size: 11px;
 	color: #cccccc;
 }
+
+#rd, #hq, #archives{
+	padding-top: 123px;
+}
+
+#grip,#stack,#heap{
+	margin-top : -30px;
+}
+
+
 
 .sprite {
 	background:
