@@ -94,8 +94,8 @@
 		});
 	
 		setTimeout(function(){
-			cards[7].location({type:'server',value:{index:3}});
-			cards[4].location({type:'ice',value:{index:1,ice:1}});			
+			cards[7].location({type:'server',value:{remote:0}});
+			cards[4].location({type:'ice',value:{remote:0,ice:1}});			
 		},1500);
 		
 		setTimeout(function(){			
@@ -103,11 +103,11 @@
 			cards[6].location({type:'archives'});
 			cards[0].location({type:'hq'});
 			cards[5].location({type:'hq'});
-			cards[3].location({type:'ice',value:{index:1,ice:2}});
-			cards[2].location({type:'ice',value:{index:2,ice:1}});
-			cards[8].location({type:'ice',value:{index:1,ice:3}});
-			cards[9].location({type:'ice',value:{index:1,ice:4}});
-			cards[10].location({type:'ice',value:{index:1,ice:5}});
+			cards[3].location({type:'ice',value:{central:'hq',ice:2}});
+			cards[2].location({type:'ice',value:{central:'hq',ice:1}});
+			cards[8].location({type:'ice',value:{central:'rd',ice:1}});
+			cards[9].location({type:'ice',value:{central:'rd',ice:2}});
+			cards[10].location({type:'ice',value:{central:'rd',ice:3}});
 			cards[14].location({type:'heap'});
 			cards[15].location({type:'grip'});
 		},3000);

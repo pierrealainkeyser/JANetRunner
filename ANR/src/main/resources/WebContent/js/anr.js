@@ -1,5 +1,14 @@
 var locationHandler = {};
 
+var HQ_SERVER=2;
+var RD_SERVER=1;
+var ARCHIVES_SERVER=0;
+
+var RUNNER_GRIP=2;
+var RUNNER_STACK=1;
+var RUNNER_HEAP=0;
+
+
 var faction = 'corp';
 var placeFunction = {
 	'hand' : function(v) {
@@ -26,24 +35,28 @@ var placeFunction = {
 			return placeFunction['hand'](v);
 		} else
 			return placeFunction['server']({
-				index : 2
+				index : HQ_SERVER
 			});
 	},
 	'rd' : function(v) {
 		return placeFunction['server']({
-			index : 1
+			index : RD_SERVER
 		});
 	},
 	'archives' : function(v) {
 		return placeFunction['server']({
-			index : 0
+			index : ARCHIVES_SERVER
 		});
 	},
 	'server' : function(v) {
 		var bx = 20;
 		var by = 638;
 		var hspacing = 122;
-		var x = bx + (v.index * hspacing);
+		var index=v.index;
+		if(v.remote != undefined)
+			index=3+v.remote;
+		
+		var x = bx + (index * hspacing);
 		return {
 			x : x,
 			y : by,
@@ -55,17 +68,17 @@ var placeFunction = {
 			return placeFunction['hand'](v);
 		} else
 			return placeFunction['runner']({
-				index : 2
+				index : RUNNER_GRIP
 			});
 	},
 	'stack' : function() {
 		return placeFunction['runner']({
-			index : 1
+			index : RUNNER_STACK
 		});
 	},
 	'heap' : function() {
 		return placeFunction['runner']({
-			index : 0
+			index : RUNNER_HEAP
 		});
 	},
 	'runner' : function(v) {
@@ -85,7 +98,18 @@ var placeFunction = {
 		var by = 615;
 		var hspacing = 122;
 		var vspacing = 85;
-		var x = bx + (v.index * hspacing);
+		
+		var index;
+		if(v.remote != undefined)
+			index=3+v.remote;
+		else if(v.central=='hq')
+			index=HQ_SERVER;
+		else if(v.central=='rd')
+			index=RD_SERVER;
+		else if(v.central=='archives')
+			index=ARCHIVES_SERVER;
+		
+		var x = bx + (index * hspacing);
 		var y = by - (v.ice * vspacing);
 		return {
 			x : x,
