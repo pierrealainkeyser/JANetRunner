@@ -7,6 +7,8 @@
 
 <script type="text/javascript" src="js/jquery-2.0.3.min.js"></script>
 <script type="text/javascript" src="js/jquery.transit.min.js"></script>
+<script type="text/javascript" src="js/mousetrap.min.js"></script>
+<script type="text/javascript" src="js/lodash.min.js"></script>
 <script type="text/javascript" src="js/anr.js"></script>
 
 <script type="text/javascript">
@@ -33,13 +35,18 @@
 		
 		faction='corp';
 		locationHandler = {
-				'hq' : new CardCounter($("#hq").find("span")),
-				'archives' : new CardCounter($("#archives").find("span")),
-				'rd' : new CardCounter($("#rd").find("span")),
-				'grip' : new CardCounter($("#grip").find("span")),
-				'stack' : new CardCounter($("#stack").find("span")),
-				'heap' : new CardCounter($("#heap").find("span"))
-			};
+			'hq' : new CardCounter($("#hq").find("span")),
+			'archives' : new CardCounter($("#archives").find("span")),
+			'rd' : new CardCounter($("#rd").find("span")),
+			'grip' : new CardCounter($("#grip").find("span")),
+			'stack' : new CardCounter($("#stack").find("span")),
+			'heap' : new CardCounter($("#heap").find("span"))
+		};
+		
+		if(faction=='corp')
+			locationHandler['hand']=locationHandler['hq'];
+		else
+			locationHandler['hand']=locationHandler['grip'];
 		
 		$("#archives").css(placeFunction['archives']());
 		$("#rd").css(placeFunction['rd']());
@@ -49,38 +56,14 @@
 		$("#stack").css(placeFunction['stack']());
 		$("#heap").css(placeFunction['heap']());
 	
-		var cards = [];
+	
 		for(var k in alls){
-			var c=createCard(alls[k],main);			
-			if(c.def.faction=='corp')
-				c.location({type:'rd'});
-			if(c.def.faction=='runner')
-				c.location({type:'stack'});
-			cards.push(c);
-		}
-
-		for (var i = 0; i < cards.length; i++) {
-			var c = cards[i];
+			var c=createCard(alls[k],main);					
+			
+			//demo d'affichage
 			c.widget.click(function() {
 				$(this).prop("card").toggle();
-			});
-			c.widget.mouseenter(function(){
-				var card=$(this).prop("card");
-				if(card.isPreviewable()){
-					var prev=$("#preview");
-					prev.find("img").attr("src",card.def.url);
-					prev.stop().show('slide');
-					$(this).prop("mouse_on_me",true);
-				}
-				else
-					$(this).prop("mouse_on_me",false);
-			});
-			c.widget.mouseleave(function(){
-				if($(this).prop("mouse_on_me")){
-					var prev=$("#preview");
-					prev.stop().hide('slide');
-				}
-			});
+			});		
 		}
 
 		$(".faction.corp").find("a").bind('click', function() {
@@ -93,25 +76,95 @@
 			l.animate({height : 'toggle'},150);
 		});
 	
+	
+		
+		Mousetrap.bind(['up','down','right','left'],function(e,c){
+			focusNext(e,c);
+		});		
+		
+		//vers server central
+		Mousetrap.bind('e',function(e){
+			$("#hq").focus();
+		});
+		Mousetrap.bind('z',function(e){
+			$("#rd").focus();
+		});
+		Mousetrap.bind('a',function(e){
+			$("#archives").focus();
+		});		
+	
+		//vers serveur remote
+		for(var i=1;i<15;++i)
+			bindRemote(i);
+		
+		//vers runner
+		Mousetrap.bind('q',function(e){
+			$("#grip").focus();
+		});
+		Mousetrap.bind('d',function(e){
+			$("#heap").focus();
+		});
+		Mousetrap.bind('s',function(e){
+			$("#stack").focus();
+		});
+		
+		//vers la main
+		Mousetrap.bind('h',function(e){
+			focusAt(e,{type:'hand',value:{hand:1}});
+		});
+		
+		//demo
 		setTimeout(function(){
-			cards[7].location({type:'server',value:{remote:0}});
-			cards[4].location({type:'ice',value:{remote:0,ice:1}});			
+			cards['8'].location({type:'server',value:{remote:0}});
+			cards['5'].location({type:'ice',value:{remote:0,ice:1}});			
 		},1500);
 		
 		setTimeout(function(){			
-			cards[1].location({type:'hq'});
-			cards[6].location({type:'archives'});
-			cards[0].location({type:'hq'});
-			cards[5].location({type:'hq'});
-			cards[3].location({type:'ice',value:{central:'hq',ice:2}});
-			cards[2].location({type:'ice',value:{central:'hq',ice:1}});
-			cards[8].location({type:'ice',value:{central:'rd',ice:1}});
-			cards[9].location({type:'ice',value:{central:'rd',ice:2}});
-			cards[10].location({type:'ice',value:{central:'rd',ice:3}});
-			cards[14].location({type:'heap'});
-			cards[15].location({type:'grip'});
+			cards['2'].location({type:'hq'});
+			cards['7'].location({type:'archives'});
+			cards['1'].location({type:'hq'});
+			cards['6'].location({type:'hq'});
+			cards['4'].location({type:'ice',value:{central:'hq',ice:2}});
+			cards['3'].location({type:'ice',value:{central:'hq',ice:1}});
+			cards['9'].location({type:'ice',value:{central:'rd',ice:1}});
+			cards['10'].location({type:'ice',value:{central:'rd',ice:2}});
+			cards['11'].location({type:'ice',value:{central:'rd',ice:3}});
+			cards['15'].location({type:'heap'});
+			cards['16'].location({type:'grip'});
 		},3000);
 	});
+	
+	function bindRemote(i){
+		Mousetrap.bind('r '+i,function(e){
+			focusAt(e,{type:'server',value:{remote:i-1}});
+		});
+	}
+	
+	function focusNext(e,dir){
+		e.preventDefault();
+		var f=$(":focus")
+		var card=f.prop("card");
+		if(card){
+			var n=card.next(dir);
+			if(n)
+				n.widget.focus();
+		}
+		else{
+			// le focus est peut-être sur un composant qui peut avoir des glaces
+			var id=f.attr("id");
+			if("hq"==id||"rd"==id||"archives"==id){
+				if("up"==dir)
+					focusAt(e,{type:'ice',value:{central:id,ice:1}});
+			}
+		}
+	}
+	
+	function focusAt(e,at){
+		e.preventDefault();		   	
+		var n=cardAt(at);
+		if(n)
+			n.widget.focus();		
+	}
 </script>
 </head>
 <body>	
@@ -136,13 +189,13 @@
 	</div>		
 	
 	<div class="main">	
-		<div id="rd" class="cardplace">R&amp;D (<span>0</span>)</div>
-		<div id="hq" class="cardplace">HQ (<span>0</span>)</div>
-		<div id="archives" class="cardplace">Archives (<span>0</span>)</div>	
+		<div id="rd" class="cardplace" tabindex="-1">R&amp;D (<span>0</span>)</div>
+		<div id="hq" class="cardplace" tabindex="-1">HQ (<span>0</span>)</div>
+		<div id="archives" class="cardplace" tabindex="-1">Archives (<span>0</span>)</div>	
 		
-		<div id="grip" class="cardplace">Grip(<span>0</span>)</div>
-		<div id="heap" class="cardplace">Heap (<span>0</span>)</div>
-		<div id="stack" class="cardplace">Stack (<span>0</span>)</div>	
+		<div id="grip" class="cardplace" tabindex="-1">Grip(<span>0</span>)</div>
+		<div id="heap" class="cardplace" tabindex="-1">Heap (<span>0</span>)</div>
+		<div id="stack" class="cardplace" tabindex="-1">Stack (<span>0</span>)</div>	
 		
 		<div id="preview"><img /></div>
 	</div>

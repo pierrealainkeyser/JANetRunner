@@ -10,6 +10,8 @@ var RUNNER_HEAP=0;
 
 
 var faction = 'corp';
+var cards={};
+
 var placeFunction = {
 	'hand' : function(v) {
 		var base = 30
@@ -18,7 +20,7 @@ var placeFunction = {
 		var ray = 600;
 		var spacing = 5;
 		var from = -10;
-		var angleDeg = from + (v.index * spacing);
+		var angleDeg = from + (v.hand * spacing);
 
 		// calcul de x
 		var x = bx - ray * Math.sin(angleDeg / 180 * Math.PI);
@@ -149,7 +151,8 @@ CardCounter.prototype.sync = function() {
 
 function createCard(def, parent) {
 	var c = new Card(def);
-	c.init(parent);
+	cards[def.id]=c;
+	c.init(parent);			
 	return c;
 }
 
@@ -167,19 +170,41 @@ function Card(def) {
 
 Card.prototype.init = function(parent) {
 	this.widget = $(
-			"<div class='card " + this.def.faction + "'><img src='"
+			"<div tabindex='-1' class='card " + this.def.faction + "'><img src='"
 					+ this.def.url + "'/></div>").appendTo(parent);
 	this.widget.prop("card", this);
 	this.widget.show();
 	var img = this.widget.find("img");
 	img.css("opacity", '0');
+	
+	//donne le focus quand on entre
+	this.widget.mouseenter(function(){
+		$(this).focus();				
+	});
+	this.widget.focus(function(){
+		var me=$(this);
+		var card=me.prop("card");
+		if(card.isPreviewable()){
+			var prev=$("#preview");
+			prev.find("img").attr("src",card.def.url);
+			prev.stop().show('slide');
+		}				
+	});						
+	this.widget.blur(function(){								
+		var prev=$("#preview");
+		prev.stop().hide('slide');
+	});
+	
+	//position de base
+	if(this.def.faction=='corp')
+		this.location({type:'rd'});
+	else if(this.def.faction=='runner')
+		this.location({type:'stack'});
 }
 
 Card.prototype.location = function(location) {
 
 	if (location) {
-		console.log(this.def.id + " old location " + JSON.stringify(this.loc));
-		console.log(this.def.id + " new location " + JSON.stringify(location));
 		if (this.local && (location.type == 'hq' || location.type == 'grip')) {
 			this.widget.css('rotateX', '0deg');
 			this.widget.css('rotateY', '0deg');
@@ -201,8 +226,8 @@ Card.prototype.location = function(location) {
 				var i = 0;
 				for ( var h in cc.cards) {
 					var c = cc.cards[h];
-					if (c.location.value.index != i) {
-						c.location.value.index = i;
+					if (c.location.value.hand != i) {
+						c.location.value.hand = i;
 						c.animate();
 					}
 					++i;
@@ -218,16 +243,16 @@ Card.prototype.location = function(location) {
 
 		cc = locationHandler[location.type];
 		if (cc) {
+			
+			if (this.local && (location.type == 'hq' || location.type == 'grip'))
+				location.type='hand';
+			
 			var nindex = cc.add(this);
-			if (location.type == 'hq' || location.type == 'grip') {
-				if (this.local) {
-					console.log("add to hand " + nindex);
-					location.value = {
-						index : nindex
-					};
-				} else
-					delete location.value;
-
+			if (location.type == 'hand') {
+				location.value = {
+					hand : nindex
+				};
+				console.log("add to hand " + JSON.stringify(location));		
 				this.widget.css("zIndex", nindex);
 			}
 		}
@@ -308,4 +333,65 @@ Card.prototype.hide = function() {
 				rotateX : '180deg'
 			});
 	}
+}
+
+Card.prototype.next = function(dir){
+	
+	var newloc;	
+	console.log('going '+dir+' from '+JSON.stringify(this.loc));
+	var t=this.loc.type;
+	var v=this.loc.value;
+	if('up'==dir){		
+		if('rd'==t || 'hq'==t || 'archives'==t)
+			newloc={type:'ice',value:{central:t,ice:1}};		
+		else if('server'==t)
+			newloc={type:'ice',value:{remote:v.remote,ice:1}};
+		else if('ice'==t){
+			newloc={type:'ice',value:{ice:v.ice+1}};
+			if(v.central)
+				newloc.value.central=v.central;
+			else if(v.remote)
+				newloc.value.remote=v.remote;
+		}
+	} else if ('down'==dir){
+		if('ice'==t){
+			if(v.ice>1){			
+				newloc={type:'ice',value:{ice:v.ice-1}};
+				if(v.central)
+					newloc.value.central=v.central;
+				else if(v.remote)
+					newloc.value.remote=v.remote;
+			}
+			else{
+				if(v.central != undefined)
+					newloc={type:v.central};
+				else if(v.remote != undefined)
+					newloc={type:'server',value:{remote:v.remote}};
+			}
+		}
+	} else if('right'==dir){
+		if('hand'==t)
+			newloc={type:'hand', value:{hand:v.hand-1}};
+			
+	} else if('left'==dir){		
+		if('hand'==t)
+			newloc={type:'hand', value:{hand:v.hand+1}};
+	}
+	return cardAt(newloc);
+	
+}
+
+function cardAt(newloc){
+	if(newloc){
+		console.log('searching for : '+JSON.stringify(newloc));
+		for(i in cards){
+			var c=cards[i];
+			if(_.isEqual(c.loc,newloc)){
+				console.log('found : '+c.def.id);
+				return c;
+			}
+		}
+		console.log('found nothing....');
+	}
+	return null;
 }
