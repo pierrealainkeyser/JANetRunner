@@ -195,11 +195,8 @@ Card.prototype.init = function(parent) {
 		prev.stop().hide('slide');
 	});
 	
-	//position de base
-	if(this.def.faction=='corp')
-		this.location({type:'rd'});
-	else if(this.def.faction=='runner')
-		this.location({type:'stack'});
+	//position de base	
+	this.location(this.def.location);
 }
 
 Card.prototype.location = function(location) {
@@ -233,12 +230,6 @@ Card.prototype.location = function(location) {
 					++i;
 				}
 			}
-		}
-
-		// on rend visible les cartes en main de la faction local
-		if (location.type == 'heap'
-				|| (this.local && (location.type == 'grip' || location.type == 'hq'))) {
-			this.show();
 		}
 
 		cc = locationHandler[location.type];

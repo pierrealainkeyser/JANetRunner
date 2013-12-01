@@ -11,6 +11,7 @@ public class AnrMain {
 		WebAppContext context = new WebAppContext();
 		context.setResourceBase("src/main/resources/WebContent");
 		context.setContextPath("/");
+		
 		s.setHandler(context);
 
 		s.start();

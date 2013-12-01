@@ -1,20 +1,31 @@
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" version="3.0">
-    
-    <servlet>
-    	<servlet-name>spring</servlet-name>
-    	<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-    	 <load-on-startup>1</load-on-startup>    
-    </servlet><servlet>
-        <servlet-name>ws</servlet-name>
-        <servlet-class>org.keyser.anr.web.AnrWebSocketServlet</servlet-class>
-    </servlet>    
-    <servlet-mapping>    
-    	<servlet-name>spring</servlet-name>
-    	<servlet-name>/**</servlet-name>
-    </servlet-mapping>
-    
-    <servlet-mapping>
-        <servlet-name>ws</servlet-name>
-        <url-pattern>/ws</url-pattern>
-    </servlet-mapping>
+
+	<listener>
+		<listener-class>
+			org.springframework.web.context.ContextLoaderListener
+		</listener-class>
+	</listener>
+	
+	
+
+	<servlet>
+		<servlet-name>ws</servlet-name>
+		<servlet-class>org.keyser.anr.web.AnrWebSocketServlet</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>spring</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>		
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>ws</servlet-name>
+		<url-pattern>/ws</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>spring</servlet-name>
+		<url-pattern>/*</url-pattern>
+	</servlet-mapping>
 </web-app>

@@ -2,37 +2,74 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<link href="css/bootstrap.css" rel="stylesheet">
-<link href="css/anr.css" rel="stylesheet">
+<link href="resources/css/bootstrap.css" rel="stylesheet">
+<link href="resources/css/anr.css" rel="stylesheet">
 
-<script type="text/javascript" src="js/jquery-2.0.3.min.js"></script>
-<script type="text/javascript" src="js/jquery.transit.min.js"></script>
-<script type="text/javascript" src="js/mousetrap.min.js"></script>
-<script type="text/javascript" src="js/lodash.min.js"></script>
-<script type="text/javascript" src="js/anr.js"></script>
+<script type="text/javascript" src="resources/js/jquery-2.0.3.min.js"></script>
+<script type="text/javascript" src="resources/js/jquery.transit.min.js"></script>
+<script type="text/javascript" src="resources/js/mousetrap.min.js"></script>
+<script type="text/javascript" src="resources/js/lodash.min.js"></script>
+
+<script type="text/javascript" src="resources/js/jquery.json-2.2.min.js"></script>
+<script type="text/javascript" src="resources/js/jquery.websocket-0.0.1.js"></script>
+
+<script type="text/javascript" src="resources/js/anr.js"></script>
 
 <script type="text/javascript">
-	$(function() {
-		var main = $('div.main');
+
+	var ws = $.websocket("ws://127.0.0.1:8082/ws", {
+		events: {
+			text:function(e) {			
+	            console.log("text ->"+JSON.stringify(e));
+	        },
+	        setup:function(e){	        	 
+	        	doSetup(e.data);
+	        }
+		}				
+	});
+	ws.onopen=function(){
+		ws.send('ready');	
+	};
+
+ 	function doSetup(setup){
+ 		
+ 		console.log("setup ->"+JSON.stringify(setup));
+ 		var main = $('div.main');
+		for(var k in setup.cards){
+			var c=createCard(setup.cards[k],main);					
+			
+			//demo d'affichage
+			c.widget.click(function() {
+				$(this).prop("card").toggle();
+			});		
+		}
+ 		
+ 		
+ 		//demo
+		/*
+		setTimeout(function(){
+			cards['8'].location({type:'server',value:{remote:0}});
+			cards['5'].location({type:'ice',value:{remote:0,ice:1}});			
+		},1500);
 		
-		var alls=[{id:'1',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03004.png',faction:'corp'},
-		        {id:'2',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/01057.png',faction:'corp'},
-		        {id:'3',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03016.png',faction:'corp'},
-		      	{id:'4',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03017.png',faction:'corp'},
-		      	{id:'5',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03020.png',faction:'corp'},
-		      	{id:'6',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03022.png',faction:'corp'},
-		      	{id:'7',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03023.png',faction:'corp'},
-		      	{id:'8',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03024.png',faction:'corp'},
-		      	{id:'9',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03026.png',faction:'corp'},
-		      	{id:'10',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/02060.png',faction:'corp'},
-		      	{id:'11',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/01061.png',faction:'corp'},
-		      	{id:'12',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03015.png',faction:'corp'},
-		      	{id:'13',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/02089.png',faction:'runner'},
-		      	{id:'14',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/02090.png',faction:'runner'},
-		      	{id:'15',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/02088.png',faction:'runner'},
-		      	{id:'16',url:'http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/01044.png',faction:'runner'}		      	
-		];
-		
+		setTimeout(function(){			
+			cards['2'].location({type:'hq'});
+			cards['7'].location({type:'archives'});
+			cards['1'].location({type:'hq'});
+			cards['6'].location({type:'hq'});
+			cards['4'].location({type:'ice',value:{central:'hq',ice:2}});
+			cards['3'].location({type:'ice',value:{central:'hq',ice:1}});
+			cards['9'].location({type:'ice',value:{central:'rd',ice:1}});
+			cards['10'].location({type:'ice',value:{central:'rd',ice:2}});
+			cards['11'].location({type:'ice',value:{central:'rd',ice:3}});
+			cards['15'].location({type:'heap'});
+			cards['16'].location({type:'grip'});
+		},3000);
+		*/
+ 	}
+	
+
+	$(function() {	
 		faction='corp';
 		locationHandler = {
 			'hq' : new CardCounter($("#hq").find("span")),
@@ -56,16 +93,6 @@
 		$("#stack").css(placeFunction['stack']());
 		$("#heap").css(placeFunction['heap']());
 	
-	
-		for(var k in alls){
-			var c=createCard(alls[k],main);					
-			
-			//demo d'affichage
-			c.widget.click(function() {
-				$(this).prop("card").toggle();
-			});		
-		}
-
 		$(".faction.corp").find("a").bind('click', function() {
 			var l = $(".faction.corp .expand")
 			l.animate({height : 'toggle'},150);
@@ -77,7 +104,7 @@
 		});
 	
 	
-		
+		//binding
 		Mousetrap.bind(['up','down','right','left'],function(e,c){
 			focusNext(e,c);
 		});		
@@ -112,26 +139,6 @@
 		Mousetrap.bind('h',function(e){
 			focusAt(e,{type:'hand',value:{hand:1}});
 		});
-		
-		//demo
-		setTimeout(function(){
-			cards['8'].location({type:'server',value:{remote:0}});
-			cards['5'].location({type:'ice',value:{remote:0,ice:1}});			
-		},1500);
-		
-		setTimeout(function(){			
-			cards['2'].location({type:'hq'});
-			cards['7'].location({type:'archives'});
-			cards['1'].location({type:'hq'});
-			cards['6'].location({type:'hq'});
-			cards['4'].location({type:'ice',value:{central:'hq',ice:2}});
-			cards['3'].location({type:'ice',value:{central:'hq',ice:1}});
-			cards['9'].location({type:'ice',value:{central:'rd',ice:1}});
-			cards['10'].location({type:'ice',value:{central:'rd',ice:2}});
-			cards['11'].location({type:'ice',value:{central:'rd',ice:3}});
-			cards['15'].location({type:'heap'});
-			cards['16'].location({type:'grip'});
-		},3000);
 	});
 	
 	function bindRemote(i){
@@ -167,37 +174,65 @@
 	}
 </script>
 </head>
-<body>	
+<body>
 	<div class="faction corp">
-		<p>				
+		<p>
 			<a href="#"><img src="http://netrunnerdb.com/web/bundles/netrunnerdbbuilder/images/factions/38px/weyland-consortium.png?v1.2.2" /></a>
-		</p>				
+		</p>
 		<div class="expand">
-			<p title="Clicks"><span><i class="sprite click"></i></span><span>1</span></p>
-			<p title="Credits"><span><i class="sprite credits"></i></span><span>6</span></p>
+			<p title="Clicks">
+				<span><i class="sprite click"></i></span><span>1</span>
+			</p>
+			<p title="Credits">
+				<span><i class="sprite credits"></i></span><span>6</span>
+			</p>
 		</div>
 	</div>
 
 	<div class="faction runner">
-		<p><a href="#"><img src="http://netrunnerdb.com/web/bundles/netrunnerdbbuilder/images/factions/38px/shaper.png?v1.2.2" /></a></p>
-		<div class="expand">				
-			<p title="Clicks"><span><i class="sprite click"></i></span><span>0</span></p> 
-			<p title="Credits"><span><i class="sprite credits"></i></span><span>11</span></p> 
-			<p title="Link"><span><i class="sprite link"></i></span><span>0</span></p> 
-			<p title="Memory unit"><span><i class="sprite memory_unit"></i></span><span>4</span></p>
+		<p>
+			<a href="#"><img src="http://netrunnerdb.com/web/bundles/netrunnerdbbuilder/images/factions/38px/shaper.png?v1.2.2" /></a>
+		</p>
+		<div class="expand">
+			<p title="Clicks">
+				<span><i class="sprite click"></i></span><span>0</span>
+			</p>
+			<p title="Credits">
+				<span><i class="sprite credits"></i></span><span>11</span>
+			</p>
+			<p title="Link">
+				<span><i class="sprite link"></i></span><span>0</span>
+			</p>
+			<p title="Memory unit">
+				<span><i class="sprite memory_unit"></i></span><span>4</span>
+			</p>
 		</div>
-	</div>		
-	
-	<div class="main">	
-		<div id="rd" class="cardplace" tabindex="-1">R&amp;D (<span>0</span>)</div>
-		<div id="hq" class="cardplace" tabindex="-1">HQ (<span>0</span>)</div>
-		<div id="archives" class="cardplace" tabindex="-1">Archives (<span>0</span>)</div>	
-		
-		<div id="grip" class="cardplace" tabindex="-1">Grip(<span>0</span>)</div>
-		<div id="heap" class="cardplace" tabindex="-1">Heap (<span>0</span>)</div>
-		<div id="stack" class="cardplace" tabindex="-1">Stack (<span>0</span>)</div>	
-		
-		<div id="preview"><img /></div>
+	</div>
+
+	<div class="main">
+		<div id="rd" class="cardplace" tabindex="-1">
+			R&amp;D (<span>0</span>)
+		</div>
+		<div id="hq" class="cardplace" tabindex="-1">
+			HQ (<span>0</span>)
+		</div>
+		<div id="archives" class="cardplace" tabindex="-1">
+			Archives (<span>0</span>)
+		</div>
+
+		<div id="grip" class="cardplace" tabindex="-1">
+			Grip(<span>0</span>)
+		</div>
+		<div id="heap" class="cardplace" tabindex="-1">
+			Heap (<span>0</span>)
+		</div>
+		<div id="stack" class="cardplace" tabindex="-1">
+			Stack (<span>0</span>)
+		</div>
+
+		<div id="preview">
+			<img />
+		</div>
 	</div>
 
 </body>
