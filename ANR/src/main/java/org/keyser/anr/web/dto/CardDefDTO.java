@@ -14,18 +14,13 @@ public class CardDefDTO {
 
 	private String url;
 
-	private LocationDTO location;
-
-	public CardDefDTO(String id, String url, String faction, LocationDTO location) {
+	public CardDefDTO(String id, String url, String faction) {
 		this.id = id;
 		this.url = url;
 		this.faction = faction;
-		this.location = location;
 	}
 
-	public LocationDTO getLocation() {
-		return location;
-	}
+
 
 	public String getFaction() {
 		return faction;
@@ -37,5 +32,10 @@ public class CardDefDTO {
 
 	public String getUrl() {
 		return url;
+	}
+
+	@Override
+	public String toString() {
+		return "CardDefDTO [faction=" + faction + ", id=" + id + ", url=" + url + "]";
 	}
 }

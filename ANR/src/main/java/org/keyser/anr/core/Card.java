@@ -20,10 +20,20 @@ public abstract class Card extends AbstractGameContent {
 
 	private int id;
 
+	private CardLocation location;
+
 	public Card(Influence influence, Cost cost) {
 		super();
 		this.influence = influence;
 		this.cost = cost;
+	}
+
+	public CardLocation getLocation() {
+		return location;
+	}
+
+	public void setLocation(CardLocation location) {
+		this.location = location;
 	}
 
 	protected Card addAction(PaidAbility paidAbility) {

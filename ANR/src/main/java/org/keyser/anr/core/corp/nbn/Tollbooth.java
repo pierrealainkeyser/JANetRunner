@@ -5,6 +5,7 @@ import static org.keyser.anr.core.EventMatcher.match;
 import static org.keyser.anr.core.Faction.NBN;
 import static org.keyser.anr.core.corp.routines.EndTheRun.endTheRun;
 
+import org.keyser.anr.core.CardDef;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.Run.IceIsEncounterEvent;
@@ -12,6 +13,7 @@ import org.keyser.anr.core.Wallet;
 import org.keyser.anr.core.corp.Ice;
 import org.keyser.anr.core.corp.IceType;
 
+@CardDef(name = "Tollbooth", oid = "01090")
 public class Tollbooth extends Ice {
 
 	public Tollbooth() {

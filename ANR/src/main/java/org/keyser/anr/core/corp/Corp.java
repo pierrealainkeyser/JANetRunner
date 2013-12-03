@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.keyser.anr.core.AbstractAbility;
+import org.keyser.anr.core.CardLocation;
 import org.keyser.anr.core.CoreAbility;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Event;
@@ -98,7 +99,7 @@ public class Corp extends PlayableUnit {
 	}
 
 	/**
-	 * L'évenement la corp à pris un credit
+	 * L'ï¿½venement la corp ï¿½ pris un credit
 	 * 
 	 * @author PAF
 	 * 
@@ -107,7 +108,7 @@ public class Corp extends PlayableUnit {
 
 	}
 
-	private CorpArchiveServer archive = new CorpArchiveServer(this);
+	private CorpArchivesServer archive = new CorpArchivesServer(this);
 
 	private int badPub = 0;
 
@@ -140,17 +141,19 @@ public class Corp extends PlayableUnit {
 		if (card.isPresent()) {
 			CorpCard c = card.get();
 			getHq().getCards().add(c);
+			
+			c.setLocation(CardLocation.HQ);
 
 			game.notification(new Notification("corp-draw").m("card", c));
 			game.apply(new CorpCardDraw(c), next);
 		} else {
-			// fin de la partie corp à perdu
+			// fin de la partie corp ï¿½ perdu
 			game.setResult(WinCondition.CORP_BUST);
 		}
 
 	}
 
-	public CorpArchiveServer getArchive() {
+	public CorpArchivesServer getArchive() {
 		return archive;
 	}
 
@@ -180,7 +183,7 @@ public class Corp extends PlayableUnit {
 		remotes.remove(crs.getId());
 	}
 
-	public void setArchive(CorpArchiveServer archive) {
+	public void setArchive(CorpArchivesServer archive) {
 		this.archive = archive;
 	}
 

@@ -5,7 +5,7 @@ import static java.util.Collections.singletonList;
 
 import java.util.List;
 
-public final class CorpRemoteServer extends CorpoServer {
+public final class CorpRemoteServer extends CorpServer {
 
 	private Asset asset;
 

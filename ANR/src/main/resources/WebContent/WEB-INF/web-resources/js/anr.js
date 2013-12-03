@@ -149,10 +149,10 @@ CardCounter.prototype.sync = function() {
 	this.widget.text("" + len);
 }
 
-function createCard(def, parent) {
-	var c = new Card(def);
-	cards[def.id]=c;
-	c.init(parent);			
+function createCard(card, parent) {
+	var c = new Card(card.def);
+	cards[card.def.id]=c;
+	c.init(parent, card.location);			
 	return c;
 }
 
@@ -168,7 +168,7 @@ function Card(def) {
 	this.rezzed = false;
 }
 
-Card.prototype.init = function(parent) {
+Card.prototype.init = function(parent,location) {
 	this.widget = $(
 			"<div tabindex='-1' class='card " + this.def.faction + "'><img src='"
 					+ this.def.url + "'/></div>").appendTo(parent);
@@ -196,7 +196,7 @@ Card.prototype.init = function(parent) {
 	});
 	
 	//position de base	
-	this.location(this.def.location);
+	this.location(location);
 }
 
 Card.prototype.location = function(location) {

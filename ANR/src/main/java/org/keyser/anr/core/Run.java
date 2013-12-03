@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.keyser.anr.core.Game.PingPong;
-import org.keyser.anr.core.corp.CorpoServer;
+import org.keyser.anr.core.corp.CorpServer;
 import org.keyser.anr.core.corp.Ice;
 import org.keyser.anr.core.corp.Routine;
 
@@ -44,7 +44,7 @@ public class Run extends AbstractGameContent implements Flow {
 	}
 
 	/**
-	 * L'état de la glace
+	 * L'ï¿½tat de la glace
 	 * 
 	 * @author PAF
 	 * 
@@ -93,7 +93,7 @@ public class Run extends AbstractGameContent implements Flow {
 	}
 
 	/**
-	 * La glace est rencontré
+	 * La glace est rencontrï¿½
 	 * 
 	 * @author PAF
 	 * 
@@ -102,7 +102,7 @@ public class Run extends AbstractGameContent implements Flow {
 	}
 
 	/**
-	 * La glace est passée
+	 * La glace est passï¿½e
 	 * 
 	 * @author PAF
 	 * 
@@ -157,9 +157,9 @@ public class Run extends AbstractGameContent implements Flow {
 
 	private RunOption option;
 
-	private CorpoServer target;
+	private CorpServer target;
 
-	public Run(CorpoServer target, FlowControler flow) {
+	public Run(CorpServer target, FlowControler flow) {
 		this.flow = flow;
 		this.target = target;
 		this.heigth = target.getIces().size();
@@ -264,7 +264,7 @@ public class Run extends AbstractGameContent implements Flow {
 	 */
 	private void checkEncountedIce() {
 
-		// peut être passé avec des effets genre femme fatale
+		// peut ï¿½tre passï¿½ avec des effets genre femme fatale
 		if (ice.isBypassed())
 			apply(new IceIsPassedEvent(), this::toNextIce);
 		else {
@@ -284,7 +284,7 @@ public class Run extends AbstractGameContent implements Flow {
 	}
 
 	/**
-	 * Vérification des routines
+	 * Vï¿½rification des routines
 	 * 
 	 * @author PAF
 	 * 
@@ -342,7 +342,7 @@ public class Run extends AbstractGameContent implements Flow {
 	}
 
 	/**
-	 * Le run à échoué
+	 * Le run ï¿½ ï¿½chouï¿½
 	 */
 	private void failTheRun() {
 		// fin du run
@@ -390,7 +390,7 @@ public class Run extends AbstractGameContent implements Flow {
 			activateIce();
 		} else {
 
-			// on approche de la glace le runner peut débrancher
+			// on approche de la glace le runner peut dï¿½brancher
 			apply(new JackOffBeforeIceEvent(), (j) -> jackOffDecision(j, this::activateIce));
 		}
 	}
@@ -417,13 +417,13 @@ public class Run extends AbstractGameContent implements Flow {
 	 * Phase 4.2
 	 */
 	private void jackOffOrApprocheServer() {
-		// on approche de la glace le runner peut débrancher
+		// on approche de la glace le runner peut dï¿½brancher
 		apply(new JackOffBeforeServerEvent(), (j) -> jackOffDecision(j, this::afterNotJackingOffOnServer));
 
 	}
 
 	/**
-	 * Permet de se débrancher
+	 * Permet de se dï¿½brancher
 	 */
 	public void jackout() {
 		this.condition = RunCondition.JACKED_OUT;

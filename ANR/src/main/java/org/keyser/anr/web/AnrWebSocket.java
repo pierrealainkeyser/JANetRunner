@@ -1,19 +1,33 @@
 package org.keyser.anr.web;
 
 import java.io.IOException;
+import java.util.function.Function;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
-import org.keyser.anr.web.dto.CardDefDTO;
-import org.keyser.anr.web.dto.LocationDTO;
-import org.keyser.anr.web.dto.SetupDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AnrWebSocket extends WebSocketAdapter {
+public class AnrWebSocket extends WebSocketAdapter implements GameOutput {
 
-	private final static Logger log = LoggerFactory.getLogger(AnrWebSocket.class);
+	public static class GameLookup {
+		private String game;
+
+		public String getGame() {
+			return game;
+		}
+
+		public void setGame(String game) {
+			this.game = game;
+		}
+
+		@Override
+		public String toString() {
+			return "GameLookup [game=" + game + "]";
+		}
+
+	}
 
 	public static class MessageDTO {
 
@@ -37,12 +51,23 @@ public class AnrWebSocket extends WebSocketAdapter {
 			return type;
 		}
 
+		@Override
+		public String toString() {
+			return "MessageDTO [data=" + data + ", type=" + type + "]";
+		}
 	}
+
+	private final static Logger log = LoggerFactory.getLogger(AnrWebSocket.class);
+
+	private GameGateway gateway;
+
+	private final Function<String, GameGateway> gateways;
 
 	private final ObjectMapper mapper;
 
-	public AnrWebSocket(ObjectMapper mapper) {
+	public AnrWebSocket(ObjectMapper mapper, Function<String, GameGateway> gateways) {
 		this.mapper = mapper;
+		this.gateways = gateways;
 	}
 
 	@Override
@@ -60,17 +85,15 @@ public class AnrWebSocket extends WebSocketAdapter {
 			MessageDTO dto = mapper.reader(MessageDTO.class).readValue(message);
 			Object content = dto.getData();
 
-			if ("ready".equals(dto.getType())) {
-				SetupDTO s = new SetupDTO();
-				s.addCard(new CardDefDTO("1", "http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/03004.png", "corp",LocationDTO.rd));
-				s.addCard(new CardDefDTO("2", "http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/01057.png", "corp",LocationDTO.rd));
-				s.addCard(new CardDefDTO("3", "http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/01058.png", "corp",LocationDTO.archives));
-				s.addCard(new CardDefDTO("16", "http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/01044.png", "runner",LocationDTO.stack));
+			if (GameGateway.READY.equals(dto.getType())) {
 
-				send("setup", s);
+				GameLookup gl = mapper.convertValue(content, GameLookup.class);
+				gateway = gateways.apply(gl.getGame());
+
+				gateway.accept(this, GameGateway.READY);
 			} else {
 
-				//on renvoi dans l'autre sens
+				// on renvoi dans l'autre sens
 				send("text", content);
 			}
 
@@ -80,11 +103,13 @@ public class AnrWebSocket extends WebSocketAdapter {
 
 	}
 
-	/**
-	 * Permet d'envoyer un message
-	 * @param type
-	 * @param content
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.keyser.anr.web.GameOutput#send(java.lang.String,
+	 * java.lang.Object)
 	 */
+	@Override
 	public void send(String type, Object content) {
 		try {
 			log.debug("send({}) : {}", type, content);

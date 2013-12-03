@@ -3,9 +3,9 @@ package org.keyser.anr.core.corp;
 import java.util.List;
 
 
-public final class CorpArchiveServer extends CorpCentralServer {
+public final class CorpArchivesServer extends CorpCentralServer {
 
-	public CorpArchiveServer(Corp corpo) {
+	public CorpArchivesServer(Corp corpo) {
 		super(corpo);
 	}
 	

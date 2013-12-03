@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-public abstract class CorpoServer {
+public abstract class CorpServer {
 
 	private final Corp corpo;
 
@@ -12,7 +12,7 @@ public abstract class CorpoServer {
 
 	private final Stack<Ice> ices = new Stack<>();
 
-	public CorpoServer(Corp corpo) {
+	public CorpServer(Corp corpo) {
 		this.corpo = corpo;
 	}
 

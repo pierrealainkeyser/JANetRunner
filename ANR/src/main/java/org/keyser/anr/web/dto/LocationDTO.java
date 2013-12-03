@@ -20,6 +20,13 @@ public class LocationDTO {
 		public int getRemote() {
 			return remote;
 		}
+
+		@Override
+		public String toString() {
+			return "IceLocationDTO [central=" + central + ", ice=" + ice + ", remote=" + remote + "]";
+		}
+		
+		
 	}
 
 	public static final LocationDTO archives = new LocationDTO("archives");
@@ -29,19 +36,6 @@ public class LocationDTO {
 	public static final LocationDTO rd = new LocationDTO("rd");
 
 	public static final LocationDTO stack = new LocationDTO("stack");
-
-	/**
-	 * Permet d'avoir un serveur remote
-	 * 
-	 * @param remote
-	 * @return
-	 */
-	public static LocationDTO remote(int remote) {
-		LocationDTO l = new LocationDTO("server");
-		l.value = new IceLocationDTO();
-		l.value.remote = remote;
-		return l;
-	}
 
 	/**
 	 * Place une glace sur un server
@@ -61,6 +55,19 @@ public class LocationDTO {
 		return l;
 	}
 
+	/**
+	 * Permet d'avoir un serveur remote
+	 * 
+	 * @param remote
+	 * @return
+	 */
+	public static LocationDTO remote(int remote) {
+		LocationDTO l = new LocationDTO("server");
+		l.value = new IceLocationDTO();
+		l.value.remote = remote;
+		return l;
+	}
+
 	private String type;
 
 	private IceLocationDTO value;
@@ -75,6 +82,11 @@ public class LocationDTO {
 
 	public IceLocationDTO getValue() {
 		return value;
+	}
+
+	@Override
+	public String toString() {
+		return "LocationDTO [type=" + type + ", value=" + value + "]";
 	}
 
 }

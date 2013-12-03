@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 
 import org.keyser.anr.core.corp.Corp;
 import org.keyser.anr.core.corp.CorpCard;
-import org.keyser.anr.core.corp.CorpoServer;
+import org.keyser.anr.core.corp.CorpServer;
 import org.keyser.anr.core.runner.Runner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,14 +120,14 @@ public class Game implements Notifier, ConfigurableEventListener {
 			if (p == null || (p instanceof CoreAbility)) {
 				done.put(current.getPlayer(), true);
 
-				// si tout le monde à confirmer
+				// si tout le monde ï¿½ confirmer
 				if (done.values().stream().allMatch(b -> b)) {
 					next.apply();
 				} else
 					toNextPlayer.apply();
 
 			} else {
-				// on remet le compteur à zero
+				// on remet le compteur ï¿½ zero
 				init();
 				replay.apply();
 			}
@@ -244,7 +244,7 @@ public class Game implements Notifier, ConfigurableEventListener {
 	public <T extends Event> void apply(T event, Flow flow) {
 		event.setGame(this);
 
-		// on fait la vérification du flow
+		// on fait la vï¿½rification du flow
 		delegated.apply(event, () -> {
 			if (isEnded())
 				end.apply();
@@ -280,7 +280,7 @@ public class Game implements Notifier, ConfigurableEventListener {
 	}
 
 	/**
-	 * Le callback quand la corp défausse
+	 * Le callback quand la corp dï¿½fausse
 	 * 
 	 * @param discarded
 	 */
@@ -395,7 +395,7 @@ public class Game implements Notifier, ConfigurableEventListener {
 	}
 
 	/**
-	 * Permet de créer un échange
+	 * Permet de crï¿½er un ï¿½change
 	 * 
 	 * @param next
 	 * @return
@@ -409,7 +409,7 @@ public class Game implements Notifier, ConfigurableEventListener {
 	}
 
 	/**
-	 * Le callback quand le runner défausse
+	 * Le callback quand le runner dï¿½fausse
 	 * 
 	 * @param discarded
 	 */
@@ -502,12 +502,12 @@ public class Game implements Notifier, ConfigurableEventListener {
 	}
 
 	/**
-	 * Création d'un run
+	 * Crï¿½ation d'un run
 	 * 
 	 * @param target
 	 * @param next
 	 */
-	public void startRun(CorpoServer target, Flow next) {
+	public void startRun(CorpServer target, Flow next) {
 		setStep(GameStep.RUNNING);
 		run = new Run(target, new FlowControler(this, () -> {
 			
