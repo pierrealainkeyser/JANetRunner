@@ -12,11 +12,21 @@ var RUNNER_HEAP=0;
 var faction = 'corp';
 var cards={};
 
+//gestion des bordures
+var mainInsets={
+	left:function(){return 20;},
+	right:function(){return $('div#main').width()-160;},
+	top:function(){return 65;},
+	bottom:function(){return $('div#main').height()-210;}	
+}
+
 var placeFunction = {
 	'hand' : function(v) {
 		var base = 30
-		var bx = 1050;
-		var by = 1280;
+		
+		var bx = mainInsets.right();
+		var by =  mainInsets.bottom()+400;
+				
 		var ray = 600;
 		var spacing = 5;
 		var from = -10;
@@ -51,8 +61,8 @@ var placeFunction = {
 		});
 	},
 	'server' : function(v) {
-		var bx = 20;
-		var by = 638;
+		var bx = mainInsets.left();
+		var by =  mainInsets.bottom();
 		var hspacing = 122;
 		var index=v.index;
 		if(v.remote != undefined)
@@ -84,8 +94,8 @@ var placeFunction = {
 		});
 	},
 	'runner' : function(v) {
-		var bx = 1100;
-		var by = 40;
+		var bx = mainInsets.right();
+		var by =  mainInsets.top();
 		var hspacing = 102;
 		var x = bx - (v.index * hspacing);
 
@@ -95,9 +105,9 @@ var placeFunction = {
 			rotate : 0
 		};
 	},
-	'ice' : function(v) {
-		var bx = 20;
-		var by = 615;
+	'ice' : function(v) {		
+		var bx = mainInsets.left();
+		var by =  mainInsets.bottom()-23;
 		var hspacing = 122;
 		var vspacing = 85;
 		

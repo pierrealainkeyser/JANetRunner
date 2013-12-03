@@ -34,7 +34,7 @@
  	function doSetup(setup){
  		
  		console.log("setup ->"+JSON.stringify(setup));
- 		var main = $('div.main');
+ 		var main = $('div#main');
 		for(var k in setup.cards){
 			var c=createCard(setup.cards[k],main);					
 			
@@ -209,7 +209,7 @@
 		</div>
 	</div>
 
-	<div class="main">
+	<div id="main">
 		<div id="rd" class="cardplace" tabindex="-1">
 			R&amp;D (<span>0</span>)
 		</div>

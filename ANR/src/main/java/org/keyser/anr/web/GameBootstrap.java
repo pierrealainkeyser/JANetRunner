@@ -3,6 +3,7 @@ package org.keyser.anr.web;
 import java.util.function.Function;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.keyser.anr.core.CardLocationIce;
 import org.keyser.anr.core.Game;
 import org.keyser.anr.core.corp.Corp;
 import org.keyser.anr.core.corp.nbn.DataRaven;
@@ -34,8 +35,10 @@ public class GameBootstrap implements FactoryBean<Function<String, GameGateway>>
 		Corp c = g.getCorp();
 		c.getRd().add(new Tollbooth());
 		c.getRd().add(new DataRaven());
-		c.getRd().add(new MatrixAnalyser());
-		
+		MatrixAnalyser ma = new MatrixAnalyser();
+		c.getRd().add(ma);
+
+		ma.setLocation(new CardLocationIce(c.getArchive(), 1));
 
 		return (s) -> new GameAsDTOGateway(g.setup(), builder, mapper);
 	}

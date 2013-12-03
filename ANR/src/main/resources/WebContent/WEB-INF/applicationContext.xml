@@ -5,7 +5,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-	<bean id="jacksonMapper" class="org.codehaus.jackson.map.ObjectMapper" />
+	<bean id="jacksonMapper" class="org.keyser.anr.web.ObjectMapperFactoryBean" />
 	<bean id="dtoBuilder" class="org.keyser.anr.web.DTOBuilder"
 		p:urlFormat="http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/{0}.png" />
 

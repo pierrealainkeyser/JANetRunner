@@ -7,7 +7,7 @@ public class LocationDTO {
 
 		private int ice;
 
-		private int remote;
+		private Integer remote;
 
 		public String getCentral() {
 			return central;
@@ -17,7 +17,7 @@ public class LocationDTO {
 			return ice;
 		}
 
-		public int getRemote() {
+		public Integer getRemote() {
 			return remote;
 		}
 
