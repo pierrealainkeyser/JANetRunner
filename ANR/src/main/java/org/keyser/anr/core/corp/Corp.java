@@ -130,6 +130,10 @@ public class Corp extends PlayableUnit {
 		a.add(new ClickForPurge());
 	}
 
+	public void addToRD(CorpCard c) {
+		rd.add(c);
+	}
+
 	/**
 	 * Pioche une carte
 	 * 
@@ -141,7 +145,7 @@ public class Corp extends PlayableUnit {
 		if (card.isPresent()) {
 			CorpCard c = card.get();
 			getHq().getCards().add(c);
-			
+
 			c.setLocation(CardLocation.HQ);
 
 			game.notification(new Notification("corp-draw").m("card", c));

@@ -87,6 +87,7 @@ public class AnrWebSocket extends WebSocketAdapter implements GameOutput {
 
 			if (GameGateway.READY.equals(dto.getType())) {
 
+				// recherche des l'objet qui va bien
 				GameLookup gl = mapper.convertValue(content, GameLookup.class);
 				gateway = gateways.apply(gl.getGame());
 

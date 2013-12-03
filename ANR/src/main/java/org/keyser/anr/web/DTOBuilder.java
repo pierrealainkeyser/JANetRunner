@@ -39,6 +39,12 @@ public class DTOBuilder {
 		corp.getHand().stream().forEach(add);
 		corp.getDiscard().stream().forEach(add);
 		corp.getStack().stream().forEach(add);
+		
+		
+		//rajout le DTO de la corp
+		g.addCard(new CardDTO().setDef(new CardDefDTO("corp",  getURL(corp), "corp")).setLocation(LocationDTO.hq_id).setVisible(true));
+		
+		
 
 		return g;
 	}
@@ -90,9 +96,14 @@ public class DTOBuilder {
 			faction = "runner";
 
 		// permet de gerer le format des cards en prenant une URL avec une oid
-		CardDef cd = c.getClass().getAnnotation(CardDef.class);
-		String url = MessageFormat.format(urlFormat, cd.oid());
+		String url = getURL(c);
 
 		return new CardDefDTO("" + c.getId(), url, faction);
+	}
+
+	private String getURL(Object c) {
+		CardDef cd = c.getClass().getAnnotation(CardDef.class);
+		String url = MessageFormat.format(urlFormat, cd.oid());
+		return url;
 	}
 }

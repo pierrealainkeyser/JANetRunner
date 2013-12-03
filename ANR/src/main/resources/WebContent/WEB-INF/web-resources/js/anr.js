@@ -21,11 +21,10 @@ var mainInsets={
 }
 
 var placeFunction = {
-	'hand' : function(v) {
-		var base = 30
+	hand : function(v) {
 		
-		var bx = mainInsets.right();
-		var by =  mainInsets.bottom()+400;
+		var bx = mainInsets.right()-15;
+		var by =  mainInsets.bottom()+625;
 				
 		var ray = 600;
 		var spacing = 5;
@@ -42,25 +41,28 @@ var placeFunction = {
 			rotate : -angleDeg
 		};
 	},
-	'hq' : function(v) {
+	hq_id : function(v){
+		return placeFunction.hq();
+	},
+	hq : function(v) {
 		if (v) {
-			return placeFunction['hand'](v);
+			return placeFunction.hand(v);
 		} else
-			return placeFunction['server']({
+			return placeFunction.server({
 				index : HQ_SERVER
 			});
 	},
-	'rd' : function(v) {
-		return placeFunction['server']({
+	rd : function(v) {
+		return placeFunction.server({
 			index : RD_SERVER
 		});
 	},
-	'archives' : function(v) {
-		return placeFunction['server']({
+	archives : function(v) {
+		return placeFunction.server({
 			index : ARCHIVES_SERVER
 		});
 	},
-	'server' : function(v) {
+	server : function(v) {
 		var bx = mainInsets.left();
 		var by =  mainInsets.bottom();
 		var hspacing = 122;
@@ -75,25 +77,25 @@ var placeFunction = {
 			rotate : 0
 		};
 	},
-	'grip' : function(v) {
+	grip : function(v) {
 		if (v) {
-			return placeFunction['hand'](v);
+			return placeFunction.hand(v);
 		} else
-			return placeFunction['runner']({
+			return placeFunction.runner({
 				index : RUNNER_GRIP
 			});
 	},
-	'stack' : function() {
-		return placeFunction['runner']({
+	stack : function() {
+		return placeFunction.runner({
 			index : RUNNER_STACK
 		});
 	},
-	'heap' : function() {
-		return placeFunction['runner']({
+	heap : function() {
+		return placeFunction.runner({
 			index : RUNNER_HEAP
 		});
 	},
-	'runner' : function(v) {
+	runner : function(v) {
 		var bx = mainInsets.right();
 		var by =  mainInsets.top();
 		var hspacing = 102;
@@ -105,7 +107,7 @@ var placeFunction = {
 			rotate : 0
 		};
 	},
-	'ice' : function(v) {		
+	ice : function(v) {		
 		var bx = mainInsets.left();
 		var by =  mainInsets.bottom()-23;
 		var hspacing = 122;
@@ -129,7 +131,7 @@ var placeFunction = {
 			rotate : 90
 		};
 	},
-	'none' : function() {
+	none : function() {
 		return {
 			x : 0,
 			y : 0,
@@ -162,7 +164,7 @@ CardCounter.prototype.sync = function() {
 function createCard(card, parent) {
 	var c = new Card(card.def);
 	cards[card.def.id]=c;
-	c.init(parent, card.location);			
+	c.init(parent, card.location,card.visible);			
 	return c;
 }
 
@@ -178,7 +180,7 @@ function Card(def) {
 	this.rezzed = false;
 }
 
-Card.prototype.init = function(parent,location) {
+Card.prototype.init = function(parent,location,rezzed) {
 	this.widget = $(
 			"<div tabindex='-1' class='card " + this.def.faction + "'><img src='"
 					+ this.def.url + "'/></div>").appendTo(parent);
@@ -207,6 +209,11 @@ Card.prototype.init = function(parent,location) {
 	
 	//position de base	
 	this.location(location);
+	
+	//visible ou non
+	if(rezzed==true)
+		this.rezz(true);
+	
 }
 
 Card.prototype.location = function(location) {

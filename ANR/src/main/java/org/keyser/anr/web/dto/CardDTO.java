@@ -8,6 +8,17 @@ public class CardDTO {
 
 	private LocationDTO location;
 
+	private Boolean visible;
+
+	public Boolean getVisible() {
+		return visible;
+	}
+
+	public CardDTO setVisible(Boolean visible) {
+		this.visible = visible;
+		return this;
+	}
+
 	public CardDefDTO getDef() {
 		return def;
 	}
@@ -38,6 +49,7 @@ public class CardDTO {
 
 	@Override
 	public String toString() {
-		return "CardDTO [id=" + id + ", def=" + def + ", location=" + location + "]";
+		return "CardDTO [def=" + def + ", id=" + id + ", location=" + location + ", visible=" + visible + "]";
 	}
+
 }

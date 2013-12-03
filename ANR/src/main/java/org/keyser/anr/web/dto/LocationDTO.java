@@ -32,8 +32,9 @@ public class LocationDTO {
 	public static final LocationDTO archives = new LocationDTO("archives");
 	public static final LocationDTO grip = new LocationDTO("grip");
 	public static final LocationDTO heap = new LocationDTO("heap");
-	public static final LocationDTO hq = new LocationDTO("hq");
+	public static final LocationDTO hq = new LocationDTO("hq");	
 	public static final LocationDTO rd = new LocationDTO("rd");
+	public static final LocationDTO hq_id = new LocationDTO("hq_id");
 
 	public static final LocationDTO stack = new LocationDTO("stack");
 

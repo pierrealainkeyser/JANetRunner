@@ -7,6 +7,7 @@ import org.keyser.anr.core.CardLocationIce;
 import org.keyser.anr.core.Game;
 import org.keyser.anr.core.corp.Corp;
 import org.keyser.anr.core.corp.nbn.DataRaven;
+import org.keyser.anr.core.corp.nbn.MakingNews;
 import org.keyser.anr.core.corp.nbn.MatrixAnalyser;
 import org.keyser.anr.core.corp.nbn.Tollbooth;
 import org.keyser.anr.core.runner.Runner;
@@ -29,7 +30,7 @@ public class GameBootstrap implements FactoryBean<Function<String, GameGateway>>
 	@Override
 	public Function<String, GameGateway> getObject() throws Exception {
 
-		Game g = new Game(new Runner(), new Corp(), () -> {
+		Game g = new Game(new Runner(), new MakingNews(), () -> {
 		});
 
 		Corp c = g.getCorp();
