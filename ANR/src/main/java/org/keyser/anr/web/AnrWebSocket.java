@@ -6,28 +6,12 @@ import java.util.function.Function;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
+import org.keyser.anr.web.dto.GameLookupDTO;
+import org.keyser.anr.web.dto.ResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AnrWebSocket extends WebSocketAdapter implements GameOutput {
-
-	public static class GameLookup {
-		private String game;
-
-		public String getGame() {
-			return game;
-		}
-
-		public void setGame(String game) {
-			this.game = game;
-		}
-
-		@Override
-		public String toString() {
-			return "GameLookup [game=" + game + "]";
-		}
-
-	}
 
 	public static class MessageDTO {
 
@@ -85,16 +69,22 @@ public class AnrWebSocket extends WebSocketAdapter implements GameOutput {
 			MessageDTO dto = mapper.reader(MessageDTO.class).readValue(message);
 			Object content = dto.getData();
 
-			if (GameGateway.READY.equals(dto.getType())) {
+			String type = dto.getType();
+			if (GameGateway.READY.equals(type)) {
 
 				// recherche des l'objet qui va bien
-				GameLookup gl = mapper.convertValue(content, GameLookup.class);
+				GameLookupDTO gl = mapper.convertValue(content, GameLookupDTO.class);
+
+				// TODO il faudrait s'enregistré dans la passerelle
 				gateway = gateways.apply(gl.getGame());
 
 				gateway.accept(this, GameGateway.READY);
-			} else {
+			} else if (GameGateway.RESPONSE.equals(type)) {
 
-				// on renvoi dans l'autre sens
+				ResponseDTO res = mapper.convertValue(content, ResponseDTO.class);
+				gateway.accept(this, res);
+			} else {
+				// on renvoi dans l'autre sens, pour l'instant
 				send("text", content);
 			}
 
@@ -116,7 +106,8 @@ public class AnrWebSocket extends WebSocketAdapter implements GameOutput {
 			log.debug("send({}) : {}", type, content);
 			getRemote().sendString(mapper.writeValueAsString(new MessageDTO(type, content)));
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			// TODO il ne faut pas bloquer l'erreur.... mais il faudrait la
+			// consigner.... au moins pour le debug
 		}
 	}
 

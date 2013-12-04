@@ -86,18 +86,6 @@ public class Game implements Notifier, ConfigurableEventListener {
 	public class GameStartedEvent extends AbstractTurnEvent {
 	}
 
-	public enum GameStep {
-		CORP_ACT, CORP_DISCARD, CORP_DRAW, RUNNER_ACT, RUNNER_DISCARD, RUNNING;
-
-		public boolean mayRezzIce() {
-			return RUNNING == this;
-		}
-
-		public boolean mayScoreAgenda() {
-			return CORP_DRAW == this || CORP_ACT == this;
-		}
-	}
-
 	/**
 	 * Permet de gerer les agenda
 	 * 
@@ -115,26 +103,36 @@ public class Game implements Notifier, ConfigurableEventListener {
 			init();
 		}
 
-		private void checkAction(AbstractAbility p, PlayableUnit current, Flow replay, Flow toNextPlayer) {
-			// si pas d'action on zappe
-			if (p == null || (p instanceof CoreAbility)) {
+		/**
+		 * Peremet de verifier ce qu'il faut faire quand une ability à été joué
+		 * 
+		 * @param triggered
+		 * @param current
+		 * @param replay
+		 *            le meme joueur garde la priorite
+		 * @param toNextPlayer
+		 *            passse au joueur suivant
+		 */
+		private void checkAction(AbstractAbility triggered, PlayableUnit current, Flow replay, Flow toNextPlayer) {
+			// si pas d'action on zappe, ou si action de base
+			if (triggered == null || (triggered instanceof CoreAbility)) {
 				done.put(current.getPlayer(), true);
 
-				// si tout le monde � confirmer
+				// si tout le monde a confirmé
 				if (done.values().stream().allMatch(b -> b)) {
 					next.apply();
 				} else
 					toNextPlayer.apply();
 
 			} else {
-				// on remet le compteur � zero
+				// on remet le compteur à zero
 				init();
 				replay.apply();
 			}
 		}
 
 		public void corp() {
-			trigger(corp, p -> checkAction(p, corp, this::corp, this::runner));
+			trigger(corp, triggered -> checkAction(triggered, corp, this::corp, this::runner));
 		}
 
 		private void init() {
@@ -143,16 +141,16 @@ public class Game implements Notifier, ConfigurableEventListener {
 		}
 
 		public void runner() {
-			trigger(runner, p -> checkAction(p, runner, this::runner, this::corp));
+			trigger(runner, triggered -> checkAction(triggered, runner, this::runner, this::corp));
 		}
 
 		/**
 		 * Analyse des abilities
 		 * 
 		 * @param unit
-		 * @param triggered
+		 * @param triggeredFlow
 		 */
-		private void trigger(PlayableUnit unit, FlowArg<AbstractAbility> triggered) {
+		private void trigger(PlayableUnit unit, FlowArg<AbstractAbility> triggeredFlow) {
 			Player player = unit.getPlayer();
 			Wallet wallet = unit.getWallet();
 
@@ -161,14 +159,26 @@ public class Game implements Notifier, ConfigurableEventListener {
 
 			// s'il y a une action du noyau, on ne rajoute pas none car c'est le
 			// tour du joueur
-			AbstractAbility[] it = affordable.toArray(i -> new AbstractAbility[0]);
+			AbstractAbility[] it = affordable.toArray(i -> new AbstractAbility[i]);
 			boolean core = stream(it).anyMatch(i -> (i instanceof CoreAbility));
 
-			Question q = ask(player, "which-ability");
-			stream(it).forEach(p -> p.register(wallet, q, () -> triggered.apply(p)));
+			// TODO gestion des abilites de rezz (qui peuvent ne peut pas être
+			// payable, mais le runner ne doit pas le savoir !!)
+			Question q = ask(player, NotificationEvent.WHICH_ABILITY);
 
+			for (AbstractAbility aa : it) {
+				// on enregistre les actions
+				if (aa instanceof SingleAbility) {
+					SingleAbility sa = (SingleAbility) aa;
+
+					// on enregistre la question
+					sa.register(q, wallet, () -> triggeredFlow.apply(sa));
+				}
+			}
+
+			// pas d'action, si l'utilisateur n'a pas d'action particulière
 			if (!core)
-				q.add("none", () -> triggered.apply(null));
+				q.ask("none").to(() -> triggeredFlow.apply(null));
 
 			q.fire();
 		}
@@ -187,18 +197,6 @@ public class Game implements Notifier, ConfigurableEventListener {
 	}
 
 	public class RunnerTurnEndedEvent extends AbstractTurnEvent {
-	}
-
-	public enum WinCondition {
-		CORP_BUST, CORP_SCORED, FLATLINE, RUNNER_SCORED;
-
-		public boolean isCorpVictory() {
-			return FLATLINE == this || CORP_SCORED == this;
-		}
-
-		public boolean isRunnerVictory() {
-			return CORP_BUST == this || RUNNER_SCORED == this;
-		}
 	}
 
 	private static final Logger log = LoggerFactory.getLogger(Game.class);
@@ -228,23 +226,27 @@ public class Game implements Notifier, ConfigurableEventListener {
 
 	private int turn = 0;
 
-	public Game(Runner runner, Corp corpo, ConfigurableEventListener delegated, Flow end) {
+	public Game(Runner runner, Corp corp, ConfigurableEventListener delegated, Flow end) {
 		this.runner = runner;
-		this.corp = corpo;
+		this.corp = corp;
 		this.delegated = delegated;
 		this.end = end;
 		setNotifier(null);
 	}
 
-	public Game(Runner runner, Corp corpo, Flow end) {
-		this(runner, corpo, new ConfigurableEventListenerBasic(), end);
+	public Game(Runner runner, Corp corp, Flow end) {
+		this(runner, corp, new ConfigurableEventListenerBasic(), end);
+	}
+	
+	public WinCondition getResult() {
+		return result;
 	}
 
 	@Override
 	public <T extends Event> void apply(T event, Flow flow) {
 		event.setGame(this);
 
-		// on fait la v�rification du flow
+		// on fait la vérification du flow
 		delegated.apply(event, () -> {
 			if (isEnded())
 				end.apply();
@@ -267,9 +269,10 @@ public class Game implements Notifier, ConfigurableEventListener {
 	 * @param what
 	 * @return
 	 */
-	public Question ask(Player to, String what) {
+	public Question ask(Player to, NotificationEvent what) {
 
 		final int uid = qid++;
+		// TODO faire mieux
 		Question question = new Question(what, to, uid, this);
 		questions.put(uid, question);
 		return question;
@@ -306,8 +309,13 @@ public class Game implements Notifier, ConfigurableEventListener {
 		if (hs > max) {
 			int remove = hs - max;
 
-			Question q = ask(Player.CORP, "corp-discard");
-			q.add("selected-card", remove, asIntSet(hand), this::corpDiscardCardDone);
+			Question q = ask(Player.CORP, NotificationEvent.DISCARD_CARD);
+			// TODO faire mieux avec gestion de la sélection
+			q.ask("selected-card");
+
+			// FIXME faire mieux
+			// q.add("selected-card", remove, asIntSet(hand),
+			// this::corpDiscardCardDone);
 			q.fire();
 		} else {
 			corpEndOfDiscardAction();
@@ -395,7 +403,7 @@ public class Game implements Notifier, ConfigurableEventListener {
 	}
 
 	/**
-	 * Permet de cr�er un �change
+	 * Permet de créer un échange
 	 * 
 	 * @param next
 	 * @return
@@ -435,8 +443,10 @@ public class Game implements Notifier, ConfigurableEventListener {
 		if (hs > max) {
 			int remove = hs - max;
 
-			Question q = ask(Player.RUNNER, "runner-discard");
-			q.add("selected-card", remove, asIntSet(hand), this::runnerDiscardCardDone);
+			// TODO faire mieux avec gestion de la sélection
+			Question q = ask(Player.RUNNER, NotificationEvent.DISCARD_CARD);
+			// q.add("selected-card", remove, asIntSet(hand),
+			// this::runnerDiscardCardDone);
 			q.fire();
 		} else {
 			runnerEndOfDiscardAction();
@@ -478,15 +488,19 @@ public class Game implements Notifier, ConfigurableEventListener {
 	public void setResult(WinCondition result) {
 		log.debug("WinCondition {}", result);
 		this.result = result;
+		notification(NotificationEvent.GAME_ENDED.apply().m(result));
 	}
 
 	private void setStep(GameStep step) {
 		this.step = step;
+		notification(NotificationEvent.NEXT_STEP.apply().m(step));
 	}
 
 	public Game setup() {
 		corp.bind(this);
 		runner.bind(this);
+		corp.setGame(this);
+		runner.setGame(this);
 
 		int count = 0;
 		for (Card rc : runner.getStack())
@@ -502,7 +516,7 @@ public class Game implements Notifier, ConfigurableEventListener {
 	}
 
 	/**
-	 * Cr�ation d'un run
+	 * Création d'un run
 	 * 
 	 * @param target
 	 * @param next
@@ -510,9 +524,6 @@ public class Game implements Notifier, ConfigurableEventListener {
 	public void startRun(CorpServer target, Flow next) {
 		setStep(GameStep.RUNNING);
 		run = new Run(target, new FlowControler(this, () -> {
-			
-			
-			
 			setStep(GameStep.RUNNER_ACT);
 			run = null;
 			next.apply();

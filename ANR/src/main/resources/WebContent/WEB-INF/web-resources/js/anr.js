@@ -14,7 +14,7 @@ var cards={};
 
 //gestion des bordures
 var mainInsets={
-	left:function(){return 20;},
+	left:function(){return 30;},
 	right:function(){return $('div#main').width()-160;},
 	top:function(){return 65;},
 	bottom:function(){return $('div#main').height()-210;}	
@@ -250,8 +250,7 @@ Card.prototype.location = function(location) {
 		}
 
 		cc = locationHandler[location.type];
-		if (cc) {
-			
+		if (cc) {			
 			if (this.local && (location.type == 'hq' || location.type == 'grip'))
 				location.type='hand';
 			
@@ -263,6 +262,10 @@ Card.prototype.location = function(location) {
 				console.log("add to hand " + JSON.stringify(location));		
 				this.widget.css("zIndex", nindex);
 			}
+		}
+		
+		if (location.type == 'hq_id' || location.type == 'grip_id') {
+			this.widget.css("zIndex", 500);
 		}
 
 		this.loc = location;

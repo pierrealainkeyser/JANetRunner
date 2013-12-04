@@ -16,14 +16,13 @@ public abstract class Card extends AbstractGameContent {
 
 	private final Cost cost;
 
-	private final List<PaidAbility> paidAbilities = new ArrayList<>();
+	private final List<AbstractAbility> paidAbilities = new ArrayList<>();
 
 	private int id;
 
 	private CardLocation location;
 
 	public Card(Influence influence, Cost cost) {
-		super();
 		this.influence = influence;
 		this.cost = cost;
 	}
@@ -34,14 +33,15 @@ public abstract class Card extends AbstractGameContent {
 
 	public void setLocation(CardLocation location) {
 		this.location = location;
+		notification(NotificationEvent.CARD_LOC_CHANGED.apply().m(this));
 	}
 
-	protected Card addAction(PaidAbility paidAbility) {
+	protected Card addAction(AbstractAbility paidAbility) {
 		this.paidAbilities.add(paidAbility);
 		return this;
 	}
 
-	public List<PaidAbility> getPaidAbilities() {
+	public List<AbstractAbility> getPaidAbilities() {
 		return Collections.unmodifiableList(paidAbilities);
 	}
 
@@ -64,6 +64,11 @@ public abstract class Card extends AbstractGameContent {
 	public Card setId(int id) {
 		this.id = id;
 		return this;
+	}
+
+	@Override
+	public String toString() {
+		return "Card [id=" + id + "]";
 	}
 
 }

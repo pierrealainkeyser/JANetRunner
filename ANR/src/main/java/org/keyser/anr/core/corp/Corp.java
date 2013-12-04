@@ -5,18 +5,16 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.keyser.anr.core.AbstractAbility;
-import org.keyser.anr.core.CardLocation;
 import org.keyser.anr.core.CoreAbility;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Event;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.Game;
-import org.keyser.anr.core.Game.WinCondition;
-import org.keyser.anr.core.Notification;
+import org.keyser.anr.core.NotificationEvent;
 import org.keyser.anr.core.PlayableUnit;
 import org.keyser.anr.core.Player;
-import org.keyser.anr.core.Wallet;
 import org.keyser.anr.core.WalletCredits;
+import org.keyser.anr.core.WinCondition;
 
 public class Corp extends PlayableUnit {
 
@@ -32,13 +30,13 @@ public class Corp extends PlayableUnit {
 		}
 
 		@Override
-		public void trigger(Wallet w, Flow next) {
+		public void apply() {
 			Optional<WalletCredits> wc = getWallet().wallet(WalletCredits.class);
 			wc.ifPresent(WalletCredits::add);
 
 			Game game = getGame();
 
-			game.notification(new Notification("corp-click-for-credit").m("credit", wc.get().getAmount()));
+			game.notification(NotificationEvent.CORP_CLICKED_FOR_CREDIT.apply());
 			game.apply(new CorpClickForCredit(), next);
 		}
 	}
@@ -55,8 +53,8 @@ public class Corp extends PlayableUnit {
 		}
 
 		@Override
-		public void trigger(Wallet w, Flow next) {
-			getGame().notification(new Notification("corp-click-for-draw"));
+		public void apply() {
+			getGame().notification(NotificationEvent.CORP_CLICKED_FOR_DRAW.apply());
 			draw(next);
 		}
 	}
@@ -73,9 +71,9 @@ public class Corp extends PlayableUnit {
 		}
 
 		@Override
-		public void trigger(Wallet w, Flow next) {
+		public void apply() {
 			Game game = getGame();
-			game.notification(new Notification("corp-click-for-purge"));
+			game.notification(NotificationEvent.CORP_CLICKED_FOR_PURGE.apply());
 			game.getRunner().purgeVirus(next);
 		}
 	}
@@ -140,18 +138,16 @@ public class Corp extends PlayableUnit {
 	 * @param next
 	 */
 	public void draw(Flow next) {
-		Optional<CorpCard> card = getRd().getCards().stream().findFirst();
+		List<CorpCard> rds = getRd().getCards();
 		Game game = getGame();
-		if (card.isPresent()) {
-			CorpCard c = card.get();
-			getHq().getCards().add(c);
+		if (!rds.isEmpty()) {
+			CorpCard c = rds.remove(0);
+			getHq().add(c);						
 
-			c.setLocation(CardLocation.HQ);
-
-			game.notification(new Notification("corp-draw").m("card", c));
+			game.notification(NotificationEvent.CORP_DRAW.apply());
 			game.apply(new CorpCardDraw(c), next);
 		} else {
-			// fin de la partie corp � perdu
+			// fin de la partie corp à  perdu
 			game.setResult(WinCondition.CORP_BUST);
 		}
 

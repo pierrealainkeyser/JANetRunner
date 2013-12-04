@@ -13,11 +13,7 @@ public class PumpIceBreakerAbility extends IceBreakerAbility {
 		this.strengthBonus = strengthBonus;
 	}
 
-	@Override
-	public void trigger(Wallet w, int times, Flow next) {
 
-		// strengthBonus * times;
-	}
 
 	public int getStrengthBonus() {
 		return strengthBonus;

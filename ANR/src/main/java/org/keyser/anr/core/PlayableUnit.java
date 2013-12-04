@@ -17,12 +17,16 @@ public abstract class PlayableUnit extends AbstractGameContent implements Instal
 
 	private final List<Card> stack = new ArrayList<>();
 
-	private final Wallet wallet = new Wallet().add(new WalletCredits()).add(new WalletActions());
+	private final Wallet wallet = new Wallet().add(new WalletCredits()).add(new WalletActions()).setNotifier(this);
 
 	public abstract Player getPlayer();
 
+	protected PlayableUnit() {
+		wallet.setPlayer(getPlayer());
+	}
+
 	/**
-	 * Défausse une card
+	 * Dï¿½fausse une card
 	 * 
 	 * @param discarded
 	 * @param next

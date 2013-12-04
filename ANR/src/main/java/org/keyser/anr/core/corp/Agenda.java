@@ -1,7 +1,7 @@
 package org.keyser.anr.core.corp;
 
 import org.keyser.anr.core.Cost;
-import org.keyser.anr.core.Influence;
+import org.keyser.anr.core.Faction;
 
 public abstract class Agenda extends InstallableCorpCard {
 
@@ -9,8 +9,8 @@ public abstract class Agenda extends InstallableCorpCard {
 
 	private final int requirement;
 
-	public Agenda(Influence influence, int score, int requirement) {
-		super(influence, Cost.free());
+	public Agenda(Faction f, int score, int requirement) {
+		super(f.infl(0), Cost.free());
 		this.score = score;
 		this.requirement = requirement;
 	}

@@ -42,9 +42,7 @@ public class DTOBuilder {
 		
 		
 		//rajout le DTO de la corp
-		g.addCard(new CardDTO().setDef(new CardDefDTO("corp",  getURL(corp), "corp")).setLocation(LocationDTO.hq_id).setVisible(true));
-		
-		
+		g.addCard(new CardDTO().setDef(new CardDefDTO("corp",  getURL(corp), "corp")).setLocation(LocationDTO.hq_id).setVisible(true));		
 
 		return g;
 	}

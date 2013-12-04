@@ -1,9 +1,9 @@
 package org.keyser.anr.core;
 
-public class CoreAbility extends PaidAbility {
+public abstract class CoreAbility extends SingleAbility{
 
-	public CoreAbility(String name, Cost cost) {
-		super(name, cost, null);
+	protected CoreAbility(String name, Cost cost) {
+		super(name, cost);
 	}
 
 }

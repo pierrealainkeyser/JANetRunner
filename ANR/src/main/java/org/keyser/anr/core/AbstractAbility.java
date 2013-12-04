@@ -1,28 +1,46 @@
 package org.keyser.anr.core;
 
-public interface AbstractAbility {
+/**
+ * 
+ * 
+ * @author PAF
+ * 
+ */
+public abstract class AbstractAbility {
 
-	public abstract boolean isAffordable(Wallet wallet);
+	private final Cost cost;
 
-	/**
-	 * Permet de créer les actions
-	 * 
-	 * @param wallet
-	 * @param q
-	 * @param next
-	 */
-	public abstract void register(Wallet wallet, QuestionBuilder q, Flow next);
+	private final String name;
 
-	/**
-	 * Déclenche plusieurs fois une compétence
-	 * 
-	 * @param times
-	 * @param next
-	 */
-	public abstract void trigger(Wallet w, int times, Flow next);
+	private final Object action;
 
-	public abstract void trigger(Wallet w, Flow next);
+	protected AbstractAbility(String name, Cost cost, Object action) {
+		this.name = name;
+		this.cost = cost;
+		this.action = action;
+	}
 
-	public abstract boolean isEnabled();
+	public Cost getCost() {
+		return cost;
+	}
 
+	public String getName() {
+		return name;
+	}
+
+	public boolean isAffordable(Wallet wallet) {
+		return wallet.isAffordable(cost, action);
+	}
+
+	public int timesAffordable(Wallet wallet, int max) {
+		return wallet.timesAffordable(cost, action, max);
+	}
+
+	public boolean isEnabled() {
+		return true;
+	}
+
+	public Object getAction() {
+		return action;
+	}
 }

@@ -1,15 +1,14 @@
 package org.keyser.anr.web;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.function.Function;
 
 import org.codehaus.jackson.map.ObjectMapper;
-import org.keyser.anr.core.CardLocationIce;
 import org.keyser.anr.core.Game;
+import org.keyser.anr.core.OCTGNParser;
 import org.keyser.anr.core.corp.Corp;
-import org.keyser.anr.core.corp.nbn.DataRaven;
-import org.keyser.anr.core.corp.nbn.MakingNews;
-import org.keyser.anr.core.corp.nbn.MatrixAnalyser;
-import org.keyser.anr.core.corp.nbn.Tollbooth;
 import org.keyser.anr.core.runner.Runner;
 import org.springframework.beans.factory.FactoryBean;
 
@@ -29,19 +28,30 @@ public class GameBootstrap implements FactoryBean<Function<String, GameGateway>>
 
 	@Override
 	public Function<String, GameGateway> getObject() throws Exception {
+		// TODO renvoyer un vrai objet réutilisable, qui pointe vers un GameAsDTOGateway
+		return (s) -> new GameAsDTOGateway(lookup(s), builder, mapper);
+	}
 
-		Game g = new Game(new Runner(), new MakingNews(), () -> {
-		});
+	/**
+	 * C'est du faux, il faut une map de ID >> {@link GameAsDTOGateway}
+	 * @param name
+	 * @return
+	 */
+	private Game lookup(String name) {
+		OCTGNParser p = new OCTGNParser();
 
-		Corp c = g.getCorp();
-		c.getRd().add(new Tollbooth());
-		c.getRd().add(new DataRaven());
-		MatrixAnalyser ma = new MatrixAnalyser();
-		c.getRd().add(ma);
+		Corp c = null;
+		try (FileInputStream fis = new FileInputStream(new File("src/test/resources/core-nbn.o8d"))) {
+			c = p.parseCorp(fis);
+		} catch (IOException e) {
 
-		ma.setLocation(new CardLocationIce(c.getArchive(), 1));
+			// TODO faire mieux...
+			return null;
+		}
 
-		return (s) -> new GameAsDTOGateway(g.setup(), builder, mapper);
+		Game g = new Game(new Runner(), c, () -> {
+		}).setup();
+		return g;
 	}
 
 	@Override

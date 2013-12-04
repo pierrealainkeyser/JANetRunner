@@ -1,6 +1,7 @@
 package org.keyser.anr.core;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -10,9 +11,29 @@ public class Wallet implements Installable {
 
 	private List<WalletUnit> wallets = new ArrayList<>();
 
+	private Notifier notifier;
+
+	private Player player;
+
+	Player getPlayer() {
+		return player;
+	}
+
+	public Wallet setPlayer(Player player) {
+		this.player = player;
+		return this;
+	}
+
 	public Wallet add(WalletUnit sw) {
 		wallets.add(sw);
+		sw.setParent(this);
 		return this;
+	}
+
+	public void notification(Notification notif) {
+		if (notifier != null)
+			notifier.notification(notif);
+
 	}
 
 	/**
@@ -105,7 +126,30 @@ public class Wallet implements Installable {
 	}
 
 	public Wallet consume(Cost cost) {
-		// TODO Auto-generated method stub
+		return consume(cost, null);
+	}
+
+	/**
+	 * Permet de consommer le cout en sens inverse
+	 * 
+	 * @param cost
+	 * @param action
+	 * @return
+	 */
+	public Wallet consume(Cost cost, Object action) {
+
+		if (!cost.isZero()) {
+
+			List<WalletUnit> reversed = new ArrayList<>(wallets);
+			Collections.reverse(reversed);
+			for (WalletUnit wu : reversed) {
+
+				wu.consumeAndAlter(cost, action);
+				if (cost.isZero())
+					break;
+			}
+		}
+
 		return this;
 
 	}
@@ -113,5 +157,10 @@ public class Wallet implements Installable {
 	@Override
 	public String toString() {
 		return "Wallet [wallets=" + wallets + "]";
+	}
+
+	public Wallet setNotifier(Notifier notifier) {
+		this.notifier = notifier;
+		return this;
 	}
 }

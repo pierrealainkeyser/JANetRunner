@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * L'implémentation par défaut qui permet de gerer le flux
+ * L'implÃ©mentation par dÃ©faut qui permet de gerer le flux
  * 
  * @author PAF
  * 

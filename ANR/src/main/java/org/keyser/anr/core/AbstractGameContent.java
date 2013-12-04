@@ -7,7 +7,7 @@ public abstract class AbstractGameContent implements Notifier {
 		return game;
 	}
 
-	public Question ask(Player to, String type) {
+	public Question ask(Player to, NotificationEvent type) {
 		if (game != null)
 			return game.ask(to, type);
 		return null;

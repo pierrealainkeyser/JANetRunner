@@ -195,7 +195,7 @@ public class Run extends AbstractGameContent implements Flow {
 
 	@Override
 	public void apply() {
-		notification(new Notification("run-started").m("run", this));
+		notification(NotificationEvent.START_OF_RUN.apply().m(this));
 		flow.apply(new SetupTheRunEvent(), this::startApproching);
 	}
 
@@ -330,7 +330,7 @@ public class Run extends AbstractGameContent implements Flow {
 	 */
 	private void cleanUpTheRun() {
 		apply(new CleanTheRunEvent(), () -> {
-			notification(new Notification("run-ended").m("run", this));
+			notification(NotificationEvent.END_OF_RUN.apply().m(this));
 
 			// on finit le flux
 				flow.apply();
@@ -369,10 +369,10 @@ public class Run extends AbstractGameContent implements Flow {
 
 	private void jackOffDecision(AbstractJackOffPossibilty jackOff, Flow next) {
 		if (jackOff.isMayJackOff()) {
-
-			Question q = ask(Player.RUNNER, "want-to-jack-off");
-			q.add("true", this::failTheRun);
-			q.add("false", next);
+			//le runner peut débrancher
+			Question q = ask(Player.RUNNER, NotificationEvent.WANT_TO_JACKOFF);
+			q.ask("true").to(this::failTheRun);
+			q.ask("false").to(next);
 			q.fire();
 
 		} else
