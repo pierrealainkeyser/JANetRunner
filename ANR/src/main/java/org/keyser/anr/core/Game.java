@@ -1,6 +1,5 @@
 package org.keyser.anr.core;
 
-import static java.util.Arrays.stream;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.stream.Collectors.mapping;
 import static org.keyser.anr.core.RecursiveIterator.recurse;
@@ -115,7 +114,7 @@ public class Game implements Notifier, ConfigurableEventListener {
 		 */
 		private void checkAction(AbstractAbility triggered, PlayableUnit current, Flow replay, Flow toNextPlayer) {
 			// si pas d'action on zappe, ou si action de base
-			if (triggered == null || (triggered instanceof CoreAbility)) {
+			if (triggered == null) {
 				done.put(current.getPlayer(), true);
 
 				// si tout le monde a confirmé
@@ -124,7 +123,10 @@ public class Game implements Notifier, ConfigurableEventListener {
 				} else
 					toNextPlayer.apply();
 
+			} else if (triggered instanceof CoreAbility) {
+				toNextPlayer.apply();
 			} else {
+
 				// on remet le compteur à zero
 				init();
 				replay.apply();
@@ -160,7 +162,7 @@ public class Game implements Notifier, ConfigurableEventListener {
 			// s'il y a une action du noyau, on ne rajoute pas none car c'est le
 			// tour du joueur
 			AbstractAbility[] it = affordable.toArray(i -> new AbstractAbility[i]);
-			boolean core = stream(it).anyMatch(i -> (i instanceof CoreAbility));
+			boolean mayRezz = false;
 
 			// TODO gestion des abilites de rezz (qui peuvent ne peut pas être
 			// payable, mais le runner ne doit pas le savoir !!)
@@ -176,10 +178,15 @@ public class Game implements Notifier, ConfigurableEventListener {
 				}
 			}
 
-			// pas d'action, si l'utilisateur n'a pas d'action particulière
-			if (!core)
-				q.ask("none").to(() -> triggeredFlow.apply(null));
-
+			// on rajoute l'absence d'action uniquement en cas de rezz possible
+			if (q.isEmpty()) {
+				
+				//si la corp peut activer des cartes mais qu'il n'y a pas de question
+				if (mayRezz)
+					q.ask("none").to(() -> triggeredFlow.apply(null));
+				else
+					triggeredFlow.apply(null);
+			}
 			q.fire();
 		}
 	}
@@ -237,7 +244,7 @@ public class Game implements Notifier, ConfigurableEventListener {
 	public Game(Runner runner, Corp corp, Flow end) {
 		this(runner, corp, new ConfigurableEventListenerBasic(), end);
 	}
-	
+
 	public WinCondition getResult() {
 		return result;
 	}
@@ -413,7 +420,7 @@ public class Game implements Notifier, ConfigurableEventListener {
 	}
 
 	public void remove(Question q) {
-		questions.remove(q.getUid());
+		questions.remove(q.getQid());
 	}
 
 	/**

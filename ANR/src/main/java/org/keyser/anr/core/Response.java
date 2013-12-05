@@ -18,6 +18,15 @@ public class Response {
 		this.responseId = responseId;
 	}
 
+	/**
+	 * Renvoi vrai si une réponse est impossible
+	 * 
+	 * @return
+	 */
+	public boolean isInvalid() {
+		return next == null;
+	}
+
 	public void apply() {
 		next.apply(null);
 	}

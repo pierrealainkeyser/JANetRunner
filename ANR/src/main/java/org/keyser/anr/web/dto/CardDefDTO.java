@@ -20,8 +20,6 @@ public class CardDefDTO {
 		this.faction = faction;
 	}
 
-
-
 	public String getFaction() {
 		return faction;
 	}

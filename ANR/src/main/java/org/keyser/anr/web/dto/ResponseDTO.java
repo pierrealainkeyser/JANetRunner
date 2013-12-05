@@ -36,4 +36,20 @@ public class ResponseDTO {
 		this.content = content;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("ResponseDTO [rid=");
+		builder.append(rid);
+		builder.append(", qid=");
+		builder.append(qid);
+		builder.append(", ");
+		if (content != null) {
+			builder.append("content=");
+			builder.append(content);
+		}
+		builder.append("]");
+		return builder.toString();
+	}
+
 }

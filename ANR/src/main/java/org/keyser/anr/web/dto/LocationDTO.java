@@ -35,6 +35,7 @@ public class LocationDTO {
 	public static final LocationDTO hq = new LocationDTO("hq");	
 	public static final LocationDTO rd = new LocationDTO("rd");
 	public static final LocationDTO hq_id = new LocationDTO("hq_id");
+	public static final LocationDTO grip_id = new LocationDTO("grip_id");
 
 	public static final LocationDTO stack = new LocationDTO("stack");
 

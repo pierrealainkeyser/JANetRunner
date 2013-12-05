@@ -3,6 +3,7 @@ package org.keyser.anr.core;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Une question avec un ensemble de r�ponse
@@ -18,15 +19,25 @@ public class Question extends Notification {
 
 	private final Player to;
 
-	private final int uid;
+	private final int qid;
 
 	private final Map<Integer, Response> responses = new LinkedHashMap<>();
 
-	public Question(NotificationEvent type, Player to, int uid, Game game) {
+	public Question(NotificationEvent type, Player to, int qid, Game game) {
 		super(type);
 		this.to = to;
-		this.uid = uid;
+		this.qid = qid;
 		this.game = game;
+	}
+
+	/**
+	 * Trouve la bonne reponse
+	 * 
+	 * @param option
+	 * @return
+	 */
+	public Response find(String option) {
+		return responses.values().stream().filter(r -> option.equals(r.getOption())).findFirst().get();
 	}
 
 	public Response ask(String option) {
@@ -43,8 +54,13 @@ public class Question extends Notification {
 	public Question fire() {
 		if (isEmpty())
 			remove();
-		else
+		else {
+			responses.values().stream().filter(Response::isInvalid).findFirst().ifPresent(r -> {
+				throw new IllegalStateException(" la question " + this + " est invalide à cause de la réponse '" + r + "'");
+			});
+
 			game.notification(this);
+		}
 
 		return this;
 	}
@@ -53,8 +69,8 @@ public class Question extends Notification {
 		return to;
 	}
 
-	public int getUid() {
-		return uid;
+	public int getQid() {
+		return qid;
 	}
 
 	void remove() {

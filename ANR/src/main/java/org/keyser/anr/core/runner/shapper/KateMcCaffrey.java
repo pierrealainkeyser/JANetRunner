@@ -3,6 +3,7 @@ package org.keyser.anr.core.runner.shapper;
 import static org.keyser.anr.core.Cost.credit;
 import static org.keyser.anr.core.EventMatcher.match;
 
+import org.keyser.anr.core.CardDef;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.CostCredit;
 import org.keyser.anr.core.CostDeterminationEvent;
@@ -11,6 +12,7 @@ import org.keyser.anr.core.runner.HardwareInstallationCostDeterminationEvent;
 import org.keyser.anr.core.runner.ProgramInstallationCostDeterminationEvent;
 import org.keyser.anr.core.runner.Runner;
 
+@CardDef(name = "Kate 'Mac' McCaffrey: Digital Tinker", oid = "01033")
 public class KateMcCaffrey extends Runner {
 
 	private boolean firstInstall = false;

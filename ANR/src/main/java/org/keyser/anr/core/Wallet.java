@@ -47,6 +47,13 @@ public class Wallet implements Installable {
 		return (Optional<W>) wallets.stream().filter((w) -> type.equals(w.getClass())).findFirst();
 	}
 
+	public <W extends WalletUnit> int amountOf(Class<W> type) {
+		Optional<W> o = wallet(type);
+		if (o.isPresent())
+			return o.get().getAmount();
+		return 0;
+	}
+
 	/**
 	 * Applique l'action sur le wallet s'il existe
 	 * 

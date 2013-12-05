@@ -62,6 +62,16 @@ public class AnrWebSocket extends WebSocketAdapter implements GameOutput {
 	}
 
 	@Override
+	public void onWebSocketClose(int statusCode, String reason) {
+		super.onWebSocketClose(statusCode, reason);
+
+		if (gateway != null) {
+			gateway.remove(this);
+			gateway = null;
+		}
+	}
+
+	@Override
 	public void onWebSocketText(String message) {
 
 		log.debug("onWebSocketText :{}", message);
@@ -78,6 +88,8 @@ public class AnrWebSocket extends WebSocketAdapter implements GameOutput {
 				// TODO il faudrait s'enregistré dans la passerelle
 				gateway = gateways.apply(gl.getGame());
 
+				gateway.register(this);
+
 				gateway.accept(this, GameGateway.READY);
 			} else if (GameGateway.RESPONSE.equals(type)) {
 
@@ -89,6 +101,7 @@ public class AnrWebSocket extends WebSocketAdapter implements GameOutput {
 			}
 
 		} catch (Exception e) {
+			//TODO faire un truc plus sympa qu'une bete propagation
 			throw new RuntimeException(e);
 		}
 
@@ -106,8 +119,8 @@ public class AnrWebSocket extends WebSocketAdapter implements GameOutput {
 			log.debug("send({}) : {}", type, content);
 			getRemote().sendString(mapper.writeValueAsString(new MessageDTO(type, content)));
 		} catch (IOException e) {
-			// TODO il ne faut pas bloquer l'erreur.... mais il faudrait la
-			// consigner.... au moins pour le debug
+			// il ne faut pas bloquer l'erreur.
+			log.debug("erreur à l'émission", e);
 		}
 	}
 

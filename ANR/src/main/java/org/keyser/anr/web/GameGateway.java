@@ -6,6 +6,10 @@ public interface GameGateway {
 
 	public static final String RESPONSE = "response";
 
-	public abstract void accept(GameOutput output, Object incomming);
+	public void accept(GameOutput output, Object incomming);
+
+	public void register(GameOutput output);
+
+	public void remove(GameOutput ouput);
 
 }

@@ -6,7 +6,7 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
 	<bean id="jacksonMapper" class="org.keyser.anr.web.ObjectMapperFactoryBean" />
-	<bean id="dtoBuilder" class="org.keyser.anr.web.DTOBuilder"
+	<bean id="dtoBuilder" class="org.keyser.anr.web.GameDTOBuilder"
 		p:urlFormat="http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/{0}.png" />
 
 	<bean id="gateways" class="org.keyser.anr.web.GameBootstrap"
