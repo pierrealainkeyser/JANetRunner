@@ -475,13 +475,16 @@ function Card(def) {
 	this.widget;
 	this.local = def.faction == faction;
 	this.rezzed = false;
+	
+	this.getUrl = function(){
+		return "http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/"+this.def.url +".png";
+	}
 
 	this.init = function(parent) {
-		var url="http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/"+this.def.url +".png";
 		
 		this.widget = $(
 				"<div tabindex='-1' class='card " + this.def.faction
-						+ "'><img src='" + url + "'/></div>")
+						+ "'><img src='" + this.getUrl() + "'/></div>")
 				.appendTo(parent);
 		this.widget.prop("card", this);
 		this.widget.show();
@@ -501,7 +504,7 @@ function Card(def) {
 			var card = me.prop("card");
 			if (card.isPreviewable()) {
 				var prev = $("#preview");
-				prev.find("img").attr("src", card.def.url);
+				prev.find("img").attr("src", card.getUrl());
 				prev.stop().show('slide');
 			}
 			handleFocused();
