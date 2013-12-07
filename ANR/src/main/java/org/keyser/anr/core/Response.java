@@ -12,10 +12,15 @@ public class Response {
 
 	private final int responseId;
 
-	public Response(String option, Question parent, int responseId) {
+	private final Card card;
+
+	private Object content;
+
+	public Response(String option, Question parent, int responseId, Card card) {
 		this.option = option;
 		this.parent = parent;
 		this.responseId = responseId;
+		this.card = card;
 	}
 
 	/**
@@ -76,6 +81,19 @@ public class Response {
 	@Override
 	public String toString() {
 		return option;
+	}
+
+	public Card getCard() {
+		return card;
+	}
+
+	public Object getContent() {
+		return content;
+	}
+
+	public Response setContent(Object content) {
+		this.content = content;
+		return this;
 	}
 
 }

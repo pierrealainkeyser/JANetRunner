@@ -71,6 +71,13 @@ public class Corp extends PlayableUnit {
 		}
 
 		@Override
+		public boolean isEnabled() {
+
+			// renvoi vrai s'il y a des virus chez le runner
+			return getGame().getRunner().hasVirus();
+		}
+
+		@Override
 		public void apply() {
 			Game game = getGame();
 			game.notification(NotificationEvent.CORP_CLICKED_FOR_PURGE.apply());
@@ -142,12 +149,12 @@ public class Corp extends PlayableUnit {
 		Game game = getGame();
 		if (!rds.isEmpty()) {
 			CorpCard c = rds.remove(0);
-			getHq().add(c);						
+			getHq().add(c);
 
 			game.notification(NotificationEvent.CORP_DRAW.apply());
 			game.apply(new CorpCardDraw(c), next);
 		} else {
-			// fin de la partie corp à  perdu
+			// fin de la partie corp à perdu
 			game.setResult(WinCondition.CORP_BUST);
 		}
 

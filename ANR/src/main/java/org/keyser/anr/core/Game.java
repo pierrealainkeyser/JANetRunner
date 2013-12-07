@@ -1,7 +1,6 @@
 package org.keyser.anr.core;
 
 import static java.util.Collections.unmodifiableMap;
-import static java.util.stream.Collectors.mapping;
 import static org.keyser.anr.core.RecursiveIterator.recurse;
 
 import java.util.EnumMap;
@@ -9,10 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.keyser.anr.core.corp.Corp;
@@ -180,8 +175,9 @@ public class Game implements Notifier, ConfigurableEventListener {
 
 			// on rajoute l'absence d'action uniquement en cas de rezz possible
 			if (q.isEmpty()) {
-				
-				//si la corp peut activer des cartes mais qu'il n'y a pas de question
+
+				// si la corp peut activer des cartes mais qu'il n'y a pas de
+				// question
 				if (mayRezz)
 					q.ask("none").to(() -> triggeredFlow.apply(null));
 				else
@@ -262,10 +258,16 @@ public class Game implements Notifier, ConfigurableEventListener {
 		});
 	}
 
-	private Set<Integer> asIntSet(List<? extends Card> hand) {
-		Collector<Integer, ?, Set<Integer>> intSet = Collectors.toSet();
-		Function<Card, Integer> getId = (Function<Card, Integer>) c -> c.getId();
-		Set<Integer> among = hand.stream().collect(mapping(getId, intSet));
+	/**
+	 * Permet de créer le set de défause
+	 * @param hand
+	 * @param remove
+	 * @return
+	 */
+	private DiscardSet asDiscardSet(List<? extends Card> hand, int remove) {
+		DiscardSet among = new DiscardSet();
+		hand.stream().forEach(among::add);
+		among.setNb(remove);
 		return among;
 	}
 
@@ -290,13 +292,13 @@ public class Game implements Notifier, ConfigurableEventListener {
 	}
 
 	/**
-	 * Le callback quand la corp d�fausse
+	 * Le callback quand la corp défausse
 	 * 
 	 * @param discarded
 	 */
-	private void corpDiscardCardDone(Set<Integer> discarded) {
+	private void corpDiscardCardDone(CardSet discarded) {
 
-		Stream<CorpCard> s = corp.getHq().getCards().stream().filter(c -> discarded.contains(c.getId()));
+		Stream<CorpCard> s = corp.getHq().getCards().stream().filter(discarded::contains);
 		recurse(s.iterator(), (c, n) -> corp.discard(c, n), this::corpEndOfDiscardAction);
 	}
 
@@ -317,12 +319,7 @@ public class Game implements Notifier, ConfigurableEventListener {
 			int remove = hs - max;
 
 			Question q = ask(Player.CORP, NotificationEvent.DISCARD_CARD);
-			// TODO faire mieux avec gestion de la sélection
-			q.ask("selected-card");
-
-			// FIXME faire mieux
-			// q.add("selected-card", remove, asIntSet(hand),
-			// this::corpDiscardCardDone);
+			q.ask("selected-card").to(CardSet.class, this::corpDiscardCardDone).setContent(asDiscardSet(hand, remove));
 			q.fire();
 		} else {
 			corpEndOfDiscardAction();
@@ -424,13 +421,13 @@ public class Game implements Notifier, ConfigurableEventListener {
 	}
 
 	/**
-	 * Le callback quand le runner d�fausse
+	 * Le callback quand le runner défausse
 	 * 
 	 * @param discarded
 	 */
-	private void runnerDiscardCardDone(Set<Integer> discarded) {
+	private void runnerDiscardCardDone(CardSet discarded) {
 
-		Stream<CorpCard> s = corp.getHq().getCards().stream().filter(c -> discarded.contains(c.getId()));
+		Stream<CorpCard> s = corp.getHq().getCards().stream().filter(discarded::contains);
 		recurse(s.iterator(), (c, n) -> corp.discard(c, n), this::runnerEndOfDiscardAction);
 	}
 
@@ -450,10 +447,8 @@ public class Game implements Notifier, ConfigurableEventListener {
 		if (hs > max) {
 			int remove = hs - max;
 
-			// TODO faire mieux avec gestion de la sélection
 			Question q = ask(Player.RUNNER, NotificationEvent.DISCARD_CARD);
-			// q.add("selected-card", remove, asIntSet(hand),
-			// this::runnerDiscardCardDone);
+			q.ask("selected-card").to(CardSet.class, this::runnerDiscardCardDone).setContent(asDiscardSet(hand, remove));
 			q.fire();
 		} else {
 			runnerEndOfDiscardAction();

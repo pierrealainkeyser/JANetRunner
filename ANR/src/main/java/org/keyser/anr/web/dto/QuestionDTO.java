@@ -9,42 +9,69 @@ import org.keyser.anr.core.Player;
 public class QuestionDTO {
 
 	public static class PossibleResponseDTO {
-		private final Object arguments;
+		/**
+		 * LEs parametres
+		 */
+		private final Object args;
 
+		/**
+		 * Le type de réponse
+		 */
 		private final String option;
 
+		/**
+		 * La carte concernée
+		 */
+		private final Integer card;
+
+		/**
+		 * L'id de réponse
+		 */
 		private final int rid;
 
-		public PossibleResponseDTO(String option, int rid, Object arguments) {
+		public PossibleResponseDTO(String option, int rid, Integer card, Object args) {
 			this.option = option;
 			this.rid = rid;
-			this.arguments = arguments;
+			this.card = card;
+			this.args = args;
 		}
 
-
-		public Object getArguments() {
-			return arguments;
+		public Object getArgs() {
+			return args;
 		}
 
-		
 		public String getOption() {
 			return option;
 		}
 
-	
 		public int getRid() {
 			return rid;
 		}
 
-		
+		public Integer getCard() {
+			return card;
+		}
+
 	}
 
+	/**
+	 * L'ide de questions
+	 */
 	private final int qid;
 
+	/**
+	 * La liste des réponses
+	 */
 	private List<PossibleResponseDTO> responses;
 
+	/**
+	 * Le destinataire
+	 */
 	private final String to;
 
+	/**
+	 * Le type de question
+	 */
 	private final NotificationEvent what;
 
 	public QuestionDTO(int qid, Player to, NotificationEvent what) {

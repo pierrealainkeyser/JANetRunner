@@ -3,16 +3,16 @@ package org.keyser.anr.web;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.function.Function;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.keyser.anr.core.Game;
 import org.keyser.anr.core.OCTGNParser;
 import org.keyser.anr.core.Wallet;
-import org.keyser.anr.core.WalletActions;
 import org.keyser.anr.core.WalletCredits;
 import org.keyser.anr.core.corp.Corp;
-import org.keyser.anr.core.runner.shapper.KateMcCaffrey;
+import org.keyser.anr.core.runner.Runner;
 import org.springframework.beans.factory.FactoryBean;
 
 public class GameBootstrap implements FactoryBean<Function<String, GameGateway>> {
@@ -33,7 +33,7 @@ public class GameBootstrap implements FactoryBean<Function<String, GameGateway>>
 	public Function<String, GameGateway> getObject() throws Exception {
 		// TODO renvoyer un vrai objet réutilisable, qui pointe vers un
 		// GameAsDTOGateway
-		return (s) -> new GameAsDTOGateway(lookup(s), builder, mapper);
+		return (s) -> new GameAsDTOGateway(create(), builder, mapper);
 	}
 
 	/**
@@ -42,26 +42,42 @@ public class GameBootstrap implements FactoryBean<Function<String, GameGateway>>
 	 * @param name
 	 * @return
 	 */
-	private Game lookup(String name) {
+	private Game create() {
 		OCTGNParser p = new OCTGNParser();
 
 		Corp c = null;
 		try (FileInputStream fis = new FileInputStream(new File("src/test/resources/core-nbn.o8d"))) {
 			c = p.parseCorp(fis);
 		} catch (IOException e) {
-
+			// TODO faire mieux...
+			return null;
+		}
+		
+		Runner r = null;
+		try (FileInputStream fis = new FileInputStream(new File("src/test/resources/core-shapper.o8d"))) {
+			r = p.parseRunner(fis);
+		} catch (IOException e) {
 			// TODO faire mieux...
 			return null;
 		}
 
-		Game g = new Game(new KateMcCaffrey(), c, () -> {
+		Game g = new Game(r, c, () -> {
 		}).setup();
+		
+		Collections.shuffle(r.getStack());
+		Collections.shuffle(c.getStack());
 
-		Wallet w = g.getCorp().getWallet();
+		Wallet w = c.getWallet();
 		w.wallet(WalletCredits.class, wu -> wu.setAmount(5));
 
-		w = g.getRunner().getWallet();
+		w = r.getWallet();
 		w.wallet(WalletCredits.class, wu -> wu.setAmount(5));
+		
+		g.getCorp().draw(()->{});
+		g.getCorp().draw(()->{});
+		g.getCorp().draw(()->{});
+		g.getCorp().draw(()->{});
+		g.getCorp().draw(()->{});
 		
 		g.start();
 

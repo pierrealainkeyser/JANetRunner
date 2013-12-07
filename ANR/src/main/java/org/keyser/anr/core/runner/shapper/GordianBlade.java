@@ -5,12 +5,14 @@ import static org.keyser.anr.core.EventMatcher.match;
 import static org.keyser.anr.core.Faction.SHAPPER;
 import static org.keyser.anr.core.runner.IceBreakerType.DECODER;
 
+import org.keyser.anr.core.CardDef;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Run.CleanTheRunEvent;
 import org.keyser.anr.core.runner.BreakRoutineAbility;
 import org.keyser.anr.core.runner.IceBreaker;
 import org.keyser.anr.core.runner.PumpIceBreakerAbility;
 
+@CardDef(name = "Gordian Blade", oid = "01043")
 public class GordianBlade extends IceBreaker {
 
 	private int strengthBoost = 0;

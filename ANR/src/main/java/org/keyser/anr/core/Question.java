@@ -3,7 +3,6 @@ package org.keyser.anr.core;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Une question avec un ensemble de r�ponse
@@ -41,8 +40,12 @@ public class Question extends Notification {
 	}
 
 	public Response ask(String option) {
+		return ask(option, null);
+	}
+
+	public Response ask(String option, Card card) {
 		int id = nextId++;
-		Response qr = new Response(option, this, id);
+		Response qr = new Response(option, this, id, card);
 		responses.put(id, qr);
 		return qr;
 	}

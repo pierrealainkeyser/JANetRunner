@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.keyser.anr.core.AbstractAbility;
+import org.keyser.anr.core.CardLocation;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.PlayableUnit;
 import org.keyser.anr.core.Player;
@@ -27,9 +28,14 @@ public class Runner extends PlayableUnit {
 		return Player.RUNNER;
 	}
 
+	public void addToStack(RunnerCard card) {
+		getStack().add(card);
+		card.setLocation(CardLocation.STACK);
+	}
+
 	@Override
 	protected void addAllAbilities(List<AbstractAbility> a) {
-		// TODO � completer
+		// TDOO à completer
 
 	}
 
@@ -59,6 +65,11 @@ public class Runner extends PlayableUnit {
 	public void purgeVirus(Flow next) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public boolean hasVirus() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

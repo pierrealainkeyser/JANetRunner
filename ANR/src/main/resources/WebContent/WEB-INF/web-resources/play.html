@@ -16,83 +16,6 @@
 <script type="text/javascript" src="resources/js/anr.js"></script>
 
 <script type="text/javascript">
-
-	
-
- 	function doSetup(game){
- 		console.log("setup question->"+JSON.stringify(game.question));
- 		console.log("setup step->"+JSON.stringify(game.step));
- 		
- 		console.log("setup corp->"+JSON.stringify(game.corp));
- 		console.log("setup runner->"+JSON.stringify(game.runner)); 		
- 		
- 		console.debug("setup cards->"+JSON.stringify(game.cards));
- 		
- 		//prise en compte des wallets
- 		updateWallets(game);
- 		 		
- 		var main = $('div#main');
-		for(var k in game.cards){
-			var c=createCard(game.cards[k],main);					
-			
-			//demo d'affichage
-			c.widget.click(function() {
-				var c=$(this).prop("card");
-				
-				if (c.isHidden())
-					c.show();
-				else
-					c.hide();
-			});		
-		}
-		
-		handleQuestion(game.question);
-		
- 	}
- 	
- 	function handleQuestion(q){
- 		if(q.qid<125){
- 			
- 			setTimeout(function(){ 			 			
- 				var choosen={qid:q.qid,rid:q.responses[0].rid};
-				$ws.send('response',choosen);
- 			}, 500);
- 		}
- 	}
- 	
- 	function doUpdate(game){
- 		console.log("update ->"+JSON.stringify(game));
- 		if(game.cards){
- 			for(var k in game.cards){
- 				var c=game.cards[k];
- 				cards[c.id].update(c); 				
- 			}
- 		}
- 		
- 		//prise en compte des wallets
- 		updateWallets(game);
- 		
- 		//gestion de la question
- 		handleQuestion(game.question);
-
- 	}
- 	
- 	function updateWallets(game){
- 		if(game.corp != undefined && game.corp.wallets != undefined){
- 			var w=game.corp.wallets; 			
- 			wallets.corp.credits.value(w.credits); 			
- 	 		wallets.corp.actions.value(w.actions);	
- 		}
- 		
- 		if(game.runner != undefined && game.runner.wallets != undefined){
- 			var w=game.runner.wallets; 			
- 			wallets.runner.credits.value(w.credits); 			
- 	 		wallets.runner.actions.value(w.actions);	
- 		}
- 	}
- 	
-	var $ws;
-
 	$(function() {
 		initANR();
 		
@@ -100,29 +23,8 @@
 		if(!hash)
 			return;
 			
-		var all=hash.match(/(\w+)@(\w+)/);
-		var fact=all[1];
-		var gid=all[2];
-		
-		console.log("connecting to "+gid+" as "+fact);
-		bootANR(fact);
-		
-		$ws = $.websocket("ws://127.0.0.1:8082/ws", {
-			events: {
-				text:function(e) {			
-		            console.log("text ->"+JSON.stringify(e));
-		        },
-		        setup:function(e){	        	 
-		        	doSetup(e.data);
-		        },
-		        update:function(e){
-		        	doUpdate(e.data);
-		        }
-			}				
-		});
-		$ws.onopen=function(){
-			$ws.send('ready',{game:gid});	
-		};
+		var all=hash.match(/(\w+)@(\w+)/);	
+		bootANR(all[1],all[2]);
 			
 	
 		//binding
@@ -159,6 +61,11 @@
 		//vers la main
 		Mousetrap.bind('h',function(e){
 			focusAt(e,{type:'hand',value:{hand:1}});
+		});
+		
+		//Ation
+		Mousetrap.bind('space',function(e){
+			executeAction();
 		});
 	});
 	
@@ -251,9 +158,25 @@
 			Stack (<span>0</span>)
 		</div>
 
-		<div id="preview">
-			<img />
+		<div id="preview"  class="panel panel-default">
+			<div class="panel-heading"><i class="glyphicon glyphicon-fullscreen"></i> Card details</div>
+			<div class="panel-body">
+				<img />
+			</div>
 		</div>
+		
+		<div id="action" class="panel panel-default">
+	  		<div class="panel-heading"><i class="glyphicon glyphicon-play"></i> Action</div>
+  			<p class="panel-body">
+    			Panel content
+  			</p>
+		</div>
+		
+		<ol id="status-bar" class="breadcrumb">
+  			<li class="active"><span class="label label-default">Corp</span></li>
+  			<li class="active">Action step</li>
+  			<li class="active"><span class="label label-info">Please play an action</span></li>
+		</ol>
 	</div>
 
 </body>

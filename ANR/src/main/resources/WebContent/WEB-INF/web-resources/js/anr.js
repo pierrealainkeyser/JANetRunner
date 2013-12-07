@@ -1,32 +1,40 @@
 var locationHandler = {};
 
-var HQ_SERVER=2;
-var RD_SERVER=1;
-var ARCHIVES_SERVER=0;
+var HQ_SERVER = 2;
+var RD_SERVER = 1;
+var ARCHIVES_SERVER = 0;
 
-var RUNNER_GRIP=2;
-var RUNNER_STACK=1;
-var RUNNER_HEAP=0;
-
+var RUNNER_GRIP = 2;
+var RUNNER_STACK = 1;
+var RUNNER_HEAP = 0;
 
 var faction = 'none';
-var cards={};
-var wallets={};
+var cards = {};
+var wallets = {};
+var actions = [];
 
-//gestion des bordures
-var mainInsets={
-	left:function(){return 30;},
-	right:function(){return $('div#main').width()-160;},
-	top:function(){return 65;},
-	bottom:function(){return $('div#main').height()-210;}	
+// gestion des bordures
+var mainInsets = {
+	left : function() {
+		return 30;
+	},
+	right : function() {
+		return $('div#main').width() - 160;
+	},
+	top : function() {
+		return 65;
+	},
+	bottom : function() {
+		return $('div#main').height() - 210;
+	}
 }
 
 var placeFunction = {
 	hand : function(v) {
-		
-		var bx = mainInsets.right()-130;
-		var by =  mainInsets.bottom()+825;
-				
+
+		var bx = mainInsets.right() - 130;
+		var by = mainInsets.bottom() + 825;
+
 		var ray = 800;
 		var spacing = 2.5;
 		var from = -12;
@@ -42,7 +50,7 @@ var placeFunction = {
 			rotate : -angleDeg
 		};
 	},
-	hq_id : function(v){
+	hq_id : function(v) {
 		return placeFunction.hq();
 	},
 	hq : function(v) {
@@ -65,12 +73,12 @@ var placeFunction = {
 	},
 	server : function(v) {
 		var bx = mainInsets.left();
-		var by =  mainInsets.bottom();
+		var by = mainInsets.bottom();
 		var hspacing = 122;
-		var index=v.index;
-		if(v.remote != undefined)
-			index=3+v.remote;
-		
+		var index = v.index;
+		if (v.remote != undefined)
+			index = 3 + v.remote;
+
 		var x = bx + (index * hspacing);
 		return {
 			x : x,
@@ -86,7 +94,7 @@ var placeFunction = {
 				index : RUNNER_GRIP
 			});
 	},
-	grip_id : function(v){
+	grip_id : function(v) {
 		return placeFunction.grip();
 	},
 	stack : function() {
@@ -101,7 +109,7 @@ var placeFunction = {
 	},
 	runner : function(v) {
 		var bx = mainInsets.right();
-		var by =  mainInsets.top();
+		var by = mainInsets.top();
 		var hspacing = 102;
 		var x = bx - (v.index * hspacing);
 
@@ -111,22 +119,22 @@ var placeFunction = {
 			rotate : 0
 		};
 	},
-	ice : function(v) {		
+	ice : function(v) {
 		var bx = mainInsets.left();
-		var by =  mainInsets.bottom()-23;
+		var by = mainInsets.bottom() - 23;
 		var hspacing = 122;
 		var vspacing = 85;
-		
+
 		var index;
-		if(v.remote != undefined)
-			index=3+v.remote;
-		else if(v.central=='hq')
-			index=HQ_SERVER;
-		else if(v.central=='rd')
-			index=RD_SERVER;
-		else if(v.central=='archives')
-			index=ARCHIVES_SERVER;
-		
+		if (v.remote != undefined)
+			index = 3 + v.remote;
+		else if (v.central == 'hq')
+			index = HQ_SERVER;
+		else if (v.central == 'rd')
+			index = RD_SERVER;
+		else if (v.central == 'archives')
+			index = ARCHIVES_SERVER;
+
 		var x = bx + (index * hspacing);
 		var y = by - (v.ice * vspacing);
 		return {
@@ -144,108 +152,317 @@ var placeFunction = {
 	}
 };
 
-function initANR(){
-	$("#archives").css(placeFunction['archives']());
-	$("#rd").css(placeFunction['rd']());
-	$("#hq").css(placeFunction['hq']());
-	
-	$("#grip").css(placeFunction['grip']());
-	$("#stack").css(placeFunction['stack']());
-	$("#heap").css(placeFunction['heap']());
+function initANR() {
 
-	var corpWidget=$(".faction.corp");
+	var focusme = function() {
+		$(this).focus();
+	}
+
+	var confactions = function(widget) {
+		return widget.mouseenter(focusme).focus(handleFocused).blur(handleBlur)
+				.click(executeAction);
+	}
+
+	confactions($("#archives").css(placeFunction['archives']()));
+	confactions($("#rd").css(placeFunction['rd']()));
+	confactions($("#hq").css(placeFunction['hq']()));
+
+	confactions($("#grip").css(placeFunction['grip']()));
+	confactions($("#stack").css(placeFunction['stack']()));
+	confactions($("#heap").css(placeFunction['heap']()));
+
+	var corpWidget = $(".faction.corp");
 	corpWidget.find("a").bind('click', function() {
 		var l = $(".faction.corp .expand")
-		l.animate({height : 'toggle'},150);
+		l.animate({
+			height : 'toggle'
+		}, 150);
 	});
-	
-	
-	var runnerWidget=$(".faction.runner");
+
+	var runnerWidget = $(".faction.runner");
 	runnerWidget.find("a").bind('click', function() {
 		var l = $(".faction.runner .expand")
-		l.animate({height : 'toggle'},150);
+		l.animate({
+			height : 'toggle'
+		}, 150);
 	});
-	
-	setTimeout(function(){
+
+	setTimeout(function() {
 		corpWidget.find("a").click();
-		runnerWidget.find("a").click();	
-	},750);
-	
-	
-	
-	wallets['corp']={
-		credits: new WalletCounter(corpWidget.find("span.credits")),
-		actions: new WalletCounter(corpWidget.find("span.actions"))
-	};	
-	
-	wallets['runner']={
-		credits: new WalletCounter(runnerWidget.find("span.credits")),
-		actions: new WalletCounter(runnerWidget.find("span.actions")),
-		links: new WalletCounter(runnerWidget.find("span.links")),
-		memory_units: new WalletCounter(runnerWidget.find("span.memory_units"))
+		runnerWidget.find("a").click();
+	}, 750);
+
+	wallets['corp'] = {
+		credits : new ValueWidget(corpWidget.find("span.credits")),
+		actions : new ValueWidget(corpWidget.find("span.actions"))
 	};
-	
+
+	wallets['runner'] = {
+		credits : new ValueWidget(runnerWidget.find("span.credits")),
+		actions : new ValueWidget(runnerWidget.find("span.actions")),
+		links : new ValueWidget(runnerWidget.find("span.links")),
+		memory_units : new ValueWidget(runnerWidget.find("span.memory_units"))
+	};
+
 	locationHandler = {
-			'hq' : new CardCounter($("#hq").find("span")),
-			'archives' : new CardCounter($("#archives").find("span")),
-			'rd' : new CardCounter($("#rd").find("span")),
-			'grip' : new CardCounter($("#grip").find("span")),
-			'stack' : new CardCounter($("#stack").find("span")),
-			'heap' : new CardCounter($("#heap").find("span"))
+		'hq' : new CardCounter($("#hq").find("span")),
+		'archives' : new CardCounter($("#archives").find("span")),
+		'rd' : new CardCounter($("#rd").find("span")),
+		'grip' : new CardCounter($("#grip").find("span")),
+		'stack' : new CardCounter($("#stack").find("span")),
+		'heap' : new CardCounter($("#heap").find("span"))
 	};
 }
 
-
-function bootANR(fact){
-	faction=fact;
-	if(faction=='corp')
-		locationHandler['hand']=locationHandler['hq'];
+/**
+ * Démarrage de la connection
+ * 
+ * @param fact
+ * @param gid
+ */
+function bootANR(fact, gid) {
+	faction = fact;
+	if (faction == 'corp')
+		locationHandler['hand'] = locationHandler['hq'];
 	else
-		locationHandler['hand']=locationHandler['grip'];
+		locationHandler['hand'] = locationHandler['grip'];
 
+	console.info("connecting to '" + window.location.host + "' to game " + gid
+			+ " as " + fact);
+	$ws = $.websocket("ws://" + window.location.host + "/ws", {
+		events : {
+			text : function(e) {
+				console.debug("text ->" + JSON.stringify(e));
+			},
+			setup : function(e) {
+				updateGame(e.data);
+			},
+			update : function(e) {
+				updateGame(e.data);
+			}
+		}
+	});
+	$ws.onopen = function() {
+		$ws.send('ready', {
+			game : gid
+		});
+	};
 }
 
-function WalletCounter(widget){
-	this.widget = widget;	
-	this.value = function(val){
-		if(val != undefined){
-			this.val=val;
-			this.widget.text(""+val);
+/**
+ * Maj de l'état du client
+ * 
+ * @param game
+ */
+function updateGame(game) {
+	console.debug("updateGame " + JSON.stringify(game));
+
+	// prise en compte des wallets
+	if (game.corp != undefined && game.corp.wallets != undefined) {
+		var w = game.corp.wallets;
+		wallets.corp.credits.value(w.credits);
+		wallets.corp.actions.value(w.actions);
+	}
+
+	if (game.runner != undefined && game.runner.wallets != undefined) {
+		var w = game.runner.wallets;
+		wallets.runner.credits.value(w.credits);
+		wallets.runner.actions.value(w.actions);
+	}
+
+	var main = $('div#main');
+	// gestion des cartes
+	for ( var i in game.cards) {
+		var c = game.cards[i];
+		var card = cards[c.id];
+		if (card == undefined) {
+			card = new Card(c.def);
+			cards[card.def.id] = card;
+			card.init(main);
+		}
+		card.update(c);
+
+		// demo d'affichage
+		/*
+		 * c.widget.click(function() { var c=$(this).prop("card");
+		 * 
+		 * if (c.isHidden()) c.show(); else c.hide(); });
+		 */
+	}
+
+	// gestion des actions locals
+	actions = [];
+	var q = game.question;
+	if (q != undefined) {
+		// un question pour ma faction
+		if (q.to == faction) {
+			console.debug("new question : " + q.what + " ?");
+			for (i in q.responses) {
+				var a = handleQuestion(q, q.responses[i]);
+				if (a) {
+					actions.push(a);
+				}
+			}
+		}
+	}
+
+	// gestion du popup des actions
+	displayANRAction($(":focus").prop("ANRAction"));
+}
+
+/**
+ * Gestion d'une question de base
+ * 
+ * @param q
+ * @param r
+ * @returns {Action}
+ */
+function handleQuestion(q, r) {
+
+	console.debug(" -> " + JSON.stringify(r));
+
+	var card = cards[r.card];
+	var widget = null;
+	if (card != undefined)
+		widget = card.widget;
+	if ('WHICH_ABILITY' == q.what) {
+		if ('click-for-credit' == r.option)
+			widget = faction == 'corp' ? $("#hq") : $("#grip");
+		else if ('click-for-draw' == r.option)
+			widget = faction == 'corp' ? $("#rd") : $("#stack");
+	}
+
+	var act = null;
+	if (widget != undefined)
+		act = new Action(q, r, widget);
+	return act;
+}
+
+/**
+ * Execute l'action associé au widget
+ * 
+ * @param wigdet
+ */
+function executeAction() {
+	var widget = $(":focus")
+	if (widget != undefined) {
+		var act = widget.prop("ANRAction");
+		if (act) {
+			act.applyAction();
+
+			// gestion du popup des actions
+			displayANRAction($(":focus").prop("ANRAction"));
+		}
+	}
+}
+
+/**
+ * Gestion du focus sur les actions
+ */
+function handleFocused() {
+	displayANRAction($(this).prop("ANRAction"));
+}
+
+/**
+ * Gestion du blur sur les actions
+ */
+function handleBlur() {
+	displayANRAction();
+}
+
+/**
+ * Gestion du panneau des actions
+ * 
+ * @param act
+ */
+function displayANRAction(act) {
+	var widget = $("#action");
+	if (act != undefined) {
+		widget.find("p").text(act.option);
+		widget.stop().show('slide');
+	} else {
+		var widget = $("#action");
+		widget.stop().hide('slide', function() {
+			widget.find("p").text("");
+		});
+	}
+}
+
+/**
+ * Une action de base
+ */
+function Action(q, r, widget) {
+	this.option = r.option;
+
+	widget.prop("ANRAction", this).addClass("withAction");
+	
+	/**
+	 * Permet d'envoyer le message vers la socket.
+	 * La function updateChoosen permet de modifier les objets envoyé
+	 */
+	this.sendToWs = function(updateChoosen){
+		this.clearAll();
+		var choosen = {
+			qid : q.qid,
+			rid : r.rid
+		};
+		if(updateChoosen!=undefined)
+			choosen=updateChoosen(choosen);
+		
+		console.debug("sending to ws " + JSON.stringify(choosen));
+		$ws.send('response', choosen);
+	}
+
+	this.applyAction = function() {
+		console.info("applying : " + r.option);
+		this.sendToWs();
+	};
+
+	/**
+	 * Nettoyage de toutes les actions
+	 */
+	this.clearAll = function() {
+		for (i in actions) {
+			actions[i].clean();
+		}
+	}
+
+	this.clean = function() {
+		widget.removeProp("ANRAction").removeClass("withAction");
+	}
+}
+
+function ValueWidget(widget) {
+	this.widget = widget;
+	this.value = function(val) {
+		if (val != undefined) {
+			this.val = val;
+			this.widget.text("" + val);
 		}
 		return this.val;
 	}
-	
-	this.value(0);	
+
+	this.value(0);
 }
 
 function CardCounter(widget) {
 	this.cards = {};
-	this.widget = widget;
-	
+	this.widget = new ValueWidget(widget);
+
 	this.add = function(c) {
 		this.cards[c.def.id] = c;
 		this.sync();
 		return Object.keys(this.cards).length;
 	}
-	
+
 	this.remove = function(c) {
 		delete this.cards[c.def.id];
 		this.sync();
 	}
-	
+
 	this.sync = function() {
-		var len = Object.keys(this.cards).length;
-		this.widget.text("" + len);
+		this.widget.value(Object.keys(this.cards).length);
 	}
-}
-
-
-function createCard(card, parent) {
-	var c = new Card(card.def);
-	cards[card.def.id]=c;
-	c.init(parent);
-	c.update(card);
-	return c;
 }
 
 function Card(def) {
@@ -258,52 +475,57 @@ function Card(def) {
 	this.widget;
 	this.local = def.faction == faction;
 	this.rezzed = false;
-	
+
 	this.init = function(parent) {
 		this.widget = $(
-				"<div tabindex='-1' class='card " + this.def.faction + "'><img src='"
-						+ this.def.url + "'/></div>").appendTo(parent);
+				"<div tabindex='-1' class='card " + this.def.faction
+						+ "'><img src='" + this.def.url + "'/></div>")
+				.appendTo(parent);
 		this.widget.prop("card", this);
 		this.widget.show();
 		var img = this.widget.find("img");
 		img.css("opacity", '0');
-		
-		//donne le focus quand on entre
-		this.widget.mouseenter(function(){
-			$(this).focus();				
+
+		// donne le focus quand on entre
+		this.widget.mouseenter(function() {
+			var me = $(this);
+			var card = me.prop("card");
+			if (card.isFocusable()) {
+				me.focus();
+			}
 		});
-		this.widget.focus(function(){
-			var me=$(this);
-			var card=me.prop("card");
-			if(card.isPreviewable()){
-				var prev=$("#preview");
-				prev.find("img").attr("src",card.def.url);
+		this.widget.focus(function() {
+			var me = $(this);
+			var card = me.prop("card");
+			if (card.isPreviewable()) {
+				var prev = $("#preview");
+				prev.find("img").attr("src", card.def.url);
 				prev.stop().show('slide');
-			}				
-		});						
-		this.widget.blur(function(){								
-			var prev=$("#preview");
-			prev.stop().hide('slide');
+			}
+			handleFocused();
 		});
-		
-	
-		
+		this.widget.blur(function() {
+			var prev = $("#preview");
+			prev.stop().hide('slide');
+			handleBlur();
+		});
 	}
-	
-	//mis à jour des cartes
-	this.update = function(card){
-		//position de base	
+
+	// mis à jour des cartes
+	this.update = function(card) {
+		// position de base
 		this.location(card.location);
-		
-		//visible ou non
-		if(card.visible != undefined)
+
+		// visible ou non
+		if (card.visible != undefined)
 			this.rezz(card.visible);
 	}
 
 	this.location = function(location) {
-	
+
 		if (location) {
-			if (this.local && (location.type == 'hq' || location.type == 'grip')) {
+			if (this.local
+					&& (location.type == 'hq' || location.type == 'grip')) {
 				this.widget.css('rotateX', '0deg');
 				this.widget.css('rotateY', '0deg');
 				this.split = 'none';
@@ -316,7 +538,7 @@ function Card(def) {
 				this.widget.css('rotateY', this.isHidden() ? '180deg' : '0deg');
 				this.widget.css('rotateX', '0deg');
 			}
-	
+
 			var cc = locationHandler[this.loc.type];
 			if (cc) {
 				cc.remove(this);
@@ -332,27 +554,27 @@ function Card(def) {
 					}
 				}
 			}
-	
+
 			cc = locationHandler[location.type];
-			if (cc) {			
-				if (this.local && (location.type == 'hq' || location.type == 'grip'))
-					location.type='hand';
-				
+			if (cc) {
+				if (this.local
+						&& (location.type == 'hq' || location.type == 'grip'))
+					location.type = 'hand';
+
 				var nindex = cc.add(this);
 				if (location.type == 'hand') {
 					location.value = {
 						hand : nindex
 					};
-					console.log("add to hand " + JSON.stringify(location));		
 					this.show();
 					this.widget.css("zIndex", nindex);
 				}
 			}
-			
+
 			if (location.type == 'hq_id' || location.type == 'grip_id') {
 				this.widget.css("zIndex", 500);
 			}
-	
+
 			this.loc = location;
 			this.animate();
 		}
@@ -367,8 +589,18 @@ function Card(def) {
 			rotate : place.rotate,
 			queue : false
 		}
-	
+
 		this.widget.transition(trans);
+	}
+
+	this.isPreviewable = function() {
+		// plus de regle, genre on ne peut pas faire de preview sur RD....
+		return this.loc.type != 'stack' && this.loc.type != 'rd'
+				&& (this.local || !this.isHidden());
+	}
+
+	this.isFocusable = function() {
+		return this.loc.type != 'stack' && this.loc.type != 'rd'
 	}
 
 	this.show = function() {
@@ -387,27 +619,6 @@ function Card(def) {
 		}
 	}
 
-	this.rezz = function(r) {
-		if (r != undefined) {
-			this.rezzed = r;
-			if (r)
-				this.show();
-			else
-				this.hide();
-		}
-		return this.rezzed;
-	}
-
-	this.isPreviewable = function(){
-		//plus de regle, genre on ne peut pas faire de preview sur RD....
-		return this.loc.type!='stack' && this.loc.type!='rd' && ( this.local || !this.isHidden());
-	}
-
-	this.isHidden = function() {
-		var opacity = this.widget.find("img").css("opacity");
-		return opacity == 0;
-	}
-
 	this.hide = function() {
 		if (!this.isHidden()) {
 			this.widget.find("img").transition({
@@ -424,63 +635,117 @@ function Card(def) {
 		}
 	}
 
-	this.next = function(dir){
-		
-		var newloc;	
-		console.log('going '+dir+' from '+JSON.stringify(this.loc));
-		var t=this.loc.type;
-		var v=this.loc.value;
-		if('up'==dir){		
-			if('rd'==t || 'hq'==t || 'archives'==t)
-				newloc={type:'ice',value:{central:t,ice:1}};		
-			else if('server'==t)
-				newloc={type:'ice',value:{remote:v.remote,ice:1}};
-			else if('ice'==t){
-				newloc={type:'ice',value:{ice:v.ice+1}};
-				if(v.central)
-					newloc.value.central=v.central;
-				else if(v.remote)
-					newloc.value.remote=v.remote;
-			}
-		} else if ('down'==dir){
-			if('ice'==t){
-				if(v.ice>1){			
-					newloc={type:'ice',value:{ice:v.ice-1}};
-					if(v.central)
-						newloc.value.central=v.central;
-					else if(v.remote)
-						newloc.value.remote=v.remote;
-				}
-				else{
-					if(v.central != undefined)
-						newloc={type:v.central};
-					else if(v.remote != undefined)
-						newloc={type:'server',value:{remote:v.remote}};
-				}
-			}
-		} else if('right'==dir){
-			if('hand'==t)
-				newloc={type:'hand', value:{hand:v.hand-1}};
-				
-		} else if('left'==dir){		
-			if('hand'==t)
-				newloc={type:'hand', value:{hand:v.hand+1}};
+	this.rezz = function(r) {
+		if (r != undefined) {
+			this.rezzed = r;
+			if (r)
+				this.show();
+			else
+				this.hide();
 		}
-		return cardAt(newloc);	
+		return this.rezzed;
+	}
+
+	this.isHidden = function() {
+		var opacity = this.widget.find("img").css("opacity");
+		return opacity == 0;
+	}
+
+	this.next = function(dir) {
+
+		var newloc;
+		console.debug('going ' + dir + ' from ' + JSON.stringify(this.loc));
+		var t = this.loc.type;
+		var v = this.loc.value;
+		if ('up' == dir) {
+			if ('rd' == t || 'hq' == t || 'archives' == t)
+				newloc = {
+					type : 'ice',
+					value : {
+						central : t,
+						ice : 1
+					}
+				};
+			else if ('server' == t)
+				newloc = {
+					type : 'ice',
+					value : {
+						remote : v.remote,
+						ice : 1
+					}
+				};
+			else if ('ice' == t) {
+				newloc = {
+					type : 'ice',
+					value : {
+						ice : v.ice + 1
+					}
+				};
+				if (v.central)
+					newloc.value.central = v.central;
+				else if (v.remote)
+					newloc.value.remote = v.remote;
+			}
+		} else if ('down' == dir) {
+			if ('ice' == t) {
+				if (v.ice > 1) {
+					newloc = {
+						type : 'ice',
+						value : {
+							ice : v.ice - 1
+						}
+					};
+					if (v.central)
+						newloc.value.central = v.central;
+					else if (v.remote)
+						newloc.value.remote = v.remote;
+				} else {
+					if (v.central != undefined)
+						newloc = {
+							type : v.central
+						};
+					else if (v.remote != undefined)
+						newloc = {
+							type : 'server',
+							value : {
+								remote : v.remote
+							}
+						};
+				}
+			}
+		} else if ('right' == dir) {
+			if ('hand' == t)
+				newloc = {
+					type : 'hand',
+					value : {
+						hand : v.hand - 1
+					}
+				};
+
+		} else if ('left' == dir) {
+			if ('hand' == t)
+				newloc = {
+					type : 'hand',
+					value : {
+						hand : v.hand + 1
+					}
+				};
+		}
+		return cardAt(newloc);
 	}
 }
 
-function cardAt(newloc){
-	if(newloc){
-		console.log('searching for : '+JSON.stringify(newloc));
-		for(i in cards){
-			var c=cards[i];
-			if(_.isEqual(c.loc,newloc)){
-				console.log('found : '+c.def.id);
+function cardAt(newloc) {
+	if (newloc) {
+		console.debug('searching for : ' + JSON.stringify(newloc));
+		for (i in cards) {
+			var c = cards[i];
+			if (_.isEqual(c.loc, newloc)) {
+				console.debug('found : ' + c.def.id);
 				return c;
 			}
 		}
-		console.log('found nothing....');
+		console.debug('found nothing....');
 	}
 	return null;
 }

@@ -12,7 +12,7 @@ import org.keyser.anr.core.runner.HardwareInstallationCostDeterminationEvent;
 import org.keyser.anr.core.runner.ProgramInstallationCostDeterminationEvent;
 import org.keyser.anr.core.runner.Runner;
 
-@CardDef(name = "Kate 'Mac' McCaffrey: Digital Tinker", oid = "01033")
+@CardDef(name = "Kate \"Mac\" McCaffrey: Digital Tinker", oid = "01033")
 public class KateMcCaffrey extends Runner {
 
 	private boolean firstInstall = false;

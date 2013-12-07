@@ -14,6 +14,7 @@ import org.keyser.anr.core.Game;
 import org.keyser.anr.core.Notification;
 import org.keyser.anr.core.NotificationEvent;
 import org.keyser.anr.core.Question;
+import org.keyser.anr.core.Response;
 import org.keyser.anr.core.Wallet;
 import org.keyser.anr.core.WalletActions;
 import org.keyser.anr.core.WalletCredits;
@@ -85,6 +86,19 @@ public class GameDTOBuilder {
 	}
 
 	/**
+	 * Création de la réponse possible
+	 * 
+	 * @param r
+	 * @return
+	 */
+	private PossibleResponseDTO possibleReponse(Response r) {
+		Integer i = null;
+		if (r.getCard() != null)
+			i = r.getCard().getId();
+		return new PossibleResponseDTO(r.getOption(), r.getResponseId(), i, r.getContent());
+	}
+
+	/**
 	 * Mise à jour de la question
 	 * 
 	 * @param g
@@ -93,7 +107,7 @@ public class GameDTOBuilder {
 	private void updateQuestion(GameDTO g, Question q) {
 
 		QuestionDTO d = new QuestionDTO(q.getQid(), q.getTo(), q.getType());
-		q.getResponses().values().forEach(r -> d.add(new PossibleResponseDTO(r.getOption(), r.getResponseId(), null)));
+		q.getResponses().values().forEach(r -> d.add(possibleReponse(r)));
 		g.setQuestion(d);
 	}
 
@@ -179,6 +193,12 @@ public class GameDTOBuilder {
 			return LocationDTO.hq;
 		else if (cl == CardLocation.RD)
 			return LocationDTO.rd;
+		if (cl == CardLocation.HEAP)
+			return LocationDTO.heap;
+		else if (cl == CardLocation.GRIP)
+			return LocationDTO.grip;
+		else if (cl == CardLocation.STACK)
+			return LocationDTO.stack;
 		else {
 			CardLocation.Where w = cl.getWhere();
 			if (w == Where.ICE) {

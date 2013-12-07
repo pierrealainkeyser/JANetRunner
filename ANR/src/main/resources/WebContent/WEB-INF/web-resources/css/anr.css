@@ -6,7 +6,7 @@ body>div.container {
 	height: 100%;
 }
 
-div#main{
+div#main {
 	width: 100%;
 	height: 100%;
 }
@@ -16,20 +16,19 @@ div.card {
 	padding: 0px;
 	margin: 0px;
 	position: absolute;
-	box-shadow: -1px 2px 5px 1px rgba(0, 0, 0, 0.5);
+	box-shadow: -1px 1px 1px 1px rgba(0, 0, 0, 0.5);
 	top: 0px;
 	left: 0px;
 	width: 80px;
 	height: 111px;
-	
 	background-size: 100% 100%;
 }
 
-div.card.corp{
+div.card.corp {
 	background-image: url(../img/back-corp.png);
 }
 
-div.card.runner{
+div.card.runner {
 	background-image: url(../img/back-runner.png);
 }
 
@@ -41,99 +40,125 @@ div.card img {
 }
 
 .faction {
-	position:absolute;
-	top:0px;
-	width:55px;	
-	display: inline-block; 
-	border : 1px solid #cccccc;
+	position: absolute;
+	top: 0px;
+	width: 55px;
+	display: inline-block;
+	border: 1px solid #cccccc;
 	border-top-width: 0px;
 	white-space: nowrap;
-		
 	color: #333333;
-  	background-color: #ffffff;
+	background-color: #f5f5f5;
 }
 
-.faction:hover { 
-	background-color: #ebebeb;
-  	border-color: #adadad;
-}
-
-.faction img{	
+.faction img {
 	margin-left: 8px;
 }
 
-.faction p{
+.faction p {
 	padding-bottom: 2px;
 	padding-top: 2px;
-	margin: 0px;	
+	margin: 0px;
 }
 
 .faction div.expand {
 	display: none;
 }
 
-.faction div.expand span{
+.faction div.expand span {
 	display: inline-block;
 	width: 50%;
 	text-align: center;
 }
 
-.faction.corp{
+.faction.corp {
 	border-bottom-right-radius: 5px;
 	border-left-width: 0px;
 }
 
-.faction.runner{
+.faction.runner {
 	border-bottom-left-radius: 5px;
 	border-right-width: 0px;
-		
 	right: 0px;
 }
 
-#preview img{	
-	width: 216px;
-	height: 300px;
+#status-bar {
+	position: absolute;
+	top: 0px;
+	left: 52px;
+	padding: 5px;
+	border: 1px solid #cccccc;
+	border-top-width: 0px;
+	width: 100%;
+	z-index: -1;
 }
 
-#preview{		
+#preview {
 	position: absolute;
 	right: 0px;
-	top: 250px;
+	top: 200px;
 	display: none;
-	box-shadow: -1px 2px 5px 1px rgba(0, 0, 0, 0.7);
-	
-	background-color: #ebebeb;
-	border : 1px solid #adadad;
-	border-radius: 5px;
 }
 
+#preview img {
+	width: 216px;
+	height: 300px;
+	box-shadow: -1px 2px 4px 1px rgba(0, 0, 0, 0.7);
+	border: 1px solid #adadad;
+	border-radius: 5px 0px 0px 5px;
+	margin: -5px;
+}
 
-.cardplace{
+#action {
+	position: absolute;
+	left: 0px;
+	top: 125px;
+	display: none;
+	width: 200px;
+	white-space: nowrap;
+	border-radius: 0px 5px 5px 0px;
+}
+
+#action p {
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
+#action i,#preview i {
+	margin-left: 5px;
+}
+
+#action .panel-heading, #preview .panel-heading{
+	padding: 3px;
+}
+
+.cardplace {
 	border-radius: 5px;
-	border: 3px dashed #cccccc;		
+	border: 1.5px dashed #cccccc;
 	margin: 0px;
 	margin-left: -8px;
 	margin-top: -6px;
-	position: absolute;	
+	position: absolute;
 	width: 96px;
 	height: 150px;
 	padding: 0px;
-	
-	text-align: center;	
+	text-align: center;
 	font-weight: bold;
 	font-size: 11px;
-	color: #cccccc;
+	color: #999999;
 }
 
-#rd, #hq, #archives{
+.withAction.cardplace {
+	border: 1.5px dashed #428bca;
+}
+
+#rd,#hq,#archives {
 	padding-top: 123px;
 }
 
-#grip,#stack,#heap{
-	margin-top : -30px;
+#grip,#stack,#heap {
+	margin-top: -30px;
 }
-
-
 
 .sprite {
 	background:
