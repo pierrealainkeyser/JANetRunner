@@ -397,8 +397,8 @@ function Action(q, r, widget) {
 	widget.prop("ANRAction", this).addClass("withAction");
 	
 	/**
-	 * Permet d'envoyer le message vers la socket.
-	 * La function updateChoosen permet de modifier les objets envoyé
+	 * Permet d'envoyer le message vers la socket. La function updateChoosen
+	 * permet de modifier les objets envoyé
 	 */
 	this.sendToWs = function(updateChoosen){
 		this.clearAll();
@@ -477,9 +477,11 @@ function Card(def) {
 	this.rezzed = false;
 
 	this.init = function(parent) {
+		var url="http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/"+this.def.url +".png";
+		
 		this.widget = $(
 				"<div tabindex='-1' class='card " + this.def.faction
-						+ "'><img src='" + this.def.url + "'/></div>")
+						+ "'><img src='" + url + "'/></div>")
 				.appendTo(parent);
 		this.widget.prop("card", this);
 		this.widget.show();

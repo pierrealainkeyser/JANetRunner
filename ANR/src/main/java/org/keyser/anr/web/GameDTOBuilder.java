@@ -44,11 +44,6 @@ import org.keyser.anr.web.dto.QuestionDTO.PossibleResponseDTO;
  */
 public class GameDTOBuilder {
 
-	private String urlFormat;
-
-	public void setUrlFormat(String urlFormat) {
-		this.urlFormat = urlFormat;
-	}
 
 	/**
 	 * Prise en compte des notifications
@@ -245,7 +240,6 @@ public class GameDTOBuilder {
 
 	private String getURL(Object c) {
 		CardDef cd = c.getClass().getAnnotation(CardDef.class);
-		String url = MessageFormat.format(urlFormat, cd.oid());
-		return url;
+		return cd.oid();
 	}
 }
