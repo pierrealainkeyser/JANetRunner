@@ -29,6 +29,8 @@ public class GameAccessWrapper {
 	public void create(Function<GameDef, GameGateway> creator) {
 
 		GameGateway gg = creator.apply(def);
+		
+		//TODO utilise une autre maniere de procéder genre création d'un UID
 		corp = new GameAccess(def.getKey() + "-corp", "corp", gg);
 		runner = new GameAccess(def.getKey() + "-runner", "runner", gg);
 		visitor = new GameAccess(def.getKey(), "none", gg);

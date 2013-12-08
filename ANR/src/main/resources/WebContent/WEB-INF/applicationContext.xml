@@ -6,10 +6,15 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
 	<bean id="jacksonMapper" class="org.keyser.anr.web.ObjectMapperFactoryBean" />
-	<bean id="dtoBuilder" class="org.keyser.anr.web.GameDTOBuilder" />
 
+
+	<!-- la fabrique de jeu à  partir de GameDef -->
 	<bean id="gameFactory" class="org.keyser.anr.web.GameFactory"
-		p:builder-ref="dtoBuilder" p:mapper-ref="jacksonMapper" />
+		p:mapper-ref="jacksonMapper">
+		<property name="builder">
+			<bean class="org.keyser.anr.web.GameDTOBuilder" />
+		</property>
+	</bean>
 
 	<bean id="gameRepository" class="org.keyser.anr.web.GameRepository" />
 
@@ -29,7 +34,6 @@
 	</bean>
 
 
-
-	<bean class="org.keyser.anr.web.WebSocketCreatorFactoryBean"
+	<bean id="webSocketPlay" class="org.keyser.anr.web.WebSocketCreatorFactoryBean"
 		p:repository-ref="gameRepository" p:mapper-ref="jacksonMapper" />
 </beans>	

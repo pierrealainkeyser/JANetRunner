@@ -19,8 +19,7 @@ public class AnrWebSocketServlet extends WebSocketServlet {
 
 		WebApplicationContext wac = getRequiredWebApplicationContext(getServletContext());
 
-		
-		factory.setCreator(wac.getBean(WebSocketCreator.class));
+		factory.setCreator(wac.getBean("webSocketPlay", WebSocketCreator.class));
 	}
 
 }
