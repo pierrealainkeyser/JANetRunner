@@ -1,7 +1,6 @@
 package org.keyser.anr.web;
 
 import java.io.IOException;
-import java.util.function.Function;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.jetty.websocket.api.Session;
@@ -43,15 +42,15 @@ public class AnrWebSocket extends WebSocketAdapter implements GameOutput {
 
 	private final static Logger log = LoggerFactory.getLogger(AnrWebSocket.class);
 
-	private GameGateway gateway;
+	private GameAccess access;
 
-	private final Function<String, GameGateway> gateways;
+	private final GameRepository allGames;
 
 	private final ObjectMapper mapper;
 
-	public AnrWebSocket(ObjectMapper mapper, Function<String, GameGateway> gateways) {
+	public AnrWebSocket(ObjectMapper mapper, GameRepository allGames) {
 		this.mapper = mapper;
-		this.gateways = gateways;
+		this.allGames = allGames;
 	}
 
 	@Override
@@ -65,9 +64,9 @@ public class AnrWebSocket extends WebSocketAdapter implements GameOutput {
 	public void onWebSocketClose(int statusCode, String reason) {
 		super.onWebSocketClose(statusCode, reason);
 
-		if (gateway != null) {
-			gateway.remove(this);
-			gateway = null;
+		if (access != null) {
+			access.getGateway().remove(this);
+			access = null;
 		}
 	}
 
@@ -85,23 +84,28 @@ public class AnrWebSocket extends WebSocketAdapter implements GameOutput {
 				// recherche des l'objet qui va bien
 				GameLookupDTO gl = mapper.convertValue(content, GameLookupDTO.class);
 
-				// TODO il faudrait s'enregistré dans la passerelle
-				gateway = gateways.apply(gl.getGame());
+				access = allGames.get(gl.getGame());
+				//TODO gestion de l'erreur
 
-				gateway.register(this);
+				// O il faudrait s'enregistré dans la passerelle
+				GameGateway gw = access.getGateway();
+				gw.register(this);
 
-				gateway.accept(this, GameGateway.READY);
+				// on indique la faction au client
+				send("connected", access.getFaction());
+
+				gw.accept(this, GameGateway.READY);
 			} else if (GameGateway.RESPONSE.equals(type)) {
 
 				ResponseDTO res = mapper.convertValue(content, ResponseDTO.class);
-				gateway.accept(this, res);
+				access.getGateway().accept(this, res);
 			} else {
 				// on renvoi dans l'autre sens, pour l'instant
 				send("text", content);
 			}
 
 		} catch (Exception e) {
-			//TODO faire un truc plus sympa qu'une bete propagation
+			// TODO faire un truc plus sympa qu'une bete propagation
 			throw new RuntimeException(e);
 		}
 

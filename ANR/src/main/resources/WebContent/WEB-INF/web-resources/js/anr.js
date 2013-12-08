@@ -217,22 +217,25 @@ function initANR() {
 /**
  * Démarrage de la connection
  * 
- * @param fact
  * @param gid
  */
-function bootANR(fact, gid) {
-	faction = fact;
-	if (faction == 'corp')
-		locationHandler['hand'] = locationHandler['hq'];
-	else
-		locationHandler['hand'] = locationHandler['grip'];
+function bootANR(gid) {
 
-	console.info("connecting to '" + window.location.host + "' to game " + gid
-			+ " as " + fact);
-	$ws = $.websocket("ws://" + window.location.host + "/ws", {
+	console.info("connecting to '" + window.location.host + "' to game " + gid);
+	$ws = $.websocket("ws://" + window.location.host + "/ws/play", {
 		events : {
 			text : function(e) {
 				console.debug("text ->" + JSON.stringify(e));
+			},
+			connected : function(e){
+				console.debug("connected ->" + e.data);
+				
+				faction = e.data;
+				if (faction == 'corp')
+					locationHandler['hand'] = locationHandler['hq'];
+				else
+					locationHandler['hand'] = locationHandler['grip'];
+				
 			},
 			setup : function(e) {
 				updateGame(e.data);

@@ -1,23 +1,20 @@
 package org.keyser.anr.web;
 
-import java.util.function.Function;
-
 import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.jetty.websocket.servlet.WebSocketCreator;
 import org.springframework.beans.factory.FactoryBean;
 
 public class WebSocketCreatorFactoryBean implements FactoryBean<WebSocketCreator> {
 
-
 	private ObjectMapper mapper;
-	
-	private Function<String, GameGateway> gateways;
+
+	private GameRepository repository;
 
 	@Override
 	public WebSocketCreator getObject() throws Exception {
 
 		return (req, resp) -> {
-			return new AnrWebSocket(mapper, gateways);
+			return new AnrWebSocket(mapper, repository);
 		};
 	}
 
@@ -31,8 +28,8 @@ public class WebSocketCreatorFactoryBean implements FactoryBean<WebSocketCreator
 		return false;
 	}
 
-	public void setGateways(Function<String, GameGateway> gateways) {
-		this.gateways = gateways;
+	public void setRepository(GameRepository repository) {
+		this.repository = repository;
 	}
 
 	public void setMapper(ObjectMapper mapper) {

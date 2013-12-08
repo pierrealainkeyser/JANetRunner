@@ -8,9 +8,28 @@
 	<bean id="jacksonMapper" class="org.keyser.anr.web.ObjectMapperFactoryBean" />
 	<bean id="dtoBuilder" class="org.keyser.anr.web.GameDTOBuilder" />
 
-	<bean id="gateways" class="org.keyser.anr.web.GameBootstrap"
+	<bean id="gameFactory" class="org.keyser.anr.web.GameFactory"
 		p:builder-ref="dtoBuilder" p:mapper-ref="jacksonMapper" />
 
+	<bean id="gameRepository" class="org.keyser.anr.web.GameRepository" />
+
+	<bean class="org.keyser.anr.web.GameBoot" p:allGames-ref="gameRepository"
+		p:factory-ref="gameFactory">
+		<property name="basic">
+			<bean class="org.keyser.anr.web.GameDef">
+				<constructor-arg value="3253-4324" />
+				<property name="deckCorp">
+					<bean class="org.keyser.anr.web.DeckResource" p:resource="file:src/test/resources/core-nbn.o8d" />
+				</property>
+				<property name="deckRunner">
+					<bean class="org.keyser.anr.web.DeckResource" p:resource="file:src/test/resources/core-shapper.o8d" />
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+
+
 	<bean class="org.keyser.anr.web.WebSocketCreatorFactoryBean"
-		p:gateways-ref="gateways" p:mapper-ref="jacksonMapper" />
+		p:repository-ref="gameRepository" p:mapper-ref="jacksonMapper" />
 </beans>	

@@ -19,12 +19,7 @@
 	$(function() {
 		initANR();
 		
-		var hash= window.location.hash;
-		if(!hash)
-			return;
-			
-		var all=hash.match(/(\w+)@(\w+)/);	
-		bootANR(all[1],all[2]);
+		bootANR(window.location.hash.substring(1));
 			
 	
 		//binding

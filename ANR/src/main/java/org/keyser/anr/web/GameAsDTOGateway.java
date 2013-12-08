@@ -99,4 +99,8 @@ public class GameAsDTOGateway implements Notifier, GameGateway {
 		outputs.remove(ouput);
 
 	}
+
+	public Game getGame() {
+		return game;
+	}
 }
