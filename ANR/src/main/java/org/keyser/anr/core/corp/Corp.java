@@ -1,6 +1,7 @@
 package org.keyser.anr.core.corp;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -106,14 +107,12 @@ public class Corp extends PlayableUnit {
 		}
 
 		private boolean isAffordable(InstallIceCost iic) {
-
 			boolean affordable = getWallet().isAffordable(Cost.credit(iic.getCost()).add(getCost()), getAction());
 			return affordable;
 		}
 
 		@Override
 		protected void registerQuestion(Question q) {
-
 			List<Object> content = alls.stream().filter(this::isAffordable).collect(Collectors.toList());
 			if (!content.isEmpty()) {
 				q.ask(getName(), ice).to(InstallIceCost.class, this::accept).setContent(content);
@@ -121,15 +120,7 @@ public class Corp extends PlayableUnit {
 		}
 
 		protected void accept(InstallIceCost iic) {
-
-			CorpServer cs = null;
-			int i = iic.getServer();
-			if (i == 0)
-				cs = archive;
-			else if (i == 1)
-				cs = rd;
-			else if (i == 2)
-				cs = hq;
+			CorpServer cs = getOrCreate(iic.getServer());
 
 			int size = cs.icesCount();
 			wallet.consume(Cost.credit(size).add(getCost()), getAction());
@@ -234,7 +225,6 @@ public class Corp extends PlayableUnit {
 		archive.forEach(c);
 
 		remotes.values().forEach(r -> r.forEach(c));
-
 	}
 
 	/**
@@ -249,11 +239,6 @@ public class Corp extends PlayableUnit {
 		a.add(new ClickForDraw());
 		a.add(new ClickForPurge());
 
-		List<InstallIceCost> installIceCosts = new ArrayList<>();
-		installIceCosts.add(new InstallIceCost(0, archive.icesCount()));
-		installIceCosts.add(new InstallIceCost(1, rd.icesCount()));
-		installIceCosts.add(new InstallIceCost(2, hq.icesCount()));
-
 		List<Ice> allIces = new ArrayList<>();
 		for (CorpCard cc : getHq().getCards()) {
 			if (cc instanceof Operation) {
@@ -266,6 +251,16 @@ public class Corp extends PlayableUnit {
 		}
 
 		if (!allIces.isEmpty()) {
+
+			List<InstallIceCost> installIceCosts = new ArrayList<>();
+			installIceCosts.add(new InstallIceCost(0, archive.icesCount()));
+			installIceCosts.add(new InstallIceCost(1, rd.icesCount()));
+			installIceCosts.add(new InstallIceCost(2, hq.icesCount()));
+			remotes.forEach((i, r) -> {
+				installIceCosts.add(new InstallIceCost(i + 3, r.icesCount()));
+			});
+			installIceCosts.add(new InstallIceCost(remotes.size() + 3, 0));
+
 			// recherche du prix mimimun d'installation d'une glace
 			allIces.forEach(i -> a.add(new InstallIceAbility(i, installIceCosts)));
 		}
@@ -353,6 +348,36 @@ public class Corp extends PlayableUnit {
 
 	public void setRd(CorpRDServer rd) {
 		this.rd = rd;
+	}
+
+	public Collection<CorpRemoteServer> listRemotes() {
+		return remotes.values();
+	}
+
+	/**
+	 * Création ou accès au serveur
+	 * 
+	 * @param i
+	 * @return
+	 */
+	public CorpServer getOrCreate(int i) {
+		CorpServer cs = null;
+		if (i == 0)
+			cs = archive;
+		else if (i == 1)
+			cs = rd;
+		else if (i == 2)
+			cs = hq;
+		else {
+			int remoteIndex = i - 3;
+			CorpRemoteServer crs = remotes.get(remoteIndex);
+			if (crs == null) {
+				crs = new CorpRemoteServer(Corp.this, remoteIndex);
+				remotes.put(remoteIndex, crs);
+				cs = crs;
+			}
+		}
+		return cs;
 	}
 
 }

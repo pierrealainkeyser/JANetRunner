@@ -4,6 +4,9 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
 import java.util.List;
+import java.util.function.Consumer;
+
+import org.keyser.anr.core.Card;
 
 public final class CorpRemoteServer extends CorpServer {
 
@@ -18,14 +21,23 @@ public final class CorpRemoteServer extends CorpServer {
 		this.id = id;
 	}
 
+	@Override
+	public void forEach(Consumer<Card> c) {
+		super.forEach(c);
+		if (asset != null)
+			c.accept(asset);
+		if (agenda != null)
+			c.accept(agenda);
+	}
+
 	public List<CorpCard> getCards() {
-		if(asset!=null)
-			return singletonList((CorpCard)asset);
-		else if(agenda!=null)
-			return singletonList((CorpCard)agenda);
+		if (asset != null)
+			return singletonList((CorpCard) asset);
+		else if (agenda != null)
+			return singletonList((CorpCard) agenda);
 		else
 			return emptyList();
-		
+
 	}
 
 	public void remove() {

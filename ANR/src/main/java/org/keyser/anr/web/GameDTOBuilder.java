@@ -1,5 +1,6 @@
 package org.keyser.anr.web;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -143,10 +144,10 @@ public class GameDTOBuilder {
 		g.setRunner(runnerDTO(runner));
 		g.addCard(new CardDTO().setDef(new CardDefDTO("runner", getURL(runner), "runner")).setLocation(LocationDTO.grip_id).setVisible(true));
 
-		Consumer< Card> add = c -> g.addCard(card(c));
+		Consumer<Card> add = c -> g.addCard(card(c));
 
 		// rajout des cartes de tous le plateau
-		corp.forEach(add);	
+		corp.forEach(add);
 
 		runner.getHand().stream().forEach(add);
 		runner.getDiscard().stream().forEach(add);
@@ -164,6 +165,10 @@ public class GameDTOBuilder {
 		Wallet w = corp.getWallet();
 		p.setValue("credits", w.amountOf(WalletCredits.class));
 		p.setValue("actions", w.amountOf(WalletActions.class));
+
+		List<Integer> r = new ArrayList<>();
+		corp.listRemotes().forEach(c -> r.add(c.getId() + 3));
+		p.setServers(r);
 
 		return p;
 	}

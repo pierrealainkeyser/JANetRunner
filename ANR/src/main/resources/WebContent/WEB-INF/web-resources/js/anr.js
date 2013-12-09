@@ -152,27 +152,29 @@ var placeFunction = {
 	}
 };
 
-function initANR() {
-
+/**
+ * Configuration d'un widget
+ * 
+ * @param widget
+ * @returns
+ */
+function confactions(widget) {
 	var focusme = function() {
 		$(this).focus();
 	}
 
-	var confactions = function(widget) {
-		return widget.mouseenter(focusme).focus(handleFocused).blur(handleBlur)
-				.click(executeAction);
-	}
+	return widget.mouseenter(focusme).focus(handleFocused).blur(handleBlur)
+			.click(executeAction);
+}
 
-	confactions($("#archives").css(placeFunction['archives']()));
-	confactions($("#rd").css(placeFunction['rd']()));
-	confactions($("#hq").css(placeFunction['hq']()));
-	confactions($("#remote0").css(placeFunction.server({
-		index : 3
-	})));
+function initANR() {
+	confactions($("#archives").css(placeFunction.archives()));
+	confactions($("#rd").css(placeFunction.rd()));
+	confactions($("#hq").css(placeFunction.hq()));
 
-	confactions($("#grip").css(placeFunction['grip']()));
-	confactions($("#stack").css(placeFunction['stack']()));
-	confactions($("#heap").css(placeFunction['heap']()));
+	confactions($("#grip").css(placeFunction.grip()));
+	confactions($("#stack").css(placeFunction.stack()));
+	confactions($("#heap").css(placeFunction.heap()));
 
 	var corpWidget = $(".faction.corp");
 	corpWidget.find("a").bind('click', function() {
@@ -274,6 +276,12 @@ function updateGame(game) {
 		var w = game.runner.wallets;
 		wallets.runner.credits.value(w.credits);
 		wallets.runner.actions.value(w.actions);
+	}
+
+	// rajout des servers
+	if (game.corp != undefined && game.corp.servers != null) {
+		for (s in game.corp.servers)
+			widgetServer(game.corp.servers[s]);
 	}
 
 	var main = $('div#main');
@@ -393,7 +401,8 @@ function displayANRAction(act) {
 }
 
 /**
- * Renvoi le widget pour le server
+ * Renvoi le widget pour le server, ou créé le remote à la volée
+ * 
  * @param index
  * @returns
  */
@@ -407,7 +416,36 @@ function widgetServer(index) {
 		w = $("#hq");
 	else {
 		// les autres serveur
-		w = $("#remote" + index);
+		var rindex = index - 3;
+		var rd = "remote" + rindex;
+		w = $("#" + rd);
+		if (!w.length) {
+			var nindex = rindex + 1;
+			var val = null;
+			if (nindex == 1)
+				val = "1<sup>st</sup>";
+			else if (nindex == 2)
+				val = "2<sup>nd</sup>";
+			else if (nindex == 3)
+				val = "3<sup>rd</sup>";
+			else
+				val = nindex + "<sup>th</sup>";
+
+			w = $("<div id='" + rd
+					+ "' class='cardplace remote' tabindex='-1'>" + val
+					+ " Remote</div>");
+			confactions(w.css(placeFunction.server({
+				index : index
+			})));
+			w.css({
+				opacity : 0
+			});
+			w.transition({
+				opacity : 1
+			});
+			$('div#main').append(w);
+
+		}
 	}
 	return w;
 }
@@ -467,7 +505,6 @@ function MultiAction(q, r, widget, createActions) {
 		createActions();
 	}
 }
-
 
 /**
  * L'action d'installer une glace
@@ -654,6 +691,12 @@ function Card(def) {
 				this.widget.css("zIndex", location.value.hand);
 			} else if (location.type == 'hq_id' || location.type == 'grip_id') {
 				this.widget.css("zIndex", 500);
+			} else if (location.type == 'ice') {
+				// création du serveur à la volée
+				var r = location.value.remote;
+				if (r != undefined) {
+					widgetServer(r + 3);
+				}
 			}
 
 			if ((location.type == 'rd' || location.type == 'stack')
