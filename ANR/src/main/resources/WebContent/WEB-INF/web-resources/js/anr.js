@@ -121,7 +121,7 @@ var placeFunction = {
 	},
 	ice : function(v) {
 		var bx = mainInsets.left();
-		var by = mainInsets.bottom() - 23;
+		var by = mainInsets.bottom() - 108;
 		var hspacing = 122;
 		var vspacing = 85;
 
@@ -227,15 +227,15 @@ function bootANR(gid) {
 			text : function(e) {
 				console.debug("text ->" + JSON.stringify(e));
 			},
-			connected : function(e){
+			connected : function(e) {
 				console.debug("connected ->" + e.data);
-				
+
 				faction = e.data;
 				if (faction == 'corp')
 					locationHandler['hand'] = locationHandler['hq'];
 				else
 					locationHandler['hand'] = locationHandler['grip'];
-				
+
 			},
 			setup : function(e) {
 				updateGame(e.data);
@@ -328,6 +328,7 @@ function handleQuestion(q, r) {
 	var widget = null;
 	if (card != undefined)
 		widget = card.widget;
+
 	if ('WHICH_ABILITY' == q.what) {
 		if ('click-for-credit' == r.option)
 			widget = faction == 'corp' ? $("#hq") : $("#grip");
@@ -336,8 +337,12 @@ function handleQuestion(q, r) {
 	}
 
 	var act = null;
-	if (widget != undefined)
-		act = new Action(q, r, widget);
+	if (widget != undefined) {
+		if ("install-ice" == r.option)
+			act = new InstallIceMultiAction(q, r, widget);
+		else
+			act = new Action(q, r, widget);
+	}
 	return act;
 }
 
@@ -396,22 +401,21 @@ function displayANRAction(act) {
  */
 function Action(q, r, widget) {
 	this.option = r.option;
-
 	widget.prop("ANRAction", this).addClass("withAction");
-	
+
 	/**
 	 * Permet d'envoyer le message vers la socket. La function updateChoosen
 	 * permet de modifier les objets envoyé
 	 */
-	this.sendToWs = function(updateChoosen){
+	this.sendToWs = function() {
 		this.clearAll();
 		var choosen = {
 			qid : q.qid,
 			rid : r.rid
 		};
-		if(updateChoosen!=undefined)
-			choosen=updateChoosen(choosen);
-		
+		if (this.updateChoosen != undefined)
+			choosen = this.updateChoosen(choosen);
+
 		console.debug("sending to ws " + JSON.stringify(choosen));
 		$ws.send('response', choosen);
 	}
@@ -435,6 +439,55 @@ function Action(q, r, widget) {
 	}
 }
 
+/**
+ * Permet de créer une action temporaire
+ */
+function MultiAction(q, r, widget, createActions) {
+	Action.call(this, q, r, widget);
+
+	this.applyAction = function() {
+		console.info("applying : " + r.option);
+		this.clearAll();
+		createActions();
+	}
+}
+
+/**
+ * L'action d'installer une glace
+ * 
+ * @param q
+ * @param r
+ * @param widget
+ */
+function InstallIceMultiAction(q, r, widget) {
+	MultiAction.call(this, q, r, widget, function() {
+		actions = [];
+		for (i in r.args) {
+			var index = r.args[i].server;
+			var widget = null;
+			if (index == 0)
+				widget = $("#archives");
+			else if (index == 1)
+				widget = $("#rd");
+			else if (index == 2)
+				widget = $("#hq");
+			else {
+				// les autres serveur
+				widget = $("#remote" + index);
+			}
+			var a = new Action(q, r, widget);
+			a.index = index;
+			a.updateChoosen = function(choosen) {
+				choosen['content'] = {
+					server : this.index
+				};
+				return choosen;
+			};
+			actions.push(a);
+		}
+	});
+}
+
 function ValueWidget(widget) {
 	this.widget = widget;
 	this.value = function(val) {
@@ -455,7 +508,7 @@ function CardCounter(widget) {
 	this.add = function(c) {
 		this.cards[c.def.id] = c;
 		this.sync();
-		return Object.keys(this.cards).length;
+		return Object.keys(this.cards).length - 1;
 	}
 
 	this.remove = function(c) {
@@ -478,13 +531,14 @@ function Card(def) {
 	this.widget;
 	this.local = def.faction == faction;
 	this.rezzed = false;
-	
-	this.getUrl = function(){
-		return "http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/"+this.def.url +".png";
+
+	this.getUrl = function() {
+		return "http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/"
+				+ this.def.url + ".png";
 	}
 
 	this.init = function(parent) {
-		
+
 		this.widget = $(
 				"<div tabindex='-1' class='card " + this.def.faction
 						+ "'><img src='" + this.getUrl() + "'/></div>")
@@ -510,17 +564,19 @@ function Card(def) {
 				prev.find("img").attr("src", card.getUrl());
 				prev.stop().show('slide');
 			}
-			handleFocused();
+			displayANRAction(me.prop("ANRAction"));
 		});
 		this.widget.blur(function() {
 			var prev = $("#preview");
 			prev.stop().hide('slide');
-			handleBlur();
+			displayANRAction();
 		});
+		this.widget.click(executeAction);
 	}
 
 	// mis à jour des cartes
 	this.update = function(card) {
+
 		// position de base
 		this.location(card.location);
 
@@ -550,13 +606,21 @@ function Card(def) {
 			var cc = locationHandler[this.loc.type];
 			if (cc) {
 				cc.remove(this);
-				if (this.location.type == 'hq' || this.location.type == 'grip') {
-					var i = 0;
+				if (this.loc.type == 'hand') {
+					// on trie par l'index
+					var ordered = [];
 					for ( var h in cc.cards) {
 						var c = cc.cards[h];
-						if (c.location.value.hand != i) {
-							c.location.value.hand = i;
+						ordered[c.loc.value.hand] = c;
+					}
+
+					var i = 0;
+					for ( var h in ordered) {
+						var c = ordered[h];
+						if (c.loc.value.hand != i) {
+							c.loc.value.hand = i;
 							c.animate();
+							c.widget.css("zIndex", i);
 						}
 						++i;
 					}
@@ -613,32 +677,39 @@ function Card(def) {
 
 	this.show = function() {
 		if (this.isHidden()) {
-			this.widget.find("img").transition({
+			var w = this.widget;
+			w.find("img").transition({
 				opacity : 1
 			});
-			if (this.split == 'horizontal')
-				this.widget.transition({
-					rotateY : '0deg'
+			if (this.split == 'horizontal') {
+				w.transition({
+					rotateY : '0deg',
+					queue : false
 				});
-			else if (this.split == 'vertical')
-				this.widget.transition({
-					rotateX : '0deg'
+			} else if (this.split == 'vertical')
+				w.transition({
+					rotateX : '0deg',
+					queue : false
 				});
 		}
 	}
 
 	this.hide = function() {
 		if (!this.isHidden()) {
-			this.widget.find("img").transition({
-				opacity : 0
+			var w = this.widget;
+			w.find("img").transition({
+				opacity : 0,
+				queue : false
 			});
 			if (this.split == 'horizontal')
-				this.widget.transition({
-					rotateY : '180deg'
+				w.transition({
+					rotateY : '180deg',
+					queue : false
 				});
 			else if (this.split == 'vertical')
-				this.widget.transition({
-					rotateX : '180deg'
+				w.transition({
+					rotateX : '180deg',
+					queue : false
 				});
 		}
 	}

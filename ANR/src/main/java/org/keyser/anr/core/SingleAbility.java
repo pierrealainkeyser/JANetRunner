@@ -7,10 +7,14 @@ public abstract class SingleAbility extends AbstractAbility implements Flow {
 	 */
 	protected Flow next;
 
-	private Wallet wallet;
+	protected Wallet wallet;
 
-	public SingleAbility(String name, Cost cost) {
+	protected SingleAbility(String name, Cost cost) {
 		super(name, cost, null);
+	}
+
+	protected SingleAbility(String name, Cost cost, Object action) {
+		super(name, cost, action);
 	}
 
 	/**
@@ -23,13 +27,23 @@ public abstract class SingleAbility extends AbstractAbility implements Flow {
 	public void register(Question q, Wallet wallet, Flow next) {
 		this.wallet = wallet;
 		this.next = next;
+		registerQuestion(q);
+	}
+
+	protected void registerQuestion(Question q) {
 		q.ask(getName()).to(this::doNext);
 	}
 
-	private void doNext() {
-		//consommation de l'action
+	protected void doNext() {
+		// consommation de l'action
 		wallet.consume(getCost(), getAction());
 		apply();
+	}
+	
+	@Override
+	public void apply() {
+	
+		
 	}
 
 }

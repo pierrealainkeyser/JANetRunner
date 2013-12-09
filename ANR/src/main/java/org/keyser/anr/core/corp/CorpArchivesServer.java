@@ -14,6 +14,8 @@ public final class CorpArchivesServer extends CorpCentralServer {
 	public List<CorpCard> getCards() {
 		return (List<CorpCard>) getCorpo().getDiscard();
 	}
+
+	
 	
 	
 

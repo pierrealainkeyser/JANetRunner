@@ -12,6 +12,8 @@ public final class CorpRDServer extends CorpCentralServer {
 
 	public void add(CorpCard card) {
 		card.setLocation(CardLocation.RD);
+		
+		//TODO cela fait doublon
 		getCards().add(card);
 	}
 

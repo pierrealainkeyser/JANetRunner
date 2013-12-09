@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import org.keyser.anr.core.corp.Corp;
 import org.keyser.anr.core.corp.CorpCard;
 import org.keyser.anr.core.corp.CorpServer;
+import org.keyser.anr.core.corp.Ice;
 import org.keyser.anr.core.runner.Runner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -260,6 +261,7 @@ public class Game implements Notifier, ConfigurableEventListener {
 
 	/**
 	 * Permet de créer le set de défause
+	 * 
 	 * @param hand
 	 * @param remove
 	 * @return
@@ -534,5 +536,27 @@ public class Game implements Notifier, ConfigurableEventListener {
 
 	public void unbind(Object bindKey) {
 		delegated.unbind(bindKey);
+	}
+
+	public void removeCardFrom(Card card, CardLocation location) {
+
+		List<Card> all = location.list(this);
+		if (all != null) {
+			all.remove(card);
+		} else if (location instanceof CardLocationIce) {
+			CardLocationIce cli = (CardLocationIce) location;
+			cli.getServer().removeIce(cli.getIndex());
+		}
+
+	}
+
+	public void addCardFrom(Card card, CardLocation location) {
+		List<Card> all = location.list(this);
+		if (all != null) {
+			all.add(card);
+		} else if (location instanceof CardLocationIce) {
+			CardLocationIce cli = (CardLocationIce) location;
+			cli.getServer().addIce((Ice) card, cli.getIndex());
+		}
 	}
 }

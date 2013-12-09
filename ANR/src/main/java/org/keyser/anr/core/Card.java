@@ -32,8 +32,17 @@ public abstract class Card extends AbstractGameContent {
 	}
 
 	public void setLocation(CardLocation location) {
+		Game game = getGame();
+		if (this.location != null && game != null) {
+			game.removeCardFrom(this, this.location);
+		}
+
 		this.location = location;
 		notification(NotificationEvent.CARD_LOC_CHANGED.apply().m(this));
+
+		if (this.location != null && game != null) {
+			game.addCardFrom(this, this.location);
+		}
 	}
 
 	protected Card addAction(AbstractAbility paidAbility) {

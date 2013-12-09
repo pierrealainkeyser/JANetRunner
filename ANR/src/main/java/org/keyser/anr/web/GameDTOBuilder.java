@@ -1,6 +1,5 @@
 package org.keyser.anr.web;
 
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -21,6 +20,7 @@ import org.keyser.anr.core.WalletCredits;
 import org.keyser.anr.core.WalletUnit;
 import org.keyser.anr.core.corp.Corp;
 import org.keyser.anr.core.corp.CorpArchivesServer;
+import org.keyser.anr.core.corp.CorpCard;
 import org.keyser.anr.core.corp.CorpHQServer;
 import org.keyser.anr.core.corp.CorpRDServer;
 import org.keyser.anr.core.corp.CorpRemoteServer;
@@ -43,7 +43,6 @@ import org.keyser.anr.web.dto.QuestionDTO.PossibleResponseDTO;
  * 
  */
 public class GameDTOBuilder {
-
 
 	/**
 	 * Prise en compte des notifications
@@ -73,7 +72,12 @@ public class GameDTOBuilder {
 				updateWallet(g, i);
 			else if (NotificationEvent.CARD_LOC_CHANGED == type) {
 				Card c = i.getCard();
-				g.addCard(new CardDTO().setId(id(c)).setLocation(location(c)));
+				CardDTO dto = new CardDTO().setId(id(c)).setLocation(location(c));
+				if (c instanceof CorpCard) {
+					CorpCard cc = (CorpCard) c;
+					dto.setVisible(cc.isRezzed());
+				}
+				g.addCard(dto);
 			} else if (NotificationEvent.NEXT_STEP == type) {
 				g.setStep(i.getStep());
 			}
@@ -139,12 +143,10 @@ public class GameDTOBuilder {
 		g.setRunner(runnerDTO(runner));
 		g.addCard(new CardDTO().setDef(new CardDefDTO("runner", getURL(runner), "runner")).setLocation(LocationDTO.grip_id).setVisible(true));
 
-		Consumer<Card> add = c -> g.addCard(card(c));
+		Consumer< Card> add = c -> g.addCard(card(c));
 
 		// rajout des cartes de tous le plateau
-		corp.getHand().stream().forEach(add);
-		corp.getDiscard().stream().forEach(add);
-		corp.getStack().stream().forEach(add);
+		corp.forEach(add);	
 
 		runner.getHand().stream().forEach(add);
 		runner.getDiscard().stream().forEach(add);
@@ -177,7 +179,12 @@ public class GameDTOBuilder {
 	}
 
 	private CardDTO card(Card c) {
-		return new CardDTO().setDef(def(c)).setLocation(location(c));
+		CardDTO dto = new CardDTO().setDef(def(c)).setLocation(location(c));
+		if (c instanceof CorpCard) {
+			CorpCard cc = (CorpCard) c;
+			dto.setVisible(cc.isRezzed());
+		}
+		return dto;
 	}
 
 	private LocationDTO location(Card c) {

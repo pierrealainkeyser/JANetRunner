@@ -3,6 +3,9 @@ package org.keyser.anr.core.corp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+import java.util.function.Consumer;
+
+import org.keyser.anr.core.Card;
 
 public abstract class CorpServer {
 
@@ -16,14 +19,27 @@ public abstract class CorpServer {
 		this.corpo = corpo;
 	}
 
-	public void addIce(Ice ice) {
-		ices.add(ice);
+	public void forEach(Consumer<Card> c) {
+		upgrades.forEach(c);
+		ices.forEach(c);
+	}
+	
+	public void removeIce(int at){
+		ices.remove(at);
+	}
+
+	public void addIce(Ice ice, int at) {
+		ices.insertElementAt(ice, at);
 	}
 
 	public abstract List<CorpCard> getCards();
 
 	public void addUpgrade(Upgrade upgrade) {
 		upgrades.add(upgrade);
+	}
+
+	public int icesCount() {
+		return ices.size();
 	}
 
 	public Corp getCorpo() {

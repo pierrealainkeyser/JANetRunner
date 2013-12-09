@@ -152,6 +152,10 @@ div.card img {
 	border: 1.5px dashed #428bca;
 }
 
+.withAction.card img{
+	border: 3px dashed #428bca;
+}
+
 #rd,#hq,#archives {
 	padding-top: 123px;
 }

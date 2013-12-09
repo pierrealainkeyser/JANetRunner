@@ -44,7 +44,8 @@ public class GameFactory {
 		}
 
 		Game g = new Game(r, c, () -> {
-		}).setup();
+		});
+		g.setup();
 
 		Collections.shuffle(r.getStack());
 		Collections.shuffle(c.getStack());

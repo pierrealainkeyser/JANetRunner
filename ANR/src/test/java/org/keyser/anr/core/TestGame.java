@@ -18,11 +18,13 @@ public class TestGame {
 	public void testCoreGame() {
 		boolean[] end = new boolean[1];
 		Corp corp = new Corp();
-		corp.addToRD(new WallOfStatic());
-		corp.addToRD(new WallOfStatic());
+		
 
 		TestNotifier tn = new TestNotifier();
-		Game g = new Game(new Runner(), corp, () -> end[0] = true).setup();
+		Game g = new Game(new Runner(), corp, () -> end[0] = true);	
+		corp.addToRD(new WallOfStatic());
+		corp.addToRD(new WallOfStatic());
+		g.setup();
 		g.setNotifier(tn);
 
 		g.start();

@@ -15,22 +15,14 @@ public class Runner extends PlayableUnit {
 
 	private final Map<Object, Hardware> hardwares = new HashMap<>();
 
+	private final Map<Object, Program> programs = new HashMap<>();
+
 	private final Map<Object, Resource> resources = new HashMap<>();
 
-	private final Map<Object, Program> programs = new HashMap<>();
+	private int tags;
 
 	public Runner() {
 		getWallet().add(new WalletBadPub());
-	}
-
-	@Override
-	public Player getPlayer() {
-		return Player.RUNNER;
-	}
-
-	public void addToStack(RunnerCard card) {
-		getStack().add(card);
-		card.setLocation(CardLocation.STACK);
 	}
 
 	@Override
@@ -40,21 +32,9 @@ public class Runner extends PlayableUnit {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
-	public List<RunnerCard> getHand() {
-		return (List<RunnerCard>) super.getHand();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<RunnerCard> getDiscard() {
-		return (List<RunnerCard>) super.getDiscard();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<RunnerCard> getStack() {
-		return (List<RunnerCard>) super.getStack();
+	public void addToStack(RunnerCard card) {
+		card.setLocation(CardLocation.STACK);
+		((List<RunnerCard>) getStack()).add(card);
 	}
 
 	@Override
@@ -62,14 +42,31 @@ public class Runner extends PlayableUnit {
 		return getGame().getCorp();
 	}
 
-	public void purgeVirus(Flow next) {
-		// TODO Auto-generated method stub
+	@Override
+	public Player getPlayer() {
+		return Player.RUNNER;
+	}
 
+	public boolean isTagged() {
+		return tags > 0;
+	}
+
+	public int getTags() {
+		return tags;
 	}
 
 	public boolean hasVirus() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	public void purgeVirus(Flow next) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void setTags(int tags) {
+		this.tags = tags;
 	}
 
 }

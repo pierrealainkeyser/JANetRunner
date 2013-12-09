@@ -13,7 +13,6 @@ public final class CorpHQServer extends CorpCentralServer {
 	
 	public void add(CorpCard card) {
 		card.setLocation(CardLocation.HQ);
-		getCards().add(card);
 	}
 	
 	@SuppressWarnings("unchecked")
