@@ -156,7 +156,7 @@ div.card img {
 	border: 3px dashed #428bca;
 }
 
-#rd,#hq,#archives {
+#rd,#hq,#archives,.cardplace.remote {
 	padding-top: 123px;
 }
 

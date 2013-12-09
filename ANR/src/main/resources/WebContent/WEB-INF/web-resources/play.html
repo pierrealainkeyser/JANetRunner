@@ -84,7 +84,7 @@
 			var id=f.attr("id");
 			if("hq"==id||"rd"==id||"archives"==id){
 				if("up"==dir)
-					focusAt(e,{type:'ice',value:{central:id,ice:1}});
+					focusAt(e,{type:'ice',value:{central:id,ice:0}});
 			}
 		}
 	}
@@ -141,6 +141,9 @@
 		</div>
 		<div id="archives" class="cardplace" tabindex="-1">
 			Archives (<span>0</span>)
+		</div>
+		<div id="remote0" class="cardplace remote">
+			1<sup>th</sup> Remote 
 		</div>
 
 		<div id="grip" class="cardplace" tabindex="-1">
