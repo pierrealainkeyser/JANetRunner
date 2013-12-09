@@ -278,12 +278,6 @@ function updateGame(game) {
 		wallets.runner.actions.value(w.actions);
 	}
 
-	// rajout des servers
-	if (game.corp != undefined && game.corp.servers != null) {
-		for (s in game.corp.servers)
-			widgetServer(game.corp.servers[s]);
-	}
-
 	var main = $('div#main');
 	// gestion des cartes
 	for ( var i in game.cards) {
@@ -344,6 +338,8 @@ function handleQuestion(q, r) {
 	if (widget != undefined) {
 		if ("install-ice" == r.option)
 			act = new InstallIceMultiAction(q, r, widget);
+		else if ("install-asset" == r.option || "install-agenda"==r.option)
+			act = new InstallAssetAgendaMultiAction(q, r, widget);
 		else
 			act = new Action(q, r, widget);
 	}
@@ -535,6 +531,37 @@ function InstallIceMultiAction(q, r, widget) {
 	});
 }
 
+/**
+ * L'action d'installer un asset  ou un agenda
+ * 
+ * @param q
+ * @param r
+ * @param widget
+ */
+function InstallAssetAgendaMultiAction(q, r, widget) {
+	MultiAction.call(this, q, r, widget, function() {
+		// on monte un peu la carte cible
+		widget.transition({
+			top : '-=70'
+		});
+
+		actions = [];
+		for (i in r.args) {
+			var index = r.args[i].server;
+			var a = new Action(q, r, widgetServer(index));
+			a.index = index;
+			a.updateChoosen = function(choosen) {
+				choosen['content'] = {
+					server : this.index
+				};
+			};
+			actions.push(a);
+		}
+	});
+}
+
+
+
 function ValueWidget(widget) {
 	this.widget = widget;
 	this.value = function(val) {
@@ -691,13 +718,13 @@ function Card(def) {
 				this.widget.css("zIndex", location.value.hand);
 			} else if (location.type == 'hq_id' || location.type == 'grip_id') {
 				this.widget.css("zIndex", 500);
-			} else if (location.type == 'ice') {
+			} else if (location.type == 'ice' || location.type == 'server') {
 				// création du serveur à la volée
 				var r = location.value.remote;
 				if (r != undefined) {
 					widgetServer(r + 3);
 				}
-			}
+			}			
 
 			if ((location.type == 'rd' || location.type == 'stack')
 					|| (!this.rezzed && !this.local))

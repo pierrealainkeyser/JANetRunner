@@ -1,8 +1,6 @@
 package org.keyser.anr.core.corp;
 
-public class InstallIceCost {
-
-	private int server;
+public class InstallIceCost extends InstallOnServer {
 
 	private int cost;
 
@@ -10,20 +8,12 @@ public class InstallIceCost {
 	}
 
 	public InstallIceCost(int server, int cost) {
-		this.server = server;
+		super(server);
 		this.cost = cost;
-	}
-
-	public int getServer() {
-		return server;
 	}
 
 	public int getCost() {
 		return cost;
-	}
-
-	public void setServer(int server) {
-		this.server = server;
 	}
 
 	public void setCost(int cost) {

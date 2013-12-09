@@ -89,8 +89,9 @@ div.card img {
 	padding: 5px;
 	border: 1px solid #cccccc;
 	border-top-width: 0px;
-	width: 100%;
 	z-index: -1;
+	
+	border-radius: 0px 0px 5px 0px;
 }
 
 #preview {

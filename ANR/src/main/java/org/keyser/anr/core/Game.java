@@ -10,8 +10,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.keyser.anr.core.corp.Agenda;
+import org.keyser.anr.core.corp.Asset;
 import org.keyser.anr.core.corp.Corp;
 import org.keyser.anr.core.corp.CorpCard;
+import org.keyser.anr.core.corp.CorpRemoteServer;
 import org.keyser.anr.core.corp.CorpServer;
 import org.keyser.anr.core.corp.Ice;
 import org.keyser.anr.core.runner.Runner;
@@ -546,6 +549,17 @@ public class Game implements Notifier, ConfigurableEventListener {
 		} else if (location instanceof CardLocationIce) {
 			CardLocationIce cli = (CardLocationIce) location;
 			cli.getServer().removeIce(cli.getIndex());
+		} else if (location instanceof CardLocationUpgrade) {
+			CardLocationUpgrade clu = (CardLocationUpgrade) location;
+
+			CorpServer server = clu.getServer();
+			if (card instanceof Asset) {
+				if (server instanceof CorpRemoteServer)
+					((CorpRemoteServer) server).setAsset(null);
+			} else if (card instanceof Agenda) {
+				if (server instanceof CorpRemoteServer)
+					((CorpRemoteServer) server).setAgenda(null);
+			}
 		}
 
 	}
@@ -557,6 +571,18 @@ public class Game implements Notifier, ConfigurableEventListener {
 		} else if (location instanceof CardLocationIce) {
 			CardLocationIce cli = (CardLocationIce) location;
 			cli.getServer().addIce((Ice) card, cli.getIndex());
+		} else if (location instanceof CardLocationUpgrade) {
+			CardLocationUpgrade clu = (CardLocationUpgrade) location;
+
+			CorpServer server = clu.getServer();
+			if (card instanceof Asset) {
+				if (server instanceof CorpRemoteServer)
+					((CorpRemoteServer) server).setAsset((Asset) card);
+			} else if (card instanceof Agenda) {
+				if (server instanceof CorpRemoteServer)
+					((CorpRemoteServer) server).setAgenda((Agenda) card);
+			}
 		}
+
 	}
 }

@@ -37,7 +37,6 @@ public final class CorpRemoteServer extends CorpServer {
 			return singletonList((CorpCard) agenda);
 		else
 			return emptyList();
-
 	}
 
 	public void remove() {
@@ -53,7 +52,23 @@ public final class CorpRemoteServer extends CorpServer {
 	}
 
 	public void setAsset(Asset asset) {
+		trashAgendaAndAsset();
 		this.asset = asset;
+	}
+
+	private void trashAgendaAndAsset() {
+		if (asset != null) {
+			Asset old = asset;
+			asset = null;
+			old.trash();
+		}
+		if (agenda != null) {
+			Agenda old = agenda;
+			agenda = null;
+			old.trash();
+
+		}
+
 	}
 
 	public Agenda getAgenda() {
@@ -61,6 +76,7 @@ public final class CorpRemoteServer extends CorpServer {
 	}
 
 	public void setAgenda(Agenda agenda) {
+		trashAgendaAndAsset();
 		this.agenda = agenda;
 	}
 

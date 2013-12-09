@@ -1,6 +1,5 @@
 package org.keyser.anr.web;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -166,10 +165,6 @@ public class GameDTOBuilder {
 		p.setValue("credits", w.amountOf(WalletCredits.class));
 		p.setValue("actions", w.amountOf(WalletActions.class));
 
-		List<Integer> r = new ArrayList<>();
-		corp.listRemotes().forEach(c -> r.add(c.getId() + 3));
-		p.setServers(r);
-
 		return p;
 	}
 
@@ -212,7 +207,8 @@ public class GameDTOBuilder {
 				CardLocationIce i = (CardLocationIce) cl;
 				return LocationDTO.ice(serverLocation(i), i.getIndex());
 			} else if (w == Where.UPGRADE) {
-				// TODO
+				CardLocationOnServer i = (CardLocationOnServer) cl;
+				return serverLocation(i);
 			}
 		}
 

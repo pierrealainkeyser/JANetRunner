@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import org.keyser.anr.core.AbstractAbility;
 import org.keyser.anr.core.Card;
 import org.keyser.anr.core.CardLocationIce;
+import org.keyser.anr.core.CardLocationUpgrade;
 import org.keyser.anr.core.CoreAbility;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Event;
@@ -119,7 +120,7 @@ public class Corp extends PlayableUnit {
 			}
 		}
 
-		protected void accept(InstallIceCost iic) {
+		protected void accept(InstallOnServer iic) {
 			CorpServer cs = getOrCreate(iic.getServer());
 
 			int size = cs.icesCount();
@@ -128,7 +129,63 @@ public class Corp extends PlayableUnit {
 
 			// on envoi l'evenement
 			getGame().apply(new CorpInstallIce(ice), next);
+		}
+	}
 
+	abstract class InstallAssetOrAgendaAbility extends CoreAbility {
+		private final CorpCard card;
+
+		private final List<InstallOnServer> alls;
+
+		public InstallAssetOrAgendaAbility(String code, CorpCard card, List<InstallOnServer> alls) {
+			super(code, Cost.action(1));
+			this.card = card;
+			this.alls = alls;
+		}
+
+		@Override
+		protected void registerQuestion(Question q) {
+			List<Object> content = alls.stream().collect(Collectors.toList());
+			if (!content.isEmpty()) {
+				q.ask(getName(), card).to(InstallOnServer.class, this::accept).setContent(content);
+			}
+		}
+
+		abstract Event getEvent(CorpCard card);
+
+		protected void accept(InstallOnServer iic) {
+			CorpServer cs = getOrCreate(iic.getServer());
+			wallet.consume(getCost(), getAction());
+
+			// la location 0 est toujours l'agenda ou l'asset
+			card.setLocation(new CardLocationUpgrade(cs, 0));
+
+			// on envoi l'evenement
+			getGame().apply(getEvent(card), next);
+		}
+	}
+
+	class InstallAssetAbility extends InstallAssetOrAgendaAbility {
+
+		public InstallAssetAbility(Asset asset, List<InstallOnServer> alls) {
+			super("install-asset", asset, alls);
+		}
+
+		@Override
+		Event getEvent(CorpCard card) {
+			return new CorpInstallAsset((Asset) card);
+		}
+	}
+
+	class InstallAgendaAbility extends InstallAssetOrAgendaAbility {
+
+		public InstallAgendaAbility(Agenda agenda, List<InstallOnServer> alls) {
+			super("install-agenda", agenda, alls);
+		}
+
+		@Override
+		Event getEvent(CorpCard card) {
+			return new CorpInstallAgenda((Agenda) card);
 		}
 	}
 
@@ -147,6 +204,42 @@ public class Corp extends PlayableUnit {
 
 		public Ice getIce() {
 			return ice;
+		}
+	}
+
+	/**
+	 * L'evenement la Corp a piocher
+	 * 
+	 * @author PAF
+	 * 
+	 */
+	public static class CorpInstallAsset extends Event {
+		private final Asset asset;
+
+		public CorpInstallAsset(Asset asset) {
+			this.asset = asset;
+		}
+
+		public Asset getAsset() {
+			return asset;
+		}
+	}
+
+	/**
+	 * L'evenement la Corp a piocher
+	 * 
+	 * @author PAF
+	 * 
+	 */
+	public static class CorpInstallAgenda extends Event {
+		private final Agenda agenda;
+
+		public CorpInstallAgenda(Agenda agenda) {
+			this.agenda = agenda;
+		}
+
+		public Agenda getAgenda() {
+			return agenda;
 		}
 
 	}
@@ -240,29 +333,39 @@ public class Corp extends PlayableUnit {
 		a.add(new ClickForPurge());
 
 		List<Ice> allIces = new ArrayList<>();
+		List<CorpCard> agendaAsset = new ArrayList<>();
 		for (CorpCard cc : getHq().getCards()) {
 			if (cc instanceof Operation) {
 				Operation op = (Operation) cc;
 				a.add(new PlayOperation(op, op.getCost()));
-			} else if (cc instanceof Ice) {
-				Ice ice = (Ice) cc;
-				allIces.add(ice);
-			}
+			} else if (cc instanceof Ice)
+				allIces.add((Ice) cc);
+			else if (cc instanceof Asset || cc instanceof Agenda)
+				agendaAsset.add(cc);
+
 		}
 
 		if (!allIces.isEmpty()) {
+			List<InstallIceCost> iics = new ArrayList<>();
+			iics.add(new InstallIceCost(0, archive.icesCount()));
+			iics.add(new InstallIceCost(1, rd.icesCount()));
+			iics.add(new InstallIceCost(2, hq.icesCount()));
+			remotes.forEach((i, r) -> iics.add(new InstallIceCost(i + 3, r.icesCount())));
+			iics.add(new InstallIceCost(remotes.size() + 3, 0));
 
-			List<InstallIceCost> installIceCosts = new ArrayList<>();
-			installIceCosts.add(new InstallIceCost(0, archive.icesCount()));
-			installIceCosts.add(new InstallIceCost(1, rd.icesCount()));
-			installIceCosts.add(new InstallIceCost(2, hq.icesCount()));
-			remotes.forEach((i, r) -> {
-				installIceCosts.add(new InstallIceCost(i + 3, r.icesCount()));
+			allIces.forEach(i -> a.add(new InstallIceAbility(i, iics)));
+		}
+
+		if (!agendaAsset.isEmpty()) {
+			List<InstallOnServer> ios = new ArrayList<>();
+			remotes.forEach((i, r) -> ios.add(new InstallOnServer(i + 3)));
+			ios.add(new InstallOnServer(remotes.size() + 3));
+			agendaAsset.forEach(i -> {
+				if (i instanceof Asset)
+					a.add(new InstallAssetAbility((Asset) i, ios));
+				else if (i instanceof Agenda)
+					a.add(new InstallAgendaAbility((Agenda) i, ios));
 			});
-			installIceCosts.add(new InstallIceCost(remotes.size() + 3, 0));
-
-			// recherche du prix mimimun d'installation d'une glace
-			allIces.forEach(i -> a.add(new InstallIceAbility(i, installIceCosts)));
 		}
 	}
 
@@ -350,10 +453,6 @@ public class Corp extends PlayableUnit {
 		this.rd = rd;
 	}
 
-	public Collection<CorpRemoteServer> listRemotes() {
-		return remotes.values();
-	}
-
 	/**
 	 * Création ou accès au serveur
 	 * 
@@ -371,11 +470,9 @@ public class Corp extends PlayableUnit {
 		else {
 			int remoteIndex = i - 3;
 			CorpRemoteServer crs = remotes.get(remoteIndex);
-			if (crs == null) {
-				crs = new CorpRemoteServer(Corp.this, remoteIndex);
-				remotes.put(remoteIndex, crs);
-				cs = crs;
-			}
+			if (crs == null)
+				remotes.put(remoteIndex, crs = new CorpRemoteServer(Corp.this, remoteIndex));
+			cs = crs;
 		}
 		return cs;
 	}
