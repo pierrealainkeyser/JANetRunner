@@ -19,7 +19,7 @@ public class Psychographics extends Operation {
 	
 	@Override
 	public void apply(Flow next) {
-		trash();
+		//TODO
 		next.apply();
 		
 	}

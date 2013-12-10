@@ -1,7 +1,6 @@
 package org.keyser.anr.core.corp;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,6 +86,8 @@ public class Corp extends PlayableUnit {
 		@Override
 		public void apply() {
 			getGame().notification(NotificationEvent.CORP_PLAYED_AN_OPERATION.apply().m(op));
+			op.setRezzed(true);
+			op.trash();
 			op.apply(next);
 		}
 

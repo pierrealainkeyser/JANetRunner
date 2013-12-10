@@ -1,0 +1,63 @@
+<svg width="30" height="150" xmlns="http://www.w3.org/2000/svg">
+ <g>
+  <g id="actions">
+   <rect fill="#eeeeee" stroke="#eeeeee" stroke-dasharray="null" stroke-linejoin="null" stroke-linecap="null" fill-opacity="0" x="13.79975" y="11.550597" width="5.663781" height="6.218374" id="svg_3" transform="matrix(0.6220604403469728,0.6220604403469727,-0.6220604403469727,0.6220604403469728,13.721634822936542,-3.8549247272485605) "/>
+   <line fill="none" stroke="#eeeeee" stroke-dasharray="null" stroke-linejoin="null" stroke-linecap="round" fill-opacity="0" x1="14.948022" y1="16.589163" x2="6.830375" y2="23.007767" id="svg_4"/>
+   <line fill="none" stroke="#eeeeee" stroke-dasharray="null" stroke-linejoin="null" stroke-linecap="round" fill-opacity="0" x1="15.250055" y1="16.211618" x2="15.250055" y2="3.285941" id="svg_5"/>
+   <g id="svg_30">
+    <ellipse fill="#eeeeee" stroke="#eeeeee" stroke-dasharray="null" stroke-linejoin="null" stroke-linecap="null" fill-opacity="0" cx="16.877912" cy="15.204858" id="svg_6" rx="12.392158" ry="14.215686" transform="matrix(0.8663612919507123,0.152762870812354,-0.152762870812354,0.8663612919507123,2.6561449503904235,-0.38393067372647105) "/>
+    <ellipse fill="#eeeeee" stroke="#eeeeee" stroke-dasharray="null" stroke-linejoin="null" stroke-linecap="null" fill-opacity="0" cx="16.681833" cy="15.204858" rx="10" ry="11.411765" id="svg_7" transform="matrix(0.8663612919507123,0.152762870812354,-0.152762870812354,0.8663612919507123,2.6561449503904235,-0.38393067372647105) "/>
+   </g>
+  </g>
+  <g id="credits">
+   <path fill="#eeeeee" stroke="#eeeeee" stroke-dasharray="null" stroke-linejoin="null" stroke-linecap="null" d="m7.745098,37.416443l0,14.082752l7.378884,5.416443l7.378884,-5.416443l0,-14.082752l-7.378884,-5.416443l-7.378884,5.416443z" id="svg_35" fill-opacity="0"/>
+   <path fill="#eeeeee" stroke="#eeeeee" stroke-dasharray="null" stroke-linejoin="null" stroke-linecap="null" d="m8.104692,38.727036l4.890489,4.387203l0,4.021599l-4.890489,-4.569996l0,-3.838806z" id="svg_36"/>
+  </g>
+  <g id="link">
+   <line id="svg_43" y2="63.716696" x2="19.161643" y1="63.716696" x1="3.299724" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+   <line id="svg_44" y2="77.731024" x2="18.753963" y1="63.402417" x1="18.753963" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+   <line id="svg_45" y2="77.475591" x2="13.042909" y1="77.475591" x1="19.005387" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+   <line id="svg_46" y2="63.684385" x2="3.737949" y1="77.570758" x1="3.737949" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+   <line id="svg_49" y2="72.118474" x2="26.390081" y1="72.118474" x1="19.84076" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+   <line id="svg_50" y2="85.715619" x2="26.079182" y1="71.762261" x1="26.079182" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+   <line id="svg_51" y2="85.544298" x2="11.409993" y1="85.544298" x1="26.309683" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+   <line id="svg_52" y2="72.204102" x2="11.809901" y1="85.165401" x1="11.809901" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+   <line id="svg_53" y2="72.118474" x2="17.582608" y1="72.118474" x1="11.408145" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+   <line id="svg_54" y2="77.475591" x2="3.330268" y1="77.475591" x1="11.399815" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+  </g>
+  <path id="mu" d="m4.120326,95.640488l15.954452,-0.02066l0.034487,2.096886l7.478626,0l0,2.648842l-7.383631,-0.015129l0,1.560081l7.410284,0l0,2.369026l-7.562101,0l0,1.51973l7.633936,0l0,2.26992l-7.732426,0l0,1.539497l7.660591,0l0,2.319778l-7.655107,0.000023l0.000002,2.644783l-10.22954,0.03067l-5.616961,-5.434776l0.007389,-13.528671z" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+  
+  <g id="agenda">
+   <g id="svg_106">
+    <g id="svg_105">
+     <line id="svg_89" y2="141.736635" x2="7.997567" y1="139.11771" x1="4.510725" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+     <line id="svg_91" y2="136.620595" x2="7.208094" y1="138.635352" x1="4.444936" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+     <line id="svg_92" y2="136.498785" x2="10.037041" y1="136.55969" x1="7.339672" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+     <g id="svg_70">
+      <path id="svg_60" d="m10.556873,125.291809l3.16862,-3.300865l6.337272,0l3.007488,3.300865l-3.007488,3.12973l-6.477492,0.023544l-3.028399,-3.153275z" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+      <line id="svg_62" y2="143.568307" x2="10.472943" y1="125.547817" x1="10.437787" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+      <line id="svg_63" y2="144.06749" x2="23.375213" y1="125.597735" x1="23.234589" stroke-linecap="round" stroke-linejoin="null" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+      <line id="svg_64" y2="147.511849" x2="20.070545" y1="129.042095" x1="19.92992" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+      <line id="svg_65" y2="147.461931" x2="14.05886" y1="128.992176" x1="13.918236" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+      <line id="svg_66" y2="147.062585" x2="13.847924" y1="143.618226" x1="10.437787" stroke-linecap="round" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+      <line id="svg_68" y2="147.262258" x2="20.1057" y1="147.262258" x1="14.304952" stroke-linecap="round" stroke-linejoin="null" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+      <line id="svg_69" y2="144.06749" x2="23.375213" y1="147.112503" x1="20.351793" stroke-linecap="round" stroke-linejoin="null" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+     </g>
+     <g id="svg_99">
+      <line id="svg_86" y2="145.966636" x2="7.99266" y1="143.723276" x1="4.582524" stroke-linecap="round" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+      <line id="svg_87" y2="146.096686" x2="11.618858" y1="146.096686" x1="8.449689" stroke-linecap="round" stroke-linejoin="null" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+     </g>
+     <line id="svg_100" y2="138.735626" x2="4.510725" y1="143.538257" x1="4.313356" stroke-linecap="round" stroke-linejoin="null" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+     <line id="svg_95" y2="132.156679" x2="8.721252" y1="129.327731" x1="5.23441" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+     <line id="svg_96" y2="132.156679" x2="10.365988" y1="132.15668" x1="8.655462" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+     <line id="svg_97" y2="127.090889" x2="7.931778" y1="129.196153" x1="5.365989" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+     <line id="svg_101" y2="141.630363" x2="8.063357" y1="146.038257" x1="8.194936" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+     <line id="svg_102" y2="138.011942" x2="5.16862" y1="129.393521" x1="5.16862" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+     <line id="svg_103" y2="136.235626" x2="8.787041" y1="132.354047" x1="8.85283" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+    </g>
+   </g>
+   <line id="svg_104" y2="127.156678" x2="10.16862" y1="127.156678" x1="8.063357" stroke-linecap="round" stroke-linejoin="null" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+   <line id="svg_90" y2="141.675732" x2="10.168621" y1="141.680608" x1="8.589673" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="null" stroke-width="null" stroke="#eeeeee" fill="none"/>
+  </g>  
+ </g>
+</svg>

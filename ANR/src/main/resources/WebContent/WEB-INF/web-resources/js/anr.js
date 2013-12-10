@@ -163,8 +163,7 @@ function confactions(widget) {
 		$(this).focus();
 	}
 
-	return widget.mouseenter(focusme).focus(handleFocused).blur(handleBlur)
-			.click(executeAction);
+	return widget.mouseenter(focusme).focus(handleFocused).blur(handleBlur).click(executeAction);
 }
 
 function initANR() {
@@ -198,11 +197,13 @@ function initANR() {
 	}, 750);
 
 	wallets['corp'] = {
+		score : new ValueWidget(corpWidget.find("span.score")),
 		credits : new ValueWidget(corpWidget.find("span.credits")),
 		actions : new ValueWidget(corpWidget.find("span.actions"))
 	};
 
 	wallets['runner'] = {
+		score : new ValueWidget(runnerWidget.find("span.score")),
 		credits : new ValueWidget(runnerWidget.find("span.credits")),
 		actions : new ValueWidget(runnerWidget.find("span.actions")),
 		links : new ValueWidget(runnerWidget.find("span.links")),
@@ -268,12 +269,14 @@ function updateGame(game) {
 	// prise en compte des wallets
 	if (game.corp != undefined && game.corp.wallets != undefined) {
 		var w = game.corp.wallets;
+		wallets.corp.score.value(w.score);
 		wallets.corp.credits.value(w.credits);
 		wallets.corp.actions.value(w.actions);
 	}
 
 	if (game.runner != undefined && game.runner.wallets != undefined) {
 		var w = game.runner.wallets;
+		wallets.runner.score.value(w.score);
 		wallets.runner.credits.value(w.credits);
 		wallets.runner.actions.value(w.actions);
 	}
@@ -338,7 +341,7 @@ function handleQuestion(q, r) {
 	if (widget != undefined) {
 		if ("install-ice" == r.option)
 			act = new InstallIceMultiAction(q, r, widget);
-		else if ("install-asset" == r.option || "install-agenda"==r.option)
+		else if ("install-asset" == r.option || "install-agenda" == r.option)
 			act = new InstallAssetAgendaMultiAction(q, r, widget);
 		else
 			act = new Action(q, r, widget);
@@ -427,9 +430,7 @@ function widgetServer(index) {
 			else
 				val = nindex + "<sup>th</sup>";
 
-			w = $("<div id='" + rd
-					+ "' class='cardplace remote' tabindex='-1'>" + val
-					+ " Remote</div>");
+			w = $("<div id='" + rd + "' class='cardplace remote' tabindex='-1'>" + val + " Remote</div>");
 			confactions(w.css(placeFunction.server({
 				index : index
 			})));
@@ -532,7 +533,7 @@ function InstallIceMultiAction(q, r, widget) {
 }
 
 /**
- * L'action d'installer un asset  ou un agenda
+ * L'action d'installer un asset ou un agenda
  * 
  * @param q
  * @param r
@@ -559,8 +560,6 @@ function InstallAssetAgendaMultiAction(q, r, widget) {
 		}
 	});
 }
-
-
 
 function ValueWidget(widget) {
 	this.widget = widget;
@@ -607,13 +606,14 @@ function Card(def) {
 	this.rezzed = false;
 
 	this.getUrl = function() {
-		return "http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/"
-				+ this.def.url + ".png";
+		return "http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/" + this.def.url + ".png";
 	}
 
 	this.init = function(parent) {
-		var newdiv = $("<div class='card " + this.def.faction + "'><img src='"
-				+ this.getUrl() + "'/></div>");
+		var inner = $("<div class='tokens'><span class='credits label label-primary' title='Credits'><i class='sprite credits'></i><span class='val'>3</span></span></div>");
+		var newdiv = $("<div class='card " + this.def.faction + "'><img src='" + this.getUrl() + "'/></div>");
+		inner.appendTo(newdiv);
+
 		this.widget = newdiv.appendTo(parent);
 		this.widget.prop("card", this);
 		this.widget.show();
@@ -648,22 +648,30 @@ function Card(def) {
 
 		// position de base
 		var location = card.location;
+		var w = this.widget;
+
+		var flip = this.isVisible() ? '0deg' : '180deg';
 		if (location) {
-			if (this.local
-					&& (location.type == 'hq' || location.type == 'grip')) {
-				this.widget.css('rotateX', '0deg');
-				this.widget.css('rotateY', '0deg');
+			if (this.local && (location.type == 'hq' || location.type == 'grip')) {
 				this.split = 'none';
+				w.css('rotateX', '0deg');
+				w.css('rotateY', '0deg');
+				w.find("div.tokens").css({
+					rotateX : '0deg',
+					rotateY : '0deg'
+				});
+
 			} else if (location.type == 'ice') {
 				this.split = 'vertical';
-				this.widget
-						.css('rotateX', this.isVisible() ? '0deg' : '180deg');
-				this.widget.css('rotateY', '0deg');
+				w.css('rotateX', flip);
+				w.css('rotateY', '0deg');
+				w.find("div.tokens").css('rotateX', flip);
+
 			} else {
 				this.split = 'horizontal';
-				this.widget
-						.css('rotateY', this.isVisible() ? '0deg' : '180deg');
-				this.widget.css('rotateX', '0deg');
+				w.css('rotateX', '0deg');
+				w.css('rotateY', flip);
+				w.find("div.tokens").css('rotateY', flip);
 			}
 
 			var cc = locationHandler[this.loc.type];
@@ -692,8 +700,7 @@ function Card(def) {
 
 			cc = locationHandler[location.type];
 			if (cc) {
-				if (this.local
-						&& (location.type == 'hq' || location.type == 'grip'))
+				if (this.local && (location.type == 'hq' || location.type == 'grip'))
 					location.type = 'hand';
 
 				var nindex = cc.add(this);
@@ -715,22 +722,21 @@ function Card(def) {
 		if (location != undefined) {
 			if (location.type == 'hand') {
 				this.rezzed = true;
-				this.widget.css("zIndex", location.value.hand);
+				w.css("zIndex", location.value.hand);
 			} else if (location.type == 'hq_id' || location.type == 'grip_id') {
-				this.widget.css("zIndex", 500);
+				w.css("zIndex", 500);
 			} else if (location.type == 'ice' || location.type == 'server') {
 				// création du serveur à la volée
 				var r = location.value.remote;
 				if (r != undefined) {
 					widgetServer(r + 3);
 				}
-			}			
+			}
 
-			if ((location.type == 'rd' || location.type == 'stack')
-					|| (!this.rezzed && !this.local))
-				this.widget.removeAttr("tabindex");
+			if ((location.type == 'rd' || location.type == 'stack') || (!this.rezzed && !this.local))
+				w.removeAttr("tabindex");
 			else
-				this.widget.attr("tabindex", "-1");
+				w.attr("tabindex", "-1");
 		}
 
 		if (location != undefined || card.visible != undefined)
@@ -769,6 +775,13 @@ function Card(def) {
 				else if (this.split == 'vertical')
 					trans['rotateX'] = '180deg';
 			}
+
+			var tokens = {
+				rotateY : trans['rotateY'],
+				rotateX : trans['rotateX']
+			};;
+			
+			w.find("div.tokens").css(tokens);
 		}
 
 		w.transition(trans);

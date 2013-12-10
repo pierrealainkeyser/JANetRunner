@@ -12,12 +12,6 @@ public abstract class Operation extends CorpCard {
 
 	public abstract void apply(Flow next);
 
-	@Override
-	public void trash() {
-		setRezzed(true);
-		super.trash();
-	}
-
 	/**
 	 * Permet de gerer les conditions, genre il faut un run dans le tour précent
 	 * 

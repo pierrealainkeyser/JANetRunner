@@ -39,6 +39,11 @@ div.card img {
 	margin: 0px;
 }
 
+div.card div{
+	position: absolute;
+	top: 0;
+}
+
 .faction {
 	position: absolute;
 	top: 0px;
@@ -53,6 +58,7 @@ div.card img {
 
 .faction img {
 	margin-left: 8px;
+	height: 38px;
 }
 
 .faction p {
@@ -90,7 +96,6 @@ div.card img {
 	border: 1px solid #cccccc;
 	border-top-width: 0px;
 	z-index: -1;
-	
 	border-radius: 0px 0px 5px 0px;
 }
 
@@ -113,7 +118,7 @@ div.card img {
 #action {
 	position: absolute;
 	left: 0px;
-	top: 125px;
+	top: 135px;
 	display: none;
 	width: 200px;
 	white-space: nowrap;
@@ -129,7 +134,7 @@ div.card img {
 	margin-left: 5px;
 }
 
-#action .panel-heading, #preview .panel-heading{
+#action .panel-heading,#preview .panel-heading {
 	padding: 3px;
 }
 
@@ -153,7 +158,7 @@ div.card img {
 	border: 1.5px dashed #428bca;
 }
 
-.withAction.card img{
+.withAction.card img {
 	border: 3px dashed #428bca;
 }
 
@@ -165,52 +170,54 @@ div.card img {
 	margin-top: -30px;
 }
 
+div.tokens{
+	margin: 2px;
+}
+
+div.tokens .label{
+	border: 1px solid #ffffff;
+	padding: .1em .3em .15em;
+}
+
+div.tokens > span{
+	display: block;
+}
+
 .sprite {
-	background:
-		url('http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/sprites.png')
-		no-repeat 0 0;
+	background: url('/resources/img/sprites.svg') no-repeat 0 0;
 	display: inline-block;
 	vertical-align: text-bottom;
-	height: 18px;
-	margin-left: 1px
+	height: 20px;
+	width: 20px;
+	background-size: cover;
 }
 
-.click {
-	background-position: 0 0;
-	width: 17px
+.label .sprite{
+	height: 15px;
+	width: 15px;
 }
 
-.credits {
-	background-position: 0 -18px;
-	width: 10px
+.label .sprite {
+	background: url('/resources/img/sprites-white.svg') no-repeat 0 0;
+	background-size: cover;
 }
 
-.link {
-	background-position: 0 -36px;
-	width: 15px
+.sprite.click {
+	background-position: 0 0%;
 }
 
-.memory_unit {
-	background-position: 0 -54px;
-	width: 22px
+.sprite.credits {
+	background-position: 0 25%;
 }
 
-.recurring_credits {
-	background-position: 0 -72px;
-	width: 17px
+.sprite.link {
+	background-position: 0 50%;
 }
 
-.subroutine {
-	background-position: 0 -90px;
-	width: 12px
+.sprite.memory_unit {
+	background-position: 0 75%;
 }
 
-.trash {
-	background-position: 0 -108px;
-	width: 17px
-}
-
-.unique {
-	background-position: 0 -126px;
-	width: 7px
+.sprite.agenda {
+	background-position: 0 100%;
 }

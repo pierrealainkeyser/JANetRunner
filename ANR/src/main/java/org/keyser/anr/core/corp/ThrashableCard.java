@@ -3,7 +3,7 @@ package org.keyser.anr.core.corp;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Influence;
 
-public abstract class ThrashableCard extends RezzableCard {
+public abstract class ThrashableCard extends InstallableCorpCard {
 
 	private final Cost thrashCost;
 

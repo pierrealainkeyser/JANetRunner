@@ -21,8 +21,6 @@ public class ClosedAccounts extends Operation {
 
 	@Override
 	public void apply(Flow next) {
-		trash();
-
 		Wallet w = getGame().getRunner().getWallet();
 		w.wallet(WalletCredits.class, wc -> wc.setAmount(0));
 		next.apply();

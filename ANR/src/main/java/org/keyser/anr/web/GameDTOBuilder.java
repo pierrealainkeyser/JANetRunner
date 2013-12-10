@@ -44,6 +44,13 @@ import org.keyser.anr.web.dto.QuestionDTO.PossibleResponseDTO;
  */
 public class GameDTOBuilder {
 
+	private static final String SCORE = "score";
+	private static final String RUNNER = "runner";
+	private static final String CORP = "corp";
+	private static final String ACTIONS = "actions";
+	private static final String POWER = "power";
+	private static final String CREDITS = "credits";
+
 	/**
 	 * Prise en compte des notifications
 	 * 
@@ -117,9 +124,9 @@ public class GameDTOBuilder {
 
 		// TODO gestion des autres types de wallet
 		if (wu instanceof WalletCredits)
-			p.setValue("credits", amount);
+			p.setValue(CREDITS, amount);
 		else if (wu instanceof WalletActions)
-			p.setValue("actions", amount);
+			p.setValue(ACTIONS, amount);
 	}
 
 	/**
@@ -137,11 +144,11 @@ public class GameDTOBuilder {
 
 		// rajout le DTO de la corp
 		g.setCorp(corpDTO(corp));
-		g.addCard(new CardDTO().setDef(new CardDefDTO("corp", getURL(corp), "corp")).setLocation(LocationDTO.hq_id).setVisible(true));
+		g.addCard(new CardDTO().setDef(new CardDefDTO(CORP, getURL(corp), CORP)).setLocation(LocationDTO.hq_id).setVisible(true));
 
 		// gestion du runner
 		g.setRunner(runnerDTO(runner));
-		g.addCard(new CardDTO().setDef(new CardDefDTO("runner", getURL(runner), "runner")).setLocation(LocationDTO.grip_id).setVisible(true));
+		g.addCard(new CardDTO().setDef(new CardDefDTO(RUNNER, getURL(runner), RUNNER)).setLocation(LocationDTO.grip_id).setVisible(true));
 
 		Consumer<Card> add = c -> g.addCard(card(c));
 
@@ -162,8 +169,10 @@ public class GameDTOBuilder {
 		PlayerDTO p = new PlayerDTO();
 
 		Wallet w = corp.getWallet();
-		p.setValue("credits", w.amountOf(WalletCredits.class));
-		p.setValue("actions", w.amountOf(WalletActions.class));
+		//FIXME socre
+		p.setValue(SCORE, 0);
+		p.setValue(CREDITS, w.amountOf(WalletCredits.class));
+		p.setValue(ACTIONS, w.amountOf(WalletActions.class));
 
 		return p;
 	}
@@ -172,14 +181,23 @@ public class GameDTOBuilder {
 		PlayerDTO p = new PlayerDTO();
 
 		Wallet w = runner.getWallet();
-		p.setValue("credits", w.amountOf(WalletCredits.class));
-		p.setValue("actions", w.amountOf(WalletActions.class));
+		p.setValue(SCORE, 0);
+		p.setValue(CREDITS, w.amountOf(WalletCredits.class));
+		p.setValue(ACTIONS, w.amountOf(WalletActions.class));
 
 		return p;
 	}
 
 	private CardDTO card(Card c) {
 		CardDTO dto = new CardDTO().setDef(def(c)).setLocation(location(c));
+		Integer credits = c.getCredits();
+		if (credits != null)
+			dto.addToken(CREDITS, credits);
+		
+		Integer powerCounter = c.getPowerCounter();
+		if (powerCounter != null)
+			dto.addToken(POWER, powerCounter);
+
 		if (c instanceof CorpCard) {
 			CorpCard cc = (CorpCard) c;
 			dto.setVisible(cc.isRezzed());
@@ -236,9 +254,9 @@ public class GameDTOBuilder {
 	}
 
 	private CardDefDTO def(Card c) {
-		String faction = "corp";
+		String faction = CORP;
 		if (c instanceof RunnerCard)
-			faction = "runner";
+			faction = RUNNER;
 
 		// permet de gerer le format des cards en prenant une URL avec une oid
 		String url = getURL(c);

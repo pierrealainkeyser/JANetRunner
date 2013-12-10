@@ -14,7 +14,6 @@ public class AnonymousTip extends Operation {
 
 	@Override
 	public void apply(Flow next) {
-		trash();
 		getGame().getCorp().draw(3, next);
 		
 	}

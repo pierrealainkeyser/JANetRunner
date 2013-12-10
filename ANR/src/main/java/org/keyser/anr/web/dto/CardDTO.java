@@ -1,5 +1,8 @@
 package org.keyser.anr.web.dto;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class CardDTO {
 
 	private CardDefDTO def;
@@ -9,6 +12,15 @@ public class CardDTO {
 	private LocationDTO location;
 
 	private Boolean visible;
+
+	private Map<String, Integer> tokens;
+
+	public void addToken(String token, Integer value) {
+		if (tokens == null)
+			tokens = new HashMap<>();
+
+		tokens.put(token, value);
+	}
 
 	public Boolean getVisible() {
 		return visible;
@@ -52,4 +64,7 @@ public class CardDTO {
 		return "CardDTO [def=" + def + ", id=" + id + ", location=" + location + ", visible=" + visible + "]";
 	}
 
+	public Map<String, Integer> getTokens() {
+		return tokens;
+	}
 }

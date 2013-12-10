@@ -16,8 +16,6 @@ public class HedgeFund extends Operation {
 
 	@Override
 	public void apply(Flow next) {
-		trash();
-
 		Wallet w = getGame().getCorp().getWallet();
 		w.wallet(WalletCredits.class, wc -> wc.setAmount(wc.getAmount() + 9));
 		next.apply();

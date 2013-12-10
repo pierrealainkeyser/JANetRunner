@@ -22,6 +22,10 @@ public abstract class Card extends AbstractGameContent {
 
 	private CardLocation location;
 
+	private Integer credits;
+
+	private Integer powerCounter;
+
 	public Card(Influence influence, Cost cost) {
 		this.influence = influence;
 		this.cost = cost;
@@ -78,6 +82,36 @@ public abstract class Card extends AbstractGameContent {
 	@Override
 	public String toString() {
 		return "Card [id=" + id + "]";
+	}
+
+	public Integer getCredits() {
+		return credits;
+	}
+
+	public void setCredits(Integer credits) {
+		boolean changed = changed(this.credits, credits);
+		this.credits = credits;
+		if (changed)
+			notification(NotificationEvent.CARD_CREDITS.apply().m(this));
+	}
+
+	public Integer getPowerCounter() {
+		return powerCounter;
+	}
+
+	protected final boolean changed(Integer i, Integer o) {
+		int vi = i != null ? i : -1;
+		int vo = o != null ? o : -1;
+
+		return vi != vo;
+
+	}
+
+	public void setPowerCounter(Integer powerCounter) {
+		boolean changed = changed(this.powerCounter, powerCounter);
+		this.powerCounter = powerCounter;
+		if (changed)
+			notification(NotificationEvent.CARD_POWER_COUNTER.apply().m(this));
 	}
 
 }

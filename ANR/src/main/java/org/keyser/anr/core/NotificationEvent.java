@@ -25,7 +25,11 @@ public enum NotificationEvent {
 
 	// gestion du flow
 	NEXT_STEP, //
-	GAME_ENDED;//
+	GAME_ENDED, //
+
+	// sur les cartes
+	CARD_POWER_COUNTER, //
+	CARD_CREDITS;//
 
 	public Notification apply() {
 		return new Notification(this);

@@ -9,7 +9,7 @@ import org.keyser.anr.core.Influence;
 import org.keyser.anr.core.runner.IceBreaker;
 import org.keyser.anr.core.runner.IceBreakerType;
 
-public abstract class Ice extends RezzableCard {
+public abstract class Ice extends InstallableCorpCard {
 
 	private final int strength;
 
