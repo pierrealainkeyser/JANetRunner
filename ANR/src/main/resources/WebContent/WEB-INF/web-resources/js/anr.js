@@ -610,7 +610,7 @@ function Card(def) {
 	}
 
 	this.init = function(parent) {
-		var inner = $("<div class='tokens'><span class='credits label label-primary' title='Credits'><i class='sprite credits'></i><span class='val'>3</span></span></div>");
+		var inner = $("<div class='tokens'><span class='recuring label label-primary' title='Recuring credits'><i class='sprite recuring'></i><span class='val'>3</span></span></div>");
 		var newdiv = $("<div class='card " + this.def.faction + "'><img src='" + this.getUrl() + "'/></div>");
 		inner.appendTo(newdiv);
 

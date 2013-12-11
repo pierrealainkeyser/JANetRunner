@@ -193,8 +193,8 @@ div.tokens > span{
 }
 
 .label .sprite{
-	height: 15px;
-	width: 15px;
+	height: 16px;
+	width: 16px;
 }
 
 .label .sprite {
@@ -207,17 +207,25 @@ div.tokens > span{
 }
 
 .sprite.credits {
-	background-position: 0 25%;
+	background-position: 0 11%;
 }
 
 .sprite.link {
-	background-position: 0 50%;
+	background-position: 0 22%;
 }
 
 .sprite.memory_unit {
-	background-position: 0 75%;
+	background-position: 0 32%;
 }
 
 .sprite.agenda {
-	background-position: 0 100%;
+	background-position: 0 44%;
+}
+
+.sprite.recuring {
+	background-position: 0 56%;
+}
+
+.sprite.virus {
+	background-position: 0 66%;
 }
