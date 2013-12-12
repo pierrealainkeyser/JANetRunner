@@ -25,7 +25,7 @@ public interface Installable {
 			public void accept(EventMatcher<?> t) {
 
 				t.setBindKey(conf.bind(t));
-				log.debug("install {} on {}", t,t.getMatchedType().getName());
+				log.debug("install {} on {}", t, t.getMatchedType().getName());
 			}
 		});
 	}
@@ -38,9 +38,12 @@ public interface Installable {
 
 			@Override
 			public void accept(EventMatcher<?> t) {
-				conf.unbind(t.getBindKey());
-				t.setBindKey(null);
-				log.debug("uninstall {}", t);
+				Object bk = t.getBindKey();
+				if (bk != null) {
+					conf.unbind(bk);
+					t.setBindKey(null);
+					log.debug("uninstall {}", t);
+				}
 			}
 		});
 

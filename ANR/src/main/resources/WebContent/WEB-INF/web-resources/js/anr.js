@@ -610,9 +610,8 @@ function Card(def) {
 	}
 
 	this.init = function(parent) {
-		var inner = $("<div class='tokens'><span class='recuring label label-primary' title='Recuring credits'><i class='sprite recuring'></i><span class='val'>3</span></span></div>");
-		var newdiv = $("<div class='card " + this.def.faction + "'><img src='" + this.getUrl() + "'/></div>");
-		inner.appendTo(newdiv);
+
+		var newdiv = $("<div class='card " + this.def.faction + "'><img src='" + this.getUrl() + "'/><div class='tokens'></div></div>");
 
 		this.widget = newdiv.appendTo(parent);
 		this.widget.prop("card", this);
@@ -620,6 +619,7 @@ function Card(def) {
 		var img = this.widget.find("img");
 		img.css("opacity", '0');
 		this.rezzed = false;
+		this.tokens = {};
 
 		// donne le focus quand on entre
 		this.widget.mouseenter(function() {
@@ -643,12 +643,38 @@ function Card(def) {
 		this.widget.click(executeAction);
 	}
 
+	// mise à jour des tokens
+	this.updateTokens = function(card) {
+		if (card.tokens != undefined) {
+			for (t in card.tokens) {
+				var val = card.tokens[t];
+
+				if (this.tokens[t] == undefined) {
+					var newTok = $("<span style='display:none' class='" + t + " label label-primary'><i class='sprite " + t + "'></i><span class='val'>" + val
+							+ "</span></div>");
+					this.tokens[t] = newTok;
+					newTok.appendTo(this.widget.find("div.tokens"));
+					newTok.animate({
+						height : 'toggle'
+					}, 150);
+
+				} else {
+					this.tokens[t].find("span.val").text(val + "");
+				}
+
+			}
+
+		}
+	}
+
 	// mis à jour des cartes
 	this.update = function(card) {
 
 		// position de base
 		var location = card.location;
 		var w = this.widget;
+
+		this.updateTokens(card);
 
 		var flip = this.isVisible() ? '0deg' : '180deg';
 		if (location) {
@@ -779,8 +805,9 @@ function Card(def) {
 			var tokens = {
 				rotateY : trans['rotateY'],
 				rotateX : trans['rotateX']
-			};;
-			
+			};
+			;
+
 			w.find("div.tokens").css(tokens);
 		}
 

@@ -10,4 +10,9 @@ public class GhostBranch extends Asset {
 	public GhostBranch() {
 		super(Faction.NBN.infl(1), Cost.credit(0), Cost.credit(0));
 	}
+	
+	@Override
+	public boolean isAdvanceable() {
+		return true;
+	}
 }

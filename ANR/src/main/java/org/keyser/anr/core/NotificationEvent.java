@@ -8,6 +8,8 @@ public enum NotificationEvent {
 	CORP_CLICKED_FOR_DRAW, //
 	CORP_CLICKED_FOR_PURGE, //
 	CORP_PLAYED_AN_OPERATION, //
+	CORP_ADVANCE_CARD, //
+	CORP_REZZ_CARD, //
 
 	// events du run
 	START_OF_RUN, //
@@ -17,6 +19,7 @@ public enum NotificationEvent {
 	WALLET_CHANGED, //
 	CARD_LOC_CHANGED, //
 	CARD_REZZ_CHANGED, //
+	CARD_ADVANCED, //
 
 	// questions
 	WHICH_ABILITY, //

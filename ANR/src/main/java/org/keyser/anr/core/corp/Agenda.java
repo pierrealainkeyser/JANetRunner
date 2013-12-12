@@ -23,4 +23,19 @@ public abstract class Agenda extends InstallableCorpCard {
 		return requirement;
 	}
 
+	/**
+	 * Renvoi vrai si on peut marquer l'agenda
+	 * 
+	 * @return
+	 */
+	public boolean isScorable() {
+		Integer adv = getAdvancement();
+		return adv != null && adv <= requirement;
+	}
+
+	@Override
+	public boolean isAdvanceable() {
+		return true;
+	}
+
 }

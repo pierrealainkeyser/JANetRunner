@@ -55,6 +55,15 @@ public class Wallet implements Installable {
 	}
 
 	/**
+	 * Parcours les wallets
+	 * 
+	 * @param actions
+	 */
+	public void forEach(Consumer<WalletUnit> actions) {
+		wallets.forEach(actions);
+	}
+
+	/**
 	 * Applique l'action sur le wallet s'il existe
 	 * 
 	 * @param type

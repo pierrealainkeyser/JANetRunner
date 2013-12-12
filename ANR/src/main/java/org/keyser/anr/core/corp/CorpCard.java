@@ -10,6 +10,8 @@ public abstract class CorpCard extends Card {
 
 	private boolean rezzed = false;
 
+	private Integer advancement;
+
 	public CorpCard(Influence influence, Cost cost) {
 		super(influence, cost);
 	}
@@ -25,6 +27,21 @@ public abstract class CorpCard extends Card {
 
 	public void trash() {
 		setLocation(CardLocation.ARCHIVES);
+	}
+
+	public boolean isAdvanceable() {
+		return false;
+	}
+
+	public void setAdvancement(Integer advancement) {
+		boolean changed = changed(this.advancement, advancement);
+		this.advancement = advancement;
+		if (changed)
+			notification(NotificationEvent.CARD_ADVANCED.apply().m(this));
+	}
+
+	public Integer getAdvancement() {
+		return advancement;
 	}
 
 }

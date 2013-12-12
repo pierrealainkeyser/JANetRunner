@@ -20,6 +20,19 @@ public class InstallableCorpCard extends CorpCard implements Installable {
 		di.add(em);
 		return this;
 	}
+	
+	@Override
+	public void setRezzed(boolean rezzed) {
+		super.setRezzed(rezzed);
+		di.bind(getGame());
+	}
+	
+	@Override
+	public void trash() {
+		super.trash();
+		//on se désintalle
+		di.unbind(getGame());
+	}
 
 	public Stream<EventMatcher<?>> getEventMatchers() {
 		return di.getEventMatchers();

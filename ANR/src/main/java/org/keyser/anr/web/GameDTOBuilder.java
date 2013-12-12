@@ -1,6 +1,7 @@
 package org.keyser.anr.web;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.keyser.anr.core.Card;
@@ -17,6 +18,7 @@ import org.keyser.anr.core.Response;
 import org.keyser.anr.core.Wallet;
 import org.keyser.anr.core.WalletActions;
 import org.keyser.anr.core.WalletCredits;
+import org.keyser.anr.core.WalletRecuringCredits;
 import org.keyser.anr.core.WalletUnit;
 import org.keyser.anr.core.corp.Corp;
 import org.keyser.anr.core.corp.CorpArchivesServer;
@@ -44,6 +46,8 @@ import org.keyser.anr.web.dto.QuestionDTO.PossibleResponseDTO;
  */
 public class GameDTOBuilder {
 
+	private static final String AGENDA = "agenda";
+	private static final String RECURING = "recuring";
 	private static final String SCORE = "score";
 	private static final String RUNNER = "runner";
 	private static final String CORP = "corp";
@@ -75,20 +79,44 @@ public class GameDTOBuilder {
 		else {
 
 			NotificationEvent type = i.getType();
-			if (NotificationEvent.WALLET_CHANGED == type)
-				updateWallet(g, i);
-			else if (NotificationEvent.CARD_LOC_CHANGED == type) {
-				Card c = i.getCard();
-				CardDTO dto = new CardDTO().setId(id(c)).setLocation(location(c));
-				if (c instanceof CorpCard) {
-					CorpCard cc = (CorpCard) c;
-					dto.setVisible(cc.isRezzed());
-				}
-				g.addCard(dto);
+			if (NotificationEvent.WALLET_CHANGED == type) {
+				WalletUnit wu = i.getWalletUnit();
+				updateWallet(g, g.create(wu.getPlayer()), wu);
+			} else if (NotificationEvent.CARD_LOC_CHANGED == type) {
+				handleCardNotif(g, i, (c, dto) -> {
+					dto.setLocation(location(c));
+
+					if (c instanceof CorpCard) {
+						CorpCard cc = (CorpCard) c;
+						dto.setVisible(cc.isRezzed());
+					}
+				});
+			} else if (NotificationEvent.CARD_REZZ_CHANGED == type) {
+				handleCardNotif(g, i, (c, dto) -> {
+					if (c instanceof CorpCard) {
+						CorpCard cc = (CorpCard) c;
+						dto.setVisible(cc.isRezzed());
+					}
+				});
+			} else if (NotificationEvent.CARD_POWER_COUNTER == type || NotificationEvent.CARD_CREDITS == type) {
+				handleCardNotif(g, i, this::updateTokens);
+			} else if (NotificationEvent.CARD_ADVANCED == type) {
+				handleCardNotif(g, i, (c, dto) -> {
+					if (c instanceof CorpCard) {
+						CorpCard cc = (CorpCard) c;
+						dto.addToken(AGENDA, cc.getAdvancement());
+					}
+				});
 			} else if (NotificationEvent.NEXT_STEP == type) {
 				g.setStep(i.getStep());
 			}
 		}
+	}
+
+	private void handleCardNotif(GameDTO g, Notification i, BiConsumer<Card, CardDTO> consumer) {
+		Card c = i.getCard();
+		CardDTO dto = g.getCard(id(c));
+		consumer.accept(c, dto);
 	}
 
 	/**
@@ -117,9 +145,7 @@ public class GameDTOBuilder {
 		g.setQuestion(d);
 	}
 
-	private void updateWallet(GameDTO g, Notification i) {
-		WalletUnit wu = i.getWalletUnit();
-		PlayerDTO p = g.create(wu.getPlayer());
+	private void updateWallet(GameDTO g, PlayerDTO p, WalletUnit wu) {
 		int amount = wu.getAmount();
 
 		// TODO gestion des autres types de wallet
@@ -127,6 +153,13 @@ public class GameDTOBuilder {
 			p.setValue(CREDITS, amount);
 		else if (wu instanceof WalletActions)
 			p.setValue(ACTIONS, amount);
+		else if (wu instanceof WalletRecuringCredits) {
+			WalletRecuringCredits wrc = (WalletRecuringCredits) wu;
+			Card c = wrc.getCard();
+			CardDTO dto = g.getCard(c != null ? id(c) : wrc.getFaction());
+			dto.addToken(RECURING, wrc.getAmount());
+		}
+
 	}
 
 	/**
@@ -143,12 +176,12 @@ public class GameDTOBuilder {
 		Runner runner = game.getRunner();
 
 		// rajout le DTO de la corp
-		g.setCorp(corpDTO(corp));
 		g.addCard(new CardDTO().setDef(new CardDefDTO(CORP, getURL(corp), CORP)).setLocation(LocationDTO.hq_id).setVisible(true));
+		g.setCorp(corpDTO(g, corp));
 
 		// gestion du runner
-		g.setRunner(runnerDTO(runner));
 		g.addCard(new CardDTO().setDef(new CardDefDTO(RUNNER, getURL(runner), RUNNER)).setLocation(LocationDTO.grip_id).setVisible(true));
+		g.setRunner(runnerDTO(g, runner));
 
 		Consumer<Card> add = c -> g.addCard(card(c));
 
@@ -165,42 +198,51 @@ public class GameDTOBuilder {
 		return g;
 	}
 
-	private PlayerDTO corpDTO(Corp corp) {
+	private PlayerDTO corpDTO(GameDTO g, Corp corp) {
 		PlayerDTO p = new PlayerDTO();
 
 		Wallet w = corp.getWallet();
-		//FIXME socre
+		// FIXME socre
 		p.setValue(SCORE, 0);
-		p.setValue(CREDITS, w.amountOf(WalletCredits.class));
-		p.setValue(ACTIONS, w.amountOf(WalletActions.class));
+
+		w.forEach(wu -> updateWallet(g, p, wu));
 
 		return p;
 	}
 
-	private PlayerDTO runnerDTO(Runner runner) {
+	private PlayerDTO runnerDTO(GameDTO g, Runner runner) {
 		PlayerDTO p = new PlayerDTO();
 
 		Wallet w = runner.getWallet();
 		p.setValue(SCORE, 0);
-		p.setValue(CREDITS, w.amountOf(WalletCredits.class));
-		p.setValue(ACTIONS, w.amountOf(WalletActions.class));
+
+		w.forEach(wu -> updateWallet(g, p, wu));
 
 		return p;
 	}
 
-	private CardDTO card(Card c) {
-		CardDTO dto = new CardDTO().setDef(def(c)).setLocation(location(c));
+	private CardDTO updateTokens(Card c, CardDTO dto) {
 		Integer credits = c.getCredits();
 		if (credits != null)
 			dto.addToken(CREDITS, credits);
-		
+
 		Integer powerCounter = c.getPowerCounter();
 		if (powerCounter != null)
 			dto.addToken(POWER, powerCounter);
+		return dto;
 
+	}
+
+	private CardDTO card(Card c) {
+		CardDTO dto = new CardDTO().setDef(def(c)).setLocation(location(c));
+		updateTokens(c, dto);
 		if (c instanceof CorpCard) {
 			CorpCard cc = (CorpCard) c;
 			dto.setVisible(cc.isRezzed());
+
+			Integer adv = cc.getAdvancement();
+			if (adv != null)
+				dto.addToken(AGENDA, adv);
 		}
 		return dto;
 	}

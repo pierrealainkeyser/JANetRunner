@@ -20,6 +20,7 @@ import org.keyser.anr.core.NotificationEvent;
 import org.keyser.anr.core.PlayableUnit;
 import org.keyser.anr.core.Player;
 import org.keyser.anr.core.Question;
+import org.keyser.anr.core.SingleAbility;
 import org.keyser.anr.core.WalletCredits;
 import org.keyser.anr.core.WinCondition;
 
@@ -94,6 +95,53 @@ public class Corp extends PlayableUnit {
 		@Override
 		public boolean isEnabled() {
 			return op.isEnabled();
+		}
+	}
+
+	class AdvanceCard extends CoreAbility {
+		private final CorpCard card;
+
+		AdvanceCard(CorpCard card) {
+			super("advance-card", Cost.action(1).add(Cost.credit(1)));
+			this.card = card;
+		}
+
+		@Override
+		protected void registerQuestion(Question q) {
+			q.ask(getName(), card).to(this::doNext);
+		}
+
+		@Override
+		public void apply() {
+			getGame().notification(NotificationEvent.CORP_ADVANCE_CARD.apply().m(card));
+
+			Integer adv = card.getAdvancement();
+			card.setAdvancement(adv == null ? 1 : adv + 1);
+
+			next.apply();
+		}
+	}
+
+	class RezzCard extends SingleAbility {
+		private final CorpCard card;
+
+		RezzCard(CorpCard card, Cost cost) {
+			super("rezz-card", cost);
+			this.card = card;
+		}
+
+		@Override
+		protected void registerQuestion(Question q) {
+			q.ask(getName(), card).to(this::doNext);
+		}
+
+		@Override
+		public void apply() {
+			getGame().notification(NotificationEvent.CORP_REZZ_CARD.apply().m(card));
+
+			card.setRezzed(true);
+
+			next.apply();
 		}
 	}
 
@@ -314,10 +362,13 @@ public class Corp extends PlayableUnit {
 		getDiscard().forEach(c);
 		getStack().forEach(c);
 
+		forEachServer(c);
+	}
+
+	private void forEachServer(Consumer<Card> c) {
 		hq.forEach(c);
 		rd.forEach(c);
 		archive.forEach(c);
-
 		remotes.values().forEach(r -> r.forEach(c));
 	}
 
@@ -367,6 +418,20 @@ public class Corp extends PlayableUnit {
 				else if (i instanceof Agenda)
 					a.add(new InstallAgendaAbility((Agenda) i, ios));
 			});
+		}
+
+		// gestion des actions des cartes
+		forEachServer(c -> addAbility((CorpCard) c, a));
+	}
+
+	private void addAbility(CorpCard cc, List<AbstractAbility> a) {
+		if (cc.isAdvanceable())
+			a.add(new AdvanceCard(cc));
+
+		if (!cc.isRezzed()) {
+			if (cc instanceof Asset || cc instanceof Upgrade) {
+				a.add(new RezzCard(cc, cc.getCost()));
+			}
 		}
 	}
 

@@ -1,14 +1,15 @@
 package org.keyser.anr.web.dto;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.keyser.anr.core.GameStep;
 import org.keyser.anr.core.Player;
 
 public class GameDTO {
 
-	private List<CardDTO> cards = new ArrayList<>();
+	private Map<String, CardDTO> cards = new LinkedHashMap<>();
 
 	private PlayerDTO corp;
 
@@ -19,7 +20,15 @@ public class GameDTO {
 	private GameStep step;
 
 	public void addCard(CardDTO c) {
-		cards.add(c);
+		cards.put(c.getId(), c);
+	}
+
+
+	public CardDTO getCard(String id) {
+		CardDTO d = cards.get(id);
+		if(d==null)
+			addCard(d=new CardDTO().setId(id));
+		return d;
 	}
 
 	public PlayerDTO create(Player p) {
@@ -35,8 +44,8 @@ public class GameDTO {
 		return null;
 	}
 
-	public List<CardDTO> getCards() {
-		return cards;
+	public Collection<CardDTO> getCards() {
+		return cards.values();
 	}
 
 	public PlayerDTO getCorp() {
