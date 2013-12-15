@@ -154,6 +154,7 @@ public class Wallet implements Installable {
 	 */
 	public Wallet consume(Cost cost, Object action) {
 
+		cost = cost.clone();
 		if (!cost.isZero()) {
 
 			List<WalletUnit> reversed = new ArrayList<>(wallets);

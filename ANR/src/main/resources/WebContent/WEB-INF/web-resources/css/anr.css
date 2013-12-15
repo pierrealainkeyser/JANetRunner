@@ -138,6 +138,25 @@ div.card div{
 	padding: 3px;
 }
 
+#nothing {
+	position: absolute;
+	right: 150px;
+	bottom: 0px;
+	margin-bottom: 0px;
+	margin-left: 150px;	
+	border-radius: 5px 5px 0px 0px;
+	display: none;
+}
+
+#nothing .panel-heading{
+	display: inline-block;
+}
+
+#nothing .panel-body{
+	padding: 3px;
+		display: inline-block;
+}
+
 .cardplace {
 	border-radius: 5px;
 	border: 1.5px dashed #cccccc;
@@ -154,7 +173,7 @@ div.card div{
 	color: #999999;
 }
 
-.withAction.cardplace {
+.withAction.cardplace, #nothing.withAction{
 	border: 1.5px dashed #428bca;
 }
 

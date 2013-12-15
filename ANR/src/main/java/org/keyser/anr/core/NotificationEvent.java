@@ -10,6 +10,9 @@ public enum NotificationEvent {
 	CORP_PLAYED_AN_OPERATION, //
 	CORP_ADVANCE_CARD, //
 	CORP_REZZ_CARD, //
+	CORP_SCORE_AGENDA, //
+	
+	RUNNER_SCORE_AGENDA, //
 
 	// events du run
 	START_OF_RUN, //

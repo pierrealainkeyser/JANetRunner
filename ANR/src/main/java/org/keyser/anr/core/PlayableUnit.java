@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.keyser.anr.core.EventMatcher.Builder;
+import org.keyser.anr.core.corp.Agenda;
 
 public abstract class PlayableUnit extends AbstractGameContent implements Installable {
 
@@ -15,18 +16,37 @@ public abstract class PlayableUnit extends AbstractGameContent implements Instal
 
 	private final List<Card> hand = new ArrayList<>();
 
+	private int score;
+
+	private final List<Card> scoreds = new ArrayList<>();
+
 	private final List<Card> stack = new ArrayList<>();
 
 	private final Wallet wallet = new Wallet().add(new WalletCredits()).add(new WalletActions()).setNotifier(this);
-
-	public abstract Player getPlayer();
 
 	protected PlayableUnit() {
 		wallet.setPlayer(getPlayer());
 	}
 
+	protected void add(Builder<?> em) {
+		defaultInstallable.add(em);
+	}
+
+	protected abstract void addAllAbilities(List<AbstractAbility> a);
+
+	public void addScoredCard(Card c) {
+		this.scoreds.add(c);
+
+		if (c instanceof Agenda) {
+			score += ((Agenda) c).getScore();
+		}
+
+		// notification du score
+		notification(getPlayer().getScoreEvent().apply().m(c));
+	}
+
 	/**
-	 * D�fausse une card
+	 * Défausse une card
 	 * 
 	 * @param discarded
 	 * @param next
@@ -49,10 +69,6 @@ public abstract class PlayableUnit extends AbstractGameContent implements Instal
 		return a.stream().filter(p -> p.isEnabled());
 	}
 
-	protected void add(Builder<?> em) {
-		defaultInstallable.add(em);
-	}
-
 	public List<? extends Card> getDiscard() {
 		return discard;
 	}
@@ -66,6 +82,16 @@ public abstract class PlayableUnit extends AbstractGameContent implements Instal
 	}
 
 	public abstract PlayableUnit getOpponent();
+
+	public abstract Player getPlayer();
+
+	public int getScore() {
+		return score;
+	}
+
+	public List<Card> getScoreds() {
+		return scoreds;
+	}
 
 	public List<? extends Card> getStack() {
 		return stack;
@@ -85,7 +111,5 @@ public abstract class PlayableUnit extends AbstractGameContent implements Instal
 	public boolean isAffordable(Cost cost, Object action) {
 		return wallet.isAffordable(cost, action);
 	}
-
-	protected abstract void addAllAbilities(List<AbstractAbility> a);
 
 }

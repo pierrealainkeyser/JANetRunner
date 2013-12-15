@@ -159,6 +159,13 @@
 			Stack (<span>0</span>)
 		</div>
 
+		<div id="nothing"  class="panel panel-default"  tabindex="-1" title="I do not want to take any more action">
+			<div class="panel-heading"><i class="glyphicon glyphicon-transfer"></i></div>
+			<div class="panel-body">				
+				  Don't want
+			</div>
+		</div>
+		
 		<div id="preview"  class="panel panel-default">
 			<div class="panel-heading"><i class="glyphicon glyphicon-fullscreen"></i> Card details</div>
 			<div class="panel-body">
@@ -174,9 +181,9 @@
 		</div>
 		
 		<ol id="status-bar" class="breadcrumb">
-  			<li class="active"><span class="label label-default">Corp</span></li>
-  			<li class="active">Action step</li>
-  			<li class="active"><span class="label label-info">Please play an action</span></li>
+  			<li class="active"><span class="label label-default" id="activePlayer"></span></li>
+  			<li class="active" id="activeStep"></li>
+  			<li class="active"><span class="label label-info" id="activeMessage"></span></li>
 		</ol>
 	</div>
 

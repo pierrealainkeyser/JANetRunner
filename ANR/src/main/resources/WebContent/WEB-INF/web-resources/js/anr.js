@@ -174,6 +174,7 @@ function initANR() {
 	confactions($("#grip").css(placeFunction.grip()));
 	confactions($("#stack").css(placeFunction.stack()));
 	confactions($("#heap").css(placeFunction.heap()));
+	confactions($("#nothing"));
 
 	var corpWidget = $(".faction.corp");
 	corpWidget.find("a").bind('click', function() {
@@ -281,6 +282,40 @@ function updateGame(game) {
 		wallets.runner.actions.value(w.actions);
 	}
 
+	if (game.step != undefined) {
+		var textStep = "??";
+
+		switch (game.step) {
+		case "CORP_ACT":
+			textStep = "Action phase";
+			break;
+		case "CORP_DISCARD":
+			textStep = "Discard phase";
+			break;
+		case "CORP_DRAW":
+			textStep = "Draw phase";
+			break;
+		case "RUNNER_ACT":
+			textStep = "Action phase";
+			break;
+		case "RUNNER_DISCARD":
+			textStep = "Discard phase";
+			break;
+		case "RUNNING":
+			textStep = "Run in progress";
+			break;
+		}
+
+		// TODO faire mieux que cela
+		$("#activeStep").text(textStep);
+
+		var fact = "Runner";
+		if (game.step.indexOf("CORP") == 0)
+			fact = "Corp";
+
+		$("#activePlayer").text(fact);
+	}
+
 	var main = $('div#main');
 	// gestion des cartes
 	for ( var i in game.cards) {
@@ -329,12 +364,19 @@ function handleQuestion(q, r) {
 	var widget = null;
 	if (card != undefined)
 		widget = card.widget;
-
 	if ('WHICH_ABILITY' == q.what) {
 		if ('click-for-credit' == r.option)
 			widget = faction == 'corp' ? $("#hq") : $("#grip");
 		else if ('click-for-draw' == r.option)
 			widget = faction == 'corp' ? $("#rd") : $("#stack");
+		else if ('none' == r.option) {
+			widget = $("#nothing");
+
+			// on masque le widget avant l'emission
+			$("#nothing").stop().animate({
+				height : 'toggle'
+			});
+		}
 	}
 
 	var act = null;
@@ -464,6 +506,14 @@ function Action(q, r, widget) {
 			qid : q.qid,
 			rid : r.rid
 		};
+
+		var opt = $("#nothing");
+		if (opt.is(':visible')) {
+			opt.stop().animate({
+				height : 'toggle'
+			});
+		}
+
 		if (this.updateChoosen != undefined)
 			this.updateChoosen(choosen);
 

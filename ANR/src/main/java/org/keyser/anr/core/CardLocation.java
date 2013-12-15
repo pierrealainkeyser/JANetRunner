@@ -5,10 +5,10 @@ import java.util.List;
 public class CardLocation {
 
 	public enum Where {
-		ARCHIVES, GRIP, HEAP, HQ, ICE, RD, STACK, UPGRADE;
+		ARCHIVES, GRIP, HEAP, HQ, ICE, RD, STACK, UPGRADE, RUNNER_SCORE, CORP_SCORE;
 
 		public boolean isCorp() {
-			return HQ == this || RD == this || ARCHIVES == this || ICE == this || UPGRADE == this;
+			return HQ == this || RD == this || ARCHIVES == this || ICE == this || UPGRADE == this || CORP_SCORE == this;
 		}
 
 		public boolean isRunner() {
@@ -24,13 +24,14 @@ public class CardLocation {
 
 	public final static CardLocation STACK = new CardLocation(Where.STACK);
 
+	public final static CardLocation RUNNER_SCORE = new CardLocation(Where.RUNNER_SCORE);
+	public final static CardLocation CORP_SCORE = new CardLocation(Where.CORP_SCORE);
+
 	private final Where where;
 
 	public CardLocation(Where where) {
 		this.where = where;
 	}
-	
-	
 
 	@SuppressWarnings("unchecked")
 	public List<Card> list(Game g) {

@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.keyser.anr.core.AbstractAbility;
 import org.keyser.anr.core.Card;
+import org.keyser.anr.core.CardLocation;
 import org.keyser.anr.core.CardLocationIce;
 import org.keyser.anr.core.CardLocationUpgrade;
 import org.keyser.anr.core.CoreAbility;
@@ -20,7 +21,6 @@ import org.keyser.anr.core.NotificationEvent;
 import org.keyser.anr.core.PlayableUnit;
 import org.keyser.anr.core.Player;
 import org.keyser.anr.core.Question;
-import org.keyser.anr.core.SingleAbility;
 import org.keyser.anr.core.WalletCredits;
 import org.keyser.anr.core.WinCondition;
 
@@ -122,7 +122,7 @@ public class Corp extends PlayableUnit {
 		}
 	}
 
-	class RezzCard extends SingleAbility {
+	class RezzCard extends AbstractAbility {
 		private final CorpCard card;
 
 		RezzCard(CorpCard card, Cost cost) {
@@ -142,6 +142,31 @@ public class Corp extends PlayableUnit {
 			card.setRezzed(true);
 
 			next.apply();
+		}
+	}
+
+	class ScoreAgenda extends AbstractAbility {
+		private final Agenda agenda;
+
+		ScoreAgenda(Agenda agenda, Cost cost) {
+			super("score-agenda", Cost.free().add(cost));
+			this.agenda = agenda;
+		}
+
+		@Override
+		protected void registerQuestion(Question q) {
+			q.ask(getName(), agenda).to(this::doNext);
+		}
+
+		@Override
+		public void apply() {
+			Game g = getGame();
+
+			// TODO gestion de la suppression des tokens
+			agenda.setLocation(CardLocation.CORP_SCORE);
+			agenda.setRezzed(true);
+
+			g.apply(new CorpScoreAgenda(agenda), next);
 		}
 	}
 
@@ -274,16 +299,10 @@ public class Corp extends PlayableUnit {
 		}
 	}
 
-	/**
-	 * L'evenement la Corp a piocher
-	 * 
-	 * @author PAF
-	 * 
-	 */
-	public static class CorpInstallAgenda extends Event {
+	private static class AgendaEvent extends Event {
 		private final Agenda agenda;
 
-		public CorpInstallAgenda(Agenda agenda) {
+		public AgendaEvent(Agenda agenda) {
 			this.agenda = agenda;
 		}
 
@@ -291,6 +310,24 @@ public class Corp extends PlayableUnit {
 			return agenda;
 		}
 
+	}
+
+	/**
+	 * L'evenement la Corp a installée un agenda
+	 * 
+	 * @author PAF
+	 * 
+	 */
+	public static class CorpInstallAgenda extends AgendaEvent {
+		public CorpInstallAgenda(Agenda agenda) {
+			super(agenda);
+		}
+	}
+
+	public static class CorpScoreAgenda extends AgendaEvent {
+		public CorpScoreAgenda(Agenda agenda) {
+			super(agenda);
+		}
 	}
 
 	/**
@@ -428,10 +465,19 @@ public class Corp extends PlayableUnit {
 		if (cc.isAdvanceable())
 			a.add(new AdvanceCard(cc));
 
-		if (!cc.isRezzed()) {
-			if (cc instanceof Asset || cc instanceof Upgrade) {
+		if (cc instanceof Agenda) {
+			Agenda ag = (Agenda) cc;
+			boolean mayScore = getGame().getStep().mayScoreAgenda();
+
+			if (mayScore && ag.isScorable())
+				a.add(new ScoreAgenda(ag, null));
+		}
+
+		if (cc.isRezzed())
+			a.addAll(cc.getPaidAbilities());
+		else {
+			if (cc instanceof Asset || cc instanceof Upgrade)
 				a.add(new RezzCard(cc, cc.getCost()));
-			}
 		}
 	}
 

@@ -6,18 +6,44 @@ package org.keyser.anr.core;
  * @author PAF
  * 
  */
-public abstract class AbstractAbility {
+public abstract class AbstractAbility implements Flow {
+
+	private final Object action;
 
 	private final Cost cost;
 
 	private final String name;
 
-	private final Object action;
+	/**
+	 * Le flux de continuation
+	 */
+	protected Flow next;
+
+	protected Wallet wallet;
+
+	protected AbstractAbility(String name, Cost cost) {
+		this(name, cost, null);
+	}
 
 	protected AbstractAbility(String name, Cost cost, Object action) {
 		this.name = name;
 		this.cost = cost;
 		this.action = action;
+	}
+
+	@Override
+	public void apply() {
+
+	}
+
+	protected void doNext() {
+		// consommation de l'action
+		wallet.consume(getCost(), getAction());
+		apply();
+	}
+
+	public Object getAction() {
+		return action;
 	}
 
 	public Cost getCost() {
@@ -32,15 +58,28 @@ public abstract class AbstractAbility {
 		return wallet.isAffordable(cost, action);
 	}
 
-	public int timesAffordable(Wallet wallet, int max) {
-		return wallet.timesAffordable(cost, action, max);
-	}
-
 	public boolean isEnabled() {
 		return true;
 	}
 
-	public Object getAction() {
-		return action;
+	/**
+	 * Enregistre l'action
+	 * 
+	 * @param q
+	 * @param wallet
+	 * @param next
+	 */
+	public void register(Question q, Wallet wallet, Flow next) {
+		this.wallet = wallet;
+		this.next = next;
+		registerQuestion(q);
+	}
+
+	protected void registerQuestion(Question q) {
+		q.ask(getName()).to(this::doNext);
+	}
+
+	public int timesAffordable(Wallet wallet, int max) {
+		return wallet.timesAffordable(cost, action, max);
 	}
 }

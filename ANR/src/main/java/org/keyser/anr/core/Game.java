@@ -168,25 +168,28 @@ public class Game implements Notifier, ConfigurableEventListener {
 			Question q = ask(player, NotificationEvent.WHICH_ABILITY);
 
 			for (AbstractAbility aa : it) {
-				// on enregistre les actions
-				if (aa instanceof SingleAbility) {
-					SingleAbility sa = (SingleAbility) aa;
 
-					// on enregistre la question
-					sa.register(q, wallet, () -> triggeredFlow.apply(sa));
-				}
+				// on enregistre la question
+				aa.register(q, wallet, () -> triggeredFlow.apply(aa));
+
 			}
 
 			// on rajoute l'absence d'action uniquement en cas de rezz possible
 			if (q.isEmpty()) {
-
 				// si la corp peut activer des cartes mais qu'il n'y a pas de
 				// question
 				if (mayRezz)
 					q.ask("none").to(() -> triggeredFlow.apply(null));
 				else
 					triggeredFlow.apply(null);
+			} else {
+
+				// si pas d'action possible, mais juste des evenements
+				if (wallet.amountOf(WalletActions.class) == 0) {
+					q.ask("none").to(() -> triggeredFlow.apply(null));
+				}
 			}
+
 			q.fire();
 		}
 	}
@@ -247,6 +250,18 @@ public class Game implements Notifier, ConfigurableEventListener {
 
 	public WinCondition getResult() {
 		return result;
+	}
+
+	/**
+	 * Evenement synchrone
+	 * 
+	 * @param event
+	 * @return
+	 */
+	public <T extends Event> T apply(T event) {
+		apply(event, () -> {
+		});
+		return event;
 	}
 
 	@Override
@@ -541,6 +556,12 @@ public class Game implements Notifier, ConfigurableEventListener {
 		delegated.unbind(bindKey);
 	}
 
+	/**
+	 * Permet de retirer une card
+	 * 
+	 * @param card
+	 * @param location
+	 */
 	public void removeCardFrom(Card card, CardLocation location) {
 
 		List<Card> all = location.list(this);
@@ -564,23 +585,36 @@ public class Game implements Notifier, ConfigurableEventListener {
 
 	}
 
+	/**
+	 * Permet d'ajouter une carte
+	 * 
+	 * @param card
+	 * @param location
+	 */
 	public void addCardFrom(Card card, CardLocation location) {
 		List<Card> all = location.list(this);
 		if (all != null) {
 			all.add(card);
-		} else if (location instanceof CardLocationIce) {
-			CardLocationIce cli = (CardLocationIce) location;
-			cli.getServer().addIce((Ice) card, cli.getIndex());
-		} else if (location instanceof CardLocationUpgrade) {
-			CardLocationUpgrade clu = (CardLocationUpgrade) location;
+		} else {
 
-			CorpServer server = clu.getServer();
-			if (card instanceof Asset) {
-				if (server instanceof CorpRemoteServer)
-					((CorpRemoteServer) server).setAsset((Asset) card);
-			} else if (card instanceof Agenda) {
-				if (server instanceof CorpRemoteServer)
-					((CorpRemoteServer) server).setAgenda((Agenda) card);
+			if (CardLocation.Where.RUNNER_SCORE == location.getWhere())
+				runner.addScoredCard(card);
+			else if (CardLocation.Where.CORP_SCORE == location.getWhere())
+				corp.addScoredCard(card);
+			else if (location instanceof CardLocationIce) {
+				CardLocationIce cli = (CardLocationIce) location;
+				cli.getServer().addIce((Ice) card, cli.getIndex());
+			} else if (location instanceof CardLocationUpgrade) {
+				CardLocationUpgrade clu = (CardLocationUpgrade) location;
+
+				CorpServer server = clu.getServer();
+				if (card instanceof Asset) {
+					if (server instanceof CorpRemoteServer)
+						((CorpRemoteServer) server).setAsset((Asset) card);
+				} else if (card instanceof Agenda) {
+					if (server instanceof CorpRemoteServer)
+						((CorpRemoteServer) server).setAgenda((Agenda) card);
+				}
 			}
 		}
 

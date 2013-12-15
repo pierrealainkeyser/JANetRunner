@@ -13,6 +13,7 @@ import org.keyser.anr.core.CardLocationOnServer;
 import org.keyser.anr.core.Game;
 import org.keyser.anr.core.Notification;
 import org.keyser.anr.core.NotificationEvent;
+import org.keyser.anr.core.PlayableUnit;
 import org.keyser.anr.core.Question;
 import org.keyser.anr.core.Response;
 import org.keyser.anr.core.Wallet;
@@ -109,6 +110,11 @@ public class GameDTOBuilder {
 				});
 			} else if (NotificationEvent.NEXT_STEP == type) {
 				g.setStep(i.getStep());
+			} else if (NotificationEvent.CORP_SCORE_AGENDA == type) {
+				// TODO
+
+			} else if (NotificationEvent.RUNNER_SCORE_AGENDA == type) {
+				// TODO
 			}
 		}
 	}
@@ -143,6 +149,10 @@ public class GameDTOBuilder {
 		QuestionDTO d = new QuestionDTO(q.getQid(), q.getTo(), q.getType());
 		q.getResponses().values().forEach(r -> d.add(possibleReponse(r)));
 		g.setQuestion(d);
+	}
+
+	private void updateScore(PlayableUnit pu, GameDTO g, PlayerDTO p) {
+		p.setValue(SCORE, pu.getScore());
 	}
 
 	private void updateWallet(GameDTO g, PlayerDTO p, WalletUnit wu) {
@@ -202,9 +212,7 @@ public class GameDTOBuilder {
 		PlayerDTO p = new PlayerDTO();
 
 		Wallet w = corp.getWallet();
-		// FIXME socre
-		p.setValue(SCORE, 0);
-
+		updateScore(corp, g, p);
 		w.forEach(wu -> updateWallet(g, p, wu));
 
 		return p;
@@ -214,8 +222,7 @@ public class GameDTOBuilder {
 		PlayerDTO p = new PlayerDTO();
 
 		Wallet w = runner.getWallet();
-		p.setValue(SCORE, 0);
-
+		updateScore(runner, g, p);
 		w.forEach(wu -> updateWallet(g, p, wu));
 
 		return p;
@@ -248,6 +255,9 @@ public class GameDTOBuilder {
 	}
 
 	private LocationDTO location(Card c) {
+
+		// FIXME gestion des zones de score
+
 		CardLocation cl = c.getLocation();
 		if (cl == CardLocation.ARCHIVES)
 			return LocationDTO.archives;

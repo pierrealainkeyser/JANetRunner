@@ -29,8 +29,14 @@ public abstract class Agenda extends InstallableCorpCard {
 	 * @return
 	 */
 	public boolean isScorable() {
+
 		Integer adv = getAdvancement();
-		return adv != null && adv <= requirement;
+
+		// il faut envoyer un evenement dans le moteur !!
+		DetermineAgendaRequirement dar = getGame().apply(new DetermineAgendaRequirement(requirement));
+
+		int req = dar.getRequirement();
+		return adv != null && adv >= req;
 	}
 
 	@Override

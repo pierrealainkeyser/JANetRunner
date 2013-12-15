@@ -66,7 +66,7 @@ public final class Cost {
 	}
 
 	/**
-	 * Permet d'avoir tous les couts simplifiés
+	 * Permet d'avoir tous les couts simplifiï¿½s
 	 * 
 	 * @return
 	 */
@@ -86,7 +86,9 @@ public final class Cost {
 	}
 
 	public Cost add(Cost cost) {
-		this.costs.addAll(cost.costs);
+		if (cost != null) {
+			this.costs.addAll(cost.costs);
+		}
 		return this;
 	}
 
