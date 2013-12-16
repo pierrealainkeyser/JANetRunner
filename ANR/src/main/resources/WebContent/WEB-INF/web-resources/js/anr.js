@@ -744,7 +744,7 @@ function CardList() {
 			if (get(c) != i) {
 				set(c, i);
 				c.animate();
-				c.widget.css("zIndex", i);
+				c.widget.css("zIndex", i + 1 + 1);
 			}
 			++i;
 		}
@@ -903,26 +903,28 @@ function Card(def) {
 
 		// en main on place
 		if (location != undefined) {
+			w.css("zIndex", 2);
 			if (location.type == 'hand') {
 				this.rezzed = true;
-				w.css("zIndex", location.value.hand);
+				w.css("zIndex", location.value.hand+1);
 			} else if (location.type == 'hq_id' || location.type == 'grip_id') {
 				w.css("zIndex", 500);
 			} else if (location.type == 'upgrade') {
-				w.css("zIndex", -1);
-			} else if (location.type == 'ice' || location.type == 'server') {
+				w.css("zIndex", 1);
+			} 			 
+			else if (location.type == 'ice' || location.type == 'server') {
 				// création du serveur à la volée
 				var r = location.value.remote;
 				if (r != undefined) {
 					widgetServer(r + 3);
 				}
-			}
-
-			if ((location.type == 'rd' || location.type == 'stack') || (!this.rezzed && !this.local))
-				w.removeAttr("tabindex");
-			else
-				w.attr("tabindex", "-1");
+			}			
 		}
+		
+		if ((this.loc.type == 'rd' || this.loc.type == 'stack') || (!this.rezzed && !this.local))
+			w.removeAttr("tabindex");
+		else
+			w.attr("tabindex", "-1");
 
 		if (location != undefined || card.visible != undefined)
 			this.animate();

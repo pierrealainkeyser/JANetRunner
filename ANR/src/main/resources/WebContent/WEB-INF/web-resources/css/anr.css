@@ -172,6 +172,7 @@ div.card div{
 	font-size: 11px;
 	color: #999999;
 	margin-top: -20px;
+	z-index: 0;
 }
 
 .withAction.cardplace, #nothing.withAction{
