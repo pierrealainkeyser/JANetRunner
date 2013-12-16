@@ -25,7 +25,7 @@ var mainInsets = {
 		return 65;
 	},
 	bottom : function() {
-		return $('div#main').height() - 210;
+		return $('div#main').height() - 180;
 	}
 }
 
@@ -46,7 +46,7 @@ var placeFunction = {
 	hand : function(v) {
 
 		var bx = mainInsets.right() - 130;
-		var by = mainInsets.bottom() + 825;
+		var by = mainInsets.bottom() + 815;
 
 		var ray = 800;
 		var spacing = 2.5;
@@ -86,13 +86,14 @@ var placeFunction = {
 	},
 	upgrade : function(v) {
 		v.index = getServerIndex(v);
-		
-		v.hindex=2;
-		
+
+		v.hindex = 0;
+
 		var loc = placeFunction.server(v);
-		if (v.index < 3) {
+		if (v.index < 3) 
 			loc.y += 85;
-		}
+		else
+			loc.y += 45;
 
 		return loc;
 	},
@@ -108,7 +109,7 @@ var placeFunction = {
 		var x = bx + (index * hspacing);
 
 		if (v.hindex != null)
-			x += v.hindex * 5;
+			x += v.hindex * 9;
 
 		return {
 			x : x,
@@ -151,7 +152,7 @@ var placeFunction = {
 	},
 	ice : function(v) {
 		var bx = mainInsets.left();
-		var by = mainInsets.bottom() - 108;
+		var by = mainInsets.bottom() - 122;
 		var hspacing = 122;
 		var vspacing = 85;
 
@@ -709,9 +710,11 @@ function ValueWidget(widget) {
 	this.value(0);
 }
 
-function CardCounter(widget) {
+/**
+ * Permet d'avoir une liste de carte installée
+ */
+function CardList() {
 	this.cards = {};
-	this.widget = new ValueWidget(widget);
 
 	this.add = function(c) {
 		this.cards[c.def.id] = c;
@@ -723,6 +726,34 @@ function CardCounter(widget) {
 		delete this.cards[c.def.id];
 		this.sync();
 	}
+
+	this.sync = function() {
+	}
+
+	this.orderAll = function(c, get, set) {
+		// on trie par l'index
+		var ordered = [];
+		for ( var h in this.cards) {
+			var c = this.cards[h];
+			ordered[get(c)] = c;
+		}
+
+		var i = 0;
+		for ( var h in ordered) {
+			var c = ordered[h];
+			if (get(c) != i) {
+				set(c, i);
+				c.animate();
+				c.widget.css("zIndex", i);
+			}
+			++i;
+		}
+	}
+}
+
+function CardCounter(widget) {
+	CardList.call(this);
+	this.widget = new ValueWidget(widget);
 
 	this.sync = function() {
 		this.widget.value(Object.keys(this.cards).length);
@@ -737,26 +768,6 @@ function setHandLocation(c, i) {
 	return c.loc.value = {
 		hand : i
 	};
-}
-
-function orderAll(cc, c, get, set) {
-	// on trie par l'index
-	var ordered = [];
-	for ( var h in cc.cards) {
-		var c = cc.cards[h];
-		ordered[get(c)] = c;
-	}
-
-	var i = 0;
-	for ( var h in ordered) {
-		var c = ordered[h];
-		if (get(c) != i) {
-			set(c, i);
-			c.animate();
-			c.widget.css("zIndex", i);
-		}
-		++i;
-	}
 }
 
 function Card(def) {
@@ -826,9 +837,7 @@ function Card(def) {
 				} else {
 					this.tokens[t].find("span.val").text(val + "");
 				}
-
 			}
-
 		}
 	}
 
@@ -867,9 +876,9 @@ function Card(def) {
 
 			var cc = locationHandler[this.loc.type];
 			if (cc) {
-				cc.remove(this);
+				cc.remove(this, this.loc);
 				if (this.loc.type == 'hand')
-					orderAll(cc, this, getHandLocation, setHandLocation);
+					cc.orderAll(this, getHandLocation, setHandLocation);
 			}
 
 			cc = locationHandler[location.type];
@@ -877,7 +886,7 @@ function Card(def) {
 				if (this.local && (location.type == 'hq' || location.type == 'grip'))
 					location.type = 'hand';
 
-				var nindex = cc.add(this);
+				var nindex = cc.add(this, location);
 				if (location.type == 'hand') {
 					location.value = {
 						hand : nindex

@@ -165,12 +165,13 @@ div.card div{
 	margin-top: -6px;
 	position: absolute;
 	width: 96px;
-	height: 150px;
+	height: 140px;
 	padding: 0px;
 	text-align: center;
 	font-weight: bold;
 	font-size: 11px;
 	color: #999999;
+	margin-top: -20px;
 }
 
 .withAction.cardplace, #nothing.withAction{
@@ -181,13 +182,6 @@ div.card div{
 	border: 3px dashed #428bca;
 }
 
-#rd,#hq,#archives,.cardplace.remote {
-	padding-top: 123px;
-}
-
-#grip,#stack,#heap {
-	margin-top: -30px;
-}
 
 div.tokens{
 	margin: 2px;
