@@ -5,10 +5,10 @@ import java.util.List;
 public class CardLocation {
 
 	public enum Where {
-		ARCHIVES, GRIP, HEAP, HQ, ICE, RD, STACK, UPGRADE, RUNNER_SCORE, CORP_SCORE;
+		ARCHIVES, GRIP, HEAP, HQ, ICE, RD, STACK, UPGRADE, ASSET, RUNNER_SCORE, CORP_SCORE;
 
 		public boolean isCorp() {
-			return HQ == this || RD == this || ARCHIVES == this || ICE == this || UPGRADE == this || CORP_SCORE == this;
+			return HQ == this || RD == this || ARCHIVES == this || ICE == this || UPGRADE == this || ASSET == this || CORP_SCORE == this;
 		}
 
 		public boolean isRunner() {

@@ -30,6 +30,11 @@ public class Runner extends PlayableUnit {
 		// TDOO à completer
 
 	}
+	
+	@Override
+	protected CardLocation discardLocation() {
+		return CardLocation.HEAP;
+	}
 
 	@SuppressWarnings("unchecked")
 	public void addToStack(RunnerCard card) {

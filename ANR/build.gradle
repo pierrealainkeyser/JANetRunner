@@ -3,13 +3,16 @@
 
  repositories {
     mavenCentral()
+    maven {
+    	url 'http://repo.springsource.org/release'
+    }
  }
 
  dependencies {
  	compile 'ch.qos.logback:logback-classic:1.0.13'
  	compile 'org.eclipse.jetty.websocket:websocket-server:9.1.0.M0'
  	compile 'org.eclipse.jetty:jetty-webapp:9.1.0.M0'
- 	compile 'org.springframework:spring-webmvc:3.2.5.RELEASE'
+ 	compile 'org.springframework:spring-webmvc:4.0.0.RELEASE'
  	compile 'org.codehaus.jackson:jackson-mapper-lgpl:1.9.13'            
                                     
     testCompile 'junit:junit:4.8.2'

@@ -29,6 +29,19 @@ var mainInsets = {
 	}
 }
 
+function getServerIndex(v) {
+	var index;
+	if (v.remote != undefined)
+		index = 3 + v.remote;
+	else if (v.central == 'hq')
+		index = HQ_SERVER;
+	else if (v.central == 'rd')
+		index = RD_SERVER;
+	else if (v.central == 'archives')
+		index = ARCHIVES_SERVER;
+	return index;
+}
+
 var placeFunction = {
 	hand : function(v) {
 
@@ -71,15 +84,32 @@ var placeFunction = {
 			index : ARCHIVES_SERVER
 		});
 	},
+	upgrade : function(v) {
+		v.index = getServerIndex(v);
+		
+		v.hindex=2;
+		
+		var loc = placeFunction.server(v);
+		if (v.index < 3) {
+			loc.y += 85;
+		}
+
+		return loc;
+	},
 	server : function(v) {
 		var bx = mainInsets.left();
 		var by = mainInsets.bottom();
 		var hspacing = 122;
 		var index = v.index;
-		if (v.remote != undefined)
-			index = 3 + v.remote;
+
+		if (index == undefined)
+			index = getServerIndex(v);
 
 		var x = bx + (index * hspacing);
+
+		if (v.hindex != null)
+			x += v.hindex * 5;
+
 		return {
 			x : x,
 			y : by,
@@ -125,15 +155,7 @@ var placeFunction = {
 		var hspacing = 122;
 		var vspacing = 85;
 
-		var index;
-		if (v.remote != undefined)
-			index = 3 + v.remote;
-		else if (v.central == 'hq')
-			index = HQ_SERVER;
-		else if (v.central == 'rd')
-			index = RD_SERVER;
-		else if (v.central == 'archives')
-			index = ARCHIVES_SERVER;
+		var index = getServerIndex(v);
 
 		var x = bx + (index * hspacing);
 		var y = by - (v.ice * vspacing);
@@ -338,9 +360,11 @@ function updateGame(game) {
 			console.debug("new question : " + q.what + " ?");
 			for (i in q.responses) {
 				var a = handleQuestion(q, q.responses[i]);
-				if (a) {
+				if (a instanceof Array)
+					actions = actions.concat(a);
+				else
 					actions.push(a);
-				}
+
 			}
 		}
 	}
@@ -360,11 +384,19 @@ function handleQuestion(q, r) {
 
 	console.debug(" -> " + JSON.stringify(r));
 
+	var act = null;
+	var msg = $("#activeMessage");
+	msg.removeClass();
+
 	var card = cards[r.card];
 	var widget = null;
 	if (card != undefined)
 		widget = card.widget;
 	if ('WHICH_ABILITY' == q.what) {
+
+		msg.addClass("label label-info");
+		msg.text("Play an ability");
+
 		if ('click-for-credit' == r.option)
 			widget = faction == 'corp' ? $("#hq") : $("#grip");
 		else if ('click-for-draw' == r.option)
@@ -377,17 +409,29 @@ function handleQuestion(q, r) {
 				height : 'toggle'
 			});
 		}
+
+		if (widget != undefined) {
+			if ("install-ice" == r.option)
+				act = new InstallIceMultiAction(q, r, widget);
+			else if ("install-asset" == r.option || "install-agenda" == r.option || "install-upgrade" == r.option)
+				act = new InstallAssetAgendaMultiAction(q, r, widget);
+			else
+				act = new Action(q, r, widget);
+		}
+	} else if ('DISCARD_CARD' == q.what) {
+		msg.addClass("label label-warning");
+		msg.text("Select " + r.args.nb + " card" + (r.args.nb > 1 ? "s" : "") + " to discard");
+
+		// les cartes selectionnées
+		r.select = [];
+		act = [];
+		for (c in r.args.cards) {
+			var c = cards[r.args.cards[c] + ""];
+			act.push(new DiscardAction(q, r, c));
+		}
+
 	}
 
-	var act = null;
-	if (widget != undefined) {
-		if ("install-ice" == r.option)
-			act = new InstallIceMultiAction(q, r, widget);
-		else if ("install-asset" == r.option || "install-agenda" == r.option)
-			act = new InstallAssetAgendaMultiAction(q, r, widget);
-		else
-			act = new Action(q, r, widget);
-	}
 	return act;
 }
 
@@ -449,6 +493,7 @@ function displayANRAction(act) {
  */
 function widgetServer(index) {
 	var w = null;
+
 	if (index == 0)
 		w = $("#archives");
 	else if (index == 1)
@@ -537,6 +582,46 @@ function Action(q, r, widget) {
 
 	this.clean = function() {
 		widget.removeProp("ANRAction").removeClass("withAction");
+	}
+}
+
+/**
+ * L'action de défausser
+ * 
+ * @param q
+ * @param r
+ * @param widget
+ */
+function DiscardAction(q, r, c) {
+	Action.call(this, q, r, c.widget);
+
+	this.parentAction = this.applyAction;
+
+	this.applyAction = function() {
+		console.info("applying : " + r.option);
+
+		if ($.inArray(c.def.id, r.select) > -1) {
+			r.select.splice(r.select.indexOf(c.def.id), 1);
+			c.widget.transition({
+				top : '+=70'
+			});
+		} else {
+			r.select.push(c.def.id);
+			c.widget.transition({
+				top : '-=70'
+			});
+		}
+
+		console.log("---->" + r.select.length + "=" + r.args.nb);
+		if (r.select.length >= r.args.nb) {
+			this.parentAction();
+		}
+	}
+
+	this.updateChoosen = function(choosen) {
+		choosen.content = {
+			cards : r.select
+		};
 	}
 }
 
@@ -641,6 +726,36 @@ function CardCounter(widget) {
 
 	this.sync = function() {
 		this.widget.value(Object.keys(this.cards).length);
+	}
+}
+
+function getHandLocation(c) {
+	return c.loc.value.hand;
+}
+
+function setHandLocation(c, i) {
+	return c.loc.value = {
+		hand : i
+	};
+}
+
+function orderAll(cc, c, get, set) {
+	// on trie par l'index
+	var ordered = [];
+	for ( var h in cc.cards) {
+		var c = cc.cards[h];
+		ordered[get(c)] = c;
+	}
+
+	var i = 0;
+	for ( var h in ordered) {
+		var c = ordered[h];
+		if (get(c) != i) {
+			set(c, i);
+			c.animate();
+			c.widget.css("zIndex", i);
+		}
+		++i;
 	}
 }
 
@@ -753,25 +868,8 @@ function Card(def) {
 			var cc = locationHandler[this.loc.type];
 			if (cc) {
 				cc.remove(this);
-				if (this.loc.type == 'hand') {
-					// on trie par l'index
-					var ordered = [];
-					for ( var h in cc.cards) {
-						var c = cc.cards[h];
-						ordered[c.loc.value.hand] = c;
-					}
-
-					var i = 0;
-					for ( var h in ordered) {
-						var c = ordered[h];
-						if (c.loc.value.hand != i) {
-							c.loc.value.hand = i;
-							c.animate();
-							c.widget.css("zIndex", i);
-						}
-						++i;
-					}
-				}
+				if (this.loc.type == 'hand')
+					orderAll(cc, this, getHandLocation, setHandLocation);
 			}
 
 			cc = locationHandler[location.type];
@@ -801,6 +899,8 @@ function Card(def) {
 				w.css("zIndex", location.value.hand);
 			} else if (location.type == 'hq_id' || location.type == 'grip_id') {
 				w.css("zIndex", 500);
+			} else if (location.type == 'upgrade') {
+				w.css("zIndex", -1);
 			} else if (location.type == 'ice' || location.type == 'server') {
 				// création du serveur à la volée
 				var r = location.value.remote;

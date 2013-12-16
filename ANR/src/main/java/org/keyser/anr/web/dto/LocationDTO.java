@@ -2,13 +2,13 @@ package org.keyser.anr.web.dto;
 
 public class LocationDTO {
 
-	public static class IceLocationDTO {
+	public static class ExtendedLocationDTO {
 		private String central;
 
 		private Integer ice;
 
 		private Integer remote;
-
+		
 		public String getCentral() {
 			return central;
 		}
@@ -23,10 +23,8 @@ public class LocationDTO {
 
 		@Override
 		public String toString() {
-			return "IceLocationDTO [central=" + central + ", ice=" + ice + ", remote=" + remote + "]";
-		}
-		
-		
+			return "ExtendedLocationDTO [central=" + central + ", ice=" + ice + ", remote=" + remote + "]";
+		}		
 	}
 
 	public static final LocationDTO archives = new LocationDTO("archives");
@@ -48,13 +46,24 @@ public class LocationDTO {
 	 */
 	public static LocationDTO ice(LocationDTO on, int ice) {
 		LocationDTO l = new LocationDTO("ice");
-		l.value = new IceLocationDTO();
+		l.value = new ExtendedLocationDTO();
 		l.value.ice = ice;
+		updateServer(on, l);
+		return l;
+	}
+	
+	public static LocationDTO upgrade(LocationDTO on){
+		LocationDTO l = new LocationDTO("upgrade");
+		l.value = new ExtendedLocationDTO();
+		updateServer(on, l);
+		return l;
+	}
+
+	public static void updateServer(LocationDTO on, LocationDTO l) {
 		if ("server".equals(on.type))
 			l.value.remote = on.value.remote;
 		else
 			l.value.central = on.type;
-		return l;
 	}
 
 	/**
@@ -65,14 +74,14 @@ public class LocationDTO {
 	 */
 	public static LocationDTO remote(int remote) {
 		LocationDTO l = new LocationDTO("server");
-		l.value = new IceLocationDTO();
+		l.value = new ExtendedLocationDTO();
 		l.value.remote = remote;
 		return l;
 	}
 
 	private String type;
 
-	private IceLocationDTO value;
+	private ExtendedLocationDTO value;
 
 	private LocationDTO(String type) {
 		this.type = type;
@@ -82,7 +91,7 @@ public class LocationDTO {
 		return type;
 	}
 
-	public IceLocationDTO getValue() {
+	public ExtendedLocationDTO getValue() {
 		return value;
 	}
 

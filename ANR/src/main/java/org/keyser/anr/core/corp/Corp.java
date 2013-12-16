@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.keyser.anr.core.AbstractAbility;
 import org.keyser.anr.core.Card;
 import org.keyser.anr.core.CardLocation;
+import org.keyser.anr.core.CardLocationAsset;
 import org.keyser.anr.core.CardLocationIce;
 import org.keyser.anr.core.CardLocationUpgrade;
 import org.keyser.anr.core.CoreAbility;
@@ -232,10 +233,42 @@ public class Corp extends PlayableUnit {
 			wallet.consume(getCost(), getAction());
 
 			// la location 0 est toujours l'agenda ou l'asset
-			card.setLocation(new CardLocationUpgrade(cs, 0));
+			card.setLocation(new CardLocationAsset(cs, 0));
 
 			// on envoi l'evenement
 			getGame().apply(getEvent(card), next);
+		}
+	}
+
+	class InstallUpgradeAbility extends CoreAbility {
+		private final Upgrade card;
+
+		private final List<InstallOnServer> alls;
+
+		public InstallUpgradeAbility(Upgrade card, List<InstallOnServer> alls) {
+			super("install-upgrade", Cost.action(1));
+			this.card = card;
+			this.alls = alls;
+		}
+
+		@Override
+		protected void registerQuestion(Question q) {
+			List<Object> content = alls.stream().collect(Collectors.toList());
+			if (!content.isEmpty()) {
+				q.ask(getName(), card).to(InstallOnServer.class, this::accept).setContent(content);
+			}
+		}
+
+		protected void accept(InstallOnServer iic) {
+			CorpServer cs = getOrCreate(iic.getServer());
+			wallet.consume(getCost(), getAction());
+
+			// la location 0 est toujours l'agenda ou l'asset
+			int ups = cs.getUpgrades().size();
+			card.setLocation(new CardLocationUpgrade(cs, ups + 1));
+
+			// on envoi l'evenement
+			getGame().apply(new CorpInstallUpgrade(card), next);
 		}
 	}
 
@@ -281,12 +314,6 @@ public class Corp extends PlayableUnit {
 		}
 	}
 
-	/**
-	 * L'evenement la Corp a piocher
-	 * 
-	 * @author PAF
-	 * 
-	 */
 	public static class CorpInstallAsset extends Event {
 		private final Asset asset;
 
@@ -297,6 +324,19 @@ public class Corp extends PlayableUnit {
 		public Asset getAsset() {
 			return asset;
 		}
+	}
+
+	public static class CorpInstallUpgrade extends Event {
+		private final Upgrade upgrade;
+
+		public CorpInstallUpgrade(Upgrade upgrade) {
+			this.upgrade = upgrade;
+		}
+
+		public Upgrade getUpgrade() {
+			return upgrade;
+		}
+
 	}
 
 	private static class AgendaEvent extends Event {
@@ -409,6 +449,11 @@ public class Corp extends PlayableUnit {
 		remotes.values().forEach(r -> r.forEach(c));
 	}
 
+	@Override
+	protected CardLocation discardLocation() {
+		return CardLocation.ARCHIVES;
+	}
+
 	/**
 	 * Renvoi toutes les abilites utilisables du noyau
 	 * 
@@ -422,15 +467,15 @@ public class Corp extends PlayableUnit {
 		a.add(new ClickForPurge());
 
 		List<Ice> allIces = new ArrayList<>();
-		List<CorpCard> agendaAsset = new ArrayList<>();
+		List<CorpCard> agendaAssetUps = new ArrayList<>();
 		for (CorpCard cc : getHq().getCards()) {
 			if (cc instanceof Operation) {
 				Operation op = (Operation) cc;
 				a.add(new PlayOperation(op, op.getCost()));
 			} else if (cc instanceof Ice)
 				allIces.add((Ice) cc);
-			else if (cc instanceof Asset || cc instanceof Agenda)
-				agendaAsset.add(cc);
+			else if (cc instanceof Asset || cc instanceof Agenda || cc instanceof Upgrade)
+				agendaAssetUps.add(cc);
 
 		}
 
@@ -445,15 +490,22 @@ public class Corp extends PlayableUnit {
 			allIces.forEach(i -> a.add(new InstallIceAbility(i, iics)));
 		}
 
-		if (!agendaAsset.isEmpty()) {
+		if (!agendaAssetUps.isEmpty()) {
 			List<InstallOnServer> ios = new ArrayList<>();
 			remotes.forEach((i, r) -> ios.add(new InstallOnServer(i + 3)));
 			ios.add(new InstallOnServer(remotes.size() + 3));
-			agendaAsset.forEach(i -> {
+
+			List<InstallOnServer> centrals = new ArrayList<>(ios);
+			for (int i : new int[] { 0, 1, 2 })
+				centrals.add(new InstallOnServer(i));
+
+			agendaAssetUps.forEach(i -> {
 				if (i instanceof Asset)
 					a.add(new InstallAssetAbility((Asset) i, ios));
 				else if (i instanceof Agenda)
 					a.add(new InstallAgendaAbility((Agenda) i, ios));
+				else if (i instanceof Upgrade)
+					a.add(new InstallUpgradeAbility((Upgrade) i, centrals));
 			});
 		}
 

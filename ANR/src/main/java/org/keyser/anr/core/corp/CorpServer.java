@@ -23,8 +23,8 @@ public abstract class CorpServer {
 		upgrades.forEach(c);
 		ices.forEach(c);
 	}
-	
-	public void removeIce(int at){
+
+	public void removeIce(int at) {
 		ices.remove(at);
 	}
 
@@ -36,6 +36,10 @@ public abstract class CorpServer {
 
 	public void addUpgrade(Upgrade upgrade) {
 		upgrades.add(upgrade);
+	}
+
+	public void removeUpgrade(Upgrade upgrade) {
+		upgrades.remove(upgrade);
 	}
 
 	public int icesCount() {
