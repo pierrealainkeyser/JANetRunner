@@ -8,7 +8,7 @@ public class LocationDTO {
 		private Integer ice;
 
 		private Integer remote;
-		
+
 		public String getCentral() {
 			return central;
 		}
@@ -24,13 +24,13 @@ public class LocationDTO {
 		@Override
 		public String toString() {
 			return "ExtendedLocationDTO [central=" + central + ", ice=" + ice + ", remote=" + remote + "]";
-		}		
+		}
 	}
 
 	public static final LocationDTO archives = new LocationDTO("archives");
 	public static final LocationDTO grip = new LocationDTO("grip");
 	public static final LocationDTO heap = new LocationDTO("heap");
-	public static final LocationDTO hq = new LocationDTO("hq");	
+	public static final LocationDTO hq = new LocationDTO("hq");
 	public static final LocationDTO rd = new LocationDTO("rd");
 	public static final LocationDTO hq_id = new LocationDTO("hq_id");
 	public static final LocationDTO grip_id = new LocationDTO("grip_id");
@@ -51,21 +51,26 @@ public class LocationDTO {
 		updateServer(on, l);
 		return l;
 	}
-	
-	public static LocationDTO upgrade(LocationDTO on){
-		LocationDTO l = new LocationDTO("upgrade");
+
+	/**
+	 * Place un element das un server
+	 * @param on
+	 * @return
+	 */
+	public static LocationDTO server(LocationDTO on) {
+		LocationDTO l = new LocationDTO("server");
 		l.value = new ExtendedLocationDTO();
 		updateServer(on, l);
 		return l;
 	}
 
-	public static void updateServer(LocationDTO on, LocationDTO l) {
+	private static void updateServer(LocationDTO on, LocationDTO l) {
 		if ("server".equals(on.type))
 			l.value.remote = on.value.remote;
 		else
 			l.value.central = on.type;
 	}
-
+	
 	/**
 	 * Permet d'avoir un serveur remote
 	 * 

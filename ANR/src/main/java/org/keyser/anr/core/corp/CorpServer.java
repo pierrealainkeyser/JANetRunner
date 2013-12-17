@@ -2,7 +2,9 @@ package org.keyser.anr.core.corp;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Stack;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.keyser.anr.core.Card;
@@ -19,9 +21,35 @@ public abstract class CorpServer {
 		this.corpo = corpo;
 	}
 
+	/**
+	 * Permet de trouver une card sur le server
+	 * 
+	 * @param cardId
+	 * @return
+	 */
+	public CardOnServer find(int cardId) {
+		Optional<Upgrade> upds = upgrades.stream().filter(u -> u.getId() == cardId).findFirst();
+		if (upds.isPresent())
+			return new CardOnServer(upds.get(), this);
+
+		Optional<Ice> ices = this.ices.stream().filter(u -> u.getId() == cardId).findFirst();
+		if (ices.isPresent())
+			return new CardOnServer(ices.get(), this);
+		return null;
+	}
+
 	public void forEach(Consumer<Card> c) {
 		upgrades.forEach(c);
 		ices.forEach(c);
+	}
+
+	/**
+	 * Pour toutes les glaces
+	 * 
+	 * @param bi
+	 */
+	public void forEachIce(BiConsumer<CorpServer, Ice> bi) {
+		ices.forEach(i -> bi.accept(this, i));
 	}
 
 	public void removeIce(int at) {

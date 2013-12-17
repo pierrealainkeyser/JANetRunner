@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -195,9 +196,22 @@ public class Corp extends PlayableUnit {
 			}
 		}
 
-		protected void accept(InstallOnServer iic) {
-			CorpServer cs = getOrCreate(iic.getServer());
+		protected void accept(InstallOn iic) {
+			Integer server = iic.getServer();
 
+			CorpServer cs = null;
+
+			if (server != null)
+				cs = getOrCreate(server);
+			else {
+				CardOnServer cos = find(iic.getCard());
+
+				// on s'intalle sur la glace
+				cs = cos.getServer();
+				cos.getCard().trash();
+			}
+
+			// on applique le cout
 			int size = cs.icesCount();
 			wallet.consume(Cost.credit(size).add(getCost()), getAction());
 			ice.setLocation(new CardLocationIce(cs, size));
@@ -210,9 +224,9 @@ public class Corp extends PlayableUnit {
 	abstract class InstallAssetOrAgendaAbility extends CoreAbility {
 		private final CorpCard card;
 
-		private final List<InstallOnServer> alls;
+		private final List<InstallOn> alls;
 
-		public InstallAssetOrAgendaAbility(String code, CorpCard card, List<InstallOnServer> alls) {
+		public InstallAssetOrAgendaAbility(String code, CorpCard card, List<InstallOn> alls) {
 			super(code, Cost.action(1));
 			this.card = card;
 			this.alls = alls;
@@ -222,13 +236,13 @@ public class Corp extends PlayableUnit {
 		protected void registerQuestion(Question q) {
 			List<Object> content = alls.stream().collect(Collectors.toList());
 			if (!content.isEmpty()) {
-				q.ask(getName(), card).to(InstallOnServer.class, this::accept).setContent(content);
+				q.ask(getName(), card).to(InstallOn.class, this::accept).setContent(content);
 			}
 		}
 
 		abstract Event getEvent(CorpCard card);
 
-		protected void accept(InstallOnServer iic) {
+		protected void accept(InstallOn iic) {
 			CorpServer cs = getOrCreate(iic.getServer());
 			wallet.consume(getCost(), getAction());
 
@@ -243,9 +257,9 @@ public class Corp extends PlayableUnit {
 	class InstallUpgradeAbility extends CoreAbility {
 		private final Upgrade card;
 
-		private final List<InstallOnServer> alls;
+		private final List<InstallOn> alls;
 
-		public InstallUpgradeAbility(Upgrade card, List<InstallOnServer> alls) {
+		public InstallUpgradeAbility(Upgrade card, List<InstallOn> alls) {
 			super("install-upgrade", Cost.action(1));
 			this.card = card;
 			this.alls = alls;
@@ -255,11 +269,11 @@ public class Corp extends PlayableUnit {
 		protected void registerQuestion(Question q) {
 			List<Object> content = alls.stream().collect(Collectors.toList());
 			if (!content.isEmpty()) {
-				q.ask(getName(), card).to(InstallOnServer.class, this::accept).setContent(content);
+				q.ask(getName(), card).to(InstallOn.class, this::accept).setContent(content);
 			}
 		}
 
-		protected void accept(InstallOnServer iic) {
+		protected void accept(InstallOn iic) {
 			CorpServer cs = getOrCreate(iic.getServer());
 			wallet.consume(getCost(), getAction());
 
@@ -274,7 +288,7 @@ public class Corp extends PlayableUnit {
 
 	class InstallAssetAbility extends InstallAssetOrAgendaAbility {
 
-		public InstallAssetAbility(Asset asset, List<InstallOnServer> alls) {
+		public InstallAssetAbility(Asset asset, List<InstallOn> alls) {
 			super("install-asset", asset, alls);
 		}
 
@@ -286,7 +300,7 @@ public class Corp extends PlayableUnit {
 
 	class InstallAgendaAbility extends InstallAssetOrAgendaAbility {
 
-		public InstallAgendaAbility(Agenda agenda, List<InstallOnServer> alls) {
+		public InstallAgendaAbility(Agenda agenda, List<InstallOn> alls) {
 			super("install-agenda", agenda, alls);
 		}
 
@@ -439,14 +453,49 @@ public class Corp extends PlayableUnit {
 		getDiscard().forEach(c);
 		getStack().forEach(c);
 
-		forEachServer(c);
+		forEachCardInServer(c);
 	}
 
-	private void forEachServer(Consumer<Card> c) {
-		hq.forEach(c);
-		rd.forEach(c);
-		archive.forEach(c);
-		remotes.values().forEach(r -> r.forEach(c));
+	/**
+	 * Parcours tous les serveurs
+	 * 
+	 * @param c
+	 */
+	private void forEachServer(Consumer<CorpServer> c) {
+		c.accept(hq);
+		c.accept(rd);
+		c.accept(archive);
+		remotes.values().forEach(c);
+	}
+
+	/**
+	 * Parcours toutes les cartes
+	 * 
+	 * @param c
+	 */
+	private void forEachCardInServer(Consumer<Card> c) {
+		forEachServer(cs -> cs.forEach(c));
+	}
+
+	/**
+	 * Parcours toutes les classes
+	 * 
+	 * @param bi
+	 */
+	private void forEachIce(BiConsumer<CorpServer, Ice> bi) {
+		forEachServer(cs -> cs.forEachIce(bi));
+	}
+
+	/**
+	 * Permet de trouver une carte sur un server
+	 * 
+	 * @param cardId
+	 * @return
+	 */
+	private CardOnServer find(int cardId) {
+		List<CardOnServer> ons = new ArrayList<>();
+		forEachServer(c -> ons.add(c.find(cardId)));
+		return ons.stream().filter(c -> c != null).findFirst().get();
 	}
 
 	@Override
@@ -481,23 +530,28 @@ public class Corp extends PlayableUnit {
 
 		if (!allIces.isEmpty()) {
 			List<InstallIceCost> iics = new ArrayList<>();
-			iics.add(new InstallIceCost(0, archive.icesCount()));
-			iics.add(new InstallIceCost(1, rd.icesCount()));
-			iics.add(new InstallIceCost(2, hq.icesCount()));
-			remotes.forEach((i, r) -> iics.add(new InstallIceCost(i + 3, r.icesCount())));
-			iics.add(new InstallIceCost(remotes.size() + 3, 0));
+
+			// on peut installer une glace sur une autre glace
+			iics.add(new InstallIceCost(0, null, archive.icesCount()));
+			iics.add(new InstallIceCost(1, null, rd.icesCount()));
+			iics.add(new InstallIceCost(2, null, hq.icesCount()));
+			remotes.forEach((i, r) -> iics.add(new InstallIceCost(i + 3, null, r.icesCount())));
+			iics.add(new InstallIceCost(remotes.size() + 3, null, 0));
 
 			allIces.forEach(i -> a.add(new InstallIceAbility(i, iics)));
+
+			// on peut s'installer sur toutes les glaces
+			forEachIce((server, ice) -> iics.add(new InstallIceCost(null, ice.getId(), server.icesCount() - 1)));
 		}
 
 		if (!agendaAssetUps.isEmpty()) {
-			List<InstallOnServer> ios = new ArrayList<>();
-			remotes.forEach((i, r) -> ios.add(new InstallOnServer(i + 3)));
-			ios.add(new InstallOnServer(remotes.size() + 3));
+			List<InstallOn> ios = new ArrayList<>();
+			remotes.forEach((i, r) -> ios.add(InstallOn.server(i + 3)));
+			ios.add(InstallOn.server(remotes.size() + 3));
 
-			List<InstallOnServer> centrals = new ArrayList<>(ios);
+			List<InstallOn> centrals = new ArrayList<>(ios);
 			for (int i : new int[] { 0, 1, 2 })
-				centrals.add(new InstallOnServer(i));
+				centrals.add(InstallOn.server(i));
 
 			agendaAssetUps.forEach(i -> {
 				if (i instanceof Asset)
@@ -510,7 +564,7 @@ public class Corp extends PlayableUnit {
 		}
 
 		// gestion des actions des cartes
-		forEachServer(c -> addAbility((CorpCard) c, a));
+		forEachCardInServer(c -> addAbility((CorpCard) c, a));
 	}
 
 	private void addAbility(CorpCard cc, List<AbstractAbility> a) {

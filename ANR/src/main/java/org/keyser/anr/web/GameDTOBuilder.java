@@ -276,16 +276,20 @@ public class GameDTOBuilder {
 			if (w == Where.ICE) {
 				CardLocationIce i = (CardLocationIce) cl;
 				return LocationDTO.ice(serverLocation(i), i.getIndex());
-			} else if (w == Where.ASSET) {
-				return serverLocation((CardLocationOnServer) cl);
-			} else if (w == Where.UPGRADE) {
-				return LocationDTO.upgrade(serverLocation((CardLocationOnServer) cl));
+			} else if (w == Where.ASSET || w == Where.UPGRADE) {
+				return LocationDTO.server(serverLocation((CardLocationOnServer) cl));
 			}
 		}
 
 		return null;
 	}
 
+	/**
+	 * Renvoi la position du server
+	 * 
+	 * @param i
+	 * @return
+	 */
 	private LocationDTO serverLocation(CardLocationOnServer i) {
 		LocationDTO s = null;
 		CorpServer ser = i.getServer();

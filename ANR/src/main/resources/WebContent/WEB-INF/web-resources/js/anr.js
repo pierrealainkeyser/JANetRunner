@@ -14,21 +14,22 @@ var wallets = {};
 var actions = [];
 
 // gestion des bordures
-var mainInsets = {
-	left : function() {
-		return 30;
-	},
-	right : function() {
-		return $('div#main').width() - 160;
-	},
-	top : function() {
-		return 65;
-	},
-	bottom : function() {
-		return $('div#main').height() - 180;
-	}
-}
+var mainInsets = { left : function() {
+	return 30;
+}, right : function() {
+	return $('div#main').width() - 160;
+}, top : function() {
+	return 65;
+}, bottom : function() {
+	return $('div#main').height() - 180;
+} }
 
+/**
+ * Renvoi l'index du server
+ * 
+ * @param v
+ * @returns {Number}
+ */
 function getServerIndex(v) {
 	var index;
 	if (v.remote != undefined)
@@ -42,138 +43,105 @@ function getServerIndex(v) {
 	return index;
 }
 
-var placeFunction = {
-	hand : function(v) {
+var placeFunction = { hand : function(v) {
 
-		var bx = mainInsets.right() - 130;
-		var by = mainInsets.bottom() + 815;
+	var bx = mainInsets.right() - 130;
+	var by = mainInsets.bottom() + 815;
 
-		var ray = 800;
-		var spacing = 2.5;
-		var from = -12;
-		var angleDeg = from + (v.hand * spacing);
+	var ray = 800;
+	var spacing = 2.5;
+	var from = -12;
+	var angleDeg = from + (v.hand * spacing);
 
-		// calcul de x
-		var x = bx - ray * Math.sin(angleDeg / 180 * Math.PI);
-		var y = by - ray * Math.cos(angleDeg / 180 * Math.PI);
+	// calcul de x
+	var x = bx - ray * Math.sin(angleDeg / 180 * Math.PI);
+	var y = by - ray * Math.cos(angleDeg / 180 * Math.PI);
 
-		return {
-			x : x,
-			y : y,
-			rotate : -angleDeg
-		};
-	},
-	hq_id : function(v) {
-		return placeFunction.hq();
-	},
-	hq : function(v) {
-		if (v) {
-			return placeFunction.hand(v);
-		} else
-			return placeFunction.server({
-				index : HQ_SERVER
-			});
-	},
-	rd : function(v) {
-		return placeFunction.server({
-			index : RD_SERVER
-		});
-	},
-	archives : function(v) {
-		return placeFunction.server({
-			index : ARCHIVES_SERVER
-		});
-	},
-	upgrade : function(v) {
-		v.index = getServerIndex(v);
+	return { x : x, y : y, rotate : -angleDeg };
+}, hq_id : function(v) {
+	return placeFunction.hq();
+}, hq : function(v) {
+	if (v) {
+		return placeFunction.hand(v);
+	} else
+		return placeFunction.server({ index : HQ_SERVER });
+}, rd : function(v) {
+	return placeFunction.server({ index : RD_SERVER });
+}, archives : function(v) {
+	return placeFunction.server({ index : ARCHIVES_SERVER });
+}, server : function(v) {
+	var bx = mainInsets.left();
+	var by = mainInsets.bottom();
+	var hspacing = 122;
+	var index = v.index;
 
-		v.hindex = 0;
+	if (index == undefined)
+		index = getServerIndex(v);
+	var x = bx + (index * hspacing);
 
-		var loc = placeFunction.server(v);
-		if (v.index < 3) 
-			loc.y += 85;
-		else
-			loc.y += 45;
+	if (v.upgradeIndex != undefined) {
+		// si on a un upgrade index
+		if (index < 3 || v.upgradeIndex > 0) {
+			by += 55;
 
-		return loc;
-	},
-	server : function(v) {
-		var bx = mainInsets.left();
-		var by = mainInsets.bottom();
-		var hspacing = 122;
-		var index = v.index;
+			var up = v.upgradeIndex;
+			var nb = v.upgradeSize();
 
-		if (index == undefined)
-			index = getServerIndex(v);
+			// sur distant, l'upgrade 0 est la carte à la racine
+			if (index < 3)
+				up += 1;
+			else
+				nb -= 1;
 
-		var x = bx + (index * hspacing);
+			var base = 0;
+			var delta = 0;
+			if (nb == 2) {
+				base = -12;
+				delta = 24;
+			} else if (nb == 3) {
+				base = -15;
+				delta = 15;
+			}
 
-		if (v.hindex != null)
-			x += v.hindex * 9;
+			// on décale de façon élégante
+			x += base + ((up - 1) * delta);
+		}
 
-		return {
-			x : x,
-			y : by,
-			rotate : 0
-		};
-	},
-	grip : function(v) {
-		if (v) {
-			return placeFunction.hand(v);
-		} else
-			return placeFunction.runner({
-				index : RUNNER_GRIP
-			});
-	},
-	grip_id : function(v) {
-		return placeFunction.grip();
-	},
-	stack : function() {
-		return placeFunction.runner({
-			index : RUNNER_STACK
-		});
-	},
-	heap : function() {
-		return placeFunction.runner({
-			index : RUNNER_HEAP
-		});
-	},
-	runner : function(v) {
-		var bx = mainInsets.right();
-		var by = mainInsets.top();
-		var hspacing = 102;
-		var x = bx - (v.index * hspacing);
-
-		return {
-			x : x,
-			y : by,
-			rotate : 0
-		};
-	},
-	ice : function(v) {
-		var bx = mainInsets.left();
-		var by = mainInsets.bottom() - 122;
-		var hspacing = 122;
-		var vspacing = 85;
-
-		var index = getServerIndex(v);
-
-		var x = bx + (index * hspacing);
-		var y = by - (v.ice * vspacing);
-		return {
-			x : x,
-			y : y,
-			rotate : 90
-		};
-	},
-	none : function() {
-		return {
-			x : 0,
-			y : 0,
-			rotate : 0
-		};
 	}
-};
+
+	return { x : x, y : by, rotate : 0 };
+}, grip : function(v) {
+	if (v) {
+		return placeFunction.hand(v);
+	} else
+		return placeFunction.runner({ index : RUNNER_GRIP });
+}, grip_id : function(v) {
+	return placeFunction.grip();
+}, stack : function() {
+	return placeFunction.runner({ index : RUNNER_STACK });
+}, heap : function() {
+	return placeFunction.runner({ index : RUNNER_HEAP });
+}, runner : function(v) {
+	var bx = mainInsets.right();
+	var by = mainInsets.top();
+	var hspacing = 102;
+	var x = bx - (v.index * hspacing);
+
+	return { x : x, y : by, rotate : 0 };
+}, ice : function(v) {
+	var bx = mainInsets.left();
+	var by = mainInsets.bottom() - 122;
+	var hspacing = 122;
+	var vspacing = 85;
+
+	var index = getServerIndex(v);
+
+	var x = bx + (index * hspacing);
+	var y = by - (v.ice * vspacing);
+	return { x : x, y : y, rotate : 90 };
+}, none : function() {
+	return { x : 0, y : 0, rotate : 0 };
+} };
 
 /**
  * Configuration d'un widget
@@ -202,17 +170,13 @@ function initANR() {
 	var corpWidget = $(".faction.corp");
 	corpWidget.find("a").bind('click', function() {
 		var l = $(".faction.corp .expand")
-		l.animate({
-			height : 'toggle'
-		}, 150);
+		l.animate({ height : 'toggle' }, 150);
 	});
 
 	var runnerWidget = $(".faction.runner");
 	runnerWidget.find("a").bind('click', function() {
 		var l = $(".faction.runner .expand")
-		l.animate({
-			height : 'toggle'
-		}, 150);
+		l.animate({ height : 'toggle' }, 150);
 	});
 
 	setTimeout(function() {
@@ -220,28 +184,15 @@ function initANR() {
 		runnerWidget.find("a").click();
 	}, 750);
 
-	wallets['corp'] = {
-		score : new ValueWidget(corpWidget.find("span.score")),
-		credits : new ValueWidget(corpWidget.find("span.credits")),
-		actions : new ValueWidget(corpWidget.find("span.actions"))
-	};
+	wallets['corp'] = { score : new ValueWidget(corpWidget.find("span.score")), credits : new ValueWidget(corpWidget.find("span.credits")),
+		actions : new ValueWidget(corpWidget.find("span.actions")) };
 
-	wallets['runner'] = {
-		score : new ValueWidget(runnerWidget.find("span.score")),
-		credits : new ValueWidget(runnerWidget.find("span.credits")),
-		actions : new ValueWidget(runnerWidget.find("span.actions")),
-		links : new ValueWidget(runnerWidget.find("span.links")),
-		memory_units : new ValueWidget(runnerWidget.find("span.memory_units"))
-	};
+	wallets['runner'] = { score : new ValueWidget(runnerWidget.find("span.score")), credits : new ValueWidget(runnerWidget.find("span.credits")),
+		actions : new ValueWidget(runnerWidget.find("span.actions")), links : new ValueWidget(runnerWidget.find("span.links")),
+		memory_units : new ValueWidget(runnerWidget.find("span.memory_units")) };
 
-	locationHandler = {
-		'hq' : new CardCounter($("#hq").find("span")),
-		'archives' : new CardCounter($("#archives").find("span")),
-		'rd' : new CardCounter($("#rd").find("span")),
-		'grip' : new CardCounter($("#grip").find("span")),
-		'stack' : new CardCounter($("#stack").find("span")),
-		'heap' : new CardCounter($("#heap").find("span"))
-	};
+	locationHandler = { 'hq' : new CardCounter($("#hq").find("span")), 'archives' : new CardCounter($("#archives").find("span")), 'rd' : new CardCounter($("#rd").find("span")),
+		'grip' : new CardCounter($("#grip").find("span")), 'stack' : new CardCounter($("#stack").find("span")), 'heap' : new CardCounter($("#heap").find("span")) };
 }
 
 /**
@@ -252,33 +203,24 @@ function initANR() {
 function bootANR(gid) {
 
 	console.info("connecting to '" + window.location.host + "' to game " + gid);
-	$ws = $.websocket("ws://" + window.location.host + "/ws/play", {
-		events : {
-			text : function(e) {
-				console.debug("text ->" + JSON.stringify(e));
-			},
-			connected : function(e) {
-				console.debug("connected ->" + e.data);
+	$ws = $.websocket("ws://" + window.location.host + "/ws/play", { events : { text : function(e) {
+		console.debug("text ->" + JSON.stringify(e));
+	}, connected : function(e) {
+		console.debug("connected ->" + e.data);
 
-				faction = e.data;
-				if (faction == 'corp')
-					locationHandler['hand'] = locationHandler['hq'];
-				else
-					locationHandler['hand'] = locationHandler['grip'];
+		faction = e.data;
+		if (faction == 'corp')
+			locationHandler['hand'] = locationHandler['hq'];
+		else
+			locationHandler['hand'] = locationHandler['grip'];
 
-			},
-			setup : function(e) {
-				updateGame(e.data);
-			},
-			update : function(e) {
-				updateGame(e.data);
-			}
-		}
-	});
+	}, setup : function(e) {
+		updateGame(e.data);
+	}, update : function(e) {
+		updateGame(e.data);
+	} } });
 	$ws.onopen = function() {
-		$ws.send('ready', {
-			game : gid
-		});
+		$ws.send('ready', { game : gid });
 	};
 }
 
@@ -394,7 +336,6 @@ function handleQuestion(q, r) {
 	if (card != undefined)
 		widget = card.widget;
 	if ('WHICH_ABILITY' == q.what) {
-
 		msg.addClass("label label-info");
 		msg.text("Play an ability");
 
@@ -406,9 +347,7 @@ function handleQuestion(q, r) {
 			widget = $("#nothing");
 
 			// on masque le widget avant l'emission
-			$("#nothing").stop().animate({
-				height : 'toggle'
-			});
+			$("#nothing").stop().animate({ height : 'toggle' });
 		}
 
 		if (widget != undefined) {
@@ -519,15 +458,9 @@ function widgetServer(index) {
 				val = nindex + "<sup>th</sup>";
 
 			w = $("<div id='" + rd + "' class='cardplace remote' tabindex='-1'>" + val + " Remote</div>");
-			confactions(w.css(placeFunction.server({
-				index : index
-			})));
-			w.css({
-				opacity : 0
-			});
-			w.transition({
-				opacity : 1
-			});
+			confactions(w.css(placeFunction.server({ index : index })));
+			w.css({ opacity : 0 });
+			w.transition({ opacity : 1 });
 			$('div#main').append(w);
 
 		}
@@ -548,16 +481,11 @@ function Action(q, r, widget) {
 	 */
 	this.sendToWs = function() {
 		this.clearAll();
-		var choosen = {
-			qid : q.qid,
-			rid : r.rid
-		};
+		var choosen = { qid : q.qid, rid : r.rid };
 
 		var opt = $("#nothing");
 		if (opt.is(':visible')) {
-			opt.stop().animate({
-				height : 'toggle'
-			});
+			opt.stop().animate({ height : 'toggle' });
 		}
 
 		if (this.updateChoosen != undefined)
@@ -603,14 +531,10 @@ function DiscardAction(q, r, c) {
 
 		if ($.inArray(c.def.id, r.select) > -1) {
 			r.select.splice(r.select.indexOf(c.def.id), 1);
-			c.widget.transition({
-				top : '+=70'
-			});
+			c.widget.transition({ top : '+=70' });
 		} else {
 			r.select.push(c.def.id);
-			c.widget.transition({
-				top : '-=70'
-			});
+			c.widget.transition({ top : '-=70' });
 		}
 
 		console.log("---->" + r.select.length + "=" + r.args.nb);
@@ -620,9 +544,7 @@ function DiscardAction(q, r, c) {
 	}
 
 	this.updateChoosen = function(choosen) {
-		choosen.content = {
-			cards : r.select
-		};
+		choosen.content = { cards : r.select };
 	}
 }
 
@@ -649,20 +571,28 @@ function MultiAction(q, r, widget, createActions) {
 function InstallIceMultiAction(q, r, widget) {
 	MultiAction.call(this, q, r, widget, function() {
 		// on monte un peu la carte cible
-		widget.transition({
-			top : '-=70'
-		});
+		widget.transition({ top : '-=70' });
 
 		actions = [];
 		for (i in r.args) {
 			var index = r.args[i].server;
-			var a = new Action(q, r, widgetServer(index));
+			var cardIndex = r.args[i].card;
+			var w = null;
+			if (index != undefined)
+				w = widgetServer(index);
+			else
+				w = cards[cardIndex + ""].widget;
+
+			var a = new Action(q, r, w);
 			a.index = index;
+			a.card = cardIndex;
 			a.updateChoosen = function(choosen) {
-				choosen['content'] = {
-					server : this.index
-				};
+				if (this.index != undefined)
+					choosen['content'] = { server : this.index };
+				else
+					choosen['content'] = { card : this.card };
 			};
+
 			actions.push(a);
 		}
 	});
@@ -678,9 +608,7 @@ function InstallIceMultiAction(q, r, widget) {
 function InstallAssetAgendaMultiAction(q, r, widget) {
 	MultiAction.call(this, q, r, widget, function() {
 		// on monte un peu la carte cible
-		widget.transition({
-			top : '-=70'
-		});
+		widget.transition({ top : '-=70' });
 
 		actions = [];
 		for (i in r.args) {
@@ -688,9 +616,7 @@ function InstallAssetAgendaMultiAction(q, r, widget) {
 			var a = new Action(q, r, widgetServer(index));
 			a.index = index;
 			a.updateChoosen = function(choosen) {
-				choosen['content'] = {
-					server : this.index
-				};
+				choosen['content'] = { server : this.index };
 			};
 			actions.push(a);
 		}
@@ -716,6 +642,8 @@ function ValueWidget(widget) {
 function CardList() {
 	this.cards = {};
 
+	var mycards = this.cards;
+
 	this.add = function(c) {
 		this.cards[c.def.id] = c;
 		this.sync();
@@ -727,10 +655,13 @@ function CardList() {
 		this.sync();
 	}
 
-	this.sync = function() {
+	this.size = function() {
+		return Object.keys(mycards).length;
 	}
 
-	this.orderAll = function(c, get, set) {
+	this.sync = function() {}
+
+	this.orderAll = function(c, get, set, force) {
 		// on trie par l'index
 		var ordered = [];
 		for ( var h in this.cards) {
@@ -739,14 +670,21 @@ function CardList() {
 		}
 
 		var i = 0;
+		var toanim = [];
+
 		for ( var h in ordered) {
 			var c = ordered[h];
-			if (get(c) != i) {
+			if (get(c) != i || force == true) {
 				set(c, i);
-				c.animate();
 				c.widget.css("zIndex", i + 1 + 1);
+				toanim.push(c);
 			}
 			++i;
+		}
+
+		for ( var h in toanim) {
+			var c = toanim[h];
+			c.animate();
 		}
 	}
 }
@@ -760,22 +698,31 @@ function CardCounter(widget) {
 	}
 }
 
-function getHandLocation(c) {
-	return c.loc.value.hand;
-}
+/**
+ * Renvoi la location
+ * 
+ * @param loc
+ * @returns
+ */
+function findLocationHandler(loc) {
+	if (loc.type == 'server') {
+		var si = getServerIndex(loc.value);
+		var key = loc.type + "_" + si;
 
-function setHandLocation(c, i) {
-	return c.loc.value = {
-		hand : i
-	};
+		var lh = locationHandler[key];
+		if (lh == undefined) {
+			locationHandler[key] = lh = new CardList();
+		}
+		loc.value.upgradeSize = lh.size;
+		return lh;
+
+	}
+	return locationHandler[loc.type];
 }
 
 function Card(def) {
 	this.def = def;
-	this.loc = {
-		type : 'none',
-		value : {}
-	};
+	this.loc = { type : 'none', value : {} };
 	this.split = 'horizontal';
 	this.widget;
 	this.local = def.faction == faction;
@@ -826,13 +773,10 @@ function Card(def) {
 				var val = card.tokens[t];
 
 				if (this.tokens[t] == undefined) {
-					var newTok = $("<span style='display:none' class='" + t + " label label-primary'><i class='sprite " + t + "'></i><span class='val'>" + val
-							+ "</span></div>");
+					var newTok = $("<span style='display:none' class='" + t + " label label-primary'><i class='sprite " + t + "'></i><span class='val'>" + val + "</span></div>");
 					this.tokens[t] = newTok;
 					newTok.appendTo(this.widget.find("div.tokens"));
-					newTok.animate({
-						height : 'toggle'
-					}, 150);
+					newTok.animate({ height : 'toggle' }, 150);
 
 				} else {
 					this.tokens[t].find("span.val").text(val + "");
@@ -856,10 +800,7 @@ function Card(def) {
 				this.split = 'none';
 				w.css('rotateX', '0deg');
 				w.css('rotateY', '0deg');
-				w.find("div.tokens").css({
-					rotateX : '0deg',
-					rotateY : '0deg'
-				});
+				w.find("div.tokens").css({ rotateX : '0deg', rotateY : '0deg' });
 
 			} else if (location.type == 'ice') {
 				this.split = 'vertical';
@@ -874,27 +815,49 @@ function Card(def) {
 				w.find("div.tokens").css('rotateY', flip);
 			}
 
-			var cc = locationHandler[this.loc.type];
+			var cc = findLocationHandler(this.loc);
 			if (cc) {
 				cc.remove(this, this.loc);
-				if (this.loc.type == 'hand')
-					cc.orderAll(this, getHandLocation, setHandLocation);
+				if (this.loc.type == 'hand') {
+					cc.orderAll(this, function(c) {
+						return c.loc.value.hand;
+					}, function(c, i) {
+						c.loc.value = { hand : i }
+					});
+				} else if (this.loc.type == 'server') {
+					cc.orderAll(this, function(c) {
+						return c.loc.value.upgradeIndex;
+					}, function(c, i) {
+						c.loc.value['upgradeIndex'] = i;
+					}, true);
+				}
 			}
 
-			cc = locationHandler[location.type];
+			cc = findLocationHandler(location);
 			if (cc) {
 				if (this.local && (location.type == 'hq' || location.type == 'grip'))
 					location.type = 'hand';
 
 				var nindex = cc.add(this, location);
-				if (location.type == 'hand') {
-					location.value = {
-						hand : nindex
-					};
+				if (location.type == 'hand')
+					location.value = { hand : nindex };
+				else if (location.type == 'server') {
+					location.value['upgradeIndex'] = nindex;
 				}
 			}
 
 			this.loc = location;
+
+			if (cc) {
+				// on repositionne les elements dans le server
+				if (location.type == 'server') {
+					cc.orderAll(this, function(c) {
+						return c.loc.value.upgradeIndex;
+					}, function(c, i) {
+						c.loc.value['upgradeIndex'] = i;
+					}, true);
+				}
+			}
 		}
 
 		// changement de visibilite
@@ -906,21 +869,20 @@ function Card(def) {
 			w.css("zIndex", 2);
 			if (location.type == 'hand') {
 				this.rezzed = true;
-				w.css("zIndex", location.value.hand+1);
+				w.css("zIndex", location.value.hand + 1);
 			} else if (location.type == 'hq_id' || location.type == 'grip_id') {
 				w.css("zIndex", 500);
 			} else if (location.type == 'upgrade') {
 				w.css("zIndex", 1);
-			} 			 
-			else if (location.type == 'ice' || location.type == 'server') {
+			} else if (location.type == 'ice' || location.type == 'server') {
 				// création du serveur à la volée
 				var r = location.value.remote;
 				if (r != undefined) {
 					widgetServer(r + 3);
 				}
-			}			
+			}
 		}
-		
+
 		if ((this.loc.type == 'rd' || this.loc.type == 'stack') || (!this.rezzed && !this.local))
 			w.removeAttr("tabindex");
 		else
@@ -936,38 +898,25 @@ function Card(def) {
 	this.animate = function() {
 		var w = this.widget;
 		var place = placeFunction[this.loc.type](this.loc.value);
-		var trans = {
-			top : place.y,
-			left : place.x,
-			rotate : place.rotate,
-			queue : false
-		}
+		var trans = { top : place.y, left : place.x, rotate : place.rotate, queue : false }
 
 		var visible = this.isVisible();
 		if (visible != this.rezzed) {
 			if (!visible) {
-				w.find("img").transition({
-					opacity : 1
-				});
+				w.find("img").transition({ opacity : 1 });
 				if (this.split == 'horizontal')
 					trans['rotateY'] = '0deg';
 				else if (this.split == 'vertical')
 					trans['rotateX'] = '0deg';
 			} else {
-				w.find("img").transition({
-					opacity : 0
-				});
+				w.find("img").transition({ opacity : 0 });
 				if (this.split == 'horizontal')
 					trans['rotateY'] = '180deg';
 				else if (this.split == 'vertical')
 					trans['rotateX'] = '180deg';
 			}
 
-			var tokens = {
-				rotateY : trans['rotateY'],
-				rotateX : trans['rotateX']
-			};
-			;
+			var tokens = { rotateY : trans['rotateY'], rotateX : trans['rotateX'] };;
 
 			w.find("div.tokens").css(tokens);
 		}
@@ -987,28 +936,11 @@ function Card(def) {
 		var v = this.loc.value;
 		if ('up' == dir) {
 			if ('rd' == t || 'hq' == t || 'archives' == t)
-				newloc = {
-					type : 'ice',
-					value : {
-						central : t,
-						ice : 0
-					}
-				};
+				newloc = { type : 'ice', value : { central : t, ice : 0 } };
 			else if ('server' == t)
-				newloc = {
-					type : 'ice',
-					value : {
-						remote : v.remote,
-						ice : 0
-					}
-				};
+				newloc = { type : 'ice', value : { remote : v.remote, ice : 0 } };
 			else if ('ice' == t) {
-				newloc = {
-					type : 'ice',
-					value : {
-						ice : v.ice + 1
-					}
-				};
+				newloc = { type : 'ice', value : { ice : v.ice + 1 } };
 				if (v.central)
 					newloc.value.central = v.central;
 				else if (v.remote)
@@ -1017,47 +949,25 @@ function Card(def) {
 		} else if ('down' == dir) {
 			if ('ice' == t) {
 				if (v.ice > 0) {
-					newloc = {
-						type : 'ice',
-						value : {
-							ice : v.ice - 1
-						}
-					};
+					newloc = { type : 'ice', value : { ice : v.ice - 1 } };
 					if (v.central)
 						newloc.value.central = v.central;
 					else if (v.remote)
 						newloc.value.remote = v.remote;
 				} else {
 					if (v.central != undefined)
-						newloc = {
-							type : v.central
-						};
+						newloc = { type : v.central };
 					else if (v.remote != undefined)
-						newloc = {
-							type : 'server',
-							value : {
-								remote : v.remote
-							}
-						};
+						newloc = { type : 'server', value : { remote : v.remote } };
 				}
 			}
 		} else if ('right' == dir) {
 			if ('hand' == t)
-				newloc = {
-					type : 'hand',
-					value : {
-						hand : v.hand - 1
-					}
-				};
+				newloc = { type : 'hand', value : { hand : v.hand - 1 } };
 
 		} else if ('left' == dir) {
 			if ('hand' == t)
-				newloc = {
-					type : 'hand',
-					value : {
-						hand : v.hand + 1
-					}
-				};
+				newloc = { type : 'hand', value : { hand : v.hand + 1 } };
 		}
 		return cardAt(newloc);
 	}
