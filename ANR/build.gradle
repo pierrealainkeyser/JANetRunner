@@ -1,6 +1,8 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
+version = '1.0'
+
 repositories {
     mavenCentral()
     maven {
@@ -13,31 +15,51 @@ configurations.all {
         exclude group: 'log4j'
 }
 
-configurations {
- 	embeddedJetty
-}
-
-sourceSets.main.compileClasspath += configurations.embeddedJetty
 sourceSets.main.resources {
  	srcDir "src/main/webapp"
 }
 
-eclipse {
- classpath {
-  	plusConfigurations += configurations.embeddedJetty
- }
-}
-
  dependencies {
- 	embeddedJetty 'org.slf4j:jcl-over-slf4j:1.7.5'
- 	embeddedJetty 'ch.qos.logback:logback-classic:1.0.13'
- 	embeddedJetty 'org.eclipse.jetty.websocket:websocket-server:9.1.0.M0'
- 	embeddedJetty 'org.eclipse.jetty:jetty-webapp:9.1.0.M0'
+ 	compile 'org.slf4j:jcl-over-slf4j:1.7.5'
+ 	compile 'ch.qos.logback:logback-classic:1.0.13'
+ 	compile 'org.eclipse.jetty.websocket:websocket-server:9.1.0.M0'
+ 	compile 'org.eclipse.jetty:jetty-webapp:9.1.0.M0'
  	compile 'org.springframework:spring-webmvc:4.0.0.RELEASE'
  	compile 'org.codehaus.jackson:jackson-mapper-lgpl:1.9.13'
  	                                   
     testCompile 'junit:junit:4.8.2'
  }
+ 
+ jar {
+ 	def manifestClasspath = configurations.compile.collect { "lib/"+it.getName() }.join(' ') 
+    manifest {
+        attributes("Implementation-Title": "JANetRunner"
+        	 ,"Main-Class":"org.keyser.anr.AnrMain"
+        	 ,"Class-Path": ". $manifestClasspath"
+        )
+    }
+}
 
- version = '1.0'
-
+task copyFiles {
+	inputs.file jar 
+    outputs.dir 'app'
+    doLast{
+		copy{
+	    	from configurations.runtime
+	    	into 'build/app/lib'
+	    	include '*.jar' 
+	    }
+	    
+	    copy{
+	    	from 'build/libs'
+	    	into 'build/app'
+	    	include '*.jar'
+	    }
+	    
+	    copy{
+	    	from 'src/main/java'
+	    	into 'build/app'
+	    	include 'logback.xml'
+	    }
+    }
+}
