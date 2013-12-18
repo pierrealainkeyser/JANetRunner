@@ -19,4 +19,10 @@ public class MainController {
 	public Resource index() {
 		return new ClassPathResource("index.html");
 	}
+	
+	@RequestMapping(value = "play")
+	@ResponseBody
+	public Resource play() {
+		return new ClassPathResource("WEB-INF/resources/play.html");
+	}
 }

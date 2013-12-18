@@ -7,7 +7,7 @@ import org.keyser.anr.core.CardDef;
 import org.keyser.anr.core.corp.Ice;
 import org.keyser.anr.core.corp.IceType;
 
-@CardDef(name = "Matrix Analyzer", oid = "01090")
+@CardDef(name = "Matrix Analyzer", oid = "01089")
 public class MatrixAnalyser extends Ice {
 
 	public MatrixAnalyser() {

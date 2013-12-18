@@ -537,7 +537,6 @@ function DiscardAction(q, r, c) {
 			c.widget.transition({ top : '-=70' });
 		}
 
-		console.log("---->" + r.select.length + "=" + r.args.nb);
 		if (r.select.length >= r.args.nb) {
 			this.parentAction();
 		}
