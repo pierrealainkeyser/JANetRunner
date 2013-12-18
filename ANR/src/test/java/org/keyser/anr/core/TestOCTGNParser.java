@@ -1,9 +1,8 @@
 package org.keyser.anr.core;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 
 import junit.framework.Assert;
 
@@ -15,8 +14,10 @@ public class TestOCTGNParser {
 	@Test
 	public void testParser() throws FileNotFoundException, IOException {
 		OCTGNParser p = new OCTGNParser();
+		
+		
 
-		try (FileInputStream fis = new FileInputStream(new File("src/test/resources/core-nbn.o8d"))) {
+		try (InputStream fis = TestOCTGNParser.class.getResourceAsStream("/core-nbn.o8d")) {
 			Corp c = p.parseCorp(fis);
 			System.out.println(c.getClass().getName());
 

@@ -1,20 +1,38 @@
- apply plugin: 'java'
- apply plugin: 'eclipse'
+apply plugin: 'java'
+apply plugin: 'eclipse'
 
- repositories {
+repositories {
     mavenCentral()
     maven {
     	url 'http://repo.springsource.org/release'
     }
  }
+ 
+configurations.all {
+        exclude group: 'commons-logging'
+        exclude group: 'log4j'
+}
+
+configurations {
+ 	embeddedJetty
+}
+
+sourceSets.main.compileClasspath += configurations.embeddedJetty
+
+eclipse {
+ classpath {
+  	plusConfigurations += configurations.embeddedJetty
+ }
+}
 
  dependencies {
- 	compile 'ch.qos.logback:logback-classic:1.0.13'
- 	compile 'org.eclipse.jetty.websocket:websocket-server:9.1.0.M0'
- 	compile 'org.eclipse.jetty:jetty-webapp:9.1.0.M0'
+ 	embeddedJetty 'org.slf4j:jcl-over-slf4j:1.7.5'
+ 	embeddedJetty 'ch.qos.logback:logback-classic:1.0.13'
+ 	embeddedJetty 'org.eclipse.jetty.websocket:websocket-server:9.1.0.M0'
+ 	embeddedJetty 'org.eclipse.jetty:jetty-webapp:9.1.0.M0'
  	compile 'org.springframework:spring-webmvc:4.0.0.RELEASE'
- 	compile 'org.codehaus.jackson:jackson-mapper-lgpl:1.9.13'            
-                                    
+ 	compile 'org.codehaus.jackson:jackson-mapper-lgpl:1.9.13'
+ 	                                   
     testCompile 'junit:junit:4.8.2'
  }
 

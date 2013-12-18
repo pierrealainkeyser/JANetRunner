@@ -1,6 +1,7 @@
 package org.keyser.anr;
 
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 public class AnrMain {
@@ -9,7 +10,7 @@ public class AnrMain {
 		Server s = new Server(8082);
 
 		WebAppContext context = new WebAppContext();
-		context.setResourceBase("src/main/resources/WebContent");
+		context.setBaseResource(Resource.newClassPathResource("/"));
 		context.setContextPath("/");
 		
 		s.setHandler(context);

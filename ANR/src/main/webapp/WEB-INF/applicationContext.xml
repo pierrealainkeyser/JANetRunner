@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
-	xmlns:p="http://www.springframework.org/schema/p"
-	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
 
 	<bean id="jacksonMapper" class="org.keyser.anr.web.ObjectMapperFactoryBean" />
 
 
-	<!-- la fabrique de jeu à  partir de GameDef -->
+	<!-- la fabrique de jeu à partir de GameDef -->
 	<bean id="gameFactory" class="org.keyser.anr.web.GameFactory"
 		p:mapper-ref="jacksonMapper">
 		<property name="builder">
@@ -24,10 +23,10 @@
 			<bean class="org.keyser.anr.web.GameDef">
 				<constructor-arg value="3253-4324" />
 				<property name="deckCorp">
-					<bean class="org.keyser.anr.web.DeckResource" p:resource="file:src/test/resources/core-nbn.o8d" />
+					<bean class="org.keyser.anr.web.DeckResource" p:resource="classpath:/core-nbn.o8d" />
 				</property>
 				<property name="deckRunner">
-					<bean class="org.keyser.anr.web.DeckResource" p:resource="file:src/test/resources/core-shapper.o8d" />
+					<bean class="org.keyser.anr.web.DeckResource" p:resource="classpath:/core-shapper.o8d" />
 				</property>
 			</bean>
 		</property>
