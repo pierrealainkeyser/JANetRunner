@@ -25,4 +25,9 @@ public class GameAccess {
 	public GameGateway getGateway() {
 		return gateway;
 	}
+
+	@Override
+	public String toString() {
+		return faction + "=" + id;
+	}
 }

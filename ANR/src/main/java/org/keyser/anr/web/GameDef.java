@@ -34,24 +34,7 @@ public class GameDef {
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("GameDef [");
-		if (key != null) {
-			builder.append("key=");
-			builder.append(key);
-			builder.append(", ");
-		}
-		if (deckRunner != null) {
-			builder.append("deckRunner=");
-			builder.append(deckRunner);
-			builder.append(", ");
-		}
-		if (deckCorp != null) {
-			builder.append("deckCorp=");
-			builder.append(deckCorp);
-		}
-		builder.append("]");
-		return builder.toString();
+		return "GameDef[key=" + key + ", deckCorp=" + deckCorp + ", deckRunner=" + deckRunner + "]";
 	}
 
 }

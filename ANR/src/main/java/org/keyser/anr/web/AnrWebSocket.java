@@ -84,17 +84,22 @@ public class AnrWebSocket extends WebSocketAdapter implements GameOutput {
 				// recherche des l'objet qui va bien
 				GameLookupDTO gl = mapper.convertValue(content, GameLookupDTO.class);
 
-				access = allGames.get(gl.getGame());
-				//TODO gestion de l'erreur
+				String gid = gl.getGame();
+				access = allGames.get(gid);
 
-				// O il faudrait s'enregistré dans la passerelle
-				GameGateway gw = access.getGateway();
-				gw.register(this);
+				if (access != null) {
 
-				// on indique la faction au client
-				send("connected", access.getFaction());
+					// O il faudrait s'enregistré dans la passerelle
+					GameGateway gw = access.getGateway();
+					gw.register(this);
 
-				gw.accept(this, GameGateway.READY);
+					// on indique la faction au client
+					send("connected", access.getFaction());
+
+					gw.accept(this, GameGateway.READY);
+				} else {
+					send("no-game-found", gid);
+				}
 			} else if (GameGateway.RESPONSE.equals(type)) {
 
 				ResponseDTO res = mapper.convertValue(content, ResponseDTO.class);

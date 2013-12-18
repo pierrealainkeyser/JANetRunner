@@ -4,8 +4,9 @@ import org.springframework.beans.factory.InitializingBean;
 
 /**
  * Juste pour une démo
+ * 
  * @author PAF
- *
+ * 
  */
 public class GameBoot implements InitializingBean {
 
@@ -19,8 +20,7 @@ public class GameBoot implements InitializingBean {
 	public void afterPropertiesSet() throws Exception {
 
 		GameAccessWrapper gw = new GameAccessWrapper(basic);
-		gw.create(factory::create);
-
+		gw.create(factory);
 		allGames.add(gw);
 
 	}

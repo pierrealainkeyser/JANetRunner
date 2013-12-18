@@ -3,6 +3,7 @@ package org.keyser.anr.web;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.UUID;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.keyser.anr.core.Game;
@@ -18,9 +19,36 @@ public class GameFactory {
 
 	private ObjectMapper mapper;
 
+	public static enum KeyMode {
+		SIMPLE, UNIQUE;
+
+		private String build(GameDef gd, String faction) {
+
+			if (UNIQUE == this)
+				return UUID.randomUUID().toString();
+			return gd.getKey() + "-" + faction;
+		}
+
+	}
+
 	// XXX on pourra placer une strategie pour lire d'autr eformat, en se basant
 	// sur une propriete de DeckResource qui précisera le format
 	private OCTGNParser parser = new OCTGNParser();
+
+	private KeyMode keyMode = KeyMode.UNIQUE;
+
+	/**
+	 * Créaion de l'accès
+	 * 
+	 * @param def
+	 * @param faction
+	 * @param gateway
+	 * @return
+	 */
+	public GameAccess createAccess(GameDef def, String faction, GameGateway gateway) {
+
+		return new GameAccess(keyMode.build(def, faction), faction, gateway);
+	}
 
 	public GameAsDTOGateway create(GameDef def) {
 
@@ -79,5 +107,9 @@ public class GameFactory {
 
 	public void setMapper(ObjectMapper mapper) {
 		this.mapper = mapper;
+	}
+
+	public void setKeyMode(KeyMode keyMode) {
+		this.keyMode = keyMode;
 	}
 }

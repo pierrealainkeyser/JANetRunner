@@ -11,7 +11,8 @@
 	<mvc:annotation-driven/>
 	<mvc:resources mapping="/resources/**" location="classpath:/WEB-INF/resources/" />
 	<mvc:resources mapping="play.html" location="classpath:/WEB-INF/resources/" />
-	<!-- <context:component-scan base-package="org.keyser.anr.web"/>--> 
+	
+	<context:component-scan base-package="org.keyser.anr.web"/> 
 	
 	
 </beans>	

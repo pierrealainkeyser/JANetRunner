@@ -1,13 +1,17 @@
 package org.keyser.anr.web;
 
-import java.util.function.Function;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Permet de regrouper les accès pour tous les joueurs
+ * 
  * @author PAF
- *
+ * 
  */
 public class GameAccessWrapper {
+
+	private final Logger logger = LoggerFactory.getLogger(GameAccessWrapper.class);
 
 	private GameAccess corp;
 
@@ -26,14 +30,16 @@ public class GameAccessWrapper {
 	 * 
 	 * @param creator
 	 */
-	public void create(Function<GameDef, GameGateway> creator) {
+	public void create(GameFactory gf) {
 
-		GameGateway gg = creator.apply(def);
-		
-		//TODO utilise une autre maniere de procéder genre création d'un UID
-		corp = new GameAccess(def.getKey() + "-corp", "corp", gg);
-		runner = new GameAccess(def.getKey() + "-runner", "runner", gg);
-		visitor = new GameAccess(def.getKey(), "none", gg);
+		GameAsDTOGateway gg = gf.create(def);
+
+		// TODO utilise une autre maniere de procéder genre création d'un UID
+		corp = gf.createAccess(def, "corp", gg);
+		runner = gf.createAccess(def, "runner", gg);
+		visitor = gf.createAccess(def, "visitor", gg);
+
+		logger.debug("Game created {} with access : {} {} {}", def.getKey(), corp, runner, visitor);
 	}
 
 	public GameAccess getCorp() {
