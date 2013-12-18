@@ -18,6 +18,9 @@ configurations {
 }
 
 sourceSets.main.compileClasspath += configurations.embeddedJetty
+sourceSets.main.resources {
+ 	srcDir "src/main/webapp"
+}
 
 eclipse {
  classpath {
