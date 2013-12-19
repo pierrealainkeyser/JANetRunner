@@ -10,11 +10,13 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.keyser.anr.core.corp.AllCorp;
-import org.keyser.anr.core.corp.AllRunner;
 import org.keyser.anr.core.corp.Corp;
 import org.keyser.anr.core.corp.CorpCard;
+import org.keyser.anr.core.runner.AllRunner;
 import org.keyser.anr.core.runner.Runner;
 import org.keyser.anr.core.runner.RunnerCard;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -29,8 +31,10 @@ import org.xml.sax.SAXException;
 public class OCTGNParser {
 
 	private AllCorp corps = new AllCorp();
-	
+
 	private AllRunner runners = new AllRunner();
+
+	private final static Logger logger = LoggerFactory.getLogger(OCTGNParser.class);
 
 	private <P, C> P parse(InputStream is, Function<String, P> identity, Function<String, C> cards, BiConsumer<P, C> consummer) {
 
@@ -61,6 +65,9 @@ public class OCTGNParser {
 							C c = cards.apply(text);
 							if (c != null)
 								consummer.accept(p, c);
+							else {
+								logger.warn("Card not found : {}", text);
+							}
 						}
 					}
 				}
@@ -75,22 +82,22 @@ public class OCTGNParser {
 
 	/**
 	 * Permet de parser une corporation
+	 * 
 	 * @param is
 	 * @return
 	 */
 	public Corp parseCorp(InputStream is) {
 		return parse(is, corps::newCorp, (Function<String, CorpCard>) corps::newCard, Corp::addToRD);
 	}
-	
 
 	/**
 	 * Permet de parser un runner
+	 * 
 	 * @param is
 	 * @return
 	 */
 	public Runner parseRunner(InputStream is) {
 		return parse(is, runners::newRunner, (Function<String, RunnerCard>) runners::newCard, Runner::addToStack);
 	}
-
 
 }

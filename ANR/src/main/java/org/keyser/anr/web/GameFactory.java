@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.UUID;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.Game;
 import org.keyser.anr.core.OCTGNParser;
 import org.keyser.anr.core.Wallet;
@@ -49,9 +50,6 @@ public class GameFactory {
 	}
 
 	public GameAsDTOGateway create(GameDef def) {
-
-		// new FileInputStream(new File("src/test/resources/core-nbn.o8d"))
-
 		Corp c = null;
 		try (InputStream fis = def.getDeckCorp().openStream()) {
 			c = parser.parseCorp(fis);
@@ -69,8 +67,10 @@ public class GameFactory {
 			return null;
 		}
 
-		Game g = new Game(r, c, () -> {
-		});
+		Flow nowhere = () -> {
+		};
+
+		Game g = new Game(r, c, nowhere);
 		g.setup();
 
 		Collections.shuffle(r.getStack());
@@ -82,17 +82,10 @@ public class GameFactory {
 		w = r.getWallet();
 		w.wallet(WalletCredits.class, wu -> wu.setAmount(5));
 
-		g.getCorp().draw(() -> {
-		});
-		g.getCorp().draw(() -> {
-		});
-		g.getCorp().draw(() -> {
-		});
-		g.getCorp().draw(() -> {
-		});
-		g.getCorp().draw(() -> {
-		});
-
+		for (int i = 0; i < 5; ++i) {
+			c.draw(nowhere);
+			r.draw(nowhere);
+		}
 		g.start();
 
 		// renvoi le DTO

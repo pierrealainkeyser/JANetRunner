@@ -6,7 +6,10 @@ import java.util.Map;
 
 import org.keyser.anr.core.AbstractAbility;
 import org.keyser.anr.core.CardLocation;
+import org.keyser.anr.core.Event;
 import org.keyser.anr.core.Flow;
+import org.keyser.anr.core.Game;
+import org.keyser.anr.core.NotificationEvent;
 import org.keyser.anr.core.PlayableUnit;
 import org.keyser.anr.core.Player;
 import org.keyser.anr.core.WalletBadPub;
@@ -30,7 +33,7 @@ public class Runner extends PlayableUnit {
 		// TDOO à completer
 
 	}
-	
+
 	@Override
 	protected CardLocation discardLocation() {
 		return CardLocation.HEAP;
@@ -40,6 +43,46 @@ public class Runner extends PlayableUnit {
 	public void addToStack(RunnerCard card) {
 		card.setLocation(CardLocation.STACK);
 		((List<RunnerCard>) getStack()).add(card);
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<RunnerCard> getRunnerStack() {
+		return (List<RunnerCard>) getStack();
+	}
+
+	/**
+	 * L'evenement le Runner a piocher
+	 * 
+	 * @author PAF
+	 * 
+	 */
+	public static class RunnerCardDraw extends Event {
+		private final RunnerCard card;
+
+		public RunnerCardDraw(RunnerCard card) {
+			this.card = card;
+		}
+
+		public RunnerCard getCard() {
+			return card;
+		}
+	}
+
+	/**
+	 * Permet de piocher une carte
+	 * 
+	 * @param next
+	 */
+	public void draw(Flow next) {
+		List<RunnerCard> stack = getRunnerStack();
+		Game game = getGame();
+		if (!stack.isEmpty()) {
+			RunnerCard c = stack.get(0);
+			c.setLocation(CardLocation.GRIP);
+
+			game.notification(NotificationEvent.RUNNER_DRAW.apply());
+			game.apply(new RunnerCardDraw(c), next);
+		}
 	}
 
 	@Override

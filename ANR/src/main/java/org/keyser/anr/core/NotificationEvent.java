@@ -12,6 +12,7 @@ public enum NotificationEvent {
 	CORP_REZZ_CARD, //
 	CORP_SCORE_AGENDA, //
 	
+	RUNNER_DRAW, //
 	RUNNER_SCORE_AGENDA, //
 
 	// events du run
