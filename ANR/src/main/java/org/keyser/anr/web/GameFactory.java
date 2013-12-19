@@ -23,7 +23,6 @@ public class GameFactory {
 		SIMPLE, UNIQUE;
 
 		private String build(GameDef gd, String faction) {
-
 			if (UNIQUE == this)
 				return UUID.randomUUID().toString();
 			return gd.getKey() + "-" + faction;
@@ -46,7 +45,6 @@ public class GameFactory {
 	 * @return
 	 */
 	public GameAccess createAccess(GameDef def, String faction, GameGateway gateway) {
-
 		return new GameAccess(keyMode.build(def, faction), faction, gateway);
 	}
 

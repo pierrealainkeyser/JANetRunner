@@ -31,8 +31,5 @@
 			</bean>
 		</property>
 	</bean>
-
-
-	<bean id="webSocketPlay" class="org.keyser.anr.web.WebSocketCreatorFactoryBean"
-		p:repository-ref="gameRepository" p:mapper-ref="jacksonMapper" />
+	
 </beans>	

@@ -728,7 +728,7 @@ function Card(def) {
 	this.rezzed = false;
 
 	this.getUrl = function() {
-		return "http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/" + this.def.url + ".png";
+		return "card-img/" + this.def.url;
 	}
 
 	this.init = function(parent) {
