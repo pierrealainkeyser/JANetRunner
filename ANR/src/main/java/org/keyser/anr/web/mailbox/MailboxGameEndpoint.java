@@ -1,18 +1,24 @@
-package org.keyser.anr.web;
+package org.keyser.anr.web.mailbox;
 
 import java.util.LinkedList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.keyser.anr.core.MetaGame;
+import org.keyser.anr.web.GameEndpoint;
+import org.keyser.anr.web.GameGateway;
+import org.keyser.anr.web.GameOutput;
+
 /**
  * Permet de gerer les files d'attente par jeu
+ * 
  * @author PAF
- *
+ * 
  */
-public class MailboxGameGateway implements GameGateway {
+public class MailboxGameEndpoint implements GameEndpoint {
 
-	private final GameGateway delegated;
+	private final GameEndpoint delegated;
 
 	private final Executor executor;
 
@@ -78,7 +84,7 @@ public class MailboxGameGateway implements GameGateway {
 
 	private Lock mutex = new ReentrantLock();
 
-	public MailboxGameGateway(GameGateway delegated, Executor executor) {
+	public MailboxGameEndpoint(GameGateway delegated, Executor executor) {
 		this.delegated = delegated;
 		this.executor = executor;
 	}
@@ -105,15 +111,7 @@ public class MailboxGameGateway implements GameGateway {
 	}
 
 	@Override
-	public void register(GameOutput output) {
-		delegated.register(output);
-
+	public MetaGame getMetaGame() {
+		return delegated.getMetaGame();
 	}
-
-	@Override
-	public void remove(GameOutput output) {
-		delegated.remove(output);
-
-	}
-
 }

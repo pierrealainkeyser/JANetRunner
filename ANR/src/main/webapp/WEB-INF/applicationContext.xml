@@ -8,12 +8,8 @@
 
 
 	<!-- la fabrique de jeu à partir de GameDef -->
-	<bean id="gameFactory" class="org.keyser.anr.web.GameFactory"
-		p:mapper-ref="jacksonMapper">
-		<property name="builder">
-			<bean class="org.keyser.anr.web.GameDTOBuilder" />
-		</property>
-	</bean>
+	<bean id="gameFactory" class="org.keyser.anr.web.dto.GameDTOFactory"
+		p:mapper-ref="jacksonMapper" />
 
 	<bean id="gameRepository" class="org.keyser.anr.web.GameRepository" />
 
@@ -31,5 +27,5 @@
 			</bean>
 		</property>
 	</bean>
-	
+
 </beans>	

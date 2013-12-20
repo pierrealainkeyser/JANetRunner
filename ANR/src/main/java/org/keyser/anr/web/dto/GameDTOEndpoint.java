@@ -1,20 +1,25 @@
-package org.keyser.anr.web;
+package org.keyser.anr.web.dto;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.keyser.anr.core.Game;
+import org.keyser.anr.core.MetaGame;
 import org.keyser.anr.core.Notification;
 import org.keyser.anr.core.Notifier;
 import org.keyser.anr.core.Question;
 import org.keyser.anr.core.Response;
-import org.keyser.anr.web.dto.GameDTO;
-import org.keyser.anr.web.dto.ResponseDTO;
+import org.keyser.anr.web.ConnectedGameEndpoint;
+import org.keyser.anr.web.GameOutput;
 
-public class GameAsDTOGateway implements Notifier, GameGateway {
+/**
+ * Le point entre un {@link ConnectedGameEndpoint} et un {@link Game}
+ * 
+ * @author PAF
+ * 
+ */
+public class GameDTOEndpoint implements Notifier, ConnectedGameEndpoint {
 
 	private final Game game;
 
@@ -24,9 +29,9 @@ public class GameAsDTOGateway implements Notifier, GameGateway {
 
 	private List<Notification> notifs = new ArrayList<>();
 
-	private Map<GameOutput, Boolean> outputs = new ConcurrentHashMap<>();
+	private GameOutput broadcastOutput;
 
-	public GameAsDTOGateway(Game game, GameDTOBuilder builder, ObjectMapper mapper) {
+	public GameDTOEndpoint(Game game, GameDTOBuilder builder, ObjectMapper mapper) {
 		this.game = game;
 		this.game.setNotifier(this);
 		this.builder = builder;
@@ -78,9 +83,8 @@ public class GameAsDTOGateway implements Notifier, GameGateway {
 	 * Envoi à tous le monde
 	 */
 	private void broadcast() {
-
 		GameDTO update = builder.notifs(notifs);
-		outputs.keySet().forEach(go -> go.send("update", update));
+		broadcastOutput.send("update", update);
 	}
 
 	@Override
@@ -89,18 +93,12 @@ public class GameAsDTOGateway implements Notifier, GameGateway {
 	}
 
 	@Override
-	public void register(GameOutput output) {
-		outputs.put(output, true);
-
+	public MetaGame getMetaGame() {
+		return game.getMetaGame();
 	}
 
 	@Override
-	public void remove(GameOutput ouput) {
-		outputs.remove(ouput);
-
-	}
-
-	public Game getGame() {
-		return game;
+	public void setBroadcastOutput(GameOutput broadcastOutput) {
+		this.broadcastOutput = broadcastOutput;
 	}
 }

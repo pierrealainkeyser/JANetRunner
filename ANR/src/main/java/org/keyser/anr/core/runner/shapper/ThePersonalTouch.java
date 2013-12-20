@@ -9,6 +9,6 @@ import org.keyser.anr.core.runner.Hardware;
 public class ThePersonalTouch extends Hardware {
 
 	public ThePersonalTouch() {
-		super(Faction.SHAPPER.infl(2), Cost.credit(2));
+		super(Faction.SHAPER.infl(2), Cost.credit(2));
 	}
 }

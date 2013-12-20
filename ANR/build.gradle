@@ -26,6 +26,7 @@ sourceSets.main.resources {
  	compile 'org.eclipse.jetty:jetty-webapp:9.1.0.M0'
  	compile 'org.springframework:spring-webmvc:4.0.0.RELEASE'
  	compile 'org.springframework:spring-websocket:4.0.0.RELEASE'
+ 	compile 'org.thymeleaf:thymeleaf-spring3:2.1.1.RELEASE'
  	compile 'org.codehaus.jackson:jackson-mapper-lgpl:1.9.13'
  	compile 'commons-io:commons-io:2.4'
  	                                   

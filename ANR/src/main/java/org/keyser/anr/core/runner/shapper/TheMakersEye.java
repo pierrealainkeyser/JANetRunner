@@ -9,7 +9,7 @@ import org.keyser.anr.core.runner.Event;
 public class TheMakersEye extends Event {
 
 	public TheMakersEye() {
-		super(Faction.SHAPPER.infl(2), Cost.credit(2));
+		super(Faction.SHAPER.infl(2), Cost.credit(2));
 	}
 
 }

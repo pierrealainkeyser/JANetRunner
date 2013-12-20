@@ -17,6 +17,7 @@ import org.keyser.anr.core.CardLocationUpgrade;
 import org.keyser.anr.core.CoreAbility;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Event;
+import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.Game;
 import org.keyser.anr.core.NotificationEvent;
@@ -27,6 +28,43 @@ import org.keyser.anr.core.WalletCredits;
 import org.keyser.anr.core.WinCondition;
 
 public class Corp extends PlayableUnit {
+
+	class AdvanceCard extends CoreAbility {
+		private final CorpCard card;
+
+		AdvanceCard(CorpCard card) {
+			super("advance-card", Cost.action(1).add(Cost.credit(1)));
+			this.card = card;
+		}
+
+		@Override
+		public void apply() {
+			getGame().notification(NotificationEvent.CORP_ADVANCE_CARD.apply().m(card));
+
+			Integer adv = card.getAdvancement();
+			card.setAdvancement(adv == null ? 1 : adv + 1);
+
+			next.apply();
+		}
+
+		@Override
+		protected void registerQuestion(Question q) {
+			q.ask(getName(), card).to(this::doNext);
+		}
+	}
+
+	private static class AgendaEvent extends Event {
+		private final Agenda agenda;
+
+		public AgendaEvent(Agenda agenda) {
+			this.agenda = agenda;
+		}
+
+		public Agenda getAgenda() {
+			return agenda;
+		}
+
+	}
 
 	/**
 	 * Le click de base
@@ -68,323 +106,6 @@ public class Corp extends PlayableUnit {
 	}
 
 	/**
-	 * Permet de joueur une Operation
-	 * 
-	 * @author PAF
-	 * 
-	 */
-	class PlayOperation extends CoreAbility {
-		private final Operation op;
-
-		PlayOperation(Operation operation, Cost cost) {
-			super("play-operation", Cost.action(1).add(cost));
-			this.op = operation;
-		}
-
-		@Override
-		protected void registerQuestion(Question q) {
-			q.ask(getName(), op).to(this::doNext);
-		}
-
-		@Override
-		public void apply() {
-			getGame().notification(NotificationEvent.CORP_PLAYED_AN_OPERATION.apply().m(op));
-			op.setRezzed(true);
-			op.trash();
-			op.apply(next);
-		}
-
-		@Override
-		public boolean isEnabled() {
-			return op.isEnabled();
-		}
-	}
-
-	class AdvanceCard extends CoreAbility {
-		private final CorpCard card;
-
-		AdvanceCard(CorpCard card) {
-			super("advance-card", Cost.action(1).add(Cost.credit(1)));
-			this.card = card;
-		}
-
-		@Override
-		protected void registerQuestion(Question q) {
-			q.ask(getName(), card).to(this::doNext);
-		}
-
-		@Override
-		public void apply() {
-			getGame().notification(NotificationEvent.CORP_ADVANCE_CARD.apply().m(card));
-
-			Integer adv = card.getAdvancement();
-			card.setAdvancement(adv == null ? 1 : adv + 1);
-
-			next.apply();
-		}
-	}
-
-	class RezzCard extends AbstractAbility {
-		private final CorpCard card;
-
-		RezzCard(CorpCard card, Cost cost) {
-			super("rezz-card", cost);
-			this.card = card;
-		}
-
-		@Override
-		protected void registerQuestion(Question q) {
-			q.ask(getName(), card).to(this::doNext);
-		}
-
-		@Override
-		public void apply() {
-			getGame().notification(NotificationEvent.CORP_REZZ_CARD.apply().m(card));
-
-			card.setRezzed(true);
-
-			next.apply();
-		}
-	}
-
-	class ScoreAgenda extends AbstractAbility {
-		private final Agenda agenda;
-
-		ScoreAgenda(Agenda agenda, Cost cost) {
-			super("score-agenda", Cost.free().add(cost));
-			this.agenda = agenda;
-		}
-
-		@Override
-		protected void registerQuestion(Question q) {
-			q.ask(getName(), agenda).to(this::doNext);
-		}
-
-		@Override
-		public void apply() {
-			Game g = getGame();
-
-			// TODO gestion de la suppression des tokens
-			agenda.setLocation(CardLocation.CORP_SCORE);
-			agenda.setRezzed(true);
-
-			g.apply(new CorpScoreAgenda(agenda), next);
-		}
-	}
-
-	class InstallIceAbility extends CoreAbility {
-		private final Ice ice;
-
-		private final List<InstallIceCost> alls;
-
-		public InstallIceAbility(Ice ice, List<InstallIceCost> alls) {
-			super("install-ice", Cost.action(1));
-			this.ice = ice;
-			this.alls = alls;
-		}
-
-		private boolean isAffordable(InstallIceCost iic) {
-			boolean affordable = getWallet().isAffordable(Cost.credit(iic.getCost()).add(getCost()), getAction());
-			return affordable;
-		}
-
-		@Override
-		protected void registerQuestion(Question q) {
-			List<Object> content = alls.stream().filter(this::isAffordable).collect(Collectors.toList());
-			if (!content.isEmpty()) {
-				q.ask(getName(), ice).to(InstallIceCost.class, this::accept).setContent(content);
-			}
-		}
-
-		protected void accept(InstallOn iic) {
-			Integer server = iic.getServer();
-
-			CorpServer cs = null;
-
-			if (server != null)
-				cs = getOrCreate(server);
-			else {
-				CardOnServer cos = find(iic.getCard());
-
-				// on s'intalle sur la glace
-				cs = cos.getServer();
-				cos.getCard().trash();
-			}
-
-			// on applique le cout
-			int size = cs.icesCount();
-			wallet.consume(Cost.credit(size).add(getCost()), getAction());
-			ice.setLocation(new CardLocationIce(cs, size));
-
-			// on envoi l'evenement
-			getGame().apply(new CorpInstallIce(ice), next);
-		}
-	}
-
-	abstract class InstallAssetOrAgendaAbility extends CoreAbility {
-		private final CorpCard card;
-
-		private final List<InstallOn> alls;
-
-		public InstallAssetOrAgendaAbility(String code, CorpCard card, List<InstallOn> alls) {
-			super(code, Cost.action(1));
-			this.card = card;
-			this.alls = alls;
-		}
-
-		@Override
-		protected void registerQuestion(Question q) {
-			List<Object> content = alls.stream().collect(Collectors.toList());
-			if (!content.isEmpty()) {
-				q.ask(getName(), card).to(InstallOn.class, this::accept).setContent(content);
-			}
-		}
-
-		abstract Event getEvent(CorpCard card);
-
-		protected void accept(InstallOn iic) {
-			CorpServer cs = getOrCreate(iic.getServer());
-			wallet.consume(getCost(), getAction());
-
-			// la location 0 est toujours l'agenda ou l'asset
-			card.setLocation(new CardLocationAsset(cs, 0));
-
-			// on envoi l'evenement
-			getGame().apply(getEvent(card), next);
-		}
-	}
-
-	class InstallUpgradeAbility extends CoreAbility {
-		private final Upgrade card;
-
-		private final List<InstallOn> alls;
-
-		public InstallUpgradeAbility(Upgrade card, List<InstallOn> alls) {
-			super("install-upgrade", Cost.action(1));
-			this.card = card;
-			this.alls = alls;
-		}
-
-		@Override
-		protected void registerQuestion(Question q) {
-			List<Object> content = alls.stream().collect(Collectors.toList());
-			if (!content.isEmpty()) {
-				q.ask(getName(), card).to(InstallOn.class, this::accept).setContent(content);
-			}
-		}
-
-		protected void accept(InstallOn iic) {
-			CorpServer cs = getOrCreate(iic.getServer());
-			wallet.consume(getCost(), getAction());
-
-			// la location 0 est toujours l'agenda ou l'asset
-			int ups = cs.getUpgrades().size();
-			card.setLocation(new CardLocationUpgrade(cs, ups + 1));
-
-			// on envoi l'evenement
-			getGame().apply(new CorpInstallUpgrade(card), next);
-		}
-	}
-
-	class InstallAssetAbility extends InstallAssetOrAgendaAbility {
-
-		public InstallAssetAbility(Asset asset, List<InstallOn> alls) {
-			super("install-asset", asset, alls);
-		}
-
-		@Override
-		Event getEvent(CorpCard card) {
-			return new CorpInstallAsset((Asset) card);
-		}
-	}
-
-	class InstallAgendaAbility extends InstallAssetOrAgendaAbility {
-
-		public InstallAgendaAbility(Agenda agenda, List<InstallOn> alls) {
-			super("install-agenda", agenda, alls);
-		}
-
-		@Override
-		Event getEvent(CorpCard card) {
-			return new CorpInstallAgenda((Agenda) card);
-		}
-	}
-
-	/**
-	 * L'evenement la Corp a piocher
-	 * 
-	 * @author PAF
-	 * 
-	 */
-	public static class CorpInstallIce extends Event {
-		private final Ice ice;
-
-		public CorpInstallIce(Ice ice) {
-			this.ice = ice;
-		}
-
-		public Ice getIce() {
-			return ice;
-		}
-	}
-
-	public static class CorpInstallAsset extends Event {
-		private final Asset asset;
-
-		public CorpInstallAsset(Asset asset) {
-			this.asset = asset;
-		}
-
-		public Asset getAsset() {
-			return asset;
-		}
-	}
-
-	public static class CorpInstallUpgrade extends Event {
-		private final Upgrade upgrade;
-
-		public CorpInstallUpgrade(Upgrade upgrade) {
-			this.upgrade = upgrade;
-		}
-
-		public Upgrade getUpgrade() {
-			return upgrade;
-		}
-
-	}
-
-	private static class AgendaEvent extends Event {
-		private final Agenda agenda;
-
-		public AgendaEvent(Agenda agenda) {
-			this.agenda = agenda;
-		}
-
-		public Agenda getAgenda() {
-			return agenda;
-		}
-
-	}
-
-	/**
-	 * L'evenement la Corp a installée un agenda
-	 * 
-	 * @author PAF
-	 * 
-	 */
-	public static class CorpInstallAgenda extends AgendaEvent {
-		public CorpInstallAgenda(Agenda agenda) {
-			super(agenda);
-		}
-	}
-
-	public static class CorpScoreAgenda extends AgendaEvent {
-		public CorpScoreAgenda(Agenda agenda) {
-			super(agenda);
-		}
-	}
-
-	/**
 	 * Les 3 clicks pour purger
 	 * 
 	 * @author PAF
@@ -396,17 +117,17 @@ public class Corp extends PlayableUnit {
 		}
 
 		@Override
-		public boolean isEnabled() {
-
-			// renvoi vrai s'il y a des virus chez le runner
-			return getGame().getRunner().hasVirus();
-		}
-
-		@Override
 		public void apply() {
 			Game game = getGame();
 			game.notification(NotificationEvent.CORP_CLICKED_FOR_PURGE.apply());
 			game.getRunner().purgeVirus(next);
+		}
+
+		@Override
+		public boolean isEnabled() {
+
+			// renvoi vrai s'il y a des virus chez le runner
+			return getGame().getRunner().hasVirus();
 		}
 	}
 
@@ -438,6 +159,286 @@ public class Corp extends PlayableUnit {
 
 	}
 
+	/**
+	 * L'evenement la Corp a installée un agenda
+	 * 
+	 * @author PAF
+	 * 
+	 */
+	public static class CorpInstallAgenda extends AgendaEvent {
+		public CorpInstallAgenda(Agenda agenda) {
+			super(agenda);
+		}
+	}
+
+	public static class CorpInstallAsset extends Event {
+		private final Asset asset;
+
+		public CorpInstallAsset(Asset asset) {
+			this.asset = asset;
+		}
+
+		public Asset getAsset() {
+			return asset;
+		}
+	}
+
+	/**
+	 * L'evenement la Corp a piocher
+	 * 
+	 * @author PAF
+	 * 
+	 */
+	public static class CorpInstallIce extends Event {
+		private final Ice ice;
+
+		public CorpInstallIce(Ice ice) {
+			this.ice = ice;
+		}
+
+		public Ice getIce() {
+			return ice;
+		}
+	}
+
+	public static class CorpInstallUpgrade extends Event {
+		private final Upgrade upgrade;
+
+		public CorpInstallUpgrade(Upgrade upgrade) {
+			this.upgrade = upgrade;
+		}
+
+		public Upgrade getUpgrade() {
+			return upgrade;
+		}
+
+	}
+
+	public static class CorpScoreAgenda extends AgendaEvent {
+		public CorpScoreAgenda(Agenda agenda) {
+			super(agenda);
+		}
+	}
+
+	class InstallAgendaAbility extends InstallAssetOrAgendaAbility {
+
+		public InstallAgendaAbility(Agenda agenda, List<InstallOn> alls) {
+			super("install-agenda", agenda, alls);
+		}
+
+		@Override
+		Event getEvent(CorpCard card) {
+			return new CorpInstallAgenda((Agenda) card);
+		}
+	}
+
+	class InstallAssetAbility extends InstallAssetOrAgendaAbility {
+
+		public InstallAssetAbility(Asset asset, List<InstallOn> alls) {
+			super("install-asset", asset, alls);
+		}
+
+		@Override
+		Event getEvent(CorpCard card) {
+			return new CorpInstallAsset((Asset) card);
+		}
+	}
+
+	abstract class InstallAssetOrAgendaAbility extends CoreAbility {
+		private final List<InstallOn> alls;
+
+		private final CorpCard card;
+
+		public InstallAssetOrAgendaAbility(String code, CorpCard card, List<InstallOn> alls) {
+			super(code, Cost.action(1));
+			this.card = card;
+			this.alls = alls;
+		}
+
+		protected void accept(InstallOn iic) {
+			CorpServer cs = getOrCreate(iic.getServer());
+			wallet.consume(getCost(), getAction());
+
+			// la location 0 est toujours l'agenda ou l'asset
+			card.setLocation(new CardLocationAsset(cs, 0));
+
+			// on envoi l'evenement
+			getGame().apply(getEvent(card), next);
+		}
+
+		abstract Event getEvent(CorpCard card);
+
+		@Override
+		protected void registerQuestion(Question q) {
+			List<Object> content = alls.stream().collect(Collectors.toList());
+			if (!content.isEmpty()) {
+				q.ask(getName(), card).to(InstallOn.class, this::accept).setContent(content);
+			}
+		}
+	}
+
+	class InstallIceAbility extends CoreAbility {
+		private final List<InstallIceCost> alls;
+
+		private final Ice ice;
+
+		public InstallIceAbility(Ice ice, List<InstallIceCost> alls) {
+			super("install-ice", Cost.action(1));
+			this.ice = ice;
+			this.alls = alls;
+		}
+
+		protected void accept(InstallOn iic) {
+			Integer server = iic.getServer();
+
+			CorpServer cs = null;
+
+			if (server != null)
+				cs = getOrCreate(server);
+			else {
+				CardOnServer cos = find(iic.getCard());
+
+				// on s'intalle sur la glace
+				cs = cos.getServer();
+				cos.getCard().trash();
+			}
+
+			// on applique le cout
+			int size = cs.icesCount();
+			wallet.consume(Cost.credit(size).add(getCost()), getAction());
+			ice.setLocation(new CardLocationIce(cs, size));
+
+			// on envoi l'evenement
+			getGame().apply(new CorpInstallIce(ice), next);
+		}
+
+		private boolean isAffordable(InstallIceCost iic) {
+			boolean affordable = getWallet().isAffordable(Cost.credit(iic.getCost()).add(getCost()), getAction());
+			return affordable;
+		}
+
+		@Override
+		protected void registerQuestion(Question q) {
+			List<Object> content = alls.stream().filter(this::isAffordable).collect(Collectors.toList());
+			if (!content.isEmpty()) {
+				q.ask(getName(), ice).to(InstallIceCost.class, this::accept).setContent(content);
+			}
+		}
+	}
+
+	class InstallUpgradeAbility extends CoreAbility {
+		private final List<InstallOn> alls;
+
+		private final Upgrade card;
+
+		public InstallUpgradeAbility(Upgrade card, List<InstallOn> alls) {
+			super("install-upgrade", Cost.action(1));
+			this.card = card;
+			this.alls = alls;
+		}
+
+		protected void accept(InstallOn iic) {
+			CorpServer cs = getOrCreate(iic.getServer());
+			wallet.consume(getCost(), getAction());
+
+			// la location 0 est toujours l'agenda ou l'asset
+			int ups = cs.getUpgrades().size();
+			card.setLocation(new CardLocationUpgrade(cs, ups + 1));
+
+			// on envoi l'evenement
+			getGame().apply(new CorpInstallUpgrade(card), next);
+		}
+
+		@Override
+		protected void registerQuestion(Question q) {
+			List<Object> content = alls.stream().collect(Collectors.toList());
+			if (!content.isEmpty()) {
+				q.ask(getName(), card).to(InstallOn.class, this::accept).setContent(content);
+			}
+		}
+	}
+
+	/**
+	 * Permet de joueur une Operation
+	 * 
+	 * @author PAF
+	 * 
+	 */
+	class PlayOperation extends CoreAbility {
+		private final Operation op;
+
+		PlayOperation(Operation operation, Cost cost) {
+			super("play-operation", Cost.action(1).add(cost));
+			this.op = operation;
+		}
+
+		@Override
+		public void apply() {
+			getGame().notification(NotificationEvent.CORP_PLAYED_AN_OPERATION.apply().m(op));
+			op.setRezzed(true);
+			op.trash();
+			op.apply(next);
+		}
+
+		@Override
+		public boolean isEnabled() {
+			return op.isEnabled();
+		}
+
+		@Override
+		protected void registerQuestion(Question q) {
+			q.ask(getName(), op).to(this::doNext);
+		}
+	}
+
+	class RezzCard extends AbstractAbility {
+		private final CorpCard card;
+
+		RezzCard(CorpCard card, Cost cost) {
+			super("rezz-card", cost);
+			this.card = card;
+		}
+
+		@Override
+		public void apply() {
+			getGame().notification(NotificationEvent.CORP_REZZ_CARD.apply().m(card));
+
+			card.setRezzed(true);
+
+			next.apply();
+		}
+
+		@Override
+		protected void registerQuestion(Question q) {
+			q.ask(getName(), card).to(this::doNext);
+		}
+	}
+
+	class ScoreAgenda extends AbstractAbility {
+		private final Agenda agenda;
+
+		ScoreAgenda(Agenda agenda, Cost cost) {
+			super("score-agenda", Cost.free().add(cost));
+			this.agenda = agenda;
+		}
+
+		@Override
+		public void apply() {
+			Game g = getGame();
+
+			// TODO gestion de la suppression des tokens
+			agenda.setLocation(CardLocation.CORP_SCORE);
+			agenda.setRezzed(true);
+
+			g.apply(new CorpScoreAgenda(agenda), next);
+		}
+
+		@Override
+		protected void registerQuestion(Question q) {
+			q.ask(getName(), agenda).to(this::doNext);
+		}
+	}
+
 	private CorpArchivesServer archive = new CorpArchivesServer(this);
 
 	private int badPub = 0;
@@ -448,59 +449,29 @@ public class Corp extends PlayableUnit {
 
 	private Map<Integer, CorpRemoteServer> remotes = new LinkedHashMap<>();
 
-	public void forEach(Consumer<Card> c) {
-		getHand().forEach(c);
-		getDiscard().forEach(c);
-		getStack().forEach(c);
-
-		forEachCardInServer(c);
+	public Corp(Faction faction) {
+		super(faction);
 	}
+	
 
-	/**
-	 * Parcours tous les serveurs
-	 * 
-	 * @param c
-	 */
-	private void forEachServer(Consumer<CorpServer> c) {
-		c.accept(hq);
-		c.accept(rd);
-		c.accept(archive);
-		remotes.values().forEach(c);
-	}
+	private void addAbility(CorpCard cc, List<AbstractAbility> a) {
+		if (cc.isAdvanceable())
+			a.add(new AdvanceCard(cc));
 
-	/**
-	 * Parcours toutes les cartes
-	 * 
-	 * @param c
-	 */
-	private void forEachCardInServer(Consumer<Card> c) {
-		forEachServer(cs -> cs.forEach(c));
-	}
+		if (cc instanceof Agenda) {
+			Agenda ag = (Agenda) cc;
+			boolean mayScore = getGame().getStep().mayScoreAgenda();
 
-	/**
-	 * Parcours toutes les classes
-	 * 
-	 * @param bi
-	 */
-	private void forEachIce(BiConsumer<CorpServer, Ice> bi) {
-		forEachServer(cs -> cs.forEachIce(bi));
-	}
+			if (mayScore && ag.isScorable())
+				a.add(new ScoreAgenda(ag, null));
+		}
 
-	/**
-	 * Permet de trouver une carte sur un server
-	 * 
-	 * @param cardId
-	 * @return
-	 */
-	private CardOnServer find(int cardId) {
-		List<CardOnServer> ons = new ArrayList<>();
-		forEachServer(c -> ons.add(c.find(cardId)));
-		return ons.stream().filter(c -> c != null).findFirst().get();
-	}
-
-	@Override
-	protected CardLocation discardLocation() {
-		return CardLocation.ARCHIVES;
+		if (cc.isRezzed())
+			a.addAll(cc.getPaidAbilities());
+		else {
+			if (cc instanceof Asset || cc instanceof Upgrade)
+				a.add(new RezzCard(cc, cc.getCost()));
+		}
 	}
 
 	/**
@@ -567,28 +538,13 @@ public class Corp extends PlayableUnit {
 		forEachCardInServer(c -> addAbility((CorpCard) c, a));
 	}
 
-	private void addAbility(CorpCard cc, List<AbstractAbility> a) {
-		if (cc.isAdvanceable())
-			a.add(new AdvanceCard(cc));
-
-		if (cc instanceof Agenda) {
-			Agenda ag = (Agenda) cc;
-			boolean mayScore = getGame().getStep().mayScoreAgenda();
-
-			if (mayScore && ag.isScorable())
-				a.add(new ScoreAgenda(ag, null));
-		}
-
-		if (cc.isRezzed())
-			a.addAll(cc.getPaidAbilities());
-		else {
-			if (cc instanceof Asset || cc instanceof Upgrade)
-				a.add(new RezzCard(cc, cc.getCost()));
-		}
-	}
-
 	public void addToRD(CorpCard c) {
 		rd.add(c);
+	}
+
+	@Override
+	protected CardLocation discardLocation() {
+		return CardLocation.ARCHIVES;
 	}
 
 	/**
@@ -624,6 +580,56 @@ public class Corp extends PlayableUnit {
 			draw(() -> draw(i - 1, next));
 	}
 
+	/**
+	 * Permet de trouver une carte sur un server
+	 * 
+	 * @param cardId
+	 * @return
+	 */
+	private CardOnServer find(int cardId) {
+		List<CardOnServer> ons = new ArrayList<>();
+		forEachServer(c -> ons.add(c.find(cardId)));
+		return ons.stream().filter(c -> c != null).findFirst().get();
+	}
+
+	public void forEach(Consumer<Card> c) {
+		getHand().forEach(c);
+		getDiscard().forEach(c);
+		getStack().forEach(c);
+
+		forEachCardInServer(c);
+	}
+
+	/**
+	 * Parcours toutes les cartes
+	 * 
+	 * @param c
+	 */
+	private void forEachCardInServer(Consumer<Card> c) {
+		forEachServer(cs -> cs.forEach(c));
+	}
+
+	/**
+	 * Parcours toutes les classes
+	 * 
+	 * @param bi
+	 */
+	private void forEachIce(BiConsumer<CorpServer, Ice> bi) {
+		forEachServer(cs -> cs.forEachIce(bi));
+	}
+
+	/**
+	 * Parcours tous les serveurs
+	 * 
+	 * @param c
+	 */
+	private void forEachServer(Consumer<CorpServer> c) {
+		c.accept(hq);
+		c.accept(rd);
+		c.accept(archive);
+		remotes.values().forEach(c);
+	}
+
 	public CorpArchivesServer getArchive() {
 		return archive;
 	}
@@ -639,6 +645,30 @@ public class Corp extends PlayableUnit {
 	@Override
 	public PlayableUnit getOpponent() {
 		return getGame().getRunner();
+	}
+
+	/**
+	 * Création ou accès au serveur
+	 * 
+	 * @param i
+	 * @return
+	 */
+	public CorpServer getOrCreate(int i) {
+		CorpServer cs = null;
+		if (i == 0)
+			cs = archive;
+		else if (i == 1)
+			cs = rd;
+		else if (i == 2)
+			cs = hq;
+		else {
+			int remoteIndex = i - 3;
+			CorpRemoteServer crs = remotes.get(remoteIndex);
+			if (crs == null)
+				remotes.put(remoteIndex, crs = new CorpRemoteServer(Corp.this, remoteIndex));
+			cs = crs;
+		}
+		return cs;
 	}
 
 	@Override
@@ -669,30 +699,6 @@ public class Corp extends PlayableUnit {
 
 	public void setRd(CorpRDServer rd) {
 		this.rd = rd;
-	}
-
-	/**
-	 * Création ou accès au serveur
-	 * 
-	 * @param i
-	 * @return
-	 */
-	public CorpServer getOrCreate(int i) {
-		CorpServer cs = null;
-		if (i == 0)
-			cs = archive;
-		else if (i == 1)
-			cs = rd;
-		else if (i == 2)
-			cs = hq;
-		else {
-			int remoteIndex = i - 3;
-			CorpRemoteServer crs = remotes.get(remoteIndex);
-			if (crs == null)
-				remotes.put(remoteIndex, crs = new CorpRemoteServer(Corp.this, remoteIndex));
-			cs = crs;
-		}
-		return cs;
 	}
 
 }

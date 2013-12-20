@@ -9,6 +9,6 @@ import org.keyser.anr.core.runner.Hardware;
 public class AkamatsuMemChip extends Hardware {
 
 	public AkamatsuMemChip() {
-		super(Faction.SHAPPER.infl(1), Cost.credit(0));
+		super(Faction.SHAPER.infl(1), Cost.credit(0));
 	}
 }

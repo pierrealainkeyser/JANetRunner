@@ -24,14 +24,17 @@ public abstract class PlayableUnit extends AbstractGameContent implements Instal
 
 	private final Wallet wallet = new Wallet().add(new WalletCredits()).add(new WalletActions()).setNotifier(this);
 
-	protected PlayableUnit() {
+	private final Faction faction;
+
+	protected PlayableUnit(Faction faction) {
 		wallet.setPlayer(getPlayer());
+		this.faction = faction;
 	}
 
 	protected void add(Builder<?> em) {
 		defaultInstallable.add(em);
 	}
-	
+
 	protected abstract CardLocation discardLocation();
 
 	protected abstract void addAllAbilities(List<AbstractAbility> a);
@@ -54,7 +57,7 @@ public abstract class PlayableUnit extends AbstractGameContent implements Instal
 	 * @param next
 	 */
 	public void discard(Card discarded, Flow next) {
-		
+
 		discarded.setLocation(discardLocation());
 
 		getGame().apply(new CardDiscardedEvent(discarded), next);
@@ -112,6 +115,10 @@ public abstract class PlayableUnit extends AbstractGameContent implements Instal
 
 	public boolean isAffordable(Cost cost, Object action) {
 		return wallet.isAffordable(cost, action);
+	}
+
+	public Faction getFaction() {
+		return faction;
 	}
 
 }

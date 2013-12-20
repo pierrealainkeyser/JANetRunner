@@ -3,6 +3,12 @@ package org.keyser.anr.web;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * Permet d'indexer les {@link GameAccess}
+ * 
+ * @author PAF
+ * 
+ */
 public class GameRepository {
 
 	private ConcurrentMap<String, GameAccess> gateways = new ConcurrentHashMap<>();

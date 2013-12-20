@@ -1,5 +1,11 @@
 package org.keyser.anr.web;
 
+/**
+ * L'access à une passerele {@link GameGateway} pour une faction donnée
+ * 
+ * @author PAF
+ * 
+ */
 public class GameAccess {
 
 	private final String id;

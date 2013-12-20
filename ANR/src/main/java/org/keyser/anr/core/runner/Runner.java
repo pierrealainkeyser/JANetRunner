@@ -7,6 +7,7 @@ import java.util.Map;
 import org.keyser.anr.core.AbstractAbility;
 import org.keyser.anr.core.CardLocation;
 import org.keyser.anr.core.Event;
+import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.Game;
 import org.keyser.anr.core.NotificationEvent;
@@ -24,7 +25,8 @@ public class Runner extends PlayableUnit {
 
 	private int tags;
 
-	public Runner() {
+	public Runner(Faction faction) {
+		super(faction);
 		getWallet().add(new WalletBadPub());
 	}
 

@@ -12,7 +12,13 @@
 		">
 
 	<mvc:annotation-driven />
-	<mvc:resources mapping="/resources/**" location="classpath:/WEB-INF/resources/" />
+	<mvc:resources mapping="/css/**"
+		location="classpath:/WEB-INF/resources/css/" />
+	<mvc:resources mapping="/fonts/**"
+		location="classpath:/WEB-INF/resources/fonts/" />
+	<mvc:resources mapping="/img/**"
+		location="classpath:/WEB-INF/resources/img/" />
+	<mvc:resources mapping="/js/**" location="classpath:/WEB-INF/resources/js/" />
 
 	<ws:handlers>
 		<ws:mapping path="ws/play" handler="anrWebSocket" />
@@ -20,11 +26,23 @@
 
 	<context:component-scan base-package="org.keyser.anr.web" />
 
-	<task:executor id="remoteLoaderPool" pool-size="5" />
-
-	<bean class="org.keyser.anr.web.RemoteCardLoader" p:executor-ref="remoteLoaderPool" />
-
 	<bean id="anrWebSocket" class="org.keyser.anr.web.AnrWebSocketHandler"
 		p:repository-ref="gameRepository" p:mapper-ref="jacksonMapper" />
 
+	<task:executor id="remoteLoaderPool" pool-size="5" />
+	<bean class="org.keyser.anr.web.RemoteCardLoader" p:executor-ref="remoteLoaderPool" />
+
+	<bean class="org.thymeleaf.spring3.view.ThymeleafViewResolver"
+		p:characterEncoding="UTF-8" p:contentType="text/html">
+		<property name="templateEngine">
+			<bean class="org.thymeleaf.spring3.SpringTemplateEngine">
+				<property name="templateResolver">
+					<bean
+						class="org.thymeleaf.templateresolver.ServletContextTemplateResolver"
+						p:prefix="/WEB-INF/resources/" p:suffix=".xhtml" p:templateMode="HTML5"
+						p:characterEncoding="UTF-8" p:cacheable="false" />
+				</property>
+			</bean>
+		</property>
+	</bean>
 </beans>	

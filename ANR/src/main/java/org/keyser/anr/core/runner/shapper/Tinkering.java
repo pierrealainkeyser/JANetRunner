@@ -9,7 +9,7 @@ import org.keyser.anr.core.runner.Event;
 public class Tinkering extends Event {
 
 	public Tinkering() {
-		super(Faction.SHAPPER.infl(4), Cost.credit(0));
+		super(Faction.SHAPER.infl(4), Cost.credit(0));
 	}
 
 }

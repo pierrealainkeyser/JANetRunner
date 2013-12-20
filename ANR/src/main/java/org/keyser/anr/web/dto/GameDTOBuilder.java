@@ -1,4 +1,4 @@
-package org.keyser.anr.web;
+package org.keyser.anr.web.dto;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -30,12 +30,6 @@ import org.keyser.anr.core.corp.CorpRemoteServer;
 import org.keyser.anr.core.corp.CorpServer;
 import org.keyser.anr.core.runner.Runner;
 import org.keyser.anr.core.runner.RunnerCard;
-import org.keyser.anr.web.dto.CardDTO;
-import org.keyser.anr.web.dto.CardDefDTO;
-import org.keyser.anr.web.dto.GameDTO;
-import org.keyser.anr.web.dto.LocationDTO;
-import org.keyser.anr.web.dto.PlayerDTO;
-import org.keyser.anr.web.dto.QuestionDTO;
 import org.keyser.anr.web.dto.QuestionDTO.PossibleResponseDTO;
 
 /**

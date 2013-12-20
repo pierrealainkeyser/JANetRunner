@@ -8,6 +8,6 @@ public interface GameOutput {
 	 * @param type
 	 * @param content
 	 */
-	public abstract void send(String type, Object content);
+	public  void send(String type, Object content);
 
 }

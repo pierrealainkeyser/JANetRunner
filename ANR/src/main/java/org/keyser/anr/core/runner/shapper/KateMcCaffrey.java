@@ -7,6 +7,7 @@ import org.keyser.anr.core.CardDef;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.CostCredit;
 import org.keyser.anr.core.CostDeterminationEvent;
+import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.Game;
 import org.keyser.anr.core.runner.HardwareInstallationCostDeterminationEvent;
 import org.keyser.anr.core.runner.ProgramInstallationCostDeterminationEvent;
@@ -18,6 +19,7 @@ public class KateMcCaffrey extends Runner {
 	private boolean firstInstall = false;
 
 	public KateMcCaffrey() {
+		super(Faction.SHAPER);
 		add(match(Game.RunnerStartOfTurnEvent.class).name("KateMcCaffrey setup").core().auto().call(this::setFirstInstall));
 
 		add(match(HardwareInstallationCostDeterminationEvent.class).name("discount on hardware").core().auto().sync(this::reduceCostOnFirstInstall));

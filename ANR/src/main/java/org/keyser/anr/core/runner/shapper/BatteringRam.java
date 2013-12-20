@@ -2,7 +2,7 @@ package org.keyser.anr.core.runner.shapper;
 
 import static org.keyser.anr.core.Cost.credit;
 import static org.keyser.anr.core.EventMatcher.match;
-import static org.keyser.anr.core.Faction.SHAPPER;
+import static org.keyser.anr.core.Faction.SHAPER;
 
 import org.keyser.anr.core.CardDef;
 import org.keyser.anr.core.Cost;
@@ -18,7 +18,7 @@ public class BatteringRam extends IceBreaker {
 	private int strengthBoost = 0;
 
 	public BatteringRam() {
-		super(SHAPPER.infl(2), credit(5), 2, IceBreakerType.FRACTER, 3);
+		super(SHAPER.infl(2), credit(5), 2, IceBreakerType.FRACTER, 3);
 
 		Cost credit1 = credit(1);
 		addAction(new PumpIceBreakerAbility(credit1, this, 1));

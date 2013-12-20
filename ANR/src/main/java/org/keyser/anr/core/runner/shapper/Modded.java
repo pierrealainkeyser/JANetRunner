@@ -9,7 +9,7 @@ import org.keyser.anr.core.runner.Event;
 public class Modded extends Event {
 
 	public Modded() {
-		super(Faction.SHAPPER.infl(2), Cost.credit(0));
+		super(Faction.SHAPER.infl(2), Cost.credit(0));
 	}
 
 }

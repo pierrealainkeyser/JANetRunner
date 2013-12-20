@@ -9,6 +9,6 @@ import org.keyser.anr.core.runner.Hardware;
 public class TheToolbox extends Hardware {
 
 	public TheToolbox() {
-		super(Faction.SHAPPER.infl(2), Cost.credit(9));
+		super(Faction.SHAPER.infl(2), Cost.credit(9));
 	}
 }

@@ -1,15 +1,50 @@
 package org.keyser.anr.web;
 
-public interface GameGateway {
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-	public static final String READY = "ready";
+import org.keyser.anr.core.MetaGame;
 
-	public static final String RESPONSE = "response";
+/**
+ * La passerelle entre un {@link ConnectedGameEndpoint} qui permet d'enregistrer des {@link GameOutput}
+ * @author PAF
+ *
+ */
+public class GameGateway implements GameOutput, GameEndpoint {
 
-	public void accept(GameOutput output, Object incomming);
+	private final ConnectedGameEndpoint endpoint;
 
-	public void register(GameOutput output);
+	private final Map<GameOutput, Boolean> outputs = new ConcurrentHashMap<>();
 
-	public void remove(GameOutput ouput);
+	public GameGateway(ConnectedGameEndpoint endpoint) {
+		this.endpoint = endpoint;
+		endpoint.setBroadcastOutput(this);
+	}
+
+	@Override
+	public void accept(GameOutput output, Object incomming) {
+		endpoint.accept(output, incomming);
+	}
+
+	@Override
+	public MetaGame getMetaGame() {
+		return endpoint.getMetaGame();
+	}
+
+	public void register(GameOutput output) {
+		outputs.put(output, true);
+
+	}
+
+	public void remove(GameOutput ouput) {
+		outputs.remove(ouput);
+
+	}
+
+	@Override
+	public void send(String type, Object content) {
+		outputs.keySet().forEach(go -> go.send(type, content));
+
+	}
 
 }

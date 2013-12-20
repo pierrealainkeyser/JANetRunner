@@ -1,25 +1,25 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<link href="resources/css/bootstrap.css" rel="stylesheet">
-<link href="resources/css/anr.css" rel="stylesheet">
+<link rel="icon" type="image/png" href="/img/favicon.png" />
+<link href="/css/bootstrap.css" rel="stylesheet"/>
+<link href="/css/anr.css" rel="stylesheet"/>
 
-<script type="text/javascript" src="resources/js/jquery-2.0.3.min.js"></script>
-<script type="text/javascript" src="resources/js/jquery.transit.min.js"></script>
-<script type="text/javascript" src="resources/js/mousetrap.min.js"></script>
-<script type="text/javascript" src="resources/js/lodash.min.js"></script>
+<script type="text/javascript" src="/js/jquery-2.0.3.min.js"></script>
+<script type="text/javascript" src="/js/jquery.transit.min.js"></script>
+<script type="text/javascript" src="/js/mousetrap.min.js"></script>
+<script type="text/javascript" src="/js/lodash.min.js"></script>
+<script type="text/javascript" src="/js/jquery.json-2.2.min.js"></script>
+<script type="text/javascript" src="/js/jquery.websocket-0.0.1.js"></script>
 
-<script type="text/javascript" src="resources/js/jquery.json-2.2.min.js"></script>
-<script type="text/javascript" src="resources/js/jquery.websocket-0.0.1.js"></script>
+<script type="text/javascript" src="/js/anr.js"></script>
 
-<script type="text/javascript" src="resources/js/anr.js"></script>
-
-<script type="text/javascript">
+<script type="text/javascript" data-th-inline="javascript">
+/*<![CDATA[*/
 	$(function() {
 		initANR();
 		
-		bootANR(window.location.hash.substring(1));
+		var gameId=/*[[${gameId}]]*/12345;		
+		bootANR(gameId);
 			
 	
 		//binding
@@ -95,12 +95,13 @@
 		if(n)
 			n.widget.focus();		
 	}
+/*]]>*/
 </script>
 </head>
 <body>
 	<div class="faction corp">
 		<p>
-			<a><img src="http://netrunnerdb.com/web/bundles/netrunnerdbbuilder/images/factions/38px/nbn.png" /></a>
+			<a><img src="/img/nbn.png" data-th-src="'/img/'+${corp}+'.png'" /></a>
 		</p>
 		<div class="expand">
 			<p title="Score">
@@ -117,7 +118,7 @@
 
 	<div class="faction runner">
 		<p>
-			<a><img src="http://netrunnerdb.com/web/bundles/netrunnerdbbuilder/images/factions/38px/shaper.png" /></a>
+			<a><img src="/img/shaper.png"  data-th-src="'/img/'+${runner}+'.png'" /></a>
 		</p>
 		<div class="expand">
 			<p title="Score">
@@ -186,6 +187,5 @@
   			<li class="active"><span class="label label-info" id="activeMessage"></span></li>
 		</ol>
 	</div>
-
 </body>
 </html>

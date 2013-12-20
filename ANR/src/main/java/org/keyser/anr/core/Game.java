@@ -621,4 +621,8 @@ public class Game implements Notifier, ConfigurableEventListener {
 		}
 
 	}
+
+	public MetaGame getMetaGame() {
+		return new MetaGame(corp.getFaction(), runner.getFaction());
+	}
 }

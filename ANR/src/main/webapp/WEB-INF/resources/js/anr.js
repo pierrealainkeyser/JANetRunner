@@ -728,7 +728,7 @@ function Card(def) {
 	this.rezzed = false;
 
 	this.getUrl = function() {
-		return "card-img/" + this.def.url;
+		return "/card-img/" + this.def.url;
 	}
 
 	this.init = function(parent) {

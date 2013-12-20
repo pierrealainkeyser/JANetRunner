@@ -2,7 +2,7 @@ package org.keyser.anr.core.runner.shapper;
 
 import static org.keyser.anr.core.Cost.credit;
 import static org.keyser.anr.core.EventMatcher.match;
-import static org.keyser.anr.core.Faction.SHAPPER;
+import static org.keyser.anr.core.Faction.SHAPER;
 
 import org.keyser.anr.core.CardDef;
 import org.keyser.anr.core.Run.CleanTheRunEvent;
@@ -17,7 +17,7 @@ public class Pipeline extends IceBreaker {
 	private int strengthBoost = 0;
 
 	public Pipeline() {
-		super(SHAPPER.infl(1), credit(3), 1, IceBreakerType.KILLER, 1);
+		super(SHAPER.infl(1), credit(3), 1, IceBreakerType.KILLER, 1);
 
 		addAction(new PumpIceBreakerAbility(credit(2), this, 1));
 		addAction(new BreakRoutineAbility(credit(1), this));

@@ -9,6 +9,6 @@ import org.keyser.anr.core.runner.Resource;
 public class SacrificialConstruct extends Resource {
 
 	public SacrificialConstruct() {
-		super(Faction.SHAPPER.infl(2), Cost.credit(1));
+		super(Faction.SHAPER.infl(2), Cost.credit(1));
 	}
 }

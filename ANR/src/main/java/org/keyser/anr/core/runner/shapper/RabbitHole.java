@@ -9,6 +9,6 @@ import org.keyser.anr.core.runner.Hardware;
 public class RabbitHole extends Hardware {
 
 	public RabbitHole() {
-		super(Faction.SHAPPER.infl(1), Cost.credit(2));
+		super(Faction.SHAPER.infl(1), Cost.credit(2));
 	}
 }

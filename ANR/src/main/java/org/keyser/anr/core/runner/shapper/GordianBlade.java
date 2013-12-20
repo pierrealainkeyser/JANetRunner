@@ -2,7 +2,7 @@ package org.keyser.anr.core.runner.shapper;
 
 import static org.keyser.anr.core.Cost.credit;
 import static org.keyser.anr.core.EventMatcher.match;
-import static org.keyser.anr.core.Faction.SHAPPER;
+import static org.keyser.anr.core.Faction.SHAPER;
 import static org.keyser.anr.core.runner.IceBreakerType.DECODER;
 
 import org.keyser.anr.core.CardDef;
@@ -18,7 +18,7 @@ public class GordianBlade extends IceBreaker {
 	private int strengthBoost = 0;
 
 	public GordianBlade() {
-		super(SHAPPER.infl(3), credit(4), 1, DECODER, 2);
+		super(SHAPER.infl(3), credit(4), 1, DECODER, 2);
 
 		Cost credit1 = credit(1);
 		addAction(new PumpIceBreakerAbility(credit1, this, 1));
