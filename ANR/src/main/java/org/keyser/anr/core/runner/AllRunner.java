@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.keyser.anr.core.CardDef;
-import org.keyser.anr.core.neutral.Infiltration;
-import org.keyser.anr.core.neutral.SureGamble;
+import org.keyser.anr.core.runner.neutral.Infiltration;
+import org.keyser.anr.core.runner.neutral.SureGamble;
 import org.keyser.anr.core.runner.shapper.AccessToGlobalsec;
 import org.keyser.anr.core.runner.shapper.AesopsPawnshop;
 import org.keyser.anr.core.runner.shapper.AkamatsuMemChip;
