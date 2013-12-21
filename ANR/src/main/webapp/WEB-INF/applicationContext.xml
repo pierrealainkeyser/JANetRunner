@@ -17,7 +17,7 @@
 		p:factory-ref="gameFactory">
 		<property name="basic">
 			<bean class="org.keyser.anr.web.GameDef">
-				<constructor-arg value="3253-4324" />
+				<constructor-arg value="" />
 				<property name="deckCorp">
 					<bean class="org.keyser.anr.web.DeckResource" p:resource="classpath:/core-nbn.o8d" />
 				</property>

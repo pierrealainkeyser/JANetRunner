@@ -46,19 +46,13 @@ public class GameDTOFactory implements GameFactory {
 	// sur une propriete de DeckResource qui précisera le format
 	private OCTGNParser parser = new OCTGNParser();
 
-	private KeyMode keyMode = KeyMode.UNIQUE;
+	private KeyMode keyMode = KeyMode.SIMPLE;
 
-	/* (non-Javadoc)
-	 * @see org.keyser.anr.web.dto.GameFactory#createAccess(org.keyser.anr.web.GameDef, java.lang.String, org.keyser.anr.web.GameGateway)
-	 */
 	@Override
 	public GameAccess createAccess(GameDef def, String faction, GameGateway gateway) {
 		return new GameAccess(keyMode.build(def, faction), faction, gateway);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.keyser.anr.web.dto.GameFactory#create(org.keyser.anr.web.GameDef)
-	 */
 	@Override
 	public ConnectedGameEndpoint create(GameDef def) {
 		Corp c = null;
@@ -80,6 +74,7 @@ public class GameDTOFactory implements GameFactory {
 		Flow nowhere = () -> {
 		};
 
+		//TODO l'initialisation de la partie ne devrait pas se faire ici
 		Game g = new Game(r, c, nowhere);
 		g.setup();
 

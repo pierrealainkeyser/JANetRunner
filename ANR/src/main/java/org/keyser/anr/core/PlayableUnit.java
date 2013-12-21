@@ -51,6 +51,15 @@ public abstract class PlayableUnit extends AbstractGameContent implements Instal
 	}
 
 	/**
+	 * Renvoi vrai si le joueur peut jouer une action
+	 * 
+	 * @return
+	 */
+	protected boolean mayPlayAction() {
+		return getGame().getStep().mayPlayAction();
+	}
+
+	/**
 	 * Défausse une card
 	 * 
 	 * @param discarded

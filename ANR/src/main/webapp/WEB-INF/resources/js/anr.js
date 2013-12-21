@@ -351,10 +351,8 @@ function handleQuestion(q, r) {
 		}
 
 		if (widget != undefined) {
-			if ("install-ice" == r.option)
-				act = new InstallIceMultiAction(q, r, widget);
-			else if ("install-asset" == r.option || "install-agenda" == r.option || "install-upgrade" == r.option)
-				act = new InstallAssetAgendaMultiAction(q, r, widget);
+			if ("install-ice" == r.option || "install-asset" == r.option || "install-agenda" == r.option || "install-upgrade" == r.option)
+				act = new CorpInstallOnMultiAction(q, r, widget);
 			else
 				act = new Action(q, r, widget);
 		}
@@ -561,13 +559,13 @@ function MultiAction(q, r, widget, createActions) {
 }
 
 /**
- * L'action d'installer une glace
+ * L'action d'installer une carte de corpo
  * 
  * @param q
  * @param r
  * @param widget
  */
-function InstallIceMultiAction(q, r, widget) {
+function CorpInstallOnMultiAction(q, r, widget) {
 	MultiAction.call(this, q, r, widget, function() {
 		// on monte un peu la carte cible
 		widget.transition({ top : '-=70' });
@@ -592,31 +590,6 @@ function InstallIceMultiAction(q, r, widget) {
 					choosen['content'] = { card : this.card };
 			};
 
-			actions.push(a);
-		}
-	});
-}
-
-/**
- * L'action d'installer un asset ou un agenda
- * 
- * @param q
- * @param r
- * @param widget
- */
-function InstallAssetAgendaMultiAction(q, r, widget) {
-	MultiAction.call(this, q, r, widget, function() {
-		// on monte un peu la carte cible
-		widget.transition({ top : '-=70' });
-
-		actions = [];
-		for (i in r.args) {
-			var index = r.args[i].server;
-			var a = new Action(q, r, widgetServer(index));
-			a.index = index;
-			a.updateChoosen = function(choosen) {
-				choosen['content'] = { server : this.index };
-			};
 			actions.push(a);
 		}
 	});

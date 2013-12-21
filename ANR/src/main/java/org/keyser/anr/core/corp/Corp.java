@@ -53,19 +53,6 @@ public class Corp extends PlayableUnit {
 		}
 	}
 
-	private static class AgendaEvent extends Event {
-		private final Agenda agenda;
-
-		public AgendaEvent(Agenda agenda) {
-			this.agenda = agenda;
-		}
-
-		public Agenda getAgenda() {
-			return agenda;
-		}
-
-	}
-
 	/**
 	 * Le click de base
 	 * 
@@ -128,95 +115,6 @@ public class Corp extends PlayableUnit {
 
 			// renvoi vrai s'il y a des virus chez le runner
 			return getGame().getRunner().hasVirus();
-		}
-	}
-
-	/**
-	 * L'evenement la Corp a piocher
-	 * 
-	 * @author PAF
-	 * 
-	 */
-	public static class CorpCardDraw extends Event {
-		private final CorpCard card;
-
-		public CorpCardDraw(CorpCard card) {
-			this.card = card;
-		}
-
-		public CorpCard getCard() {
-			return card;
-		}
-	}
-
-	/**
-	 * L'évenement la corp à pris un credit
-	 * 
-	 * @author PAF
-	 * 
-	 */
-	public static class CorpClickForCredit extends Event {
-
-	}
-
-	/**
-	 * L'evenement la Corp a installée un agenda
-	 * 
-	 * @author PAF
-	 * 
-	 */
-	public static class CorpInstallAgenda extends AgendaEvent {
-		public CorpInstallAgenda(Agenda agenda) {
-			super(agenda);
-		}
-	}
-
-	public static class CorpInstallAsset extends Event {
-		private final Asset asset;
-
-		public CorpInstallAsset(Asset asset) {
-			this.asset = asset;
-		}
-
-		public Asset getAsset() {
-			return asset;
-		}
-	}
-
-	/**
-	 * L'evenement la Corp a piocher
-	 * 
-	 * @author PAF
-	 * 
-	 */
-	public static class CorpInstallIce extends Event {
-		private final Ice ice;
-
-		public CorpInstallIce(Ice ice) {
-			this.ice = ice;
-		}
-
-		public Ice getIce() {
-			return ice;
-		}
-	}
-
-	public static class CorpInstallUpgrade extends Event {
-		private final Upgrade upgrade;
-
-		public CorpInstallUpgrade(Upgrade upgrade) {
-			this.upgrade = upgrade;
-		}
-
-		public Upgrade getUpgrade() {
-			return upgrade;
-		}
-
-	}
-
-	public static class CorpScoreAgenda extends AgendaEvent {
-		public CorpScoreAgenda(Agenda agenda) {
-			super(agenda);
 		}
 	}
 
@@ -290,9 +188,7 @@ public class Corp extends PlayableUnit {
 
 		protected void accept(InstallOn iic) {
 			Integer server = iic.getServer();
-
 			CorpServer cs = null;
-
 			if (server != null)
 				cs = getOrCreate(server);
 			else {
@@ -338,7 +234,17 @@ public class Corp extends PlayableUnit {
 		}
 
 		protected void accept(InstallOn iic) {
-			CorpServer cs = getOrCreate(iic.getServer());
+			Integer server = iic.getServer();
+			CorpServer cs = null;
+			if (server != null)
+				cs = getOrCreate(server);
+			else {
+				CardOnServer cos = find(iic.getCard());
+
+				// on s'intalle une autre carte
+				cs = cos.getServer();
+				cos.getCard().trash();
+			}
 			wallet.consume(getCost(), getAction());
 
 			// la location 0 est toujours l'agenda ou l'asset
@@ -452,7 +358,6 @@ public class Corp extends PlayableUnit {
 	public Corp(Faction faction) {
 		super(faction);
 	}
-	
 
 	private void addAbility(CorpCard cc, List<AbstractAbility> a) {
 		if (cc.isAdvanceable())
@@ -482,56 +387,64 @@ public class Corp extends PlayableUnit {
 	@Override
 	protected void addAllAbilities(List<AbstractAbility> a) {
 
-		a.add(new ClickForCredit());
-		a.add(new ClickForDraw());
-		a.add(new ClickForPurge());
+		if (mayPlayAction()) {
+			a.add(new ClickForCredit());
+			a.add(new ClickForDraw());
+			a.add(new ClickForPurge());
 
-		List<Ice> allIces = new ArrayList<>();
-		List<CorpCard> agendaAssetUps = new ArrayList<>();
-		for (CorpCard cc : getHq().getCards()) {
-			if (cc instanceof Operation) {
-				Operation op = (Operation) cc;
-				a.add(new PlayOperation(op, op.getCost()));
-			} else if (cc instanceof Ice)
-				allIces.add((Ice) cc);
-			else if (cc instanceof Asset || cc instanceof Agenda || cc instanceof Upgrade)
-				agendaAssetUps.add(cc);
+			List<Ice> allIces = new ArrayList<>();
+			List<CorpCard> agendaAssetUps = new ArrayList<>();
+			for (CorpCard cc : getHq().getCards()) {
+				if (cc instanceof Operation) {
+					Operation op = (Operation) cc;
+					a.add(new PlayOperation(op, op.getCost()));
+				} else if (cc instanceof Ice)
+					allIces.add((Ice) cc);
+				else if (cc instanceof Asset || cc instanceof Agenda || cc instanceof Upgrade)
+					agendaAssetUps.add(cc);
+			}
 
-		}
+			if (!allIces.isEmpty()) {
+				List<InstallIceCost> iics = new ArrayList<>();
 
-		if (!allIces.isEmpty()) {
-			List<InstallIceCost> iics = new ArrayList<>();
+				// on peut installer une glace sur une autre glace
+				iics.add(new InstallIceCost(0, null, archive.icesCount()));
+				iics.add(new InstallIceCost(1, null, rd.icesCount()));
+				iics.add(new InstallIceCost(2, null, hq.icesCount()));
+				remotes.forEach((i, r) -> iics.add(new InstallIceCost(i + 3, null, r.icesCount())));
+				iics.add(new InstallIceCost(remotes.size() + 3, null, 0));
 
-			// on peut installer une glace sur une autre glace
-			iics.add(new InstallIceCost(0, null, archive.icesCount()));
-			iics.add(new InstallIceCost(1, null, rd.icesCount()));
-			iics.add(new InstallIceCost(2, null, hq.icesCount()));
-			remotes.forEach((i, r) -> iics.add(new InstallIceCost(i + 3, null, r.icesCount())));
-			iics.add(new InstallIceCost(remotes.size() + 3, null, 0));
+				allIces.forEach(i -> a.add(new InstallIceAbility(i, iics)));
 
-			allIces.forEach(i -> a.add(new InstallIceAbility(i, iics)));
+				// on peut s'installer sur toutes les glaces
+				forEachIce((server, ice) -> iics.add(new InstallIceCost(null, ice.getId(), server.icesCount() - 1)));
+			}
 
-			// on peut s'installer sur toutes les glaces
-			forEachIce((server, ice) -> iics.add(new InstallIceCost(null, ice.getId(), server.icesCount() - 1)));
-		}
+			if (!agendaAssetUps.isEmpty()) {
+				List<InstallOn> ios = new ArrayList<>();
+				remotes.forEach((i, r) -> ios.add(InstallOn.server(i + 3)));
+				ios.add(InstallOn.server(remotes.size() + 3));
 
-		if (!agendaAssetUps.isEmpty()) {
-			List<InstallOn> ios = new ArrayList<>();
-			remotes.forEach((i, r) -> ios.add(InstallOn.server(i + 3)));
-			ios.add(InstallOn.server(remotes.size() + 3));
+				List<InstallOn> centrals = new ArrayList<>(ios);
+				for (int i : new int[] { 0, 1, 2 })
+					centrals.add(InstallOn.server(i));
 
-			List<InstallOn> centrals = new ArrayList<>(ios);
-			for (int i : new int[] { 0, 1, 2 })
-				centrals.add(InstallOn.server(i));
+				// on peut s'installer sur des upgrades
+				forEachCardInServer(c -> {
+					if (c instanceof Upgrade) {
+						centrals.add(InstallOn.card(c.getId()));
+					}
+				});
 
-			agendaAssetUps.forEach(i -> {
-				if (i instanceof Asset)
-					a.add(new InstallAssetAbility((Asset) i, ios));
-				else if (i instanceof Agenda)
-					a.add(new InstallAgendaAbility((Agenda) i, ios));
-				else if (i instanceof Upgrade)
-					a.add(new InstallUpgradeAbility((Upgrade) i, centrals));
-			});
+				agendaAssetUps.forEach(i -> {
+					if (i instanceof Asset)
+						a.add(new InstallAssetAbility((Asset) i, ios));
+					else if (i instanceof Agenda)
+						a.add(new InstallAgendaAbility((Agenda) i, ios));
+					else if (i instanceof Upgrade)
+						a.add(new InstallUpgradeAbility((Upgrade) i, centrals));
+				});
+			}
 		}
 
 		// gestion des actions des cartes

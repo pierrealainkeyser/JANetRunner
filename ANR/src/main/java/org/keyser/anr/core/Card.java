@@ -35,6 +35,12 @@ public abstract class Card extends AbstractGameContent {
 		return location;
 	}
 
+	/**
+	 * Change la position de la carte en se désenregistrant de la zone
+	 * précédente.
+	 * 
+	 * @param location
+	 */
 	public void setLocation(CardLocation location) {
 		Game game = getGame();
 		if (this.location != null && game != null) {
