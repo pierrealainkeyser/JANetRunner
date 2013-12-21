@@ -1,4 +1,4 @@
-package org.keyser.anr.core.runner.shapper;
+package org.keyser.anr.core.runner.shaper;
 
 import static org.keyser.anr.core.Cost.credit;
 import static org.keyser.anr.core.Faction.SHAPER;

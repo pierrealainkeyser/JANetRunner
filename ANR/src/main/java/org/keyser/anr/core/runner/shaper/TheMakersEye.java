@@ -1,4 +1,4 @@
-package org.keyser.anr.core.runner.shapper;
+package org.keyser.anr.core.runner.shaper;
 
 import org.keyser.anr.core.CardDef;
 import org.keyser.anr.core.Cost;
