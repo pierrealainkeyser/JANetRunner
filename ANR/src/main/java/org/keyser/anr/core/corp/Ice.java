@@ -17,8 +17,8 @@ public abstract class Ice extends InstallableCorpCard {
 
 	private final List<Routine> routines = new ArrayList<>();
 
-	public Ice(Influence influence, Cost rezzCost, IceType iceType, int strength) {
-		super(influence, rezzCost);
+	public Ice(Influence influence, Cost rezCost, IceType iceType, int strength) {
+		super(influence, rezCost);
 		this.strength = strength;
 		this.iceType = iceType;
 	}
