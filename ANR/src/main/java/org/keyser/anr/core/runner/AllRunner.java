@@ -4,27 +4,27 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.keyser.anr.core.CardDef;
-import org.keyser.anr.core.neutral.Infiltration;
-import org.keyser.anr.core.neutral.SureGamble;
-import org.keyser.anr.core.runner.shapper.AccessToGlobalsec;
-import org.keyser.anr.core.runner.shapper.AesopsPawnshop;
-import org.keyser.anr.core.runner.shapper.AkamatsuMemChip;
-import org.keyser.anr.core.runner.shapper.ArmitageCodebusting;
-import org.keyser.anr.core.runner.shapper.BatteringRam;
-import org.keyser.anr.core.runner.shapper.Crypsis;
-import org.keyser.anr.core.runner.shapper.Diesel;
-import org.keyser.anr.core.runner.shapper.GordianBlade;
-import org.keyser.anr.core.runner.shapper.KateMcCaffrey;
-import org.keyser.anr.core.runner.shapper.MagnusOpus;
-import org.keyser.anr.core.runner.shapper.Modded;
-import org.keyser.anr.core.runner.shapper.NetShield;
-import org.keyser.anr.core.runner.shapper.Pipeline;
-import org.keyser.anr.core.runner.shapper.RabbitHole;
-import org.keyser.anr.core.runner.shapper.SacrificialConstruct;
-import org.keyser.anr.core.runner.shapper.TheMakersEye;
-import org.keyser.anr.core.runner.shapper.ThePersonalTouch;
-import org.keyser.anr.core.runner.shapper.TheToolbox;
-import org.keyser.anr.core.runner.shapper.Tinkering;
+import org.keyser.anr.core.runner.neutral.Infiltration;
+import org.keyser.anr.core.runner.neutral.SureGamble;
+import org.keyser.anr.core.runner.shaper.AccessToGlobalsec;
+import org.keyser.anr.core.runner.shaper.AesopsPawnshop;
+import org.keyser.anr.core.runner.shaper.AkamatsuMemChip;
+import org.keyser.anr.core.runner.shaper.ArmitageCodebusting;
+import org.keyser.anr.core.runner.shaper.BatteringRam;
+import org.keyser.anr.core.runner.shaper.Crypsis;
+import org.keyser.anr.core.runner.shaper.Diesel;
+import org.keyser.anr.core.runner.shaper.GordianBlade;
+import org.keyser.anr.core.runner.shaper.KateMcCaffrey;
+import org.keyser.anr.core.runner.shaper.MagnusOpus;
+import org.keyser.anr.core.runner.shaper.Modded;
+import org.keyser.anr.core.runner.shaper.NetShield;
+import org.keyser.anr.core.runner.shaper.Pipeline;
+import org.keyser.anr.core.runner.shaper.RabbitHole;
+import org.keyser.anr.core.runner.shaper.SacrificialConstruct;
+import org.keyser.anr.core.runner.shaper.TheMakersEye;
+import org.keyser.anr.core.runner.shaper.ThePersonalTouch;
+import org.keyser.anr.core.runner.shaper.TheToolbox;
+import org.keyser.anr.core.runner.shaper.Tinkering;
 
 /**
  * L'index de toutes les classes
