@@ -8,7 +8,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
 
 public class AnrMain {
 	public static void main(String[] args) throws Exception {
-		Server s = new Server(8082);
+		Server s = new Server(2319);
 
 		ProtectionDomain domain = AnrMain.class.getProtectionDomain();
 		URL location = domain.getCodeSource().getLocation();
