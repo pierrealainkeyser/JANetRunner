@@ -3,7 +3,7 @@ package org.keyser.anr.core.corp;
 import org.keyser.anr.core.runner.IceBreakerType;
 
 public enum IceType {
-	BARRIER(IceBreakerType.FRACTER), SENTRY(IceBreakerType.KILLER), CODEGATE(IceBreakerType.DECODER);
+	BARRIER(IceBreakerType.FRACTER), SENTRY(IceBreakerType.KILLER), CODEGATE(IceBreakerType.DECODER), TRAP(IceBreakerType.IA);
 
 	private IceBreakerType breaker;
 

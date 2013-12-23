@@ -1,5 +1,6 @@
 package org.keyser.anr.core.corp.jinteki;
 
+import org.keyser.anr.core.CardDef;
 import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.corp.Agenda;
 
