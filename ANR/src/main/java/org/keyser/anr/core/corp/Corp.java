@@ -335,6 +335,9 @@ public class Corp extends PlayableUnit {
 			// TODO gestion de la suppression des tokens
 			agenda.setLocation(CardLocation.CORP_SCORE);
 			agenda.setRezzed(true);
+			
+			//on supprime les avancements
+			agenda.setAdvancement(null);
 
 			g.apply(new CorpScoreAgenda(agenda), next);
 		}

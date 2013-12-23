@@ -39,6 +39,11 @@ public abstract class PlayableUnit extends AbstractGameContent implements Instal
 
 	protected abstract void addAllAbilities(List<AbstractAbility> a);
 
+	/**
+	 * Rajoute une carte dans la zone de score
+	 * 
+	 * @param c
+	 */
 	public void addScoredCard(Card c) {
 		this.scoreds.add(c);
 

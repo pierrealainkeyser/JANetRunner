@@ -249,9 +249,6 @@ public class GameDTOBuilder {
 	}
 
 	private LocationDTO location(Card c) {
-
-		// FIXME gestion des zones de score
-
 		CardLocation cl = c.getLocation();
 		if (cl == CardLocation.ARCHIVES)
 			return LocationDTO.archives;
@@ -259,12 +256,16 @@ public class GameDTOBuilder {
 			return LocationDTO.hq;
 		else if (cl == CardLocation.RD)
 			return LocationDTO.rd;
-		if (cl == CardLocation.HEAP)
+		else if (cl == CardLocation.CORP_SCORE)
+			return LocationDTO.corpScore;
+		else if (cl == CardLocation.HEAP)
 			return LocationDTO.heap;
 		else if (cl == CardLocation.GRIP)
 			return LocationDTO.grip;
 		else if (cl == CardLocation.STACK)
 			return LocationDTO.stack;
+		else if (cl == CardLocation.RUNNER_SCORE)
+			return LocationDTO.runnerScore;
 		else {
 			CardLocation.Where w = cl.getWhere();
 			if (w == Where.ICE) {

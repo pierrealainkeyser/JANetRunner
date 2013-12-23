@@ -13,16 +13,19 @@ var cards = {};
 var wallets = {};
 var actions = [];
 
+var viewAgenda = { padding : 30, spacing : 85 };
+var hideAgenda = { padding : -200, spacing : 0 };
+
 // gestion des bordures
 var mainInsets = { left : function() {
 	return 30;
 }, right : function() {
 	return $('div#main').width() - 160;
 }, top : function() {
-	return 65;
+	return 25;
 }, bottom : function() {
 	return $('div#main').height() - 180;
-} }
+}, corpScore : viewAgenda, runnerScore : viewAgenda }
 
 /**
  * Renvoi l'index du server
@@ -110,6 +113,20 @@ var placeFunction = { hand : function(v) {
 	}
 
 	return { x : x, y : by, rotate : 0 };
+}, corpScore : function(v) {
+	var bx = mainInsets.left() + mainInsets.corpScore.padding;
+	var by = mainInsets.top() + 10;
+	var hspacing = mainInsets.corpScore.spacing;
+	var index = v.index;
+
+	return { x : bx + hspacing * index, y : by, rotate : 0 };
+}, runnerScore : function(v) {
+	var bx = mainInsets.right() - mainInsets.corpScore.padding;
+	var by = mainInsets.top() + 10;
+	var hspacing = mainInsets.corpScore.spacing;
+	var index = v.index;
+
+	return { x : bx - hspacing * index, y : by, rotate : 0 };
 }, grip : function(v) {
 	if (v) {
 		return placeFunction.hand(v);
@@ -168,22 +185,26 @@ function initANR() {
 	confactions($("#nothing"));
 
 	var corpWidget = $(".faction.corp");
-	corpWidget.find("a").bind('click', function() {
-		var l = $(".faction.corp .expand")
-		l.animate({ height : 'toggle' }, 150);
-	});
-
 	var runnerWidget = $(".faction.runner");
-	runnerWidget.find("a").bind('click', function() {
-		var l = $(".faction.runner .expand")
-		l.animate({ height : 'toggle' }, 150);
+
+	corpWidget.find("a").bind('click', function() {
+		if (_.isEqual(mainInsets.corpScore, hideAgenda))
+			mainInsets.corpScore = viewAgenda;
+		else
+			mainInsets.corpScore = hideAgenda;
+
+		locationHandler.corpScore.updateAll();
 	});
+	
+	runnerWidget.find("a").bind('click', function() {
+		if (_.isEqual(mainInsets.runnerScore, hideAgenda))
+			mainInsets.runnerScore = viewAgenda;
+		else
+			mainInsets.runnerScore = hideAgenda;
 
-	setTimeout(function() {
-		corpWidget.find("a").click();
-		runnerWidget.find("a").click();
-	}, 750);
-
+		locationHandler.runnerScore.updateAll();
+	});
+	
 	wallets['corp'] = { score : new ValueWidget(corpWidget.find("span.score")), credits : new ValueWidget(corpWidget.find("span.credits")),
 		actions : new ValueWidget(corpWidget.find("span.actions")) };
 
@@ -191,8 +212,14 @@ function initANR() {
 		actions : new ValueWidget(runnerWidget.find("span.actions")), links : new ValueWidget(runnerWidget.find("span.links")),
 		memory_units : new ValueWidget(runnerWidget.find("span.memory_units")) };
 
-	locationHandler = { 'hq' : new CardCounter($("#hq").find("span")), 'archives' : new CardCounter($("#archives").find("span")), 'rd' : new CardCounter($("#rd").find("span")),
-		'grip' : new CardCounter($("#grip").find("span")), 'stack' : new CardCounter($("#stack").find("span")), 'heap' : new CardCounter($("#heap").find("span")) };
+	locationHandler = { hq : new CardCounter($("#hq").find("span")), //
+	archives : new CardCounter($("#archives").find("span")), //
+	rd : new CardCounter($("#rd").find("span")),//
+	corpScore : new CardList(),//
+	grip : new CardCounter($("#grip").find("span")),//
+	stack : new CardCounter($("#stack").find("span")),//
+	heap : new CardCounter($("#heap").find("span")),//
+	runnerScore : new CardList() };
 }
 
 /**
@@ -631,6 +658,16 @@ function CardList() {
 		return Object.keys(mycards).length;
 	}
 
+	/**
+	 * Mise à jour de la position de toutes les cartes
+	 */
+	this.updateAll = function() {
+		for ( var h in this.cards) {
+			var c = this.cards[h];
+			c.animate();
+		}
+	}
+
 	this.sync = function() {}
 
 	this.orderAll = function(c, get, set, force) {
@@ -751,7 +788,13 @@ function Card(def) {
 					newTok.animate({ height : 'toggle' }, 150);
 
 				} else {
-					this.tokens[t].find("span.val").text(val + "");
+
+					if (val != undefined) {
+						this.tokens[t].find("span.val").text(val + "");
+					} else {
+						this.tokens[t].remove();
+						delete this.tokens[t];
+					}
 				}
 			}
 		}
@@ -794,7 +837,7 @@ function Card(def) {
 					cc.orderAll(this, function(c) {
 						return c.loc.value.hand;
 					}, function(c, i) {
-						c.loc.value = { hand : i }
+						c.loc.value = { hand : i };
 					});
 				} else if (this.loc.type == 'server') {
 					cc.orderAll(this, function(c) {
@@ -802,6 +845,12 @@ function Card(def) {
 					}, function(c, i) {
 						c.loc.value['upgradeIndex'] = i;
 					}, true);
+				} else if (/.*Score$/.test(this.loc.type)) {
+					cc.orderAll(this, function(c) {
+						return c.loc.value.index;
+					}, function(c, i) {
+						c.loc.value = { index : i };
+					});
 				}
 			}
 
@@ -813,9 +862,10 @@ function Card(def) {
 				var nindex = cc.add(this, location);
 				if (location.type == 'hand')
 					location.value = { hand : nindex };
-				else if (location.type == 'server') {
+				else if (location.type == 'server')
 					location.value['upgradeIndex'] = nindex;
-				}
+				else if (/.*Score$/.test(location.type))
+					location.value = { index : nindex };
 			}
 
 			this.loc = location;
