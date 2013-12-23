@@ -14,6 +14,7 @@ import org.keyser.anr.core.Game;
 import org.keyser.anr.core.Notification;
 import org.keyser.anr.core.NotificationEvent;
 import org.keyser.anr.core.PlayableUnit;
+import org.keyser.anr.core.Player;
 import org.keyser.anr.core.Question;
 import org.keyser.anr.core.Response;
 import org.keyser.anr.core.Wallet;
@@ -105,10 +106,9 @@ public class GameDTOBuilder {
 			} else if (NotificationEvent.NEXT_STEP == type) {
 				g.setStep(i.getStep());
 			} else if (NotificationEvent.CORP_SCORE_AGENDA == type) {
-				// TODO
-
+				updateScore(i.getGame().getCorp(), g.create(Player.CORP));
 			} else if (NotificationEvent.RUNNER_SCORE_AGENDA == type) {
-				// TODO
+				updateScore(i.getGame().getRunner(), g.create(Player.RUNNER));
 			}
 		}
 	}
@@ -145,7 +145,7 @@ public class GameDTOBuilder {
 		g.setQuestion(d);
 	}
 
-	private void updateScore(PlayableUnit pu, GameDTO g, PlayerDTO p) {
+	private void updateScore(PlayableUnit pu, PlayerDTO p) {
 		p.setValue(SCORE, pu.getScore());
 	}
 
@@ -206,7 +206,7 @@ public class GameDTOBuilder {
 		PlayerDTO p = new PlayerDTO();
 
 		Wallet w = corp.getWallet();
-		updateScore(corp, g, p);
+		updateScore(corp, p);
 		w.forEach(wu -> updateWallet(g, p, wu));
 
 		return p;
@@ -216,7 +216,7 @@ public class GameDTOBuilder {
 		PlayerDTO p = new PlayerDTO();
 
 		Wallet w = runner.getWallet();
-		updateScore(runner, g, p);
+		updateScore(runner, p);
 		w.forEach(wu -> updateWallet(g, p, wu));
 
 		return p;

@@ -48,7 +48,7 @@ public abstract class PlayableUnit extends AbstractGameContent implements Instal
 		this.scoreds.add(c);
 
 		if (c instanceof Agenda) {
-			score += ((Agenda) c).getScore();
+			 score += ((Agenda) c).getScore();
 		}
 
 		// notification du score

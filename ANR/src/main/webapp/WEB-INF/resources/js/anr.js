@@ -13,6 +13,7 @@ var cards = {};
 var wallets = {};
 var actions = [];
 
+//pour afficher ou masquer les agendas
 var viewAgenda = { padding : 30, spacing : 85 };
 var hideAgenda = { padding : -200, spacing : 0 };
 
@@ -25,7 +26,7 @@ var mainInsets = { left : function() {
 	return 25;
 }, bottom : function() {
 	return $('div#main').height() - 180;
-}, corpScore : viewAgenda, runnerScore : viewAgenda }
+}, corpScore : hideAgenda, runnerScore : hideAgenda }
 
 /**
  * Renvoi l'index du server

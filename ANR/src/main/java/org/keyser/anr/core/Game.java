@@ -425,6 +425,7 @@ public class Game implements Notifier, ConfigurableEventListener {
 
 	@Override
 	public void notification(Notification notif) {
+		notif.setGame(this);
 		notifier.ifPresent((n) -> n.notification(notif));
 
 	}

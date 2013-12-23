@@ -12,6 +12,8 @@ public class Notification {
 	private WinCondition result;
 
 	private final NotificationEvent type;
+	
+	private Game game;
 
 	public Notification(NotificationEvent type) {
 		this.type = type;
@@ -98,6 +100,14 @@ public class Notification {
 		}
 
 		return builder.toString();
+	}
+
+	public Game getGame() {
+		return game;
+	}
+
+	public void setGame(Game game) {
+		this.game = game;
 	}
 
 }

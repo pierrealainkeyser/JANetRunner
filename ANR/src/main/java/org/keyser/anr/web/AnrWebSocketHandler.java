@@ -115,6 +115,11 @@ public class AnrWebSocketHandler extends TextWebSocketHandler {
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
 		removeSuscriber(session);
 	}
+	
+	@Override
+	public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+		removeSuscriber(session);
+	}
 
 	private void removeSuscriber(WebSocketSession session) {
 		suscribers.remove(session.getId());

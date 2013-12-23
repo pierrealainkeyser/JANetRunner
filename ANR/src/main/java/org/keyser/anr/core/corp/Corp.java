@@ -338,7 +338,6 @@ public class Corp extends PlayableUnit {
 			
 			//on supprime les avancements
 			agenda.setAdvancement(null);
-
 			g.apply(new CorpScoreAgenda(agenda), next);
 		}
 
