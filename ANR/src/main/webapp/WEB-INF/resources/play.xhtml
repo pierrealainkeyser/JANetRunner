@@ -28,34 +28,43 @@
 		});		
 		
 		//vers server central
-		Mousetrap.bind('e',function(e){
+		Mousetrap.bind('h q',function(e){
 			$("#hq").focus();
 		});
-		Mousetrap.bind('z',function(e){
+		Mousetrap.bind('r d',function(e){
 			$("#rd").focus();
 		});
-		Mousetrap.bind('a',function(e){
+		Mousetrap.bind('a r',function(e){
 			$("#archives").focus();
+		});
+		
+		Mousetrap.bind('c s',function(e){
+			toggleCorpScore();
 		});		
-	
+					
 		//vers serveur remote
 		for(var i=1;i<15;++i)
 			bindRemote(i);
 		
+		Mousetrap.bind('d',function(e){
+			$("#nothing").focus();
+		});
+		
+		
 		//vers runner
-		Mousetrap.bind('q',function(e){
+		Mousetrap.bind('g r',function(e){
 			$("#grip").focus();
 		});
-		Mousetrap.bind('d',function(e){
+		Mousetrap.bind('h e',function(e){
 			$("#heap").focus();
 		});
-		Mousetrap.bind('s',function(e){
+		Mousetrap.bind('s t',function(e){
 			$("#stack").focus();
 		});
 		
 		//vers la main
-		Mousetrap.bind('h',function(e){
-			focusAt(e,{type:'hand',value:{hand:1}});
+		Mousetrap.bind('h a',function(e){
+			focusAt(e,{type:'hand',value:{hand:0}});
 		});
 		
 		//Ation
@@ -65,8 +74,8 @@
 	});
 	
 	function bindRemote(i){
-		Mousetrap.bind('r '+i,function(e){
-			focusAt(e,{type:'server',value:{remote:i-1}});
+		Mousetrap.bind('r '+i,function(e){			
+			$("#remote"+(i-1)).focus();
 		});
 	}
 	
@@ -101,7 +110,7 @@
 <body>
 	<div class="faction corp">
 		<p>
-			<a title="Show scored agendas"><img data-th-src="'/img/'+${corp}+'.png'" /></a>
+			<a title="Toggle scored agendas"><img data-th-src="'/img/'+${corp}+'.png'" /></a>
 		</p>
 		<div class="expand">
 			<p title="Score">
@@ -118,7 +127,7 @@
 
 	<div class="faction runner">
 		<p>
-			<a title="Show scored agendas"><img data-th-src="'/img/'+${runner}+'.png'" /></a>
+			<a title="Toggle scored agendas"><img data-th-src="'/img/'+${runner}+'.png'" /></a>
 		</p>
 		<div class="expand">
 			<p title="Score">
@@ -138,6 +147,8 @@
 			</p>
 		</div>
 	</div>
+	
+	
 
 	<div id="main">
 		<div id="rd" class="cardplace" tabindex="-1">
@@ -167,7 +178,7 @@
 			</div>
 		</div>
 		
-		<div id="preview"  class="panel panel-default">
+		<div id="preview" class="panel panel-default">
 			<div class="panel-heading"><i class="glyphicon glyphicon-fullscreen"></i> Card details</div>
 			<div class="panel-body">
 				<img />
@@ -179,6 +190,11 @@
   			<p class="panel-body">
     			Panel content
   			</p>
+		</div>
+		
+		<div id="corpScore" class="panel panel-default">
+			<div class="panel-heading" title="Agendas scoreds by the corp"><i class="glyphicon glyphicon-check"></i> Scoreds</div>
+			<div class="panel-body"></div>
 		</div>
 		
 		<ol id="status-bar" class="breadcrumb">

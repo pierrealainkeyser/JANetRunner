@@ -39,7 +39,7 @@ div.card img {
 	margin: 0px;
 }
 
-div.card div{
+div.card div {
 	position: absolute;
 	top: 0;
 }
@@ -96,6 +96,21 @@ div.card div{
 	border-radius: 0px 0px 5px 0px;
 }
 
+#corpScore {
+	position: absolute;
+	width: 0px;
+	top: 35px;
+	left: -155px;
+}
+
+#corpScore .panel-heading{
+	text-align: right;
+}
+
+#corpScore .panel-body{
+	height: 121px;
+}
+
 #preview {
 	position: absolute;
 	right: 0px;
@@ -131,7 +146,7 @@ div.card div{
 	margin-left: 5px;
 }
 
-#action .panel-heading,#preview .panel-heading {
+.panel-heading {
 	padding: 3px;
 }
 
@@ -140,18 +155,18 @@ div.card div{
 	right: 150px;
 	bottom: 0px;
 	margin-bottom: 0px;
-	margin-left: 150px;	
+	margin-left: 150px;
 	border-radius: 5px 5px 0px 0px;
 	display: none;
 }
 
-#nothing .panel-heading{
+#nothing .panel-heading {
 	display: inline-block;
 }
 
-#nothing .panel-body{
+#nothing .panel-body {
 	padding: 3px;
-		display: inline-block;
+	display: inline-block;
 }
 
 .cardplace {
@@ -172,7 +187,7 @@ div.card div{
 	z-index: 0;
 }
 
-.withAction.cardplace, #nothing.withAction{
+.withAction.cardplace,#nothing.withAction {
 	border: 1.5px dashed #428bca;
 }
 
@@ -180,17 +195,16 @@ div.card div{
 	border: 3px dashed #428bca;
 }
 
-
-div.tokens{
+div.tokens {
 	margin: 2px;
 }
 
-div.tokens .label{
+div.tokens .label {
 	border: 1px solid #ffffff;
 	padding: .1em .3em .15em;
 }
 
-div.tokens > span{
+div.tokens>span {
 	display: block;
 }
 
@@ -203,7 +217,7 @@ div.tokens > span{
 	background-size: cover;
 }
 
-.label .sprite{
+.label .sprite {
 	height: 16px;
 	width: 16px;
 }

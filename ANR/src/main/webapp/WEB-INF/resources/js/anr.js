@@ -15,7 +15,7 @@ var actions = [];
 
 //pour afficher ou masquer les agendas
 var viewAgenda = { padding : 30, spacing : 85 };
-var hideAgenda = { padding : -200, spacing : 0 };
+var hideAgenda = { padding : -115, spacing : 0 };
 
 // gestion des bordures
 var mainInsets = { left : function() {
@@ -116,7 +116,7 @@ var placeFunction = { hand : function(v) {
 	return { x : x, y : by, rotate : 0 };
 }, corpScore : function(v) {
 	var bx = mainInsets.left() + mainInsets.corpScore.padding;
-	var by = mainInsets.top() + 10;
+	var by = mainInsets.top() + 43;
 	var hspacing = mainInsets.corpScore.spacing;
 	var index = v.index;
 
@@ -175,6 +175,30 @@ function confactions(widget) {
 	return widget.mouseenter(focusme).focus(handleFocused).blur(handleBlur).click(executeAction);
 }
 
+/**
+ * Maj de la zone de la taille de score
+ */
+function syncCorpScore(){
+	var scoreWidth=0;
+	if (_.isEqual(mainInsets.corpScore, viewAgenda))
+		scoreWidth=(locationHandler.corpScore.size()*mainInsets.corpScore.spacing+80)+111+mainInsets.left();							
+	
+	$("#corpScore").animate({width:scoreWidth});
+}
+
+/**
+ * changement d'état de la zone de score
+ */
+function toggleCorpScore(){
+	if (_.isEqual(mainInsets.corpScore, hideAgenda))
+		mainInsets.corpScore = viewAgenda;	
+	else
+		mainInsets.corpScore = hideAgenda;
+
+	locationHandler.corpScore.updateAll();
+	syncCorpScore();
+}
+
 function initANR() {
 	confactions($("#archives").css(placeFunction.archives()));
 	confactions($("#rd").css(placeFunction.rd()));
@@ -184,18 +208,11 @@ function initANR() {
 	confactions($("#stack").css(placeFunction.stack()));
 	confactions($("#heap").css(placeFunction.heap()));
 	confactions($("#nothing"));
-
+	
 	var corpWidget = $(".faction.corp");
 	var runnerWidget = $(".faction.runner");
 
-	corpWidget.find("a").bind('click', function() {
-		if (_.isEqual(mainInsets.corpScore, hideAgenda))
-			mainInsets.corpScore = viewAgenda;
-		else
-			mainInsets.corpScore = hideAgenda;
-
-		locationHandler.corpScore.updateAll();
-	});
+	corpWidget.find("a").bind('click', toggleCorpScore);
 	
 	runnerWidget.find("a").bind('click', function() {
 		if (_.isEqual(mainInsets.runnerScore, hideAgenda))
@@ -221,6 +238,9 @@ function initANR() {
 	stack : new CardCounter($("#stack").find("span")),//
 	heap : new CardCounter($("#heap").find("span")),//
 	runnerScore : new CardList() };
+	
+	//mis à jour de la taille de la zone de score
+	locationHandler.corpScore.sync=syncCorpScore;
 }
 
 /**
