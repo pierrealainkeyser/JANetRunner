@@ -62,6 +62,16 @@
 			$("#stack").focus();
 		});
 		
+		Mousetrap.bind('r e',function(e){
+			$("#resources").focus();
+		});
+		Mousetrap.bind('h w',function(e){
+			$("#hardwares").focus();
+		});
+		Mousetrap.bind('p r',function(e){
+			$("#programs").focus();
+		});
+		
 		//vers la main
 		Mousetrap.bind('h a',function(e){
 			focusAt(e,{type:'hand',value:{hand:0}});
@@ -169,6 +179,18 @@
 		</div>
 		<div id="stack" class="cardplace" tabindex="-1">
 			Stack (<span>0</span>)
+		</div>
+		
+		<div id="resources" class="cardplace" tabindex="-1">
+			Resources (<span>0</span>)
+		</div>
+		
+		<div id="hardwares" class="cardplace" tabindex="-1">
+			Hardwares (<span>0</span>)
+		</div>
+		
+		<div id="programs" class="cardplace" tabindex="-1">
+			Programs (<span>0</span>)
 		</div>
 
 		<div id="nothing"  class="panel panel-default"  tabindex="-1" title="I do not want to take any more action">

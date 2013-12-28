@@ -190,11 +190,8 @@ public class GameDTOBuilder {
 		Consumer<Card> add = c -> g.addCard(card(c));
 
 		// rajout des cartes de tous le plateau
-		corp.forEach(add);
-
-		runner.getHand().stream().forEach(add);
-		runner.getDiscard().stream().forEach(add);
-		runner.getStack().stream().forEach(add);
+		corp.forEach(add);		
+		runner.forEach(add);
 
 		// mise à jours des questions
 		game.getQuestions().values().stream().forEach(q -> updateQuestion(g, q));
@@ -264,6 +261,12 @@ public class GameDTOBuilder {
 			return LocationDTO.grip;
 		else if (cl == CardLocation.STACK)
 			return LocationDTO.stack;
+		else if (cl == CardLocation.HARDWARES)
+			return LocationDTO.hardwares;
+		else if (cl == CardLocation.PROGRAMS)
+			return LocationDTO.programs;
+		else if (cl == CardLocation.RESOURCES)
+			return LocationDTO.resources;
 		else if (cl == CardLocation.RUNNER_SCORE)
 			return LocationDTO.runnerScore;
 		else {

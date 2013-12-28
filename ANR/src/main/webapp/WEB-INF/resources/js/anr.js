@@ -13,7 +13,7 @@ var cards = {};
 var wallets = {};
 var actions = [];
 
-//pour afficher ou masquer les agendas
+// pour afficher ou masquer les agendas
 var viewAgenda = { padding : 30, spacing : 85 };
 var hideAgenda = { padding : -115, spacing : 0 };
 
@@ -146,6 +146,16 @@ var placeFunction = { hand : function(v) {
 	var x = bx - (v.index * hspacing);
 
 	return { x : x, y : by, rotate : 0 };
+}, resources : function(v) {
+	return placeFunction.runner({ index : RUNNER_GRIP + 1 + v.index });
+}, hardwares : function(v) {
+	var more = placeFunction.runner({ index : RUNNER_HEAP + v.index });
+	more.y += 145;
+	return more;
+}, programs : function(v) {
+	var more = placeFunction.runner({ index : RUNNER_HEAP + v.index });
+	more.y += 290;
+	return more;
 }, ice : function(v) {
 	var bx = mainInsets.left();
 	var by = mainInsets.bottom() - 122;
@@ -178,20 +188,20 @@ function confactions(widget) {
 /**
  * Maj de la zone de la taille de score
  */
-function syncCorpScore(){
-	var scoreWidth=0;
+function syncCorpScore() {
+	var scoreWidth = 0;
 	if (_.isEqual(mainInsets.corpScore, viewAgenda))
-		scoreWidth=(locationHandler.corpScore.size()*mainInsets.corpScore.spacing+80)+111+mainInsets.left();							
-	
-	$("#corpScore").animate({width:scoreWidth});
+		scoreWidth = (locationHandler.corpScore.size() * mainInsets.corpScore.spacing + 80) + 111 + mainInsets.left();
+
+	$("#corpScore").animate({ width : scoreWidth });
 }
 
 /**
  * changement d'état de la zone de score
  */
-function toggleCorpScore(){
+function toggleCorpScore() {
 	if (_.isEqual(mainInsets.corpScore, hideAgenda))
-		mainInsets.corpScore = viewAgenda;	
+		mainInsets.corpScore = viewAgenda;
 	else
 		mainInsets.corpScore = hideAgenda;
 
@@ -207,13 +217,18 @@ function initANR() {
 	confactions($("#grip").css(placeFunction.grip()));
 	confactions($("#stack").css(placeFunction.stack()));
 	confactions($("#heap").css(placeFunction.heap()));
+
+	confactions($("#resources").css(placeFunction.resources({ index : 0 })));
+	confactions($("#hardwares").css(placeFunction.hardwares({ index : 0 })));
+	confactions($("#programs").css(placeFunction.programs({ index : 0 })));
+
 	confactions($("#nothing"));
-	
+
 	var corpWidget = $(".faction.corp");
 	var runnerWidget = $(".faction.runner");
 
 	corpWidget.find("a").bind('click', toggleCorpScore);
-	
+
 	runnerWidget.find("a").bind('click', function() {
 		if (_.isEqual(mainInsets.runnerScore, hideAgenda))
 			mainInsets.runnerScore = viewAgenda;
@@ -222,7 +237,7 @@ function initANR() {
 
 		locationHandler.runnerScore.updateAll();
 	});
-	
+
 	wallets['corp'] = { score : new ValueWidget(corpWidget.find("span.score")), credits : new ValueWidget(corpWidget.find("span.credits")),
 		actions : new ValueWidget(corpWidget.find("span.actions")) };
 
@@ -230,17 +245,22 @@ function initANR() {
 		actions : new ValueWidget(runnerWidget.find("span.actions")), links : new ValueWidget(runnerWidget.find("span.links")),
 		memory_units : new ValueWidget(runnerWidget.find("span.memory_units")) };
 
-	locationHandler = { hq : new CardCounter($("#hq").find("span")), //
+	locationHandler = {// 
+	hq : new CardCounter($("#hq").find("span")), //
 	archives : new CardCounter($("#archives").find("span")), //
 	rd : new CardCounter($("#rd").find("span")),//
 	corpScore : new CardList(),//
 	grip : new CardCounter($("#grip").find("span")),//
 	stack : new CardCounter($("#stack").find("span")),//
 	heap : new CardCounter($("#heap").find("span")),//
-	runnerScore : new CardList() };
-	
-	//mis à jour de la taille de la zone de score
-	locationHandler.corpScore.sync=syncCorpScore;
+	resources : new CardCounter($("#resources").find("span")),//
+	hardwares : new CardCounter($("#hardwares").find("span")),//
+	programs : new CardCounter($("#programs").find("span")),//
+	runnerScore : new CardList() // 
+	};
+
+	// mis à jour de la taille de la zone de score
+	locationHandler.corpScore.sync = syncCorpScore;
 }
 
 /**
@@ -357,6 +377,13 @@ function updateGame(game) {
 					actions.push(a);
 
 			}
+		} else {
+			// en attente
+			var msg = $("#activeMessage");
+			msg.removeClass();
+
+			msg.addClass("label label-primary");
+			msg.text("Waiting for the other player");
 		}
 	}
 
@@ -401,8 +428,11 @@ function handleQuestion(q, r) {
 		if (widget != undefined) {
 			if ("install-ice" == r.option || "install-asset" == r.option || "install-agenda" == r.option || "install-upgrade" == r.option)
 				act = new CorpInstallOnMultiAction(q, r, widget);
+			else if ("install-resource" == r.option || "install-hardware" == r.option || "install-program" == r.option)
+				act = new RunnerInstallOnMultiAction(q, r, widget);
 			else
 				act = new Action(q, r, widget);
+
 		}
 	} else if ('DISCARD_CARD' == q.what) {
 		msg.addClass("label label-warning");
@@ -643,6 +673,42 @@ function CorpInstallOnMultiAction(q, r, widget) {
 	});
 }
 
+/**
+ * L'action d'installer une carte de runner
+ * 
+ * @param q
+ * @param r
+ * @param widget
+ */
+function RunnerInstallOnMultiAction(q, r, widget) {
+	MultiAction.call(this, q, r, widget, function() {
+		// on monte un peu la carte cible
+		widget.transition({ top : '-=70' });
+
+		actions = [];
+		if ("install-resource" == r.option)
+			actions.push(new Action(q, r, $("#resources")));
+		else if ("install-hardware" == r.option)
+			actions.push(new Action(q, r, $("#hardwares")));
+		else if ("install-program" == r.option)
+			actions.push(new Action(q, r, $("#programs")));
+
+		for (i in r.args) {
+			var cardIndex = r.args[i].card;
+			var w = null;
+
+			var a = new Action(q, r, w);
+			a.card = cardIndex;
+			a.updateChoosen = function(choosen) {
+				if (this.index != undefined)
+					choosen['content'] = { card : this.card };
+			};
+
+			actions.push(a);
+		}
+	});
+}
+
 function ValueWidget(widget) {
 	this.widget = widget;
 	this.value = function(val) {
@@ -866,7 +932,7 @@ function Card(def) {
 					}, function(c, i) {
 						c.loc.value['upgradeIndex'] = i;
 					}, true);
-				} else if (/.*Score$/.test(this.loc.type)) {
+				} else if (/.*Score$/.test(this.loc.type) || this.loc.type == 'hardwares' || this.loc.type == 'programs' || this.loc.type == 'resources') {
 					cc.orderAll(this, function(c) {
 						return c.loc.value.index;
 					}, function(c, i) {
@@ -885,8 +951,12 @@ function Card(def) {
 					location.value = { hand : nindex };
 				else if (location.type == 'server')
 					location.value['upgradeIndex'] = nindex;
-				else if (/.*Score$/.test(location.type))
+				else if (/.*Score$/.test(location.type) || location.type == 'hardwares' || location.type == 'programs' || location.type == 'resources') {
 					location.value = { index : nindex };
+
+					// la carte est visible
+					this.rezzed = true;
+				}
 			}
 
 			this.loc = location;

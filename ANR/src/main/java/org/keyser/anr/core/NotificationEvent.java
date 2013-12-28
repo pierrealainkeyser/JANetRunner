@@ -13,6 +13,8 @@ public enum NotificationEvent {
 	CORP_SCORE_AGENDA, //
 	
 	RUNNER_DRAW, //
+	RUNNER_CLICKED_FOR_CREDIT, //
+	RUNNER_CLICKED_FOR_DRAW, //
 	RUNNER_SCORE_AGENDA, //
 
 	// events du run

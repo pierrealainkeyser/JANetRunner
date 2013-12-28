@@ -32,6 +32,11 @@ public class LocationDTO {
 	public static final LocationDTO heap = new LocationDTO("heap");
 	public static final LocationDTO hq = new LocationDTO("hq");
 	public static final LocationDTO rd = new LocationDTO("rd");
+	
+	public static final LocationDTO hardwares = new LocationDTO("hardwares");
+	public static final LocationDTO programs = new LocationDTO("programs");
+	public static final LocationDTO resources = new LocationDTO("resources");
+	
 	public static final LocationDTO corpScore = new LocationDTO("corpScore");
 	public static final LocationDTO runnerScore = new LocationDTO("runnerScore");
 	public static final LocationDTO hq_id = new LocationDTO("hq_id");

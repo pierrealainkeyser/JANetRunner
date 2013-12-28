@@ -8,6 +8,6 @@ import org.keyser.anr.core.Event;
  * @author PAF
  * 
  */
-public class CorpClickForCredit extends Event {
+public class CorpClickedForCredit extends Event {
 
 }

@@ -8,10 +8,10 @@ import org.keyser.anr.core.Event;
  * @author PAF
  * 
  */
-public class CorpCardDraw extends Event {
+public class CorpCardDrawn extends Event {
 	private final CorpCard card;
 
-	public CorpCardDraw(CorpCard card) {
+	public CorpCardDrawn(CorpCard card) {
 		this.card = card;
 	}
 

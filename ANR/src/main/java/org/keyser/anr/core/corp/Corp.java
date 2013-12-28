@@ -20,6 +20,7 @@ import org.keyser.anr.core.Event;
 import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.Game;
+import org.keyser.anr.core.InstallOn;
 import org.keyser.anr.core.NotificationEvent;
 import org.keyser.anr.core.PlayableUnit;
 import org.keyser.anr.core.Player;
@@ -70,7 +71,7 @@ public class Corp extends PlayableUnit {
 
 			Game game = getGame();
 			game.notification(NotificationEvent.CORP_CLICKED_FOR_CREDIT.apply());
-			game.apply(new CorpClickForCredit(), next);
+			game.apply(new CorpClickedForCredit(), next);
 		}
 	}
 
@@ -475,7 +476,7 @@ public class Corp extends PlayableUnit {
 			getHq().add(c);
 
 			game.notification(NotificationEvent.CORP_DRAW.apply());
-			game.apply(new CorpCardDraw(c), next);
+			game.apply(new CorpCardDrawn(c), next);
 		} else {
 			// fin de la partie corp à perdu
 			game.setResult(WinCondition.CORP_BUST);

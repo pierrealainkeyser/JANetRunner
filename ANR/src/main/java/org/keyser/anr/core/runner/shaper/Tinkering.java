@@ -5,7 +5,7 @@ import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.runner.Event;
 
-@CardDef(name = "Tinkering", oid = "01036")
+@CardDef(name = "Tinkering", oid = "01037")
 public class Tinkering extends Event {
 
 	public Tinkering() {

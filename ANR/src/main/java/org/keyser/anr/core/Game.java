@@ -4,6 +4,7 @@ import static java.util.Collections.unmodifiableMap;
 import static org.keyser.anr.core.RecursiveIterator.recurse;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -569,7 +570,7 @@ public class Game implements Notifier, ConfigurableEventListener {
 	 */
 	public void removeCardFrom(Card card, CardLocation location) {
 
-		List<Card> all = location.list(this);
+		Collection<Card> all = location.list(this);
 		if (all != null) {
 			all.remove(card);
 		} else if (location instanceof CardLocationIce) {
@@ -596,7 +597,7 @@ public class Game implements Notifier, ConfigurableEventListener {
 	 * @param location
 	 */
 	public void addCardFrom(Card card, CardLocation location) {
-		List<Card> all = location.list(this);
+		Collection<Card> all = location.list(this);
 		if (all != null) {
 			all.add(card);
 		} else {
