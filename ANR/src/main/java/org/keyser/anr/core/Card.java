@@ -56,6 +56,8 @@ public abstract class Card extends AbstractGameContent {
 			game.addCardFrom(this, this.location);
 		}
 	}
+	
+	public abstract void trash();
 
 	protected Card addAction(AbstractAbility paidAbility) {
 		this.paidAbilities.add(paidAbility);

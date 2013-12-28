@@ -11,6 +11,7 @@ import org.keyser.anr.core.Card;
 import org.keyser.anr.core.CardLocation;
 import org.keyser.anr.core.CoreAbility;
 import org.keyser.anr.core.Cost;
+import org.keyser.anr.core.CostAction;
 import org.keyser.anr.core.Event;
 import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.Flow;
@@ -137,6 +138,38 @@ public class Runner extends PlayableUnit {
 		}
 	}
 
+	/**
+	 * Permet de joueur un Event
+	 * 
+	 * @author PAF
+	 * 
+	 */
+	class PlayEvent extends CoreAbility {
+		private final EventCard event;
+
+		PlayEvent(EventCard event, Cost cost) {
+			super("play-event", Cost.action(1).add(cost));
+			this.event = event;
+		}
+
+		@Override
+		public void apply() {
+			getGame().notification(NotificationEvent.RUNNER_PLAYED_AN_EVENT.apply().m(event));
+			event.trash();
+			event.apply(next);
+		}
+
+		@Override
+		public boolean isEnabled() {
+			return event.isEnabled();
+		}
+
+		@Override
+		protected void registerQuestion(Question q) {
+			q.ask(getName(), event).to(this::doNext);
+		}
+	}
+
 	private final List<Hardware> hardwares = new ArrayList<>();
 
 	private final List<Program> programs = new ArrayList<>();
@@ -154,7 +187,8 @@ public class Runner extends PlayableUnit {
 	protected void addAllAbilities(List<AbstractAbility> a) {
 
 		Game game = getGame();
-		if (mayPlayAction()) {
+		boolean mayPlayAction = mayPlayAction();
+		if (mayPlayAction) {
 			a.add(new ClickForCredit());
 			a.add(new ClickForDraw());
 			for (Card c : getHand()) {
@@ -164,9 +198,21 @@ public class Runner extends PlayableUnit {
 				} else if (c instanceof Hardware) {
 					Hardware h = (Hardware) c;
 					game.apply(new HardwareInstallationCostDeterminationEvent(h), (de) -> a.add(new InstallHardware(h, de.getEffective(), null)));
+				} else if (c instanceof EventCard) {
+					EventCard event = (EventCard) c;
+					a.add(new PlayEvent(event, event.getCost()));
 				}
 			}
 		}
+
+		forEachCardInPlay(c -> {
+			// rajoute des toutes les abilites des cartes en filtrant sur les
+			// actions
+			c.getPaidAbilities().forEach(aa -> {
+				if (mayPlayAction || aa.getCost().sumFor(CostAction.class) == 0)
+					a.add(aa);
+			});
+		});
 
 	}
 
@@ -179,6 +225,20 @@ public class Runner extends PlayableUnit {
 	@Override
 	protected CardLocation discardLocation() {
 		return CardLocation.HEAP;
+	}
+	
+
+	/**
+	 * Pioche i cartes
+	 * 
+	 * @param i
+	 * @param next
+	 */
+	public void draw(int i, Flow next) {
+		if (i <= 0)
+			next.apply();
+		else
+			draw(() -> draw(i - 1, next));
 	}
 
 	/**

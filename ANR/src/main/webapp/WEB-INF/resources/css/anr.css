@@ -116,6 +116,7 @@ div.card div {
 	right: 0px;
 	top: 200px;
 	display: none;
+	z-index: 100;
 }
 
 #preview img {

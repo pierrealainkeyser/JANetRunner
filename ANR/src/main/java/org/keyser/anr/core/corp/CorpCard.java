@@ -25,6 +25,7 @@ public abstract class CorpCard extends Card {
 		notification(NotificationEvent.CARD_REZZ_CHANGED.apply().m(this));
 	}
 
+	@Override
 	public void trash() {
 		setLocation(CardLocation.ARCHIVES);
 	}

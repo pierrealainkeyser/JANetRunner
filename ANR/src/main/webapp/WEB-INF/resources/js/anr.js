@@ -869,14 +869,18 @@ function Card(def) {
 				var val = card.tokens[t];
 
 				if (this.tokens[t] == undefined) {
-					var newTok = $("<span style='display:none' class='" + t + " label label-primary'><i class='sprite " + t + "'></i><span class='val'>" + val + "</span></div>");
-					this.tokens[t] = newTok;
-					newTok.appendTo(this.widget.find("div.tokens"));
-					newTok.animate({ height : 'toggle' }, 150);
+
+					if (val != undefined && val > 0) {
+						var newTok = $("<span style='display:none' class='" + t + " label label-primary'><i class='sprite " + t + "'></i><span class='val'>" + val
+								+ "</span></div>");
+						this.tokens[t] = newTok;
+						newTok.appendTo(this.widget.find("div.tokens"));
+						newTok.animate({ height : 'toggle' }, 150);
+					}
 
 				} else {
 
-					if (val != undefined) {
+					if (val != undefined && val > 0) {
 						this.tokens[t].find("span.val").text(val + "");
 					} else {
 						this.tokens[t].remove();
@@ -955,6 +959,9 @@ function Card(def) {
 					location.value = { index : nindex };
 
 					// la carte est visible
+					this.rezzed = true;
+				} else if (location.type == "heap") {
+					// la carte est toujours visible
 					this.rezzed = true;
 				}
 			}

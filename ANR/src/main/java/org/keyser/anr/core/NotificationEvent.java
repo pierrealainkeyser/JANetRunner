@@ -15,6 +15,7 @@ public enum NotificationEvent {
 	RUNNER_DRAW, //
 	RUNNER_CLICKED_FOR_CREDIT, //
 	RUNNER_CLICKED_FOR_DRAW, //
+	RUNNER_PLAYED_AN_EVENT, //
 	RUNNER_SCORE_AGENDA, //
 
 	// events du run
