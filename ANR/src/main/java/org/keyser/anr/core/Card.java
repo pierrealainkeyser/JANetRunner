@@ -59,9 +59,9 @@ public abstract class Card extends AbstractGameContent {
 
 	protected abstract void doTrash();
 
-	public final void trash(Flow next) {		
-		getGame().apply(new CardTrashedEvent(this), next);
+	public final void trash(Flow next) {				
 		doTrash();
+		getGame().apply(new CardTrashedEvent(this), next);
 	}
 
 	protected Card addAction(AbstractAbility paidAbility) {

@@ -12,7 +12,7 @@ import org.keyser.anr.core.runner.RunnerInstalledHardware;
 public class AkamatsuMemChip extends Hardware {
 
 	public AkamatsuMemChip() {
-		super(Faction.SHAPER.infl(1), Cost.credit(0));
+		super(Faction.SHAPER.infl(1), Cost.credit(1));
 
 		add(EventMatcher.match(RunnerInstalledHardware.class).pred((rir) -> rir.getCard() == AkamatsuMemChip.this).call(()->getGame().getRunner().alterMemory(1)));
 		add(EventMatcher.match(CardTrashedEvent.class).pred((rir) -> rir.getCard() == AkamatsuMemChip.this).call(()->getGame().getRunner().alterMemory(-1)));

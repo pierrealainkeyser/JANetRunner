@@ -207,7 +207,8 @@ public class Corp extends PlayableUnit {
 
 				// on s'intalle sur la glace
 				CorpServer cs = cos.getServer();
-				cos.getCard().trash(() -> install(cs));
+				Flow doInstall = () -> install(cs);
+				cos.getCard().trash(doInstall);
 			}
 
 		}
