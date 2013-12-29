@@ -57,15 +57,16 @@ public final class CorpRemoteServer extends CorpServer {
 	}
 
 	private void trashAgendaAndAsset() {
+		//FIXME faire mieux pour la gestion du changement
 		if (asset != null) {
 			Asset old = asset;
 			asset = null;
-			old.trash();
+			old.trash(()->{});
 		}
 		if (agenda != null) {
 			Agenda old = agenda;
 			agenda = null;
-			old.trash();
+			old.trash(()->{});
 
 		}
 

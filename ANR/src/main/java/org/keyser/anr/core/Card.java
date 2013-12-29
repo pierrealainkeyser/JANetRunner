@@ -25,7 +25,7 @@ public abstract class Card extends AbstractGameContent {
 	private Integer credits;
 
 	private Integer powerCounter;
-	
+
 	private boolean unique = false;
 
 	public Card(Influence influence, Cost cost) {
@@ -56,8 +56,13 @@ public abstract class Card extends AbstractGameContent {
 			game.addCardFrom(this, this.location);
 		}
 	}
-	
-	public abstract void trash();
+
+	protected abstract void doTrash();
+
+	public final void trash(Flow next) {		
+		getGame().apply(new CardTrashedEvent(this), next);
+		doTrash();
+	}
 
 	protected Card addAction(AbstractAbility paidAbility) {
 		this.paidAbilities.add(paidAbility);
@@ -123,11 +128,11 @@ public abstract class Card extends AbstractGameContent {
 		if (changed)
 			notification(NotificationEvent.CARD_POWER_COUNTER.apply().m(this));
 	}
-	
+
 	public boolean isUnique() {
 		return this.unique;
 	}
-	
+
 	public void setUnique(boolean unique) {
 		this.unique = unique;
 	}

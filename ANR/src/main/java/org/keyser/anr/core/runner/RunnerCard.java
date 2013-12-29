@@ -12,7 +12,7 @@ public abstract class RunnerCard extends Card {
 	}
 	
 	@Override
-	public void trash() {
+	public void doTrash() {
 		setLocation(CardLocation.HEAP);
 	}
 

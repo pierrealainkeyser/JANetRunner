@@ -20,7 +20,6 @@ import org.keyser.anr.core.Event;
 import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.Game;
-import org.keyser.anr.core.InstallOn;
 import org.keyser.anr.core.NotificationEvent;
 import org.keyser.anr.core.PlayableUnit;
 import org.keyser.anr.core.Player;
@@ -187,18 +186,7 @@ public class Corp extends PlayableUnit {
 			this.alls = alls;
 		}
 
-		protected void accept(InstallOn iic) {
-			Integer server = iic.getServer();
-			CorpServer cs = null;
-			if (server != null)
-				cs = getOrCreate(server);
-			else {
-				CardOnServer cos = find(iic.getCard());
-
-				// on s'intalle sur la glace
-				cs = cos.getServer();
-				cos.getCard().trash();
-			}
+		private void install(CorpServer cs) {
 
 			// on applique le cout
 			int size = cs.icesCount();
@@ -207,6 +195,21 @@ public class Corp extends PlayableUnit {
 
 			// on envoi l'evenement
 			getGame().apply(new CorpInstallIce(ice), next);
+		}
+
+		protected void accept(InstallOn iic) {
+			Integer server = iic.getServer();
+
+			if (server != null)
+				install(getOrCreate(server));
+			else {
+				CardOnServer cos = find(iic.getCard());
+
+				// on s'intalle sur la glace
+				CorpServer cs = cos.getServer();
+				cos.getCard().trash(() -> install(cs));
+			}
+
 		}
 
 		private boolean isAffordable(InstallIceCost iic) {
@@ -234,18 +237,8 @@ public class Corp extends PlayableUnit {
 			this.alls = alls;
 		}
 
-		protected void accept(InstallOn iic) {
-			Integer server = iic.getServer();
-			CorpServer cs = null;
-			if (server != null)
-				cs = getOrCreate(server);
-			else {
-				CardOnServer cos = find(iic.getCard());
+		private void install(CorpServer cs) {
 
-				// on s'intalle une autre carte
-				cs = cos.getServer();
-				cos.getCard().trash();
-			}
 			wallet.consume(getCost(), getAction());
 
 			// la location 0 est toujours l'agenda ou l'asset
@@ -254,6 +247,20 @@ public class Corp extends PlayableUnit {
 
 			// on envoi l'evenement
 			getGame().apply(new CorpInstallUpgrade(card), next);
+		}
+
+		protected void accept(InstallOn iic) {
+			Integer server = iic.getServer();
+
+			if (server != null)
+				install(getOrCreate(server));
+			else {
+				CardOnServer cos = find(iic.getCard());
+
+				// on s'intalle une autre carte
+				CorpServer cs = cos.getServer();
+				cos.getCard().trash(() -> install(cs));
+			}
 		}
 
 		@Override
@@ -283,8 +290,7 @@ public class Corp extends PlayableUnit {
 		public void apply() {
 			getGame().notification(NotificationEvent.CORP_PLAYED_AN_OPERATION.apply().m(op));
 			op.setRezzed(true);
-			op.trash();
-			op.apply(next);
+			op.trash(() -> op.apply(next));
 		}
 
 		@Override
@@ -336,8 +342,8 @@ public class Corp extends PlayableUnit {
 			// TODO gestion de la suppression des tokens
 			agenda.setLocation(CardLocation.CORP_SCORE);
 			agenda.setRezzed(true);
-			
-			//on supprime les avancements
+
+			// on supprime les avancements
 			agenda.setAdvancement(null);
 			g.apply(new CorpScoreAgenda(agenda), next);
 		}

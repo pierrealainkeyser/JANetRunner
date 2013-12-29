@@ -20,6 +20,7 @@ import org.keyser.anr.core.corp.CorpRemoteServer;
 import org.keyser.anr.core.corp.CorpServer;
 import org.keyser.anr.core.corp.Ice;
 import org.keyser.anr.core.corp.Upgrade;
+import org.keyser.anr.core.runner.Program;
 import org.keyser.anr.core.runner.Runner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -573,20 +574,24 @@ public class Game implements Notifier, ConfigurableEventListener {
 		Collection<Card> all = location.list(this);
 		if (all != null) {
 			all.remove(card);
-		} else if (location instanceof CardLocationIce) {
-			CardLocationIce cli = (CardLocationIce) location;
-			cli.getServer().removeIce(cli.getIndex());
-		} else if (location instanceof CardLocationAsset) {
-			CardLocationAsset cla = (CardLocationAsset) location;
-			CorpServer server = cla.getServer();
-			if (card instanceof Asset && server instanceof CorpRemoteServer)
-				((CorpRemoteServer) server).setAsset(null);
-			else if (card instanceof Agenda && server instanceof CorpRemoteServer)
-				((CorpRemoteServer) server).setAgenda(null);
-		} else if (location instanceof CardLocationUpgrade) {
-			CardLocationUpgrade clu = (CardLocationUpgrade) location;
-			CorpServer server = clu.getServer();
-			server.removeUpgrade((Upgrade) card);
+		} else {
+			if (CardLocation.Where.PROGRAMS == location.getWhere()) {
+				runner.getCoreSpace().remove((Program) card);
+			} else if (location instanceof CardLocationIce) {
+				CardLocationIce cli = (CardLocationIce) location;
+				cli.getServer().removeIce(cli.getIndex());
+			} else if (location instanceof CardLocationAsset) {
+				CardLocationAsset cla = (CardLocationAsset) location;
+				CorpServer server = cla.getServer();
+				if (card instanceof Asset && server instanceof CorpRemoteServer)
+					((CorpRemoteServer) server).setAsset(null);
+				else if (card instanceof Agenda && server instanceof CorpRemoteServer)
+					((CorpRemoteServer) server).setAgenda(null);
+			} else if (location instanceof CardLocationUpgrade) {
+				CardLocationUpgrade clu = (CardLocationUpgrade) location;
+				CorpServer server = clu.getServer();
+				server.removeUpgrade((Upgrade) card);
+			}
 		}
 	}
 
@@ -605,7 +610,9 @@ public class Game implements Notifier, ConfigurableEventListener {
 				runner.addScoredCard(card);
 			else if (CardLocation.Where.CORP_SCORE == location.getWhere())
 				corp.addScoredCard(card);
-			else if (location instanceof CardLocationIce) {
+			else if (CardLocation.Where.PROGRAMS == location.getWhere()) {
+				runner.getCoreSpace().add((Program) card);
+			} else if (location instanceof CardLocationIce) {
 				CardLocationIce cli = (CardLocationIce) location;
 				cli.getServer().addIce((Ice) card, cli.getIndex());
 			} else if (location instanceof CardLocationAsset) {

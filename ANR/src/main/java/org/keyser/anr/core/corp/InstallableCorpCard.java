@@ -28,8 +28,8 @@ public class InstallableCorpCard extends CorpCard implements Installable {
 	}
 	
 	@Override
-	public void trash() {
-		super.trash();
+	public void doTrash() {
+		super.doTrash();
 		//on se désintalle
 		di.unbind(getGame());
 	}

@@ -1,4 +1,4 @@
-package org.keyser.anr.core;
+package org.keyser.anr.core.corp;
 
 public class InstallOn {
 

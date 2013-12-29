@@ -1,6 +1,5 @@
 package org.keyser.anr.core.corp;
 
-import org.keyser.anr.core.InstallOn;
 
 public class InstallIceCost extends InstallOn {
 

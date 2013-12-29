@@ -30,6 +30,8 @@ public class KateMcCaffrey extends Runner {
 
 		add(match(HardwareInstallationCostDeterminationEvent.class).name("discount on hardware").core().pred(p -> firstInstall).auto().sync(this::reduceCostOnFirstInstall));
 		add(match(ProgramInstallationCostDeterminationEvent.class).name("discount on program").core().pred(p -> firstInstall).auto().sync(this::reduceCostOnFirstInstall));
+		
+		setLink(1);
 	}
 
 	private void resetFirstInstall() {

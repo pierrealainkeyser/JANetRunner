@@ -51,9 +51,7 @@ public class CardLocation {
 		else if (Where.STACK == where)
 			return (Collection<Card>) g.getRunner().getStack();
 		else if (Where.RESOURCES == where)
-			return (Collection<Card>) g.getRunner().getResources();
-		else if (Where.PROGRAMS == where)
-			return (Collection<Card>) g.getRunner().getPrograms();
+			return (Collection<Card>) g.getRunner().getResources();		
 		else if (Where.HARDWARES == where)
 			return (Collection<Card>) g.getRunner().getHardwares();
 		return null;

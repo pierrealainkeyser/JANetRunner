@@ -26,7 +26,7 @@ public abstract class CorpCard extends Card {
 	}
 
 	@Override
-	public void trash() {
+	public void doTrash() {
 		setLocation(CardLocation.ARCHIVES);
 	}
 

@@ -21,28 +21,24 @@ public class ArmitageCodebusting extends Resource {
 
 			@Override
 			public void apply() {
-
 				getGame().getRunner().getWallet().wallet(WalletCredits.class, wc -> wc.setAmount(wc.getAmount() + 2));
 
 				int amt = getCredits() - 2;
-				if (amt > 0)
+				if (amt > 0) {
 					setCredits(amt);
-				else {
-					
-					//plus de credits on trashe la carte
-					setCredits(0);
-					trash();
-				}
+					next.apply();
+				} else {
 
-				next.apply();
+					// plus de credits on trashe la carte
+					setCredits(0);
+					trash(next);
+				}
 			}
 
 			@Override
 			public boolean isEnabled() {
-
 				Integer credits = getCredits();
 				return credits != null && credits > 0;
-
 			};
 		});
 	}

@@ -313,6 +313,8 @@ function updateGame(game) {
 		wallets.runner.score.value(w.score);
 		wallets.runner.credits.value(w.credits);
 		wallets.runner.actions.value(w.actions);
+		wallets.runner.memory_units.value(w.memory);
+		wallets.runner.links.value(w.link);
 	}
 
 	if (game.step != undefined) {
@@ -427,9 +429,7 @@ function handleQuestion(q, r) {
 
 		if (widget != undefined) {
 			if ("install-ice" == r.option || "install-asset" == r.option || "install-agenda" == r.option || "install-upgrade" == r.option)
-				act = new CorpInstallOnMultiAction(q, r, widget);
-			else if ("install-resource" == r.option || "install-hardware" == r.option || "install-program" == r.option)
-				act = new RunnerInstallOnMultiAction(q, r, widget);
+				act = new CorpInstallOnMultiAction(q, r, widget);			
 			else
 				act = new Action(q, r, widget);
 
@@ -665,42 +665,6 @@ function CorpInstallOnMultiAction(q, r, widget) {
 				if (this.index != undefined)
 					choosen['content'] = { server : this.index };
 				else
-					choosen['content'] = { card : this.card };
-			};
-
-			actions.push(a);
-		}
-	});
-}
-
-/**
- * L'action d'installer une carte de runner
- * 
- * @param q
- * @param r
- * @param widget
- */
-function RunnerInstallOnMultiAction(q, r, widget) {
-	MultiAction.call(this, q, r, widget, function() {
-		// on monte un peu la carte cible
-		widget.transition({ top : '-=70' });
-
-		actions = [];
-		if ("install-resource" == r.option)
-			actions.push(new Action(q, r, $("#resources")));
-		else if ("install-hardware" == r.option)
-			actions.push(new Action(q, r, $("#hardwares")));
-		else if ("install-program" == r.option)
-			actions.push(new Action(q, r, $("#programs")));
-
-		for (i in r.args) {
-			var cardIndex = r.args[i].card;
-			var w = null;
-
-			var a = new Action(q, r, w);
-			a.card = cardIndex;
-			a.updateChoosen = function(choosen) {
-				if (this.index != undefined)
 					choosen['content'] = { card : this.card };
 			};
 

@@ -42,6 +42,8 @@ import org.keyser.anr.web.dto.QuestionDTO.PossibleResponseDTO;
  */
 public class GameDTOBuilder {
 
+	private static final String LINK = "link";
+	private static final String MEMORY = "memory";
 	private static final String AGENDA = "agenda";
 	private static final String RECURING = "recuring";
 	private static final String SCORE = "score";
@@ -109,7 +111,14 @@ public class GameDTOBuilder {
 				updateScore(i.getGame().getCorp(), g.create(Player.CORP));
 			} else if (NotificationEvent.RUNNER_SCORE_AGENDA == type) {
 				updateScore(i.getGame().getRunner(), g.create(Player.RUNNER));
+			} else if (NotificationEvent.RUNNER_MEMORY_CHANGED == type) {
+				int left = i.getGame().getRunner().getCoreSpace().getMemoryLeft();
+				g.create(Player.RUNNER).setValue(MEMORY, left);
+			} else if (NotificationEvent.RUNNER_LINK_CHANGED == type) {
+				int left = i.getGame().getRunner().getLink();
+				g.create(Player.RUNNER).setValue(LINK, left);
 			}
+
 		}
 	}
 
@@ -190,7 +199,7 @@ public class GameDTOBuilder {
 		Consumer<Card> add = c -> g.addCard(card(c));
 
 		// rajout des cartes de tous le plateau
-		corp.forEach(add);		
+		corp.forEach(add);
 		runner.forEach(add);
 
 		// mise à jours des questions
@@ -215,7 +224,8 @@ public class GameDTOBuilder {
 		Wallet w = runner.getWallet();
 		updateScore(runner, p);
 		w.forEach(wu -> updateWallet(g, p, wu));
-
+		p.setValue(MEMORY, runner.getCoreSpace().getMemoryLeft());
+		p.setValue(LINK, runner.getLink());
 		return p;
 	}
 

@@ -1,10 +1,8 @@
 package org.keyser.anr.core.runner;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import org.keyser.anr.core.AbstractAbility;
 import org.keyser.anr.core.Card;
@@ -16,7 +14,6 @@ import org.keyser.anr.core.Event;
 import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.Game;
-import org.keyser.anr.core.InstallOn;
 import org.keyser.anr.core.NotificationEvent;
 import org.keyser.anr.core.PlayableUnit;
 import org.keyser.anr.core.Player;
@@ -66,23 +63,21 @@ public class Runner extends PlayableUnit {
 	}
 
 	abstract class InstallAbility extends CoreAbility {
-		private final List<InstallOn> alls;
 
 		private final InstallableRunnerCard card;
 
-		public InstallAbility(String code, InstallableRunnerCard card, Cost more, List<InstallOn> alls) {
+		public InstallAbility(String code, InstallableRunnerCard card, Cost more) {
 			super(code, Cost.action(1).add(more));
 			this.card = card;
-			this.alls = alls;
 		}
 
-		abstract CardLocation getLocation(InstallOn iic);
+		abstract CardLocation getLocation();
 
-		protected void accept(InstallOn iic) {
+		protected void accept() {
 
 			wallet.consume(getCost(), getAction());
 			// on install la location
-			card.setLocation(getLocation(iic));
+			card.setLocation(getLocation());
 
 			Game game = getGame();
 
@@ -97,18 +92,17 @@ public class Runner extends PlayableUnit {
 
 		@Override
 		protected void registerQuestion(Question q) {
-			List<Object> content = alls != null ? alls.stream().collect(Collectors.toList()) : Collections.emptyList();
-			q.ask(getName(), card).to(InstallOn.class, this::accept).setContent(content);
+			q.ask(getName(), card).to(this::accept);
 		}
 	}
 
 	class InstallResource extends InstallAbility {
-		public InstallResource(InstallableRunnerCard card, Cost more, List<InstallOn> alls) {
-			super("install-resource", card, more, alls);
+		public InstallResource(InstallableRunnerCard card, Cost more) {
+			super("install-resource", card, more);
 		}
 
 		@Override
-		CardLocation getLocation(InstallOn iic) {
+		CardLocation getLocation() {
 
 			// TODO faire autrement pour le placement sur les cartes...
 			return CardLocation.RESOURCES;
@@ -121,12 +115,12 @@ public class Runner extends PlayableUnit {
 	}
 
 	class InstallHardware extends InstallAbility {
-		public InstallHardware(InstallableRunnerCard card, Cost more, List<InstallOn> alls) {
-			super("install-hardware", card, more, alls);
+		public InstallHardware(InstallableRunnerCard card, Cost more) {
+			super("install-hardware", card, more);
 		}
 
 		@Override
-		CardLocation getLocation(InstallOn iic) {
+		CardLocation getLocation() {
 
 			// TODO faire autrement pour le placement sur les cartes...
 			return CardLocation.HARDWARES;
@@ -155,8 +149,7 @@ public class Runner extends PlayableUnit {
 		@Override
 		public void apply() {
 			getGame().notification(NotificationEvent.RUNNER_PLAYED_AN_EVENT.apply().m(event));
-			event.trash();
-			event.apply(next);
+			event.trash(() -> event.apply(next));
 		}
 
 		@Override
@@ -172,15 +165,26 @@ public class Runner extends PlayableUnit {
 
 	private final List<Hardware> hardwares = new ArrayList<>();
 
-	private final List<Program> programs = new ArrayList<>();
+	private final ProgramSpace coreSpace = new ProgramSpace();
+
+	private final List<ProgramSpace> additionnalSpaces = new ArrayList<>();
 
 	private final List<Resource> resources = new ArrayList<>();
 
 	private int tags;
 
+	private int link;
+
 	public Runner(Faction faction) {
 		super(faction);
 		getWallet().add(new WalletBadPub());
+		coreSpace.setMemory(4);
+	}
+
+	@Override
+	public void setGame(Game game) {
+		super.setGame(game);
+		coreSpace.setNotifier(game);
 	}
 
 	@Override
@@ -194,10 +198,10 @@ public class Runner extends PlayableUnit {
 			for (Card c : getHand()) {
 				if (c instanceof Resource) {
 					Resource r = (Resource) c;
-					game.apply(new ResourceInstallationCostDeterminationEvent(r), (de) -> a.add(new InstallResource(r, de.getEffective(), null)));
+					game.apply(new ResourceInstallationCostDeterminationEvent(r), (de) -> a.add(new InstallResource(r, de.getEffective())));
 				} else if (c instanceof Hardware) {
 					Hardware h = (Hardware) c;
-					game.apply(new HardwareInstallationCostDeterminationEvent(h), (de) -> a.add(new InstallHardware(h, de.getEffective(), null)));
+					game.apply(new HardwareInstallationCostDeterminationEvent(h), (de) -> a.add(new InstallHardware(h, de.getEffective())));
 				} else if (c instanceof EventCard) {
 					EventCard event = (EventCard) c;
 					a.add(new PlayEvent(event, event.getCost()));
@@ -226,7 +230,6 @@ public class Runner extends PlayableUnit {
 	protected CardLocation discardLocation() {
 		return CardLocation.HEAP;
 	}
-	
 
 	/**
 	 * Pioche i cartes
@@ -293,14 +296,11 @@ public class Runner extends PlayableUnit {
 
 	public void setTags(int tags) {
 		this.tags = tags;
+		notification(NotificationEvent.RUNNER_TAG_CHANGED.apply());
 	}
 
 	public List<? extends Card> getHardwares() {
 		return hardwares;
-	}
-
-	public List<? extends Card> getPrograms() {
-		return programs;
 	}
 
 	public List<? extends Card> getResources() {
@@ -319,9 +319,30 @@ public class Runner extends PlayableUnit {
 	public void forEachCardInPlay(Consumer<Card> add) {
 		hardwares.forEach(add);
 		resources.forEach(add);
-		programs.forEach(add);
+		coreSpace.forEach(add);
 
 		// TODO gestion des cartes sur des hotes
+	}
+
+	public ProgramSpace getCoreSpace() {
+		return coreSpace;
+	}
+
+	public int getLink() {
+		return link;
+	}
+
+	public void alterMemory(int delta) {
+		coreSpace.setMemory(coreSpace.getMemory() + delta);
+	}
+
+	public void alterLink(int delta) {
+		setLink(getLink() + delta);
+	}
+
+	public void setLink(int link) {
+		this.link = link;
+		notification(NotificationEvent.RUNNER_LINK_CHANGED.apply());
 	}
 
 }
