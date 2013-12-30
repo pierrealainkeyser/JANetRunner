@@ -62,6 +62,47 @@ public class Runner extends PlayableUnit {
 		}
 	}
 
+	class InstallProgramAbility extends CoreAbility {
+		private final Program prog;
+
+		private final List<ProgramSpace> spaces;
+
+		public InstallProgramAbility(Program prog, Cost cost, List<ProgramSpace> spaces) {
+			super("install-program", cost.add(Cost.action(1)));
+			this.prog = prog;
+			this.spaces = spaces;
+		}
+
+		protected void accept() {
+
+			wallet.consume(getCost(), getAction());
+			
+			Game game = getGame();
+			
+			// on attache
+			prog.bind(game);
+			
+
+			// TODO sélection de l'espace
+			ProgramSpace ps = spaces.get(0);
+			
+			// on install la location
+			prog.setLocation(ps.getLocation());
+
+
+			// on envoi l'evenement
+			game.apply(new RunnerInstalledProgram(prog), next);
+		}
+
+		@Override
+		protected void registerQuestion(Question q) {
+
+			// TODO plusieurs possibilité de spaces, eventuellement de trash de
+			// programs
+			q.ask(getName(), prog).to(this::accept);
+		}
+	}
+
 	abstract class InstallAbility extends CoreAbility {
 
 		private final InstallableRunnerCard card;
@@ -193,6 +234,9 @@ public class Runner extends PlayableUnit {
 		Game game = getGame();
 		boolean mayPlayAction = mayPlayAction();
 		if (mayPlayAction) {
+
+			List<Program> progs = new ArrayList<>();
+
 			a.add(new ClickForCredit());
 			a.add(new ClickForDraw());
 			for (Card c : getHand()) {
@@ -201,11 +245,29 @@ public class Runner extends PlayableUnit {
 					game.apply(new ResourceInstallationCostDeterminationEvent(r), (de) -> a.add(new InstallResource(r, de.getEffective())));
 				} else if (c instanceof Hardware) {
 					Hardware h = (Hardware) c;
+
+					// TODO on peut avoir des materiels qui s'installe sur des
+					// programmes.
 					game.apply(new HardwareInstallationCostDeterminationEvent(h), (de) -> a.add(new InstallHardware(h, de.getEffective())));
 				} else if (c instanceof EventCard) {
 					EventCard event = (EventCard) c;
 					a.add(new PlayEvent(event, event.getCost()));
-				}
+				} else if (c instanceof Program)
+					progs.add((Program) c);
+			}
+
+			if (!progs.isEmpty()) {
+
+				progs.forEach(p -> {
+
+					List<ProgramSpace> spaces = new ArrayList<>();
+					forEachProgramSpace(ps -> {
+						if (ps.mayHost(p))
+							spaces.add(ps);
+					});
+
+					game.apply(new ProgramInstallationCostDeterminationEvent(p), (de) -> a.add(new InstallProgramAbility(p, de.getEffective(), spaces)));
+				});
 			}
 		}
 
@@ -259,6 +321,8 @@ public class Runner extends PlayableUnit {
 			game.notification(NotificationEvent.RUNNER_DRAW.apply());
 			game.apply(new RunnerCardDrawn(c), next);
 		}
+		else
+			next.apply();
 	}
 
 	@Override
@@ -322,6 +386,11 @@ public class Runner extends PlayableUnit {
 		coreSpace.forEach(add);
 
 		// TODO gestion des cartes sur des hotes
+	}
+
+	public void forEachProgramSpace(Consumer<ProgramSpace> cons) {
+		cons.accept(coreSpace);
+		additionnalSpaces.forEach(cons);
 	}
 
 	public ProgramSpace getCoreSpace() {

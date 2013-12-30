@@ -58,6 +58,13 @@ public class AnrWebSocketHandler extends TextWebSocketHandler {
 			this.session = session;
 		}
 
+		public void remove() {
+			if (access != null) {
+				GameGateway gw = access.getGateway();
+				gw.remove(this);
+			}
+		}
+
 		private void onMessage(MessageDTO dto) {
 
 			String type = dto.getType();
@@ -115,14 +122,16 @@ public class AnrWebSocketHandler extends TextWebSocketHandler {
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
 		removeSuscriber(session);
 	}
-	
+
 	@Override
 	public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
 		removeSuscriber(session);
 	}
 
 	private void removeSuscriber(WebSocketSession session) {
-		suscribers.remove(session.getId());
+		AnrSuscriber sus = suscribers.remove(session.getId());
+		if (sus != null)
+			sus.remove();
 	}
 
 	@Override

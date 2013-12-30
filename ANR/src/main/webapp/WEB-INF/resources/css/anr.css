@@ -118,7 +118,7 @@ div.card div {
 #preview {
 	position: absolute;
 	right: 0px;
-	top: 200px;
+	top: 400px;
 	display: none;
 	z-index: 100;
 }

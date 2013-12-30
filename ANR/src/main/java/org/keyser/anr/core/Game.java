@@ -169,7 +169,10 @@ public class Game implements Notifier, ConfigurableEventListener {
 
 			// TODO gestion des abilites de rezz (qui peuvent ne peut pas être
 			// payable, mais le runner ne doit pas le savoir !!)
-			Question q = ask(player, NotificationEvent.WHICH_ABILITY);
+
+			boolean playerTurn = getStep().isTurn(player);
+
+			Question q = ask(player, playerTurn ? NotificationEvent.WHICH_ACTION : NotificationEvent.WHICH_ABILITY);
 
 			for (AbstractAbility aa : it) {
 
@@ -305,7 +308,6 @@ public class Game implements Notifier, ConfigurableEventListener {
 	public Question ask(Player to, NotificationEvent what) {
 
 		final int uid = qid++;
-		// TODO faire mieux
 		Question question = new Question(what, to, uid, this);
 		questions.put(uid, question);
 		return question;

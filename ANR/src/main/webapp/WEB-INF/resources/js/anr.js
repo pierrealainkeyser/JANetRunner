@@ -14,8 +14,8 @@ var wallets = {};
 var actions = [];
 
 // pour afficher ou masquer les agendas
-var viewAgenda = { padding : 30, spacing : 85 };
-var hideAgenda = { padding : -115, spacing : 0 };
+var viewAgenda = { padding : 30, hspacing : 85 };
+var hideAgenda = { padding : -115, hspacing : 0 };
 
 // gestion des bordures
 var mainInsets = { left : function() {
@@ -26,7 +26,24 @@ var mainInsets = { left : function() {
 	return 25;
 }, bottom : function() {
 	return $('div#main').height() - 180;
-}, corpScore : hideAgenda, runnerScore : hideAgenda }
+}, // 
+corpScore : hideAgenda,//
+runnerScore : hideAgenda,//
+hspacing : function() {
+	return 122;
+}, iceVspacing : function() {
+	return 85;
+}, runnerHspacing : function() {
+	return 102;
+}, upgradeVspacing : function() {
+	return 53;
+}, vspacingCorpScore : function() {
+	return 43;
+}, vspacingRunnerScore : function() {
+	return 10;
+}, vspacingRunnerRow : function() {
+	return 143;
+} }
 
 /**
  * Renvoi l'index du server
@@ -76,7 +93,7 @@ var placeFunction = { hand : function(v) {
 }, server : function(v) {
 	var bx = mainInsets.left();
 	var by = mainInsets.bottom();
-	var hspacing = 122;
+	var hspacing = mainInsets.hspacing();
 	var index = v.index;
 
 	if (index == undefined)
@@ -86,7 +103,7 @@ var placeFunction = { hand : function(v) {
 	if (v.upgradeIndex != undefined) {
 		// si on a un upgrade index
 		if (index < 3 || v.upgradeIndex > 0) {
-			by += 55;
+			by += mainInsets.upgradeVspacing();
 
 			var up = v.upgradeIndex;
 			var nb = v.upgradeSize();
@@ -116,15 +133,15 @@ var placeFunction = { hand : function(v) {
 	return { x : x, y : by, rotate : 0 };
 }, corpScore : function(v) {
 	var bx = mainInsets.left() + mainInsets.corpScore.padding;
-	var by = mainInsets.top() + 43;
-	var hspacing = mainInsets.corpScore.spacing;
+	var by = mainInsets.top() + mainInsets.vspacingCorpScore();
+	var hspacing = mainInsets.corpScore.hspacing;
 	var index = v.index;
 
 	return { x : bx + hspacing * index, y : by, rotate : 0 };
 }, runnerScore : function(v) {
-	var bx = mainInsets.right() - mainInsets.corpScore.padding;
-	var by = mainInsets.top() + 10;
-	var hspacing = mainInsets.corpScore.spacing;
+	var bx = mainInsets.right() - mainInsets.runnerScore.padding;
+	var by = mainInsets.top() + mainInsets.vspacingRunnerScore();
+	var hspacing = mainInsets.runnerScore.hspacing;
 	var index = v.index;
 
 	return { x : bx - hspacing * index, y : by, rotate : 0 };
@@ -141,26 +158,27 @@ var placeFunction = { hand : function(v) {
 	return placeFunction.runner({ index : RUNNER_HEAP });
 }, runner : function(v) {
 	var bx = mainInsets.right();
-	var by = mainInsets.top();
-	var hspacing = 102;
+	var by = mainInsets.top() + mainInsets.vspacingRunnerRow();
+	var hspacing = mainInsets.runnerHspacing();
 	var x = bx - (v.index * hspacing);
 
 	return { x : x, y : by, rotate : 0 };
 }, resources : function(v) {
-	return placeFunction.runner({ index : RUNNER_GRIP + 1 + v.index });
-}, hardwares : function(v) {
 	var more = placeFunction.runner({ index : RUNNER_HEAP + v.index });
-	more.y += 145;
+	more.y -= mainInsets.vspacingRunnerRow();
+	return more;
+}, hardwares : function(v) {
+	var more = placeFunction.runner({ index : RUNNER_GRIP + 1 + v.index });
 	return more;
 }, programs : function(v) {
 	var more = placeFunction.runner({ index : RUNNER_HEAP + v.index });
-	more.y += 290;
+	more.y += mainInsets.vspacingRunnerRow();
 	return more;
 }, ice : function(v) {
 	var bx = mainInsets.left();
-	var by = mainInsets.bottom() - 122;
-	var hspacing = 122;
-	var vspacing = 85;
+	var hspacing = mainInsets.hspacing();
+	var by = mainInsets.bottom() - hspacing;
+	var vspacing = mainInsets.iceVspacing();
 
 	var index = getServerIndex(v);
 
@@ -190,8 +208,9 @@ function confactions(widget) {
  */
 function syncCorpScore() {
 	var scoreWidth = 0;
+	// TODO a rendre dynamique
 	if (_.isEqual(mainInsets.corpScore, viewAgenda))
-		scoreWidth = (locationHandler.corpScore.size() * mainInsets.corpScore.spacing + 80) + 111 + mainInsets.left();
+		scoreWidth = (locationHandler.corpScore.size() * mainInsets.corpScore.hspacing + 80) + 111 + mainInsets.left();
 
 	$("#corpScore").animate({ width : scoreWidth });
 }
@@ -344,9 +363,9 @@ function updateGame(game) {
 		// TODO faire mieux que cela
 		$("#activeStep").text(textStep);
 
-		var fact = "Runner";
+		var fact = "Runner turn";
 		if (game.step.indexOf("CORP") == 0)
-			fact = "Corp";
+			fact = "Corp turn";
 
 		$("#activePlayer").text(fact);
 	}
@@ -385,7 +404,7 @@ function updateGame(game) {
 			msg.removeClass();
 
 			msg.addClass("label label-primary");
-			msg.text("Waiting for the other player");
+			msg.text("Please, wait for the other player");
 		}
 	}
 
@@ -412,9 +431,9 @@ function handleQuestion(q, r) {
 	var widget = null;
 	if (card != undefined)
 		widget = card.widget;
-	if ('WHICH_ABILITY' == q.what) {
+	if ('WHICH_ACTION' == q.what) {
 		msg.addClass("label label-info");
-		msg.text("Play an ability");
+		msg.text("Please, play an action");
 
 		if ('click-for-credit' == r.option)
 			widget = faction == 'corp' ? $("#hq") : $("#grip");
@@ -429,11 +448,24 @@ function handleQuestion(q, r) {
 
 		if (widget != undefined) {
 			if ("install-ice" == r.option || "install-asset" == r.option || "install-agenda" == r.option || "install-upgrade" == r.option)
-				act = new CorpInstallOnMultiAction(q, r, widget);			
+				act = new CorpInstallOnMultiAction(q, r, widget);
 			else
 				act = new Action(q, r, widget);
 
 		}
+	} else if ('WHICH_ABILITY' == q.what) {
+
+		msg.addClass("label label-danger");
+		msg.text("Would you like to play an ability ?");
+
+		if ('none' == r.option) {
+			widget = $("#nothing");
+
+			// on masque le widget avant l'emission
+			$("#nothing").stop().animate({ height : 'toggle' });
+		}
+
+		act = new Action(q, r, widget);
 	} else if ('DISCARD_CARD' == q.what) {
 		msg.addClass("label label-warning");
 		msg.text("Select " + r.args.nb + " card" + (r.args.nb > 1 ? "s" : "") + " to discard");

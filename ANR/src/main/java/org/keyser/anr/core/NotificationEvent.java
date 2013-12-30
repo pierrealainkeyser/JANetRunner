@@ -32,6 +32,7 @@ public enum NotificationEvent {
 	CARD_ADVANCED, //
 
 	// questions
+	WHICH_ACTION, //
 	WHICH_ABILITY, //
 	DISCARD_CARD, //
 	WANT_TO_JACKOFF, //
