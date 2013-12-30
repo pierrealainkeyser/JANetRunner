@@ -1,7 +1,9 @@
 package org.keyser.anr.web.dto;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.keyser.anr.core.GameStep;
@@ -19,15 +21,22 @@ public class GameDTO {
 
 	private GameStep step;
 
+	private List<String> logs;
+
+	public void addLog(String log) {
+		if (logs == null)
+			logs = new ArrayList<>();
+		logs.add(log);
+	}
+
 	public void addCard(CardDTO c) {
 		cards.put(c.getId(), c);
 	}
 
-
 	public CardDTO getCard(String id) {
 		CardDTO d = cards.get(id);
-		if(d==null)
-			addCard(d=new CardDTO().setId(id));
+		if (d == null)
+			addCard(d = new CardDTO().setId(id));
 		return d;
 	}
 
@@ -110,5 +119,9 @@ public class GameDTO {
 		}
 		builder.append("]");
 		return builder.toString();
+	}
+
+	public List<String> getLogs() {
+		return logs;
 	}
 }

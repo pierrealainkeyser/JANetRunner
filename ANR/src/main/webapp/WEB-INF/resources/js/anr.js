@@ -203,6 +203,11 @@ function confactions(widget) {
 	return widget.mouseenter(focusme).focus(handleFocused).blur(handleBlur).click(executeAction);
 }
 
+function addLog(text){	
+	var nl=$("<p>"+text+"</p>");	
+	$("#eventsink").append(nl);
+}
+
 /**
  * Maj de la zone de la taille de score
  */
@@ -226,6 +231,14 @@ function toggleCorpScore() {
 
 	locationHandler.corpScore.updateAll();
 	syncCorpScore();
+}
+
+function toggleEventLog() {
+	var el = $("#eventlog");
+	var from = el.css("margin-left");
+	var width = el.css("width");
+	var to = from == "0px" ? "-" + width : "0px";
+	el.stop().animate({ "margin-left" : to });
 }
 
 function initANR() {
@@ -318,6 +331,10 @@ function bootANR(gid) {
  */
 function updateGame(game) {
 	console.debug("updateGame " + JSON.stringify(game));
+	
+	if(game.logs!=undefined){
+		_.each(game.logs, addLog);
+	}
 
 	// prise en compte des wallets
 	if (game.corp != undefined && game.corp.wallets != undefined) {

@@ -9,7 +9,6 @@ body>div.container {
 div#main {
 	width: 100%;
 	height: 100%;
-	
 	background-image: url(/img/android-netrunner-logo.png);
 	background-repeat: no-repeat;
 	background-position: center;
@@ -107,11 +106,11 @@ div.card div {
 	left: -155px;
 }
 
-#corpScore .panel-heading{
+#corpScore .panel-heading {
 	text-align: right;
 }
 
-#corpScore .panel-body{
+#corpScore .panel-body {
 	height: 121px;
 }
 
@@ -128,6 +127,7 @@ div.card div {
 	height: 300px;
 	box-shadow: -1px 2px 4px 1px rgba(0, 0, 0, 0.7);
 	border: 1px solid #adadad;
+	background-color: rgba(255, 255, 255, 0.35);
 	border-radius: 5px 0px 0px 5px;
 	margin: -5px;
 }
@@ -135,9 +135,9 @@ div.card div {
 #action {
 	position: absolute;
 	left: 0px;
-	top: 155px;
+	top: 190px;
 	display: none;
-	width: 200px;
+	width: 400px;
 	white-space: nowrap;
 	border-radius: 0px 5px 5px 0px;
 }
@@ -153,6 +153,30 @@ div.card div {
 
 .panel-heading {
 	padding: 3px;
+}
+
+#eventlog {
+	left: 0px;
+	margin-left: -400px;
+	top: 355px;
+	height : 250px;
+	width: 400px;	
+	display: inline-block;
+	position: absolute;
+	z-index: 5000;
+	background-color: rgba(255, 255, 255, 0.35);
+	overflow: hidden;	
+}
+
+#eventlog div.panel-body {	
+	bottom:0px;
+	position: absolute;
+	z-index: -1;
+	padding: 0px;
+}
+
+#eventlog div.panel-body  p{	
+	margin: 0px;
 }
 
 #nothing {

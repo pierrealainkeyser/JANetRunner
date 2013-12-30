@@ -161,7 +161,9 @@ public class Corp extends PlayableUnit {
 			card.setLocation(new CardLocationAsset(cs, 0));
 
 			// on envoi l'evenement
-			getGame().apply(getEvent(card), next);
+			Game game = getGame();
+			game.apply(getEvent(card), next);
+			game.notification(NotificationEvent.CORP_INSTALLED.apply());
 		}
 
 		abstract Event getEvent(CorpCard card);
@@ -194,7 +196,9 @@ public class Corp extends PlayableUnit {
 			ice.setLocation(new CardLocationIce(cs, size));
 
 			// on envoi l'evenement
-			getGame().apply(new CorpInstallIce(ice), next);
+			Game game = getGame();
+			game.apply(new CorpInstallIce(ice), next);
+			game.notification(NotificationEvent.CORP_INSTALLED_AN_ICE.apply());
 		}
 
 		protected void accept(InstallOn iic) {

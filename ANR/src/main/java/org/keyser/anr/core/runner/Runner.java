@@ -88,6 +88,8 @@ public class Runner extends PlayableUnit {
 			
 			// on install la location
 			prog.setLocation(ps.getLocation());
+			
+			game.notification(NotificationEvent.RUNNER_INSTALLED.apply().m(prog));
 
 
 			// on envoi l'evenement
@@ -124,9 +126,13 @@ public class Runner extends PlayableUnit {
 
 			// on attache
 			card.bind(game);
+			
+			game.notification(NotificationEvent.RUNNER_INSTALLED.apply().m(card));
 
 			// on envoi l'evenement
 			game.apply(getEvent(card), next);
+			
+			
 		}
 
 		abstract Event getEvent(InstallableRunnerCard card);

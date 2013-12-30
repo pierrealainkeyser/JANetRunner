@@ -102,21 +102,46 @@ public class GameDTOBuilder {
 				handleCardNotif(g, i, (c, dto) -> {
 					if (c instanceof CorpCard) {
 						CorpCard cc = (CorpCard) c;
-						dto.addToken(AGENDA, cc.getAdvancement());
+						Integer ad = cc.getAdvancement();
+						dto.addToken(AGENDA, ad);
+
+						if (ad != null && ad > 0)
+							g.addLog("The corp advances a card");
 					}
 				});
+
 			} else if (NotificationEvent.NEXT_STEP == type) {
 				g.setStep(i.getStep());
 			} else if (NotificationEvent.CORP_SCORE_AGENDA == type) {
 				updateScore(i.getGame().getCorp(), g.create(Player.CORP));
+				g.addLog("The corp scores " + getName(i.getCard()));
 			} else if (NotificationEvent.RUNNER_SCORE_AGENDA == type) {
 				updateScore(i.getGame().getRunner(), g.create(Player.RUNNER));
+				g.addLog("The runner steals " + getName(i.getCard()));
 			} else if (NotificationEvent.RUNNER_MEMORY_CHANGED == type) {
 				int left = i.getGame().getRunner().getCoreSpace().getMemoryLeft();
 				g.create(Player.RUNNER).setValue(MEMORY, left);
 			} else if (NotificationEvent.RUNNER_LINK_CHANGED == type) {
 				int left = i.getGame().getRunner().getLink();
 				g.create(Player.RUNNER).setValue(LINK, left);
+			} else if (NotificationEvent.CORP_INSTALLED == type) {
+				g.addLog("The corp installs something");
+			} else if (NotificationEvent.CORP_INSTALLED_AN_ICE == type) {
+				g.addLog("The corp installs an ice");
+			} else if (NotificationEvent.CORP_CLICKED_FOR_DRAW == type) {
+				g.addLog("The corp draws a card");
+			} else if (NotificationEvent.CORP_CLICKED_FOR_CREDIT == type) {
+				g.addLog("The corp gains a credit");
+			} else if (NotificationEvent.CORP_PLAYED_AN_OPERATION == type) {
+				g.addLog("The corp plays " + getName(i.getCard()));
+			} else if (NotificationEvent.CORP_REZZ_CARD == type) {
+				g.addLog("The corp rezz " + getName(i.getCard()));
+			} else if (NotificationEvent.RUNNER_CLICKED_FOR_CREDIT == type) {
+				g.addLog("The runner gains a credit");
+			} else if (NotificationEvent.RUNNER_CLICKED_FOR_DRAW == type) {
+				g.addLog("The runner draws a card");
+			} else if (NotificationEvent.RUNNER_INSTALLED == type) {
+				g.addLog("The runner installs " + getName(i.getCard()));
 			}
 
 		}
@@ -327,6 +352,11 @@ public class GameDTOBuilder {
 		String url = getURL(c);
 
 		return new CardDefDTO(id(c), url, faction);
+	}
+
+	private String getName(Object c) {
+		CardDef cd = c.getClass().getAnnotation(CardDef.class);
+		return cd.name();
 	}
 
 	private String getURL(Object c) {

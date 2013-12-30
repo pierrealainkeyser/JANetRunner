@@ -41,7 +41,12 @@
 		
 		Mousetrap.bind('c s',function(e){
 			toggleCorpScore();
+		});
+		
+		Mousetrap.bind('l',function(e){
+			toggleEventLog();
 		});		
+		
 					
 		//vers serveur remote
 		for(var i=1;i<15;++i)
@@ -216,7 +221,7 @@
 		</div>
 		
 		<div id="corpScore" class="panel panel-default">
-			<div class="panel-heading" title="Agendas scoreds by the corp"><i class="glyphicon glyphicon-check"></i> Scoreds</div>
+			<div class="panel-heading" title="Agendas scoreds by the corp"><i class="glyphicon glyphicon-star-empty"></i> Scoreds</div>
 			<div class="panel-body"></div>
 		</div>
 		
@@ -225,6 +230,13 @@
   			<li class="active" id="activeStep"></li>
   			<li class="active"><span class="label label-info" id="activeMessage"></span></li>
 		</ol>
+		
+		<div id="eventlog"  class="panel panel-default">
+			<div class="panel-heading"><i class="glyphicon glyphicon-list-alt"></i> Logs</div>			
+			<div id="eventsink" class="panel-body">
+		
+			</div>
+		</div>
 	</div>
 </body>
 </html>

@@ -9,6 +9,8 @@ public enum NotificationEvent {
 	CORP_CLICKED_FOR_PURGE, //
 	CORP_PLAYED_AN_OPERATION, //
 	CORP_ADVANCE_CARD, //
+	CORP_INSTALLED_AN_ICE, //
+	CORP_INSTALLED, //
 	CORP_REZZ_CARD, //
 	CORP_SCORE_AGENDA, //
 
@@ -20,6 +22,7 @@ public enum NotificationEvent {
 	RUNNER_MEMORY_CHANGED, //
 	RUNNER_TAG_CHANGED, //
 	RUNNER_LINK_CHANGED, //
+	RUNNER_INSTALLED, //
 
 	// events du run
 	START_OF_RUN, //
