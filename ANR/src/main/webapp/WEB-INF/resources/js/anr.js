@@ -17,6 +17,20 @@ var actions = [];
 var viewAgenda = { padding : 30, hspacing : 85 };
 var hideAgenda = { padding : -115, hspacing : 0 };
 
+var actionMapping = {// 
+"click-for-credit" : "Gain {credits}",//
+"click-for-draw" : "Draw a card",//
+"install-ice" : "Install this ice",//
+"install-agenda" : "Install this agenda",//
+"install-asset" : "Install this asset",//
+"install-upgrade" : "Install this upgrade",//
+"play-operation" : "Play this operation",//
+"install-program" : "Install this program",//
+"install-hardware" : "Install this hardware",//
+"install-resource" : "Install this resource",//
+"play-event" : "Play this event",//
+};
+
 // gestion des bordures
 var mainInsets = { left : function() {
 	return 30;
@@ -203,8 +217,8 @@ function confactions(widget) {
 	return widget.mouseenter(focusme).focus(handleFocused).blur(handleBlur).click(executeAction);
 }
 
-function addLog(text){	
-	var nl=$("<p>"+text+"</p>");	
+function addLog(text) {
+	var nl = $("<p>" + text + "</p>");
 	$("#eventsink").append(nl);
 }
 
@@ -331,8 +345,8 @@ function bootANR(gid) {
  */
 function updateGame(game) {
 	console.debug("updateGame " + JSON.stringify(game));
-	
-	if(game.logs!=undefined){
+
+	if (game.logs != undefined) {
 		_.each(game.logs, addLog);
 	}
 
@@ -409,10 +423,15 @@ function updateGame(game) {
 			console.debug("new question : " + q.what + " ?");
 			for (i in q.responses) {
 				var a = handleQuestion(q, q.responses[i]);
-				if (a instanceof Array)
+				if (a instanceof Array) {
+					for(i in a )
+						a[i].bind();					
+
 					actions = actions.concat(a);
-				else
+				} else {
+					a.bind();
 					actions.push(a);
+				}
 
 			}
 		} else {
@@ -471,7 +490,6 @@ function handleQuestion(q, r) {
 
 		}
 	} else if ('WHICH_ABILITY' == q.what) {
-
 		msg.addClass("label label-danger");
 		msg.text("Would you like to play an ability ?");
 
@@ -490,8 +508,9 @@ function handleQuestion(q, r) {
 		// les cartes selectionnées
 		r.select = [];
 		act = [];
-		for (c in r.args.cards) {
-			var c = cards[r.args.cards[c] + ""];
+
+		for (i in r.args.cards) {
+			var c = cards[r.args.cards[i] + ""];
 			act.push(new DiscardAction(q, r, c));
 		}
 
@@ -500,105 +519,37 @@ function handleQuestion(q, r) {
 	return act;
 }
 
-/**
- * Execute l'action associé au widget
- * 
- * @param wigdet
- */
-function executeAction() {
-	var widget = $(":focus")
-	if (widget != undefined) {
-		var act = widget.prop("ANRAction");
-		if (act) {
-			act.applyAction();
-
-			// gestion du popup des actions
-			displayANRAction($(":focus").prop("ANRAction"));
-		}
-	}
-}
-
-/**
- * Gestion du focus sur les actions
- */
-function handleFocused() {
-	displayANRAction($(this).prop("ANRAction"));
-}
-
-/**
- * Gestion du blur sur les actions
- */
-function handleBlur() {
-	displayANRAction();
-}
-
-/**
- * Gestion du panneau des actions
- * 
- * @param act
- */
-function displayANRAction(act) {
-	var widget = $("#action");
-	if (act != undefined) {
-		widget.find("p").text(act.option);
-		widget.stop().show('slide');
-	} else {
-		var widget = $("#action");
-		widget.stop().hide('slide', function() {
-			widget.find("p").text("");
-		});
-	}
-}
-
-/**
- * Renvoi le widget pour le server, ou créé le remote à la volée
- * 
- * @param index
- * @returns
- */
-function widgetServer(index) {
-	var w = null;
-
-	if (index == 0)
-		w = $("#archives");
-	else if (index == 1)
-		w = $("#rd");
-	else if (index == 2)
-		w = $("#hq");
-	else {
-		// les autres serveur
-		var rindex = index - 3;
-		var rd = "remote" + rindex;
-		w = $("#" + rd);
-		if (!w.length) {
-			var nindex = rindex + 1;
-			var val = null;
-			if (nindex == 1)
-				val = "1<sup>st</sup>";
-			else if (nindex == 2)
-				val = "2<sup>nd</sup>";
-			else if (nindex == 3)
-				val = "3<sup>rd</sup>";
-			else
-				val = nindex + "<sup>th</sup>";
-
-			w = $("<div id='" + rd + "' class='cardplace remote' tabindex='-1'>" + val + " Remote</div>");
-			confactions(w.css(placeFunction.server({ index : index })));
-			w.css({ opacity : 0 });
-			w.transition({ opacity : 1 });
-			$('div#main').append(w);
-
-		}
-	}
-	return w;
+function interpolateSprites(input) {
+	return input.replace(/{(\w+)}/g, "<i class='sprite $1'></i>");
 }
 
 /**
  * Une action de base
  */
 function Action(q, r, widget) {
-	this.option = r.option;
-	widget.prop("ANRAction", this).addClass("withAction");
+	this.response = r;
+	this.widget = widget;
+
+	/**
+	 * Permet de formatter le texte de l'action
+	 */
+	this.getHTML = function() {
+		var map = actionMapping[this.response.option];
+		if (map == undefined)
+			map = this.response.option;
+
+		if (this.response.cost)
+			map = this.response.cost + " : " + map;
+
+		return interpolateSprites(map);
+	}
+
+	/**
+	 * Attache l'acition au composant
+	 */
+	this.bind = function() {
+		this.widget.prop("ANRAction", this).addClass("withAction");
+	}
 
 	/**
 	 * Permet d'envoyer le message vers la socket. La function updateChoosen
@@ -707,7 +658,13 @@ function CorpInstallOnMultiAction(q, r, widget) {
 			else
 				w = cards[cardIndex + ""].widget;
 
-			var a = new Action(q, r, w);
+			var nr = r;
+			if (r.args[i].cost != undefined) {
+				nr = _.clone(r);
+				nr.cost = r.args[i].cost;
+			}
+
+			var a = new Action(q, nr, w);
 			a.index = index;
 			a.card = cardIndex;
 			a.updateChoosen = function(choosen) {
@@ -717,9 +674,103 @@ function CorpInstallOnMultiAction(q, r, widget) {
 					choosen['content'] = { card : this.card };
 			};
 
+			a.bind();
 			actions.push(a);
 		}
 	});
+}
+
+/**
+ * Execute l'action associé au widget
+ * 
+ * @param wigdet
+ */
+function executeAction() {
+	var widget = $(":focus")
+	if (widget != undefined) {
+		var act = widget.prop("ANRAction");
+		if (act) {
+			act.applyAction();
+
+			// gestion du popup des actions
+			displayANRAction($(":focus").prop("ANRAction"));
+		}
+	}
+}
+
+/**
+ * Gestion du focus sur les actions
+ */
+function handleFocused() {
+	displayANRAction($(this).prop("ANRAction"));
+}
+
+/**
+ * Gestion du blur sur les actions
+ */
+function handleBlur() {
+	displayANRAction();
+}
+
+/**
+ * Gestion du panneau des actions
+ * 
+ * @param act
+ */
+function displayANRAction(act) {
+	var widget = $("#action");
+	if (act != undefined) {
+		widget.find("p").html(act.getHTML());
+		widget.stop().show('slide');
+	} else {
+		var widget = $("#action");
+		widget.stop().hide('slide', function() {
+			widget.find("p").text("");
+		});
+	}
+}
+
+/**
+ * Renvoi le widget pour le server, ou créé le remote à la volée
+ * 
+ * @param index
+ * @returns
+ */
+function widgetServer(index) {
+	var w = null;
+
+	if (index == 0)
+		w = $("#archives");
+	else if (index == 1)
+		w = $("#rd");
+	else if (index == 2)
+		w = $("#hq");
+	else {
+		// les autres serveur
+		var rindex = index - 3;
+		var rd = "remote" + rindex;
+		w = $("#" + rd);
+		if (!w.length) {
+			var nindex = rindex + 1;
+			var val = null;
+			if (nindex == 1)
+				val = "1<sup>st</sup>";
+			else if (nindex == 2)
+				val = "2<sup>nd</sup>";
+			else if (nindex == 3)
+				val = "3<sup>rd</sup>";
+			else
+				val = nindex + "<sup>th</sup>";
+
+			w = $("<div id='" + rd + "' class='cardplace remote' tabindex='-1'>" + val + " Remote</div>");
+			confactions(w.css(placeFunction.server({ index : index })));
+			w.css({ opacity : 0 });
+			w.transition({ opacity : 1 });
+			$('div#main').append(w);
+
+		}
+	}
+	return w;
 }
 
 function ValueWidget(widget) {

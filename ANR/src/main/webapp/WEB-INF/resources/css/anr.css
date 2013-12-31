@@ -147,7 +147,7 @@ div.card div {
 	margin-right: 5px;
 }
 
-#action i,#preview i {
+#action .panel-heading i,#preview i {
 	margin-left: 5px;
 }
 

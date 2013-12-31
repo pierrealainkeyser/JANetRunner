@@ -163,7 +163,8 @@ public class GameDTOBuilder {
 		Integer i = null;
 		if (r.getCard() != null)
 			i = r.getCard().getId();
-		return new PossibleResponseDTO(r.getOption(), r.getResponseId(), i, r.getContent());
+
+		return new PossibleResponseDTO(r.getOption(), r.getResponseId(), i, r.getContent(), r.getCost());
 	}
 
 	/**

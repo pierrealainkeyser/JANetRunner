@@ -16,6 +16,8 @@ public class Response {
 
 	private Object content;
 
+	private Cost cost;
+
 	public Response(String option, Question parent, int responseId, Card card) {
 		this.option = option;
 		this.parent = parent;
@@ -91,9 +93,18 @@ public class Response {
 		return content;
 	}
 
+	public Response setCost(Cost cost) {
+		this.cost = cost;
+		return this;
+	}
+
 	public Response setContent(Object content) {
 		this.content = content;
 		return this;
+	}
+
+	public Cost getCost() {
+		return cost;
 	}
 
 }

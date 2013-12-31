@@ -17,7 +17,7 @@ public class ArmitageCodebusting extends Resource {
 
 		add(EventMatcher.match(RunnerInstalledResource.class).pred(rir -> rir.getCard() == ArmitageCodebusting.this).call(this::addCreditOnInstall));
 
-		addAction(new CardAbility(this, "ArmitageCodebusting", Cost.action(1)) {
+		addAction(new CardAbility(this, "Take 2{credits} from Armitage Codebusting", Cost.action(1)) {
 
 			@Override
 			public void apply() {

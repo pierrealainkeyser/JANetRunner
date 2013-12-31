@@ -10,7 +10,7 @@ import org.keyser.anr.core.runner.EventCard;
 public class Infiltration extends EventCard {
 
 	public Infiltration() {
-		super(Faction.RUNNER_NEUTRAL.infl(0), Cost.credit(4));
+		super(Faction.RUNNER_NEUTRAL.infl(0), Cost.free());
 	}
 	
 	@Override

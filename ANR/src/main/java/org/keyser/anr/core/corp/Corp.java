@@ -15,6 +15,7 @@ import org.keyser.anr.core.CardLocationAsset;
 import org.keyser.anr.core.CardLocationIce;
 import org.keyser.anr.core.CardLocationUpgrade;
 import org.keyser.anr.core.CoreAbility;
+import org.keyser.anr.core.CoreCardAbility;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Event;
 import org.keyser.anr.core.Faction;
@@ -29,11 +30,11 @@ import org.keyser.anr.core.WinCondition;
 
 public class Corp extends PlayableUnit {
 
-	class AdvanceCard extends CoreAbility {
+	class AdvanceCard extends CoreCardAbility {
 		private final CorpCard card;
 
 		AdvanceCard(CorpCard card) {
-			super("advance-card", Cost.action(1).add(Cost.credit(1)));
+			super(card, "advance-card", Cost.action(1).add(Cost.credit(1)));
 			this.card = card;
 		}
 
@@ -47,10 +48,6 @@ public class Corp extends PlayableUnit {
 			next.apply();
 		}
 
-		@Override
-		protected void registerQuestion(Question q) {
-			q.ask(getName(), card).to(this::doNext);
-		}
 	}
 
 	/**
@@ -172,7 +169,7 @@ public class Corp extends PlayableUnit {
 		protected void registerQuestion(Question q) {
 			List<Object> content = alls.stream().collect(Collectors.toList());
 			if (!content.isEmpty()) {
-				q.ask(getName(), card).to(InstallOn.class, this::accept).setContent(content);
+				q.ask(getName(), card).to(InstallOn.class, this::accept).setContent(content).setCost(getCost());
 			}
 		}
 	}
@@ -218,7 +215,7 @@ public class Corp extends PlayableUnit {
 		}
 
 		private boolean isAffordable(InstallIceCost iic) {
-			boolean affordable = getWallet().isAffordable(Cost.credit(iic.getCost()).add(getCost()), getAction());
+			boolean affordable = getWallet().isAffordable(iic.getCost(), getAction());
 			return affordable;
 		}
 
@@ -226,7 +223,7 @@ public class Corp extends PlayableUnit {
 		protected void registerQuestion(Question q) {
 			List<Object> content = alls.stream().filter(this::isAffordable).collect(Collectors.toList());
 			if (!content.isEmpty()) {
-				q.ask(getName(), ice).to(InstallIceCost.class, this::accept).setContent(content);
+				q.ask(getName(), ice).to(InstallOn.class, this::accept).setContent(content).setCost(getCost());
 			}
 		}
 	}
@@ -272,7 +269,7 @@ public class Corp extends PlayableUnit {
 		protected void registerQuestion(Question q) {
 			List<Object> content = alls.stream().collect(Collectors.toList());
 			if (!content.isEmpty()) {
-				q.ask(getName(), card).to(InstallOn.class, this::accept).setContent(content);
+				q.ask(getName(), card).to(InstallOn.class, this::accept).setContent(content).setCost(getCost());
 			}
 		}
 	}
@@ -283,11 +280,11 @@ public class Corp extends PlayableUnit {
 	 * @author PAF
 	 * 
 	 */
-	class PlayOperation extends CoreAbility {
+	class PlayOperation extends CoreCardAbility {
 		private final Operation op;
 
 		PlayOperation(Operation operation, Cost cost) {
-			super("play-operation", Cost.action(1).add(cost));
+			super(operation, "play-operation", Cost.action(1).add(cost));
 			this.op = operation;
 		}
 
@@ -302,18 +299,13 @@ public class Corp extends PlayableUnit {
 		public boolean isEnabled() {
 			return op.isEnabled();
 		}
-
-		@Override
-		protected void registerQuestion(Question q) {
-			q.ask(getName(), op).to(this::doNext);
-		}
 	}
 
-	class RezzCard extends AbstractAbility {
+	class RezzCard extends CoreCardAbility {
 		private final CorpCard card;
 
 		RezzCard(CorpCard card, Cost cost) {
-			super("rezz-card", cost);
+			super(card, "rezz-card", cost);
 			this.card = card;
 		}
 
@@ -325,18 +317,13 @@ public class Corp extends PlayableUnit {
 
 			next.apply();
 		}
-
-		@Override
-		protected void registerQuestion(Question q) {
-			q.ask(getName(), card).to(this::doNext);
-		}
 	}
 
-	class ScoreAgenda extends AbstractAbility {
+	class ScoreAgenda extends CoreCardAbility {
 		private final Agenda agenda;
 
 		ScoreAgenda(Agenda agenda, Cost cost) {
-			super("score-agenda", Cost.free().add(cost));
+			super(agenda, "score-agenda", Cost.free().add(cost));
 			this.agenda = agenda;
 		}
 
@@ -351,11 +338,6 @@ public class Corp extends PlayableUnit {
 			// on supprime les avancements
 			agenda.setAdvancement(null);
 			g.apply(new CorpScoreAgenda(agenda), next);
-		}
-
-		@Override
-		protected void registerQuestion(Question q) {
-			q.ask(getName(), agenda).to(this::doNext);
 		}
 	}
 

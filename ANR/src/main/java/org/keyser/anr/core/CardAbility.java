@@ -22,7 +22,7 @@ public class CardAbility extends AbstractAbility {
 
 	@Override
 	protected void registerQuestion(Question q) {
-		q.ask(getName(), card).to(this::doNext);
+		q.ask(getName(), card).to(this::doNext).setCost(getCost());
 	}
 
 }

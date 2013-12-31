@@ -1,24 +1,19 @@
 package org.keyser.anr.core.corp;
 
+import org.keyser.anr.core.Cost;
 
 public class InstallIceCost extends InstallOn {
 
-	private int cost;
-
-	public InstallIceCost() {
-	}
+	private final Cost cost;
 
 	public InstallIceCost(Integer server, Integer card, int cost) {
-		this.cost = cost;
+		this.cost = Cost.credit(cost).add(Cost.action(1));
 		setServer(server);
 		setCard(card);
 	}
 
-	public int getCost() {
+	public Cost getCost() {
 		return cost;
 	}
 
-	public void setCost(int cost) {
-		this.cost = cost;
-	}
 }

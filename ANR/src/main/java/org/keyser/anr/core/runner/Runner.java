@@ -8,6 +8,7 @@ import org.keyser.anr.core.AbstractAbility;
 import org.keyser.anr.core.Card;
 import org.keyser.anr.core.CardLocation;
 import org.keyser.anr.core.CoreAbility;
+import org.keyser.anr.core.CoreCardAbility;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.CostAction;
 import org.keyser.anr.core.Event;
@@ -17,7 +18,6 @@ import org.keyser.anr.core.Game;
 import org.keyser.anr.core.NotificationEvent;
 import org.keyser.anr.core.PlayableUnit;
 import org.keyser.anr.core.Player;
-import org.keyser.anr.core.Question;
 import org.keyser.anr.core.WalletBadPub;
 import org.keyser.anr.core.WalletCredits;
 
@@ -62,63 +62,53 @@ public class Runner extends PlayableUnit {
 		}
 	}
 
-	class InstallProgramAbility extends CoreAbility {
+	class InstallProgramAbility extends CoreCardAbility {
 		private final Program prog;
 
 		private final List<ProgramSpace> spaces;
 
 		public InstallProgramAbility(Program prog, Cost cost, List<ProgramSpace> spaces) {
-			super("install-program", cost.add(Cost.action(1)));
+			super(prog, "install-program", cost.add(Cost.action(1)));
 			this.prog = prog;
 			this.spaces = spaces;
 		}
 
-		protected void accept() {
+		@Override
+		public void apply() {
 
-			wallet.consume(getCost(), getAction());
-			
 			Game game = getGame();
-			
+
 			// on attache
 			prog.bind(game);
-			
 
 			// TODO sélection de l'espace
 			ProgramSpace ps = spaces.get(0);
-			
+
 			// on install la location
 			prog.setLocation(ps.getLocation());
-			
-			game.notification(NotificationEvent.RUNNER_INSTALLED.apply().m(prog));
 
+			game.notification(NotificationEvent.RUNNER_INSTALLED.apply().m(prog));
 
 			// on envoi l'evenement
 			game.apply(new RunnerInstalledProgram(prog), next);
 		}
 
-		@Override
-		protected void registerQuestion(Question q) {
-
-			// TODO plusieurs possibilité de spaces, eventuellement de trash de
-			// programs
-			q.ask(getName(), prog).to(this::accept);
-		}
 	}
 
-	abstract class InstallAbility extends CoreAbility {
+	abstract class InstallAbility extends CoreCardAbility {
 
 		private final InstallableRunnerCard card;
 
 		public InstallAbility(String code, InstallableRunnerCard card, Cost more) {
-			super(code, Cost.action(1).add(more));
+			super(card, code, Cost.action(1).add(more));
 			this.card = card;
 		}
 
 		abstract CardLocation getLocation();
 
-		protected void accept() {
+		@Override
+		public void apply() {
 
-			wallet.consume(getCost(), getAction());
 			// on install la location
 			card.setLocation(getLocation());
 
@@ -126,21 +116,15 @@ public class Runner extends PlayableUnit {
 
 			// on attache
 			card.bind(game);
-			
+
 			game.notification(NotificationEvent.RUNNER_INSTALLED.apply().m(card));
 
 			// on envoi l'evenement
 			game.apply(getEvent(card), next);
-			
-			
+
 		}
 
 		abstract Event getEvent(InstallableRunnerCard card);
-
-		@Override
-		protected void registerQuestion(Question q) {
-			q.ask(getName(), card).to(this::accept);
-		}
 	}
 
 	class InstallResource extends InstallAbility {
@@ -185,11 +169,11 @@ public class Runner extends PlayableUnit {
 	 * @author PAF
 	 * 
 	 */
-	class PlayEvent extends CoreAbility {
+	class PlayEvent extends CoreCardAbility {
 		private final EventCard event;
 
 		PlayEvent(EventCard event, Cost cost) {
-			super("play-event", Cost.action(1).add(cost));
+			super(event, "play-event", Cost.action(1).add(cost));
 			this.event = event;
 		}
 
@@ -202,11 +186,6 @@ public class Runner extends PlayableUnit {
 		@Override
 		public boolean isEnabled() {
 			return event.isEnabled();
-		}
-
-		@Override
-		protected void registerQuestion(Question q) {
-			q.ask(getName(), event).to(this::doNext);
 		}
 	}
 
@@ -326,8 +305,7 @@ public class Runner extends PlayableUnit {
 
 			game.notification(NotificationEvent.RUNNER_DRAW.apply());
 			game.apply(new RunnerCardDrawn(c), next);
-		}
-		else
+		} else
 			next.apply();
 	}
 

@@ -3,6 +3,7 @@ package org.keyser.anr.web.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.NotificationEvent;
 import org.keyser.anr.core.Player;
 
@@ -29,11 +30,17 @@ public class QuestionDTO {
 		 */
 		private final int rid;
 
-		public PossibleResponseDTO(String option, int rid, Integer card, Object args) {
+		/**
+		 * 
+		 */
+		private final Cost cost;
+
+		public PossibleResponseDTO(String option, int rid, Integer card, Object args, Cost cost) {
 			this.option = option;
 			this.rid = rid;
 			this.card = card;
 			this.args = args;
+			this.cost = cost;
 		}
 
 		public Object getArgs() {
@@ -50,6 +57,10 @@ public class QuestionDTO {
 
 		public Integer getCard() {
 			return card;
+		}
+
+		public Cost getCost() {
+			return cost;
 		}
 
 	}

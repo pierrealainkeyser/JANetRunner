@@ -14,7 +14,7 @@ public class MagnusOpus extends Program {
 	public MagnusOpus() {
 		super(SHAPER.infl(2), credit(5), 2);
 
-		addAction(new CardAbility(this, "MagnusOpus", Cost.action(1)) {
+		addAction(new CardAbility(this, "Gain 2{credits}", Cost.action(1)) {
 
 			@Override
 			public void apply() {
