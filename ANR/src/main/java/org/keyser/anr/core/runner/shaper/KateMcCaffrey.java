@@ -25,8 +25,8 @@ public class KateMcCaffrey extends Runner {
 		add(match(Game.RunnerStartOfTurnEvent.class).name("KateMcCaffrey setup").core().auto().call(this::setFirstInstall));
 		add(match(Game.CorpStartOfTurnEvent.class).name("KateMcCaffrey setup").core().auto().call(this::setFirstInstall));
 
-		add(match(RunnerInstalledHardware.class).name("KateMcCaffrey discound").core().auto().call(this::resetFirstInstall));
-		add(match(RunnerInstalledProgram.class).name("KateMcCaffrey setup").core().auto().call(this::resetFirstInstall));
+		add(match(RunnerInstalledHardware.class).name("KateMcCaffrey discount").core().auto().call(this::resetFirstInstall));
+		add(match(RunnerInstalledProgram.class).name("KateMcCaffrey discount").core().auto().call(this::resetFirstInstall));
 
 		add(match(HardwareInstallationCostDeterminationEvent.class).name("discount on hardware").core().pred(p -> firstInstall).auto().sync(this::reduceCostOnFirstInstall));
 		add(match(ProgramInstallationCostDeterminationEvent.class).name("discount on program").core().pred(p -> firstInstall).auto().sync(this::reduceCostOnFirstInstall));

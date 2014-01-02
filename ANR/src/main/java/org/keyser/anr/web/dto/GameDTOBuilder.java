@@ -215,11 +215,11 @@ public class GameDTOBuilder {
 		Runner runner = game.getRunner();
 
 		// rajout le DTO de la corp
-		g.addCard(new CardDTO().setDef(new CardDefDTO(CORP, getURL(corp), CORP)).setLocation(LocationDTO.hq_id).setVisible(true));
+		g.addCard(new CardDTO().setDef(new CardDefDTO(CORP, getName(corp), getURL(corp), CORP)).setLocation(LocationDTO.hq_id).setVisible(true));
 		g.setCorp(corpDTO(g, corp));
 
 		// gestion du runner
-		g.addCard(new CardDTO().setDef(new CardDefDTO(RUNNER, getURL(runner), RUNNER)).setLocation(LocationDTO.grip_id).setVisible(true));
+		g.addCard(new CardDTO().setDef(new CardDefDTO(RUNNER, getName(runner), getURL(runner), RUNNER)).setLocation(LocationDTO.grip_id).setVisible(true));
 		g.setRunner(runnerDTO(g, runner));
 
 		Consumer<Card> add = c -> g.addCard(card(c));
@@ -352,7 +352,7 @@ public class GameDTOBuilder {
 		// permet de gerer le format des cards en prenant une URL avec une oid
 		String url = getURL(c);
 
-		return new CardDefDTO(id(c), url, faction);
+		return new CardDefDTO(id(c), getName(c), url, faction);
 	}
 
 	private String getName(Object c) {

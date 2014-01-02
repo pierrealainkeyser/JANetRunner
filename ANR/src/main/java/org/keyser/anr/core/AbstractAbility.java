@@ -31,6 +31,15 @@ public abstract class AbstractAbility implements Flow {
 		this.action = action;
 	}
 
+	/**
+	 * Renvoi vrai s'il s'agit d'une action
+	 * 
+	 * @return
+	 */
+	public boolean isAction() {
+		return getCost().contains(CostAction.class);
+	}
+
 	@Override
 	public void apply() {
 

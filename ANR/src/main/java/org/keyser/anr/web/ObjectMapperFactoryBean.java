@@ -2,9 +2,7 @@ package org.keyser.anr.web;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.codehaus.jackson.JsonGenerationException;
@@ -38,33 +36,21 @@ public class ObjectMapperFactoryBean implements FactoryBean<ObjectMapper> {
 		@Override
 		public void serialize(Cost value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
 
-			Cost a = value.aggregate();
-
-			Map<String, Integer> val = new LinkedHashMap<>();
-			val.put("{click}", null);
-			val.put("{credits}", null);
-
-			a.getCosts().forEach(cu -> {
-				String key = null;
-				if (cu instanceof CostCredit)
-					key = "{credits}";
-				else if (cu instanceof CostAction)
-					key = "{click}";
-
-				if (key != null) {
-					val.put(key, cu.getValue());
-				}
-			});
-
 			List<String> alls = new ArrayList<>();
-			val.forEach((k, v) -> {
-				if (v != null) {
-					if (v == 1)
-						alls.add(k);
-					else if (v > 0)
-						alls.add(v + k);
-				}
-			});
+
+			int act = value.sumFor(CostAction.class);
+			if (act > 0) {
+				String v = "";
+				for (int i = 0; i < act; ++i)
+					v += "{click}";
+				alls.add(v);
+			}
+
+			int cred = value.sumFor(CostCredit.class);
+			if (cred > 0) {
+				alls.add(cred + "{credits}");
+			}
+
 			String costLine = alls.stream().collect(Collectors.joining(" + "));
 			jgen.writeString(costLine);
 		}

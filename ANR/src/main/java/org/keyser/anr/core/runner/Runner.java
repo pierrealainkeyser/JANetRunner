@@ -6,11 +6,11 @@ import java.util.function.Consumer;
 
 import org.keyser.anr.core.AbstractAbility;
 import org.keyser.anr.core.Card;
+import org.keyser.anr.core.CardAbility;
 import org.keyser.anr.core.CardLocation;
-import org.keyser.anr.core.CoreAbility;
-import org.keyser.anr.core.CoreCardAbility;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.CostAction;
+import org.keyser.anr.core.EncounteredIce;
 import org.keyser.anr.core.Event;
 import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.Flow;
@@ -29,7 +29,7 @@ public class Runner extends PlayableUnit {
 	 * @author PAF
 	 * 
 	 */
-	class ClickForCredit extends CoreAbility {
+	class ClickForCredit extends AbstractAbility {
 		ClickForCredit() {
 			super("click-for-credit", Cost.action(1));
 		}
@@ -50,7 +50,7 @@ public class Runner extends PlayableUnit {
 	 * @author PAF
 	 * 
 	 */
-	class ClickForDraw extends CoreAbility {
+	class ClickForDraw extends AbstractAbility {
 		ClickForDraw() {
 			super("click-for-draw", Cost.action(1));
 		}
@@ -62,7 +62,7 @@ public class Runner extends PlayableUnit {
 		}
 	}
 
-	class InstallProgramAbility extends CoreCardAbility {
+	class InstallProgramAbility extends CardAbility {
 		private final Program prog;
 
 		private final List<ProgramSpace> spaces;
@@ -95,7 +95,7 @@ public class Runner extends PlayableUnit {
 
 	}
 
-	abstract class InstallAbility extends CoreCardAbility {
+	abstract class InstallAbility extends CardAbility {
 
 		private final InstallableRunnerCard card;
 
@@ -169,7 +169,7 @@ public class Runner extends PlayableUnit {
 	 * @author PAF
 	 * 
 	 */
-	class PlayEvent extends CoreCardAbility {
+	class PlayEvent extends CardAbility {
 		private final EventCard event;
 
 		PlayEvent(EventCard event, Cost cost) {
@@ -276,6 +276,27 @@ public class Runner extends PlayableUnit {
 	@Override
 	protected CardLocation discardLocation() {
 		return CardLocation.HEAP;
+	}
+
+	/**
+	 * Renvoi la liste des {@link IceBreaker} qui savent casser la
+	 * {@link EncounteredIce}
+	 * 
+	 * @param ice
+	 * @return
+	 */
+	public List<IceBreaker> forEncounter(EncounteredIce ice) {
+
+		List<IceBreaker> breakers = new ArrayList<IceBreaker>();
+		forEachProgramSpace(ps -> ps.forEach(c -> {
+			if (c instanceof IceBreaker) {
+				IceBreaker ib = (IceBreaker) c;
+				if (ice.getIce().isBrokenBy(ib)) {
+					breakers.add(ib);
+				}
+			}
+		}));
+		return breakers;
 	}
 
 	/**

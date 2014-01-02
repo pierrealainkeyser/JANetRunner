@@ -13,11 +13,17 @@ var cards = {};
 var wallets = {};
 var actions = [];
 
+// le nombre de maj de carte
+var updateCount = 0;
+var lastUnwantedAbility = 0;
+
 // pour afficher ou masquer les agendas
 var viewAgenda = { padding : 30, hspacing : 85 };
 var hideAgenda = { padding : -115, hspacing : 0 };
 
-var actionMapping = {// 
+var actionMapping = {//
+"none" : "I'm not doing anything until a new card is installed",//
+"none-till-next" : "I'm not doing anything until my next turn",//
 "click-for-credit" : "Gain {credits}",//
 "click-for-draw" : "Draw a card",//
 "install-ice" : "Install this ice",//
@@ -25,6 +31,9 @@ var actionMapping = {//
 "install-asset" : "Install this asset",//
 "install-upgrade" : "Install this upgrade",//
 "play-operation" : "Play this operation",//
+"advance-card" : "Advance this card",//
+"rezz-card" : "Rezz this card",//
+"score-agenda" : "Score this agenda {agenda}",//
 "install-program" : "Install this program",//
 "install-hardware" : "Install this hardware",//
 "install-resource" : "Install this resource",//
@@ -269,6 +278,7 @@ function initANR() {
 	confactions($("#programs").css(placeFunction.programs({ index : 0 })));
 
 	confactions($("#nothing"));
+	confactions($("#nothingTillMyTurn"));
 
 	var corpWidget = $(".faction.corp");
 	var runnerWidget = $(".faction.runner");
@@ -367,6 +377,27 @@ function updateGame(game) {
 		wallets.runner.links.value(w.link);
 	}
 
+	var main = $('div#main');
+
+	var changed = false;
+	// gestion des cartes
+	for ( var i in game.cards) {
+		var c = game.cards[i];
+		var card = cards[c.id];
+		if (card == undefined) {
+			card = new Card(c.def);
+			cards[card.def.id] = card;
+			card.init(main);
+		}
+		card.update(c);
+		changed = true;
+	}
+
+	if (changed) {
+		// on augmente le nombre de maj
+		++updateCount;
+	}
+	
 	if (game.step != undefined) {
 		var textStep = "??";
 
@@ -379,9 +410,17 @@ function updateGame(game) {
 			break;
 		case "CORP_DRAW":
 			textStep = "Draw phase";
+			// remise à zéro avant la phase de draw
+			if (faction == 'corp') {
+				lastUnwantedAbility = -1;
+			}
 			break;
 		case "RUNNER_ACT":
 			textStep = "Action phase";
+			// remise à zéro au changement de phase
+			if (faction == 'runner') {
+				lastUnwantedAbility = -1;
+			}
 			break;
 		case "RUNNER_DISCARD":
 			textStep = "Discard phase";
@@ -401,19 +440,6 @@ function updateGame(game) {
 		$("#activePlayer").text(fact);
 	}
 
-	var main = $('div#main');
-	// gestion des cartes
-	for ( var i in game.cards) {
-		var c = game.cards[i];
-		var card = cards[c.id];
-		if (card == undefined) {
-			card = new Card(c.def);
-			cards[card.def.id] = card;
-			card.init(main);
-		}
-		card.update(c);
-	}
-
 	// gestion des actions locals
 	actions = [];
 	var q = game.question;
@@ -424,16 +450,28 @@ function updateGame(game) {
 			for (i in q.responses) {
 				var a = handleQuestion(q, q.responses[i]);
 				if (a instanceof Array) {
-					for(i in a )
-						a[i].bind();					
+					for (i in a)
+						a[i].bind();
 
 					actions = actions.concat(a);
 				} else {
 					a.bind();
 					actions.push(a);
 				}
+			}			
 
+			// si on a que un none on fait peter l'action, si pas de changement
+			if (actions.length > 0 && actions[actions.length - 1].response.option == 'none') {
+				
+				console.log("contains 'none' " + lastUnwantedAbility+" "+updateCount);
+
+				// TODO gestion plus permante des actions
+				if (lastUnwantedAbility == updateCount) {
+					actions[actions.length - 1].applyAction();
+					return;
+				}
 			}
+
 		} else {
 			// en attente
 			var msg = $("#activeMessage");
@@ -443,6 +481,8 @@ function updateGame(game) {
 			msg.text("Please, wait for the other player");
 		}
 	}
+
+	
 
 	// gestion du popup des actions
 	displayANRAction($(":focus").prop("ANRAction"));
@@ -475,12 +515,6 @@ function handleQuestion(q, r) {
 			widget = faction == 'corp' ? $("#hq") : $("#grip");
 		else if ('click-for-draw' == r.option)
 			widget = faction == 'corp' ? $("#rd") : $("#stack");
-		else if ('none' == r.option) {
-			widget = $("#nothing");
-
-			// on masque le widget avant l'emission
-			$("#nothing").stop().animate({ height : 'toggle' });
-		}
 
 		if (widget != undefined) {
 			if ("install-ice" == r.option || "install-asset" == r.option || "install-agenda" == r.option || "install-upgrade" == r.option)
@@ -492,15 +526,8 @@ function handleQuestion(q, r) {
 	} else if ('WHICH_ABILITY' == q.what) {
 		msg.addClass("label label-danger");
 		msg.text("Would you like to play an ability ?");
-
-		if ('none' == r.option) {
-			widget = $("#nothing");
-
-			// on masque le widget avant l'emission
-			$("#nothing").stop().animate({ height : 'toggle' });
-		}
-
-		act = new Action(q, r, widget);
+		if (widget != undefined)
+			act = new Action(q, r, widget);
 	} else if ('DISCARD_CARD' == q.what) {
 		msg.addClass("label label-warning");
 		msg.text("Select " + r.args.nb + " card" + (r.args.nb > 1 ? "s" : "") + " to discard");
@@ -513,7 +540,21 @@ function handleQuestion(q, r) {
 			var c = cards[r.args.cards[i] + ""];
 			act.push(new DiscardAction(q, r, c));
 		}
+	}
 
+	if (act == undefined) {
+		if ('none' == r.option) {
+
+			act = [];
+			
+			var nr = _.clone(r);
+			nr.option = "none-till-next";
+			act.push(new Action(q, nr, $("#nothingTillMyTurn")));
+			act.push(new Action(q, r, $("#nothing")));
+
+			// on masque le widget avant l'emission
+			$("#noActionPlease").stop().animate({ height : 'toggle' });
+		}
 	}
 
 	return act;
@@ -545,10 +586,27 @@ function Action(q, r, widget) {
 	}
 
 	/**
-	 * Attache l'acition au composant
+	 * Attache l'action au composant
 	 */
 	this.bind = function() {
-		this.widget.prop("ANRAction", this).addClass("withAction");
+
+		var act = this.widget.prop("ANRAction");
+
+		// TODO gestion des actions multiple sur la carte
+		if (act != undefined) {
+			var many = null;
+			if (act instanceof ManyAction)
+				many = act;
+			else {
+				many = new ManyAction(this.widget);
+				many.addAction(act);
+			}
+
+			many.addAction(this);
+			this.widget.prop("ANRAction", many)
+
+		} else
+			this.widget.prop("ANRAction", this).addClass("withAction");
 	}
 
 	/**
@@ -559,7 +617,7 @@ function Action(q, r, widget) {
 		this.clearAll();
 		var choosen = { qid : q.qid, rid : r.rid };
 
-		var opt = $("#nothing");
+		var opt = $("#noActionPlease");
 		if (opt.is(':visible')) {
 			opt.stop().animate({ height : 'toggle' });
 		}
@@ -573,8 +631,55 @@ function Action(q, r, widget) {
 
 	this.applyAction = function() {
 		console.info("applying : " + r.option);
+
+		// on conserve l'ancien resultat ou l'on n'a rien fait
+		if (this.response.option == 'none') {
+			lastUnwantedAbility = updateCount;
+		} else if (this.response.option == 'none-till-next') {
+			// TODO on desactive jusqu'au prochain tour
+		}
+
 		this.sendToWs();
 	};
+
+	/**
+	 * Nettoyage de toutes les actions
+	 */
+	this.clearAll = function() {
+		for (i in actions) {
+			actions[i].clean();
+		}
+	}
+
+	this.clean = function() {
+		widget.removeProp("ANRAction").removeClass("withAction");
+	}
+}
+
+/**
+ * Plusieurs actions sur la même carte
+ */
+function ManyAction(widget) {
+
+	this.alls = [];
+
+	actions.push(this);
+
+	this.addAction = function(a) {
+		this.alls.push(a);
+	}
+
+	this.getHTML = function() {
+		var more = "";
+		for (i in this.alls) {
+			more += "<p>" + this.alls[i].getHTML() + "</p>";
+		}
+		return more + "";
+	}
+
+	this.applyAction = function() {
+	//
+	}
 
 	/**
 	 * Nettoyage de toutes les actions
@@ -720,7 +825,7 @@ function handleBlur() {
 function displayANRAction(act) {
 	var widget = $("#action");
 	if (act != undefined) {
-		widget.find("p").html(act.getHTML());
+		widget.find("div.panel-body").html(act.getHTML());
 		widget.stop().show('slide');
 	} else {
 		var widget = $("#action");

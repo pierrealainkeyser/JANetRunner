@@ -14,8 +14,11 @@ public class CardDefDTO {
 
 	private String url;
 
-	public CardDefDTO(String id, String url, String faction) {
+	private String name;
+
+	public CardDefDTO(String id, String name, String url, String faction) {
 		this.id = id;
+		this.name = name;
 		this.url = url;
 		this.faction = faction;
 	}
@@ -35,5 +38,9 @@ public class CardDefDTO {
 	@Override
 	public String toString() {
 		return "CardDefDTO [faction=" + faction + ", id=" + id + ", url=" + url + "]";
+	}
+
+	public String getName() {
+		return name;
 	}
 }

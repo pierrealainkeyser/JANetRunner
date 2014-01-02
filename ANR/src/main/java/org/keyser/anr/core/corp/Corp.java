@@ -10,12 +10,11 @@ import java.util.stream.Collectors;
 
 import org.keyser.anr.core.AbstractAbility;
 import org.keyser.anr.core.Card;
+import org.keyser.anr.core.CardAbility;
 import org.keyser.anr.core.CardLocation;
 import org.keyser.anr.core.CardLocationAsset;
 import org.keyser.anr.core.CardLocationIce;
 import org.keyser.anr.core.CardLocationUpgrade;
-import org.keyser.anr.core.CoreAbility;
-import org.keyser.anr.core.CoreCardAbility;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Event;
 import org.keyser.anr.core.Faction;
@@ -30,7 +29,7 @@ import org.keyser.anr.core.WinCondition;
 
 public class Corp extends PlayableUnit {
 
-	class AdvanceCard extends CoreCardAbility {
+	class AdvanceCard extends CardAbility {
 		private final CorpCard card;
 
 		AdvanceCard(CorpCard card) {
@@ -56,7 +55,7 @@ public class Corp extends PlayableUnit {
 	 * @author PAF
 	 * 
 	 */
-	class ClickForCredit extends CoreAbility {
+	class ClickForCredit extends AbstractAbility {
 		ClickForCredit() {
 			super("click-for-credit", Cost.action(1));
 		}
@@ -77,7 +76,7 @@ public class Corp extends PlayableUnit {
 	 * @author PAF
 	 * 
 	 */
-	class ClickForDraw extends CoreAbility {
+	class ClickForDraw extends AbstractAbility {
 		ClickForDraw() {
 			super("click-for-draw", Cost.action(1));
 		}
@@ -95,7 +94,7 @@ public class Corp extends PlayableUnit {
 	 * @author PAF
 	 * 
 	 */
-	class ClickForPurge extends CoreAbility {
+	class ClickForPurge extends AbstractAbility {
 		ClickForPurge() {
 			super("click-for-purge", Cost.action(3));
 		}
@@ -139,7 +138,7 @@ public class Corp extends PlayableUnit {
 		}
 	}
 
-	abstract class InstallAssetOrAgendaAbility extends CoreAbility {
+	abstract class InstallAssetOrAgendaAbility extends AbstractAbility {
 		private final List<InstallOn> alls;
 
 		private final CorpCard card;
@@ -174,7 +173,7 @@ public class Corp extends PlayableUnit {
 		}
 	}
 
-	class InstallIceAbility extends CoreAbility {
+	class InstallIceAbility extends AbstractAbility {
 		private final List<InstallIceCost> alls;
 
 		private final Ice ice;
@@ -228,7 +227,7 @@ public class Corp extends PlayableUnit {
 		}
 	}
 
-	class InstallUpgradeAbility extends CoreAbility {
+	class InstallUpgradeAbility extends AbstractAbility {
 		private final List<InstallOn> alls;
 
 		private final Upgrade card;
@@ -280,7 +279,7 @@ public class Corp extends PlayableUnit {
 	 * @author PAF
 	 * 
 	 */
-	class PlayOperation extends CoreCardAbility {
+	class PlayOperation extends CardAbility {
 		private final Operation op;
 
 		PlayOperation(Operation operation, Cost cost) {
@@ -301,7 +300,7 @@ public class Corp extends PlayableUnit {
 		}
 	}
 
-	class RezzCard extends CoreCardAbility {
+	class RezzCard extends CardAbility {
 		private final CorpCard card;
 
 		RezzCard(CorpCard card, Cost cost) {
@@ -319,7 +318,7 @@ public class Corp extends PlayableUnit {
 		}
 	}
 
-	class ScoreAgenda extends CoreCardAbility {
+	class ScoreAgenda extends CardAbility {
 		private final Agenda agenda;
 
 		ScoreAgenda(Agenda agenda, Cost cost) {

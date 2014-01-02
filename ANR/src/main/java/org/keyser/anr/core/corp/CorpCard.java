@@ -2,6 +2,7 @@ package org.keyser.anr.core.corp;
 
 import org.keyser.anr.core.Card;
 import org.keyser.anr.core.CardLocation;
+import org.keyser.anr.core.CardSubType;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Influence;
 import org.keyser.anr.core.NotificationEvent;
@@ -12,8 +13,8 @@ public abstract class CorpCard extends Card {
 
 	private Integer advancement;
 
-	public CorpCard(Influence influence, Cost cost) {
-		super(influence, cost);
+	public CorpCard(Influence influence, Cost cost, CardSubType... subtypes) {
+		super(influence, cost, subtypes);
 	}
 
 	public boolean isRezzed() {

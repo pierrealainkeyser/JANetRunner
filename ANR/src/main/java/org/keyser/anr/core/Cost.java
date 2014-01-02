@@ -43,13 +43,17 @@ public final class Cost {
 	}
 
 	public int sumFor(Class<? extends CostUnit> type) {
-		int sum = costs.stream().filter((sc) -> type.equals(sc.getClass())).mapToInt(CostUnit::getValue).sum();
+		int sum = costs.stream().filter(sc -> type.equals(sc.getClass())).mapToInt(CostUnit::getValue).sum();
 		return sum;
 	}
 
 	public boolean isZero() {
 		int value = costs.stream().mapToInt(CostUnit::getValue).sum();
 		return value == 0;
+	}
+
+	public boolean contains(Class<? extends CostUnit> type) {
+		return costs.stream().filter(sc -> type.equals(sc.getClass())).findFirst().isPresent();
 	}
 
 	public Cost times(int nb) {

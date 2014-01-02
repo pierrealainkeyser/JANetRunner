@@ -1,36 +1,48 @@
 package org.keyser.anr.core.corp;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collector;
 
+import org.keyser.anr.core.CardSubType;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Influence;
 import org.keyser.anr.core.runner.IceBreaker;
-import org.keyser.anr.core.runner.IceBreakerType;
 
 public abstract class Ice extends InstallableCorpCard {
 
 	private final int strength;
 
-	private final IceType iceType;
-
 	private final List<Routine> routines = new ArrayList<>();
 
-	public Ice(Influence influence, Cost rezCost, IceType iceType, int strength) {
-		super(influence, rezCost);
+	public Ice(Influence influence, Cost rezCost, int strength, CardSubType... subtypes) {
+		super(influence, rezCost, subtypes);
 		this.strength = strength;
-		this.iceType = iceType;
 	}
 
 	/**
 	 * Renvoi vrai si le breaker peut casser cette glace
+	 * 
 	 * @param breaker
 	 * @return
 	 */
 	public boolean isBrokenBy(IceBreaker breaker) {
-		IceBreakerType type = breaker.getIceBreakerType();
-		return iceType.isBrokenBy(type) || IceBreakerType.IA == type;
+
+		Collector<CardSubType, ?, List<CardSubType>> list = toList();
+		List<CardSubType> breakers = breaker.getSubTypes().stream().filter(CardSubType::isIceBreaker).collect(list);
+		List<CardSubType> ices = getSubTypes().stream().filter(CardSubType::isIce).collect(list);
+		for (CardSubType b : breakers) {
+			for (CardSubType i : ices) {
+				if (b.mayBreak(i))
+					return true;
+			}
+		}
+
+		return false;
+
 	}
 
 	public List<Routine> getRoutines() {
@@ -45,13 +57,4 @@ public abstract class Ice extends InstallableCorpCard {
 	public int getStrength() {
 		return strength;
 	}
-
-	public IceType getIceType() {
-		return iceType;
-	}
-
-	public int getRoutinesCount() {
-		return routines.size();
-	}
-
 }

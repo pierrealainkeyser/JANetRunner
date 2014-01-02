@@ -1,6 +1,7 @@
 package org.keyser.anr.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,9 +29,12 @@ public abstract class Card extends AbstractGameContent {
 
 	private boolean unique = false;
 
-	public Card(Influence influence, Cost cost) {
+	private final List<CardSubType> subTypes = new ArrayList<>();
+
+	public Card(Influence influence, Cost cost, CardSubType... sub) {
 		this.influence = influence;
 		this.cost = cost;
+		this.subTypes.addAll(Arrays.asList(sub));
 	}
 
 	public CardLocation getLocation() {
@@ -59,7 +63,7 @@ public abstract class Card extends AbstractGameContent {
 
 	protected abstract void doTrash();
 
-	public final void trash(Flow next) {				
+	public final void trash(Flow next) {
 		doTrash();
 		getGame().apply(new CardTrashedEvent(this), next);
 	}
@@ -135,5 +139,9 @@ public abstract class Card extends AbstractGameContent {
 
 	public void setUnique(boolean unique) {
 		this.unique = unique;
+	}
+
+	public List<CardSubType> getSubTypes() {
+		return Collections.unmodifiableList(subTypes);
 	}
 }

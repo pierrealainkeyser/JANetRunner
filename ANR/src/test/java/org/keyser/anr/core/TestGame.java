@@ -13,7 +13,6 @@ public class TestGame {
 	/**
 	 * Gestion des actions et fin du jeu
 	 */
-
 	@Test
 	public void testCoreGame() {
 		boolean[] end = new boolean[1];

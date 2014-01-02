@@ -159,43 +159,46 @@ div.card div {
 	left: 0px;
 	margin-left: -400px;
 	top: 355px;
-	height : 250px;
-	width: 400px;	
+	height: 250px;
+	width: 400px;
 	display: inline-block;
 	position: absolute;
 	z-index: 5000;
 	background-color: rgba(255, 255, 255, 0.35);
-	overflow: hidden;	
+	overflow: hidden;
 }
 
-#eventlog div.panel-body {	
-	bottom:0px;
+#eventlog div.panel-body {
+	bottom: 0px;
 	position: absolute;
 	z-index: -1;
 	padding: 0px;
 }
 
-#eventlog div.panel-body  p{	
+#eventlog div.panel-body  p {
 	margin: 0px;
 }
 
-#nothing {
+#noActionPlease {
 	position: absolute;
-	right: 150px;
+	right: 300px;
 	bottom: 0px;
-	margin-bottom: 0px;
-	margin-left: 150px;
+	display: none;	
+}
+
+#noActionPlease div {
 	border-radius: 5px 5px 0px 0px;
-	display: none;
+	display: inline-block;
+	margin: 0;
 }
 
-#nothing .panel-heading {
+#noActionPlease  span {
 	display: inline-block;
+	padding: 0px 5px;
 }
 
-#nothing .panel-body {
-	padding: 3px;
-	display: inline-block;
+#noActionPlease  span:FIRST-CHILD {
+	padding: 10px 15px;
 }
 
 .cardplace {
@@ -216,7 +219,7 @@ div.card div {
 	z-index: 0;
 }
 
-.withAction.cardplace,#nothing.withAction {
+.withAction.cardplace,#noActionPlease div.withAction {
 	border: 1.5px dashed #428bca;
 }
 

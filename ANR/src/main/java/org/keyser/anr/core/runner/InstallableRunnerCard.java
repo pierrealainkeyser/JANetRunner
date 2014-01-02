@@ -2,6 +2,7 @@ package org.keyser.anr.core.runner;
 
 import java.util.stream.Stream;
 
+import org.keyser.anr.core.CardSubType;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.DefaultInstallable;
 import org.keyser.anr.core.EventMatcher;
@@ -11,12 +12,12 @@ import org.keyser.anr.core.Installable;
 public abstract class InstallableRunnerCard extends RunnerCard implements Installable {
 
 	/**
-	 * FIXME à déplacer sur les card
+	 * FIXME ï¿½ dï¿½placer sur les card
 	 */
-	private final DefaultInstallable di = new DefaultInstallable();	
+	private final DefaultInstallable di = new DefaultInstallable();
 
-	public InstallableRunnerCard(Influence influence, Cost cost) {
-		super(influence, cost);
+	public InstallableRunnerCard(Influence influence, Cost cost, CardSubType... subtypes) {
+		super(influence, cost, subtypes);
 	}
 
 	protected InstallableRunnerCard add(EventMatcher.Builder<?> em) {

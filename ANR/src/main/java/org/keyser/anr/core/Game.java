@@ -1,5 +1,6 @@
 package org.keyser.anr.core;
 
+import static java.util.Arrays.stream;
 import static java.util.Collections.unmodifiableMap;
 import static org.keyser.anr.core.RecursiveIterator.recurse;
 
@@ -126,7 +127,7 @@ public class Game implements Notifier, ConfigurableEventListener {
 				} else
 					toNextPlayer.apply();
 
-			} else if (triggered instanceof CoreAbility) {
+			} else if (triggered.isAction()) {
 				toNextPlayer.apply();
 			} else {
 
@@ -167,12 +168,11 @@ public class Game implements Notifier, ConfigurableEventListener {
 			AbstractAbility[] it = affordable.toArray(i -> new AbstractAbility[i]);
 			boolean mayRezz = false;
 
+			boolean anyAction = stream(it).anyMatch(aa -> aa.isAction());
+
 			// TODO gestion des abilites de rezz (qui peuvent ne peut pas être
 			// payable, mais le runner ne doit pas le savoir !!)
-
-			boolean playerTurn = getStep().isTurn(player);
-
-			Question q = ask(player, playerTurn ? NotificationEvent.WHICH_ACTION : NotificationEvent.WHICH_ABILITY);
+			Question q = ask(player, anyAction ? NotificationEvent.WHICH_ACTION : NotificationEvent.WHICH_ABILITY);
 
 			for (AbstractAbility aa : it) {
 
@@ -181,19 +181,21 @@ public class Game implements Notifier, ConfigurableEventListener {
 
 			}
 
+			Flow toEnd = () -> triggeredFlow.apply(null);
+
 			// on rajoute l'absence d'action uniquement en cas de rezz possible
 			if (q.isEmpty()) {
 				// si la corp peut activer des cartes mais qu'il n'y a pas de
 				// question
 				if (mayRezz)
-					q.ask("none").to(() -> triggeredFlow.apply(null));
+					q.ask("none").to(toEnd);
 				else
 					triggeredFlow.apply(null);
 			} else {
 
 				// si pas d'action possible, mais juste des evenements
 				if (wallet.amountOf(WalletActions.class) == 0) {
-					q.ask("none").to(() -> triggeredFlow.apply(null));
+					q.ask("none").to(toEnd);
 				}
 			}
 

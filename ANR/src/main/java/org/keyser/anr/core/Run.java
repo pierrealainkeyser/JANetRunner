@@ -1,13 +1,10 @@
 package org.keyser.anr.core;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.stream.Stream;
 
 import org.keyser.anr.core.Game.PingPong;
 import org.keyser.anr.core.corp.CorpServer;
-import org.keyser.anr.core.corp.Ice;
 import org.keyser.anr.core.corp.Routine;
 
 public class Run extends AbstractGameContent implements Flow {
@@ -41,55 +38,6 @@ public class Run extends AbstractGameContent implements Flow {
 	 */
 	public class CleanUpIceEncounterEvent extends RunEvent {
 
-	}
-
-	/**
-	 * L'�tat de la glace
-	 * 
-	 * @author PAF
-	 * 
-	 */
-	public static class EncounteredIce {
-
-		List<Routine> brokens = new ArrayList<>();
-		boolean bypassed;
-		final Ice ice;
-
-		private EncounteredIce(Ice ice) {
-			this.ice = ice;
-		}
-
-		public void addBroken(Routine r) {
-			brokens.add(r);
-		}
-
-		public int countBrokens() {
-			return brokens.size();
-		}
-
-		public boolean isRezzed() {
-			return ice.isRezzed();
-		}
-
-		public Stream<Routine> getUnbrokens() {
-			return ice.getRoutines().stream().filter(r -> !brokens.contains(r));
-		}
-
-		public boolean isAllRoutinesBroken() {
-			return countBrokens() == ice.getRoutinesCount();
-		}
-
-		public boolean isBypassed() {
-			return bypassed;
-		}
-
-		public void setBypassed(boolean bypassed) {
-			this.bypassed = bypassed;
-		}
-
-		public Ice getIce() {
-			return ice;
-		}
 	}
 
 	/**
@@ -271,8 +219,13 @@ public class Run extends AbstractGameContent implements Flow {
 			option = RunOption.PAID_ICEBREAKER;
 
 			// phase 3.1
-			pingpong(this::checkRoutines).runner();
+			pingpongEncounter(this::checkRoutines).runner();
 		}
+	}
+
+	private PingPong pingpongEncounter(Flow next) {
+
+		return pingpong(next);
 	}
 
 	/**
@@ -369,7 +322,7 @@ public class Run extends AbstractGameContent implements Flow {
 
 	private void jackOffDecision(AbstractJackOffPossibilty jackOff, Flow next) {
 		if (jackOff.isMayJackOff()) {
-			//le runner peut débrancher
+			// le runner peut débrancher
 			Question q = ask(Player.RUNNER, NotificationEvent.WANT_TO_JACKOFF);
 			q.ask("true").to(this::failTheRun);
 			q.ask("false").to(next);

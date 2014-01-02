@@ -4,13 +4,13 @@ import static org.keyser.anr.core.Cost.credit;
 import static org.keyser.anr.core.Faction.NBN;
 
 import org.keyser.anr.core.CardDef;
+import org.keyser.anr.core.CardSubType;
 import org.keyser.anr.core.corp.Ice;
-import org.keyser.anr.core.corp.IceType;
 
 @CardDef(name = "Matrix Analyzer", oid = "01089")
 public class MatrixAnalyser extends Ice {
 
 	public MatrixAnalyser() {
-		super(NBN.infl(2), credit(1), IceType.SENTRY, 3);
+		super(NBN.infl(2), credit(1), 3, CardSubType.SENTRY);
 	}
 }

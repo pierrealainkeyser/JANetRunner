@@ -6,18 +6,18 @@ import static org.keyser.anr.core.Faction.NBN;
 import static org.keyser.anr.core.corp.routines.EndTheRun.endTheRun;
 
 import org.keyser.anr.core.CardDef;
+import org.keyser.anr.core.CardSubType;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.Run.IceIsEncounterEvent;
 import org.keyser.anr.core.Wallet;
 import org.keyser.anr.core.corp.Ice;
-import org.keyser.anr.core.corp.IceType;
 
 @CardDef(name = "Tollbooth", oid = "01090")
 public class Tollbooth extends Ice {
 
 	public Tollbooth() {
-		super(NBN.infl(2), credit(8), IceType.CODEGATE, 5);
+		super(NBN.infl(2), credit(8), 5, CardSubType.CODEGATE);
 		addRoutine(endTheRun);
 
 		add(match(IceIsEncounterEvent.class).name("Tollbooth").async(this::applyEffect));
