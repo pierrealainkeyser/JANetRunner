@@ -30,6 +30,11 @@ public final class CorpRemoteServer extends CorpServer {
 			c.accept(agenda);
 	}
 
+	@Override
+	public boolean isNotEmpty() {
+		return super.isNotEmpty() || agenda != null || asset != null;
+	}
+
 	public List<CorpCard> getCards() {
 		if (asset != null)
 			return singletonList((CorpCard) asset);
@@ -40,7 +45,7 @@ public final class CorpRemoteServer extends CorpServer {
 	}
 
 	public void remove() {
-		getCorpo().remove(this);
+		getCorp().remove(this);
 	}
 
 	public int getId() {
@@ -57,16 +62,18 @@ public final class CorpRemoteServer extends CorpServer {
 	}
 
 	private void trashAgendaAndAsset() {
-		//FIXME faire mieux pour la gestion du changement
+		// FIXME faire mieux pour la gestion du changement
 		if (asset != null) {
 			Asset old = asset;
 			asset = null;
-			old.trash(()->{});
+			old.trash(() -> {
+			});
 		}
 		if (agenda != null) {
 			Agenda old = agenda;
 			agenda = null;
-			old.trash(()->{});
+			old.trash(() -> {
+			});
 
 		}
 

@@ -11,14 +11,22 @@ import org.keyser.anr.core.Card;
 
 public abstract class CorpServer {
 
-	private final Corp corpo;
+	private final Corp corp;
 
 	private final List<Upgrade> upgrades = new ArrayList<>();
 
 	private final Stack<Ice> ices = new Stack<>();
 
 	public CorpServer(Corp corpo) {
-		this.corpo = corpo;
+		this.corp = corpo;
+	}
+
+	public int getIndex() {
+		return corp.getIndex(this);
+	}
+
+	public boolean isNotEmpty() {
+		return !(upgrades.isEmpty() && ices.isEmpty());
 	}
 
 	/**
@@ -74,8 +82,8 @@ public abstract class CorpServer {
 		return ices.size();
 	}
 
-	public Corp getCorpo() {
-		return corpo;
+	public Corp getCorp() {
+		return corp;
 	}
 
 	public Ice getIceAtHeight(int h) {

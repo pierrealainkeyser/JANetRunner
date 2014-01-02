@@ -38,6 +38,7 @@ var actionMapping = {//
 "install-hardware" : "Install this hardware",//
 "install-resource" : "Install this resource",//
 "play-event" : "Play this event",//
+"run" : "Initiate a run on this server",//
 };
 
 // gestion des bordures
@@ -227,7 +228,8 @@ function confactions(widget) {
 }
 
 function addLog(text) {
-	var nl = $("<p>" + text + "</p>");
+	
+	var nl = $("<p>" + interpolateSprites(text) + "</p>");
 	$("#eventsink").append(nl);
 }
 
@@ -397,7 +399,7 @@ function updateGame(game) {
 		// on augmente le nombre de maj
 		++updateCount;
 	}
-	
+
 	if (game.step != undefined) {
 		var textStep = "??";
 
@@ -454,16 +456,16 @@ function updateGame(game) {
 						a[i].bind();
 
 					actions = actions.concat(a);
-				} else {
+				} else if (a) {
 					a.bind();
 					actions.push(a);
 				}
-			}			
+			}
 
 			// si on a que un none on fait peter l'action, si pas de changement
 			if (actions.length > 0 && actions[actions.length - 1].response.option == 'none') {
-				
-				console.log("contains 'none' " + lastUnwantedAbility+" "+updateCount);
+
+				console.log("contains 'none' " + lastUnwantedAbility + " " + updateCount);
 
 				// TODO gestion plus permante des actions
 				if (lastUnwantedAbility == updateCount) {
@@ -481,8 +483,6 @@ function updateGame(game) {
 			msg.text("Please, wait for the other player");
 		}
 	}
-
-	
 
 	// gestion du popup des actions
 	displayANRAction($(":focus").prop("ANRAction"));
@@ -515,6 +515,8 @@ function handleQuestion(q, r) {
 			widget = faction == 'corp' ? $("#hq") : $("#grip");
 		else if ('click-for-draw' == r.option)
 			widget = faction == 'corp' ? $("#rd") : $("#stack");
+		else if ('run' == r.option)
+			widget = widgetServer(r.args);
 
 		if (widget != undefined) {
 			if ("install-ice" == r.option || "install-asset" == r.option || "install-agenda" == r.option || "install-upgrade" == r.option)
@@ -540,13 +542,16 @@ function handleQuestion(q, r) {
 			var c = cards[r.args.cards[i] + ""];
 			act.push(new DiscardAction(q, r, c));
 		}
+	} else if ('WANT_TO_JACKOFF' == q.what) {
+		msg.addClass("label label-danger");
+		msg.text("Would you like to jack-off ?");
 	}
 
 	if (act == undefined) {
 		if ('none' == r.option) {
 
 			act = [];
-			
+
 			var nr = _.clone(r);
 			nr.option = "none-till-next";
 			act.push(new Action(q, nr, $("#nothingTillMyTurn")));

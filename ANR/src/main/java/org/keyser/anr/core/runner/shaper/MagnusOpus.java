@@ -18,6 +18,9 @@ public class MagnusOpus extends Program {
 
 			@Override
 			public void apply() {
+				
+				//TODO notification
+				
 				getGame().getRunner().getWallet().wallet(WalletCredits.class, wc -> wc.setAmount(wc.getAmount() + 2));
 				next.apply();
 			}

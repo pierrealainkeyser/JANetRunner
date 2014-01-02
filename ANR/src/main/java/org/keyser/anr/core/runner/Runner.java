@@ -18,8 +18,11 @@ import org.keyser.anr.core.Game;
 import org.keyser.anr.core.NotificationEvent;
 import org.keyser.anr.core.PlayableUnit;
 import org.keyser.anr.core.Player;
+import org.keyser.anr.core.Question;
 import org.keyser.anr.core.WalletBadPub;
 import org.keyser.anr.core.WalletCredits;
+import org.keyser.anr.core.corp.CorpServer;
+import org.keyser.anr.core.corp.Routine;
 
 public class Runner extends PlayableUnit {
 
@@ -41,6 +44,27 @@ public class Runner extends PlayableUnit {
 			Game game = getGame();
 			game.notification(NotificationEvent.RUNNER_CLICKED_FOR_CREDIT.apply());
 			game.apply(new RunnerClickedForCredit(), next);
+		}
+	}
+
+	class StartARun extends AbstractAbility {
+
+		private final CorpServer target;
+
+		StartARun(CorpServer target) {
+			super("run", Cost.action(1));
+			this.target = target;
+		}
+
+		protected void registerQuestion(Question q) {
+			q.ask(getName()).to(this::doNext).setCost(getCost()).setContent(target.getIndex());
+		}
+
+		@Override
+		public void apply() {
+
+			// on on commnce un run
+			getGame().startRun(target, next).apply();
 		}
 	}
 
@@ -189,6 +213,43 @@ public class Runner extends PlayableUnit {
 		}
 	}
 
+	class UseIceBreakerAbility extends AbstractAbility {
+
+		private final BreakCostAnalysis analysis;
+
+		UseIceBreakerAbility(BreakCostAnalysis analysis) {
+			super("use-ice-breaker", analysis.costToBreak(1));
+			this.analysis = analysis;
+		}
+
+		@Override
+		protected void registerQuestion(Question q) {
+			q.ask(getName(), analysis.getIceBreaker()).to(BreakRoutinesCommand.class, this::useBreaker).setContent(analysis);
+		}
+
+		/**
+		 * On utilise le breaker
+		 * 
+		 * @param brc
+		 */
+		public void useBreaker(BreakRoutinesCommand brc) {
+
+			EncounteredIce ice = analysis.getIce();
+			List<Routine> toBeBrokens = ice.getToBeBrokens();
+			List<Routine> brokens = new ArrayList<>();
+
+			// on rajoute toutes les routines
+			brc.getRoutines().forEach(i -> brokens.add(toBeBrokens.get(i)));
+
+			// on réaliser 2 boucles pour eviter les problemes d'index
+			brokens.forEach(r -> ice.addBroken(r));
+
+			// on break les routines dans la joie
+			analysis.apply(brc.getRoutines().size(), getGame(), next);
+
+		}
+	}
+
 	private final List<Hardware> hardwares = new ArrayList<>();
 
 	private final ProgramSpace coreSpace = new ProgramSpace();
@@ -254,6 +315,21 @@ public class Runner extends PlayableUnit {
 					game.apply(new ProgramInstallationCostDeterminationEvent(p), (de) -> a.add(new InstallProgramAbility(p, de.getEffective(), spaces)));
 				});
 			}
+
+			game.getCorp().forEachServer(cs -> {
+				if (cs.isNotEmpty())
+					a.add(new StartARun(cs));
+			});
+		}
+
+		// on va chercher un icebreaker approprié
+		if (game.mayUseIceBreaker()) {
+			EncounteredIce ei = game.getRun().getEncounter();
+			forEncounter(ei).forEach(br -> {
+				BreakCostAnalysis bca = br.getBreakCostAnalysis(ei);
+				a.add(new UseIceBreakerAbility(bca));
+			});
+
 		}
 
 		forEachCardInPlay(c -> {

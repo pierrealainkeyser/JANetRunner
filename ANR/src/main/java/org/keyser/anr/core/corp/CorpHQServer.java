@@ -18,7 +18,7 @@ public final class CorpHQServer extends CorpCentralServer {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<CorpCard> getCards() {
-		return (List<CorpCard>) getCorpo().getHand();
+		return (List<CorpCard>) getCorp().getHand();
 	}
 	
 

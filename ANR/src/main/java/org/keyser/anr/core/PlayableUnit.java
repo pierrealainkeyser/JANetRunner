@@ -26,6 +26,8 @@ public abstract class PlayableUnit extends AbstractGameContent implements Instal
 
 	private final Faction faction;
 
+	private boolean actionInProgress = false;
+
 	protected PlayableUnit(Faction faction) {
 		wallet.setPlayer(getPlayer());
 		this.faction = faction;
@@ -48,7 +50,7 @@ public abstract class PlayableUnit extends AbstractGameContent implements Instal
 		this.scoreds.add(c);
 
 		if (c instanceof Agenda) {
-			 score += ((Agenda) c).getScore();
+			score += ((Agenda) c).getScore();
 		}
 
 		// notification du score
@@ -61,7 +63,7 @@ public abstract class PlayableUnit extends AbstractGameContent implements Instal
 	 * @return
 	 */
 	protected boolean mayPlayAction() {
-		return getGame().getStep().mayPlayAction();
+		return getGame().getStep().mayPlayAction() && !actionInProgress;
 	}
 
 	/**
@@ -133,6 +135,15 @@ public abstract class PlayableUnit extends AbstractGameContent implements Instal
 
 	public Faction getFaction() {
 		return faction;
+	}
+
+	/**
+	 * Permet d'éviter les doublons d'action
+	 * 
+	 * @param actionInProgress
+	 */
+	public void setActionInProgress(boolean actionInProgress) {
+		this.actionInProgress = actionInProgress;
 	}
 
 }

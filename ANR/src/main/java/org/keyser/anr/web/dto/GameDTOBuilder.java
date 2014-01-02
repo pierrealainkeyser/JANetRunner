@@ -106,7 +106,7 @@ public class GameDTOBuilder {
 						dto.addToken(AGENDA, ad);
 
 						if (ad != null && ad > 0)
-							g.addLog("The corp advances a card");
+							g.addLog("A card is advanced");
 					}
 				});
 
@@ -114,10 +114,10 @@ public class GameDTOBuilder {
 				g.setStep(i.getStep());
 			} else if (NotificationEvent.CORP_SCORE_AGENDA == type) {
 				updateScore(i.getGame().getCorp(), g.create(Player.CORP));
-				g.addLog("The corp scores " + getName(i.getCard()));
+				g.addLog(getName(i.getCard()) + " is scored by the corp");
 			} else if (NotificationEvent.RUNNER_SCORE_AGENDA == type) {
 				updateScore(i.getGame().getRunner(), g.create(Player.RUNNER));
-				g.addLog("The runner steals " + getName(i.getCard()));
+				g.addLog(getName(i.getCard()) + " is stolen by the runner");
 			} else if (NotificationEvent.RUNNER_MEMORY_CHANGED == type) {
 				int left = i.getGame().getRunner().getCoreSpace().getMemoryLeft();
 				g.create(Player.RUNNER).setValue(MEMORY, left);
@@ -125,23 +125,23 @@ public class GameDTOBuilder {
 				int left = i.getGame().getRunner().getLink();
 				g.create(Player.RUNNER).setValue(LINK, left);
 			} else if (NotificationEvent.CORP_INSTALLED == type) {
-				g.addLog("The corp installs something");
+				g.addLog("Something is installed by the corp");
 			} else if (NotificationEvent.CORP_INSTALLED_AN_ICE == type) {
-				g.addLog("The corp installs an ice");
+				g.addLog("A new ice is installed");
 			} else if (NotificationEvent.CORP_CLICKED_FOR_DRAW == type) {
 				g.addLog("The corp draws a card");
 			} else if (NotificationEvent.CORP_CLICKED_FOR_CREDIT == type) {
-				g.addLog("The corp gains a credit");
+				g.addLog("The corp gains 1{credits}");
 			} else if (NotificationEvent.CORP_PLAYED_AN_OPERATION == type) {
-				g.addLog("The corp plays " + getName(i.getCard()));
+				g.addLog(getName(i.getCard()) + " is played");
 			} else if (NotificationEvent.CORP_REZZ_CARD == type) {
-				g.addLog("The corp rezz " + getName(i.getCard()));
+				g.addLog(getName(i.getCard()) + " is rezzed");
 			} else if (NotificationEvent.RUNNER_CLICKED_FOR_CREDIT == type) {
-				g.addLog("The runner gains a credit");
+				g.addLog("The runner gains 1{credits}");
 			} else if (NotificationEvent.RUNNER_CLICKED_FOR_DRAW == type) {
 				g.addLog("The runner draws a card");
 			} else if (NotificationEvent.RUNNER_INSTALLED == type) {
-				g.addLog("The runner installs " + getName(i.getCard()));
+				g.addLog(getName(i.getCard()) + " is installed");
 			}
 
 		}

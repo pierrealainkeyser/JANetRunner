@@ -17,10 +17,9 @@ public class TestGame {
 	public void testCoreGame() {
 		boolean[] end = new boolean[1];
 		Corp corp = new Corp(Faction.CORP_NEUTRAL);
-		
 
 		TestNotifier tn = new TestNotifier();
-		Game g = new Game(new Runner(Faction.RUNNER_NEUTRAL), corp, () -> end[0] = true);	
+		Game g = new Game(new Runner(Faction.RUNNER_NEUTRAL), corp, () -> end[0] = true);
 		corp.addToRD(new WallOfStatic());
 		corp.addToRD(new WallOfStatic());
 		g.setup();
@@ -28,7 +27,7 @@ public class TestGame {
 
 		g.start();
 
-		//on a 3 action pour la corp, rien pour le runner
+		// on a 3 action pour la corp, rien pour le runner
 		Assert.assertEquals(3, g.getCorp().getWallet().wallet(WalletActions.class).get().getAmount());
 		Assert.assertEquals(0, g.getRunner().getWallet().wallet(WalletActions.class).get().getAmount());
 
@@ -39,15 +38,13 @@ public class TestGame {
 			// on click
 			tn.find("click-for-credit").apply();
 
-			if(i<2)
-			Assert.assertEquals(2 - i, g.getCorp().getWallet().wallet(WalletActions.class).get().getAmount());
+			if (i < 2)
+				Assert.assertEquals(2 - i, g.getCorp().getWallet().wallet(WalletActions.class).get().getAmount());
 		}
-		
 
 		Optional<WalletCredits> o = g.getCorp().getWallet().wallet(WalletCredits.class);
 		Assert.assertEquals(3, o.get().getAmount());
 		Assert.assertNull(g.getResult());
-		Assert.assertEquals(GameStep.CORP_ACT, g.getStep());
-		
+		Assert.assertEquals(GameStep.RUNNER_ACT, g.getStep());
 	}
 }

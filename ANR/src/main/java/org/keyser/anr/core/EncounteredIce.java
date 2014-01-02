@@ -1,8 +1,8 @@
 package org.keyser.anr.core;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.keyser.anr.core.corp.Ice;
 import org.keyser.anr.core.corp.Routine;
@@ -27,6 +27,7 @@ public class EncounteredIce {
 
 	public void addBroken(Routine r) {
 		brokens.add(r);
+		toBeBrokens.remove(r);
 	}
 
 	public int countBrokens() {
@@ -39,10 +40,6 @@ public class EncounteredIce {
 
 	public boolean isRezzed() {
 		return ice.isRezzed();
-	}
-
-	public Stream<Routine> getUnbrokens() {
-		return toBeBrokens.stream();
 	}
 
 	public boolean isAllRoutinesBroken() {
@@ -59,5 +56,9 @@ public class EncounteredIce {
 
 	public Ice getIce() {
 		return ice;
+	}
+
+	public List<Routine> getToBeBrokens() {
+		return Collections.unmodifiableList(toBeBrokens);
 	}
 }

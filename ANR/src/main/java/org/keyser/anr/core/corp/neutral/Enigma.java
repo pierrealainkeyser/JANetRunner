@@ -6,6 +6,8 @@ import static org.keyser.anr.core.Faction.CORP_NEUTRAL;
 import org.keyser.anr.core.CardDef;
 import org.keyser.anr.core.CardSubType;
 import org.keyser.anr.core.corp.Ice;
+import org.keyser.anr.core.corp.routines.EndTheRun;
+import org.keyser.anr.core.corp.routines.LooseAction;
 
 @CardDef(name = "Enigma", oid = "01111")
 public class Enigma extends Ice {
@@ -13,6 +15,8 @@ public class Enigma extends Ice {
 	public Enigma() {
 		super(CORP_NEUTRAL.infl(0), credit(3), 2, CardSubType.CODEGATE);
 
+		addRoutine(new LooseAction(1));
+		addRoutine(new EndTheRun());
 	}
 
 }

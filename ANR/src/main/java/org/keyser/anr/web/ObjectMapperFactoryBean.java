@@ -3,11 +3,13 @@ package org.keyser.anr.web;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.Version;
+import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.SerializerProvider;
@@ -17,9 +19,32 @@ import org.codehaus.jackson.map.ser.std.SerializerBase;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.CostAction;
 import org.keyser.anr.core.CostCredit;
+import org.keyser.anr.core.runner.BreakCostAnalysis;
 import org.springframework.beans.factory.FactoryBean;
 
 public class ObjectMapperFactoryBean implements FactoryBean<ObjectMapper> {
+
+	public static class BreakCostAnalysisSerializer extends SerializerBase<BreakCostAnalysis> {
+		public BreakCostAnalysisSerializer() {
+			super(BreakCostAnalysis.class, true);
+		}
+
+		@Override
+		public void serialize(BreakCostAnalysis value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
+
+			jgen.writeStartObject();
+
+			jgen.writeNumberField("card", value.getIce().getIce().getId());
+			jgen.writeArrayFieldStart("costs");
+
+			JsonSerializer<Object> jsc = provider.findValueSerializer(Cost.class, null);
+			for (Entry<Integer, Cost> e : value.entrySet())
+				jsc.serialize(e.getValue(), jgen, provider);
+
+			jgen.writeEndObject();
+
+		}
+	}
 
 	/**
 	 * Transform les {@link Cost} en chaine
@@ -27,7 +52,7 @@ public class ObjectMapperFactoryBean implements FactoryBean<ObjectMapper> {
 	 * @author PAF
 	 * 
 	 */
-	public class CostSerializer extends SerializerBase<Cost> {
+	public static class CostSerializer extends SerializerBase<Cost> {
 
 		public CostSerializer() {
 			super(Cost.class, true);
@@ -62,7 +87,8 @@ public class ObjectMapperFactoryBean implements FactoryBean<ObjectMapper> {
 		ObjectMapper om = new ObjectMapper();
 
 		SimpleModule mod = new SimpleModule("ANR", new Version(0, 0, 0, null));
-		mod.addSerializer(Cost.class, new CostSerializer());
+		mod.addSerializer(new CostSerializer());
+		mod.addSerializer(new BreakCostAnalysisSerializer());
 		om.registerModule(mod);
 
 		SerializationConfig sc = om.getSerializationConfig().withSerializationInclusion(Inclusion.NON_NULL);

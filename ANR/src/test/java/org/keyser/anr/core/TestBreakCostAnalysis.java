@@ -60,7 +60,7 @@ public class TestBreakCostAnalysis {
 		Assert.assertEquals(0, bca.getRequiredBoost());
 
 		// il faut 2 crédits pour breaker la glace
-		Assert.assertEquals(2, bca.costToBreakAll().sumFor(CostCredit.class));
+		Assert.assertEquals(2, bca.costToBreak(1).sumFor(CostCredit.class));
 	}
 
 	/**
@@ -95,7 +95,7 @@ public class TestBreakCostAnalysis {
 		Assert.assertEquals(3, bca.getRequiredBoost());
 
 		// il faut 2 crédits pour breaker la glace
-		Assert.assertEquals(3 + 1, bca.costToBreakAll().sumFor(CostCredit.class));
+		Assert.assertEquals(3 + 1, bca.costToBreak(1).sumFor(CostCredit.class));
 
 		kate.getWallet().wallet(WalletCredits.class, wc -> wc.setAmount(5));
 		bca.apply(1, g, () -> {

@@ -11,11 +11,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.IntFunction;
 import java.util.stream.Stream;
 
 import org.keyser.anr.core.corp.Agenda;
 import org.keyser.anr.core.corp.Asset;
 import org.keyser.anr.core.corp.Corp;
+import org.keyser.anr.core.corp.Corp.AbstractRezzCard;
 import org.keyser.anr.core.corp.CorpCard;
 import org.keyser.anr.core.corp.CorpRemoteServer;
 import org.keyser.anr.core.corp.CorpServer;
@@ -160,21 +162,21 @@ public class Game implements Notifier, ConfigurableEventListener {
 			Player player = unit.getPlayer();
 			Wallet wallet = unit.getWallet();
 
-			Stream<AbstractAbility> s = unit.getAbilities();
-			Stream<AbstractAbility> affordable = s.filter(p -> p.isAffordable(wallet));
+			IntFunction<AbstractAbility[]> toArray = (i) -> new AbstractAbility[i];
+			AbstractAbility[] enabled = unit.getAbilities().toArray(toArray);
 
 			// s'il y a une action du noyau, on ne rajoute pas none car c'est le
 			// tour du joueur
-			AbstractAbility[] it = affordable.toArray(i -> new AbstractAbility[i]);
-			boolean mayRezz = false;
+			AbstractAbility[] affordables = stream(enabled).filter(p -> p.isAffordable(wallet)).toArray(toArray);
+			boolean mayRezz = stream(enabled).anyMatch(aa -> aa instanceof AbstractRezzCard);
 
-			boolean anyAction = stream(it).anyMatch(aa -> aa.isAction());
+			boolean anyAction = stream(affordables).anyMatch(aa -> aa.isAction());
 
 			// TODO gestion des abilites de rezz (qui peuvent ne peut pas être
 			// payable, mais le runner ne doit pas le savoir !!)
 			Question q = ask(player, anyAction ? NotificationEvent.WHICH_ACTION : NotificationEvent.WHICH_ABILITY);
 
-			for (AbstractAbility aa : it) {
+			for (AbstractAbility aa : affordables) {
 
 				// on enregistre la question
 				aa.register(q, wallet, () -> triggeredFlow.apply(aa));
@@ -554,13 +556,17 @@ public class Game implements Notifier, ConfigurableEventListener {
 	 * @param target
 	 * @param next
 	 */
-	public void startRun(CorpServer target, Flow next) {
+	public Run startRun(CorpServer target, Flow next) {
 		setStep(GameStep.RUNNING);
+		runner.setActionInProgress(true);
 		run = new Run(target, new FlowControler(this, () -> {
+			runner.setActionInProgress(false);
 			setStep(GameStep.RUNNER_ACT);
 			run = null;
 			next.apply();
 		}));
+		run.setGame(this);
+		return run;
 	}
 
 	public void unbind(Object bindKey) {
@@ -637,5 +643,17 @@ public class Game implements Notifier, ConfigurableEventListener {
 
 	public MetaGame getMetaGame() {
 		return new MetaGame(corp.getFaction(), runner.getFaction());
+	}
+
+	public boolean mayRezzIce() {
+		if (run != null)
+			return run.mayRezzIce();
+		return false;
+	}
+
+	public boolean mayUseIceBreaker() {
+		if (run != null)
+			return run.mayUseIceBreaker() && !run.getEncounter().isAllRoutinesBroken();
+		return false;
 	}
 }

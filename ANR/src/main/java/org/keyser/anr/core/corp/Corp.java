@@ -16,6 +16,7 @@ import org.keyser.anr.core.CardLocationAsset;
 import org.keyser.anr.core.CardLocationIce;
 import org.keyser.anr.core.CardLocationUpgrade;
 import org.keyser.anr.core.Cost;
+import org.keyser.anr.core.EncounteredIce;
 import org.keyser.anr.core.Event;
 import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.Flow;
@@ -300,11 +301,11 @@ public class Corp extends PlayableUnit {
 		}
 	}
 
-	class RezzCard extends CardAbility {
+	public abstract class AbstractRezzCard extends CardAbility {
 		private final CorpCard card;
 
-		RezzCard(CorpCard card, Cost cost) {
-			super(card, "rezz-card", cost);
+		AbstractRezzCard(CorpCard card, String name, Cost cost) {
+			super(card, name, cost);
 			this.card = card;
 		}
 
@@ -315,6 +316,18 @@ public class Corp extends PlayableUnit {
 			card.setRezzed(true);
 
 			next.apply();
+		}
+	}
+
+	class RezzCard extends AbstractRezzCard {
+		RezzCard(CorpCard card, Cost cost) {
+			super(card, "rezz-card", cost);
+		}
+	}
+
+	class RezzIce extends AbstractRezzCard {
+		RezzIce(CorpCard card, Cost cost) {
+			super(card, "rezz-ice", cost);
 		}
 	}
 
@@ -442,8 +455,28 @@ public class Corp extends PlayableUnit {
 			}
 		}
 
+		Game game = getGame();
+		if (game.mayRezzIce()) {
+			EncounteredIce ei = game.getRun().getEncounter();
+			if (!ei.isRezzed()) {
+				Ice ice = ei.getIce();
+				a.add(new RezzIce(ice, ice.getCost()));
+			}
+		}
+
 		// gestion des actions des cartes
 		forEachCardInServer(c -> addAbility((CorpCard) c, a));
+	}
+
+	public int getIndex(CorpServer server) {
+		if (server instanceof CorpArchivesServer)
+			return 0;
+		else if (server instanceof CorpRDServer)
+			return 1;
+		else if (server instanceof CorpHQServer)
+			return 2;
+		else
+			return 3 + new ArrayList<>(remotes.values()).indexOf(server);
 	}
 
 	public void addToRD(CorpCard c) {
@@ -531,7 +564,7 @@ public class Corp extends PlayableUnit {
 	 * 
 	 * @param c
 	 */
-	private void forEachServer(Consumer<CorpServer> c) {
+	public void forEachServer(Consumer<CorpServer> c) {
 		c.accept(hq);
 		c.accept(rd);
 		c.accept(archive);

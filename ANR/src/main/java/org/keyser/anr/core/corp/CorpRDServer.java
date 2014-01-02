@@ -20,6 +20,6 @@ public final class CorpRDServer extends CorpCentralServer {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<CorpCard> getCards() {
-		return (List<CorpCard>) getCorpo().getStack();
+		return (List<CorpCard>) getCorp().getStack();
 	}
 }

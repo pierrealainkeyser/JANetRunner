@@ -1,7 +1,7 @@
 package org.keyser.anr.core;
 
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.stream.Stream;
 
 import org.keyser.anr.core.Game.PingPong;
 import org.keyser.anr.core.corp.CorpServer;
@@ -97,7 +97,7 @@ public class Run extends AbstractGameContent implements Flow {
 
 	private EncounteredIce ice;
 
-	private boolean firstApprochedIce = false;
+	private boolean firstApprochedIce = true;
 
 	private final FlowControler flow;
 
@@ -144,7 +144,7 @@ public class Run extends AbstractGameContent implements Flow {
 	@Override
 	public void apply() {
 		notification(NotificationEvent.START_OF_RUN.apply().m(this));
-		flow.apply(new SetupTheRunEvent(), this::startApproching);
+		apply(new SetupTheRunEvent(), this::startApproching);
 	}
 
 	private <T extends Event> void apply(T t, Flow to) {
@@ -219,20 +219,15 @@ public class Run extends AbstractGameContent implements Flow {
 			option = RunOption.PAID_ICEBREAKER;
 
 			// phase 3.1
-			pingpongEncounter(this::checkRoutines).runner();
+			pingpong(this::checkRoutines).runner();
 		}
-	}
-
-	private PingPong pingpongEncounter(Flow next) {
-
-		return pingpong(next);
 	}
 
 	/**
 	 * Phase 3.2)
 	 */
 	private void checkRoutines() {
-		UnbrokenRoutineCheck unbrokens = new UnbrokenRoutineCheck(ice.getUnbrokens());
+		UnbrokenRoutineCheck unbrokens = new UnbrokenRoutineCheck(ice.getToBeBrokens());
 		unbrokens.apply();
 	}
 
@@ -245,21 +240,17 @@ public class Run extends AbstractGameContent implements Flow {
 	private class UnbrokenRoutineCheck implements Flow {
 		private final Iterator<Routine> it;
 
-		private UnbrokenRoutineCheck(Stream<Routine> unbrokens) {
+		private UnbrokenRoutineCheck(Collection<Routine> unbrokens) {
 			this.it = unbrokens.iterator();
 		}
 
 		@Override
 		public void apply() {
-			// on s'arrete au premier end the run
-			if (isFailed()) {
-				failTheRun();
-			} else {
-				if (it.hasNext())
-					it.next().trigger(Run.this, this);
-				else
-					passAfterEncounter();
-			}
+			// on déclenche la condition
+			if (it.hasNext())
+				it.next().trigger(Run.this, this);
+			else
+				passAfterEncounter();
 
 		}
 	}
@@ -282,7 +273,7 @@ public class Run extends AbstractGameContent implements Flow {
 	 * Nettoyage du run
 	 */
 	private void cleanUpTheRun() {
-		apply(new CleanTheRunEvent(), () -> {
+		flow.apply(new CleanTheRunEvent(), () -> {
 			notification(NotificationEvent.END_OF_RUN.apply().m(this));
 
 			// on finit le flux
@@ -299,7 +290,7 @@ public class Run extends AbstractGameContent implements Flow {
 	 */
 	private void failTheRun() {
 		// fin du run
-		apply(new RunIsFailledEvent(), this::cleanUpTheRun);
+		flow.apply(new RunIsFailledEvent(), this::cleanUpTheRun);
 	}
 
 	/**
@@ -324,8 +315,8 @@ public class Run extends AbstractGameContent implements Flow {
 		if (jackOff.isMayJackOff()) {
 			// le runner peut débrancher
 			Question q = ask(Player.RUNNER, NotificationEvent.WANT_TO_JACKOFF);
-			q.ask("true").to(this::failTheRun);
-			q.ask("false").to(next);
+			q.ask("jack-off").to(this::failTheRun);
+			q.ask("continue-the-run").to(next);
 			q.fire();
 
 		} else
@@ -353,6 +344,7 @@ public class Run extends AbstractGameContent implements Flow {
 	 */
 	private void afterNotJackingOffOnServer() {
 		option = RunOption.PAID_REZZ;
+		condition = RunCondition.SUCCESSFUL;
 		pingpong(() -> apply(new RunIsSuccessfulEvent(), this::accessPhase)).runner();
 	}
 

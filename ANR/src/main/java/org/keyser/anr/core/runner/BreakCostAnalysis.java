@@ -1,7 +1,10 @@
 package org.keyser.anr.core.runner;
 
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.BiConsumer;
 
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.EncounteredIce;
@@ -31,26 +34,10 @@ public class BreakCostAnalysis {
 		this.ice = ice;
 	}
 
+	
+
 	public void add(int nb, Cost c) {
 		nbRoutines.put(nb, c);
-	}
-
-	/**
-	 * Renvoi le nombre de cout
-	 * 
-	 * @param nb
-	 * @return
-	 */
-	public Cost costToBreak(int nb) {
-		return nbRoutines.get(nb);
-	}
-
-	public Cost costToBreakAll() {
-		return nbRoutines.get(ice.countUnbrokens());
-	}
-
-	public int countUnbrokens() {
-		return ice.countUnbrokens();
 	}
 
 	/**
@@ -70,7 +57,38 @@ public class BreakCostAnalysis {
 		game.apply(evt, next);
 	}
 
+	public int getRoutinesCount() {
+		return ice.countUnbrokens();
+	}
+
+	/**
+	 * Renvoi le nombre de cout
+	 * 
+	 * @param nb
+	 * @return
+	 */
+	public Cost costToBreak(int nb) {
+		Cost cost = nbRoutines.get(nb);
+		if (cost == null)
+			throw new IllegalArgumentException("no cost for " + nb + " routines");
+		return cost;
+	}
+
+	public EncounteredIce getIce() {
+		return ice;
+	}
+
+	public IceBreaker getIceBreaker() {
+		return iceBreaker;
+	}
+
 	public int getRequiredBoost() {
 		return requiredBoost;
+	}
+
+
+
+	public Set<Entry<Integer, Cost>> entrySet() {
+		return nbRoutines.entrySet();
 	}
 }

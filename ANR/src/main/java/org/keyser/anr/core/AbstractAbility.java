@@ -87,8 +87,4 @@ public abstract class AbstractAbility implements Flow {
 	protected void registerQuestion(Question q) {
 		q.ask(getName()).to(this::doNext).setCost(getCost());
 	}
-
-	public int timesAffordable(Wallet wallet, int max) {
-		return wallet.timesAffordable(cost, action, max);
-	}
 }
