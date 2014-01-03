@@ -172,6 +172,9 @@ public class Run extends AbstractGameContent implements Flow {
 		option = RunOption.PAID;
 		if (heigth > 0) {
 			ice = new EncounteredIce(target.getIceAtHeight(heigth));
+			
+			///on envoie la notification
+			notification(NotificationEvent.APPROCHING_ICE.apply().m(this));
 
 			// phase 2.1
 			pingpong(this::jackOffOrApprocheIce).runner();
@@ -352,7 +355,6 @@ public class Run extends AbstractGameContent implements Flow {
 	 * Phase 4.5
 	 */
 	private void accessPhase() {
-
 		// TODO gestion de la phase d'access
 
 		cleanUpTheRun();
@@ -362,6 +364,9 @@ public class Run extends AbstractGameContent implements Flow {
 	 * Phase 4.2
 	 */
 	private void jackOffOrApprocheServer() {
+		
+		notification(NotificationEvent.APPROCHING_SERVER.apply().m(this));
+		
 		// on approche de la glace le runner peut d�brancher
 		apply(new JackOffBeforeServerEvent(), (j) -> jackOffDecision(j, this::afterNotJackingOffOnServer));
 

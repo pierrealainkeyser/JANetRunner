@@ -229,9 +229,12 @@ function displayRun(server, callback) {
 	run.css({ top : 0, left : loc.x - 22, height : "0%" });
 	run.animate({ height : "100%" }, opt);
 
-	var left = loc.x - 21;
-	ei.css({ top : 0, left : left, opacity : 0 });
-	ei.animate({ top : loc.y + 14, left : left, opacity : 100 }, opt, callback);
+	//TODO a placer dans le encounter
+	if (loc.y) {
+		var left = loc.x - 21;
+		ei.css({ top : 0, left : left, opacity : 0 });
+		ei.animate({ top : loc.y + 14, left : left, opacity : 100 }, opt, callback);
+	}
 }
 
 /**

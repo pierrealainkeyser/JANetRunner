@@ -26,6 +26,8 @@ public enum NotificationEvent {
 
 	// events du run
 	START_OF_RUN, //
+	APPROCHING_ICE, //
+	APPROCHING_SERVER, //
 	END_OF_RUN, //
 
 	// events des cartes et du wallet

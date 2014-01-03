@@ -325,10 +325,11 @@ public class Runner extends PlayableUnit {
 		// on va chercher un icebreaker approprié
 		if (game.mayUseIceBreaker()) {
 			EncounteredIce ei = game.getRun().getEncounter();
-			forEncounter(ei).forEach(br -> {
-				BreakCostAnalysis bca = br.getBreakCostAnalysis(ei);
-				a.add(new UseIceBreakerAbility(bca));
-			});
+
+			Consumer<BreakCostAnalysis> useBreak = (bca) -> a.add(new UseIceBreakerAbility(bca));
+
+			//on transmet la closure pour les ices breakers
+			forEncounter(ei).forEach(ibr -> useBreak.accept(ibr.getBreakCostAnalysis(ei)));
 
 		}
 

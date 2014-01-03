@@ -4,8 +4,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.function.BiConsumer;
 
+import org.keyser.anr.core.Card;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.EncounteredIce;
 import org.keyser.anr.core.Flow;
@@ -22,13 +22,13 @@ public class BreakCostAnalysis {
 
 	private final EncounteredIce ice;
 
-	private final IceBreaker iceBreaker;
+	private final Card iceBreaker;
 
 	private final Map<Integer, Cost> nbRoutines = new TreeMap<Integer, Cost>();
 
 	private final int requiredBoost;
 
-	public BreakCostAnalysis(int applyedBoost, IceBreaker iceBreaker, EncounteredIce ice) {
+	public BreakCostAnalysis(int applyedBoost, Card iceBreaker, EncounteredIce ice) {
 		this.requiredBoost = applyedBoost;
 		this.iceBreaker = iceBreaker;
 		this.ice = ice;
@@ -78,7 +78,7 @@ public class BreakCostAnalysis {
 		return ice;
 	}
 
-	public IceBreaker getIceBreaker() {
+	public Card getIceBreaker() {
 		return iceBreaker;
 	}
 
