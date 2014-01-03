@@ -2,8 +2,8 @@
 <head>
 <title>Android Netrunner : the online card game</title>
 <link rel="icon" type="image/png" href="/img/favicon.png" />
-<link href="/css/bootstrap.css" rel="stylesheet"/>
-<link href="/css/anr.css" rel="stylesheet"/>
+<link href="/css/bootstrap.css" rel="stylesheet" />
+<link href="/css/anr.css" rel="stylesheet" />
 
 <script type="text/javascript" src="/js/jquery-2.0.3.min.js"></script>
 <script type="text/javascript" src="/js/jquery.transit.min.js"></script>
@@ -15,112 +15,122 @@
 <script type="text/javascript" src="/js/anr.js"></script>
 
 <script type="text/javascript" data-th-inline="javascript">
-/*<![CDATA[*/
+	/*<![CDATA[*/
 	$(function() {
 		initANR();
-		
-		var gameId=/*[[${gameId}]]*/12345;		
+
+		var gameId = /*[[${gameId}]]*/12345;
 		bootANR(gameId);
-			
-	
+
 		//binding
-		Mousetrap.bind(['up','down','right','left'],function(e,c){
-			focusNext(e,c);
-		});		
-		
+		Mousetrap.bind([ 'up', 'down', 'right', 'left' ], function(e, c) {
+			focusNext(e, c);
+		});
+
 		//vers server central
-		Mousetrap.bind('h q',function(e){
+		Mousetrap.bind('h q', function(e) {
 			$("#hq").focus();
 		});
-		Mousetrap.bind('r d',function(e){
+		Mousetrap.bind('r d', function(e) {
 			$("#rd").focus();
 		});
-		Mousetrap.bind('a r',function(e){
+		Mousetrap.bind('a r', function(e) {
 			$("#archives").focus();
 		});
-		
-		Mousetrap.bind('c s',function(e){
+
+		Mousetrap.bind('c s', function(e) {
 			toggleCorpScore();
 		});
-		
-		Mousetrap.bind('l',function(e){
+
+		Mousetrap.bind('l', function(e) {
 			toggleEventLog();
-		});		
-		
-					
+		});
+
 		//vers serveur remote
-		for(var i=1;i<15;++i)
+		for (var i = 1; i < 15; ++i)
 			bindRemote(i);
-		
-		Mousetrap.bind('d',function(e){
+
+		Mousetrap.bind('d', function(e) {
 			$("#nothing").focus();
 		});
-		
-		
+
 		//vers runner
-		Mousetrap.bind('g r',function(e){
+		Mousetrap.bind('g r', function(e) {
 			$("#grip").focus();
 		});
-		Mousetrap.bind('h e',function(e){
+		Mousetrap.bind('h e', function(e) {
 			$("#heap").focus();
 		});
-		Mousetrap.bind('s t',function(e){
+		Mousetrap.bind('s t', function(e) {
 			$("#stack").focus();
 		});
-		
-		Mousetrap.bind('r e',function(e){
+
+		Mousetrap.bind('r e', function(e) {
 			$("#resources").focus();
 		});
-		Mousetrap.bind('h w',function(e){
+		Mousetrap.bind('h w', function(e) {
 			$("#hardwares").focus();
 		});
-		Mousetrap.bind('p r',function(e){
+		Mousetrap.bind('p r', function(e) {
 			$("#programs").focus();
 		});
-		
+
 		//vers la main
-		Mousetrap.bind('h a',function(e){
-			focusAt(e,{type:'hand',value:{hand:0}});
+		Mousetrap.bind('h a', function(e) {
+			focusAt(e, { type : 'hand', value : { hand : 0 } });
 		});
-		
+
 		//Ation
-		Mousetrap.bind('space',function(e){
+		Mousetrap.bind('space', function(e) {
 			executeAction();
 		});
+
+		//TEST
+
+		setTimeout(function() {
+			displayRun({ remote : 1, ice : 1 });
+			
+			
+			setTimeout(function(){
+				
+				endRun();
+				
+			},3000);
+			
+		}, 1000);
 	});
-	
-	function bindRemote(i){
-		Mousetrap.bind('r '+i,function(e){			
-			$("#remote"+(i-1)).focus();
+
+	function bindRemote(i) {
+		Mousetrap.bind('r ' + i, function(e) {
+			$("#remote" + (i - 1)).focus();
 		});
 	}
-	
-	function focusNext(e,dir){
+
+	function focusNext(e, dir) {
 		e.preventDefault();
-		var f=$(":focus")
-		var card=f.prop("card");
-		if(card){
-			var n=card.next(dir);
-			if(n)
+		var f = $(":focus")
+		var card = f.prop("card");
+		if (card) {
+			var n = card.next(dir);
+			if (n)
 				n.widget.focus();
-		}
-		else{
+		} else {
 			// le focus est peut-être sur un composant qui peut avoir des glaces
-			var id=f.attr("id");
-			if("hq"==id||"rd"==id||"archives"==id){
-				if("up"==dir)
-					focusAt(e,{type:'ice',value:{central:id,ice:0}});
+			var id = f.attr("id");
+			if ("hq" == id || "rd" == id || "archives" == id) {
+				if ("up" == dir)
+					focusAt(e, { type : 'ice', value : { central : id, ice : 0 } });
 			}
 		}
 	}
-	
-	function focusAt(e,at){
-		e.preventDefault();		   	
-		var n=cardAt(at);
-		if(n)
-			n.widget.focus();		
+
+	function focusAt(e, at) {
+		e.preventDefault();
+		var n = cardAt(at);
+		if (n)
+			n.widget.focus();
 	}
-/*]]>*/
+	/*]]>*/
 </script>
 </head>
 <body>
@@ -163,10 +173,17 @@
 			</p>
 		</div>
 	</div>
-	
-	
+
+
 
 	<div id="main">
+
+		<div id="runInProgress">
+			<p><span class="label label-danger"><i class="glyphicon glyphicon-random"> </i> Run in progress</span></p>
+		</div>
+
+		<div id="encounteredIce"></div>
+
 		<div id="rd" class="cardplace" tabindex="-1">
 			R&amp;D (<span>0</span>)
 		</div>
@@ -175,7 +192,7 @@
 		</div>
 		<div id="archives" class="cardplace" tabindex="-1">
 			Archives (<span>0</span>)
-		</div>	
+		</div>
 
 		<div id="grip" class="cardplace" tabindex="-1">
 			Grip(<span>0</span>)
@@ -186,65 +203,65 @@
 		<div id="stack" class="cardplace" tabindex="-1">
 			Stack (<span>0</span>)
 		</div>
-		
+
 		<div id="resources" class="cardplace" tabindex="-1">
 			Resources (<span>0</span>)
 		</div>
-		
+
 		<div id="hardwares" class="cardplace" tabindex="-1">
 			Hardwares (<span>0</span>)
 		</div>
-		
+
 		<div id="programs" class="cardplace" tabindex="-1">
 			Programs (<span>0</span>)
 		</div>
-		
+
 		<div id="noActionPlease">
-			<div id="nothing"  class="panel panel-default"  tabindex="-1">
-				<span class="panel-heading"><i class="glyphicon glyphicon-step-forward"></i></span>
-				<span class="panel-body">				
-					  No
-				</span>
+			<div id="nothing" class="panel panel-default" tabindex="-1">
+				<span class="panel-heading"><i class="glyphicon glyphicon-step-forward"></i></span> <span class="panel-body"> No </span>
 			</div>
-			
-			<div id="nothingTillMyTurn"  class="panel panel-default"  tabindex="-1">
-				<span class="panel-heading"><i class="glyphicon glyphicon-fast-forward"></i></span>
-				<span class="panel-body">				
-					  Not until my next turn
-				</span>
-			</div>		
+
+			<div id="nothingTillMyTurn" class="panel panel-default" tabindex="-1">
+				<span class="panel-heading"><i class="glyphicon glyphicon-fast-forward"></i></span> <span class="panel-body"> Not until my next turn </span>
+			</div>
 		</div>
-		
+
+
+
 		<div id="preview" class="panel panel-default">
-			<div class="panel-heading"><i class="glyphicon glyphicon-fullscreen"></i> Card details</div>
+			<div class="panel-heading">
+				<i class="glyphicon glyphicon-fullscreen"></i> Card details
+			</div>
 			<div class="panel-body">
 				<img />
 			</div>
 		</div>
-		
+
 		<div id="action" class="panel panel-default">
-	  		<div class="panel-heading"><i class="glyphicon glyphicon-play"></i> Action</div>
-  			<div class="panel-body">
-    			
-  			</div>
-		</div>
-		
-		<div id="corpScore" class="panel panel-default">
-			<div class="panel-heading" title="Agendas scoreds by the corp"><i class="glyphicon glyphicon-star-empty"></i> Scoreds</div>
+			<div class="panel-heading">
+				<i class="glyphicon glyphicon-play"></i> Action
+			</div>
 			<div class="panel-body"></div>
 		</div>
-		
-		<ol id="status-bar" class="breadcrumb">
-  			<li class="active"><span class="label label-default" id="activePlayer"></span></li>
-  			<li class="active" id="activeStep"></li>
-  			<li class="active"><span class="label label-info" id="activeMessage"></span></li>
-		</ol>
-		
-		<div id="eventlog"  class="panel panel-default">
-			<div class="panel-heading"><i class="glyphicon glyphicon-list-alt"></i> Logs</div>			
-			<div id="eventsink" class="panel-body">
-		
+
+		<div id="corpScore" class="panel panel-default">
+			<div class="panel-heading" title="Agendas scoreds by the corp">
+				<i class="glyphicon glyphicon-star-empty"></i> Scoreds
 			</div>
+			<div class="panel-body"></div>
+		</div>
+
+		<ol id="status-bar" class="breadcrumb">
+			<li class="active"><span class="label label-default" id="activePlayer"></span></li>
+			<li class="active" id="activeStep"></li>
+			<li class="active"><span class="label label-info" id="activeMessage"></span></li>
+		</ol>
+
+		<div id="eventlog" class="panel panel-default">
+			<div class="panel-heading">
+				<i class="glyphicon glyphicon-list-alt"></i> Logs
+			</div>
+			<div id="eventsink" class="panel-body"></div>
 		</div>
 	</div>
 </body>

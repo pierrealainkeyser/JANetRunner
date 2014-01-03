@@ -214,6 +214,39 @@ var placeFunction = { hand : function(v) {
 } };
 
 /**
+ * Comme le run sur un serveur { remote : 1, ice : 1 }
+ * 
+ * @param server
+ */
+function displayRun(server, callback) {
+	var loc = placeFunction.ice(server);
+
+	var run = $("#runInProgress");
+	var ei = $("#encounteredIce");
+
+	var opt = { duration : 225 };
+
+	run.css({ top : 0, left : loc.x - 22, height : "0%" });
+	run.animate({ height : "100%" }, opt);
+
+	var left = loc.x - 21;
+	ei.css({ top : 0, left : left, opacity : 0 });
+	ei.animate({ top : loc.y + 14, left : left, opacity : 100 }, opt, callback);
+}
+
+/**
+ * Termine le run
+ */
+function endRun(callback) {
+	var run = $("#runInProgress");
+	var ei = $("#encounteredIce");
+
+	var opt = { duration : 225 };
+	run.animate({ top : -3, height : 0 }, opt);
+	ei.animate({ top : 0, opacity : 0 }, opt, callback);
+}
+
+/**
  * Configuration d'un widget
  * 
  * @param widget
@@ -228,7 +261,7 @@ function confactions(widget) {
 }
 
 function addLog(text) {
-	
+
 	var nl = $("<p>" + interpolateSprites(text) + "</p>");
 	$("#eventsink").append(nl);
 }
