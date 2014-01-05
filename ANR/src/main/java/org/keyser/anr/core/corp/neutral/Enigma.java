@@ -15,7 +15,7 @@ public class Enigma extends Ice {
 	public Enigma() {
 		super(CORP_NEUTRAL.infl(0), credit(3), 2, CardSubType.CODEGATE);
 
-		addRoutine(new LooseAction(1));
+		addRoutine(new LooseAction());
 		addRoutine(new EndTheRun());
 	}
 

@@ -6,12 +6,6 @@ import org.keyser.anr.core.runner.Runner;
 
 public class LooseAction extends SyncRoutine {
 
-	private final int nb;
-
-	public LooseAction(int nb) {
-		this.nb = nb;
-	}
-
 	@Override
 	protected void trigger(Run run) {
 		Runner r = run.getGame().getRunner();
@@ -20,8 +14,13 @@ public class LooseAction extends SyncRoutine {
 		int cur = wa.getAmount();
 
 		// on supprime toutes les actions possibles
-		int removed = Math.max(cur, nb);
+		int removed = Math.min(cur, 1);
 		if (removed > 0)
 			wa.setAmount(cur - removed);
+	}
+
+	@Override
+	public String asString() {
+		return "The Runner loses {actions}, if able";
 	}
 }

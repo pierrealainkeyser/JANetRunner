@@ -18,6 +18,7 @@ import org.keyser.anr.core.corp.Agenda;
 import org.keyser.anr.core.corp.Asset;
 import org.keyser.anr.core.corp.Corp;
 import org.keyser.anr.core.corp.Corp.AbstractRezzCard;
+import org.keyser.anr.core.corp.Corp.RezzIce;
 import org.keyser.anr.core.corp.CorpCard;
 import org.keyser.anr.core.corp.CorpRemoteServer;
 import org.keyser.anr.core.corp.CorpServer;
@@ -25,6 +26,7 @@ import org.keyser.anr.core.corp.Ice;
 import org.keyser.anr.core.corp.Upgrade;
 import org.keyser.anr.core.runner.Program;
 import org.keyser.anr.core.runner.Runner;
+import org.keyser.anr.core.runner.Runner.UseIceBreakerAbility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -172,9 +174,23 @@ public class Game implements Notifier, ConfigurableEventListener {
 
 			boolean anyAction = stream(affordables).anyMatch(aa -> aa.isAction());
 
+			NotificationEvent evt = NotificationEvent.WHICH_ABILITY;
+			if (anyAction)
+				evt = NotificationEvent.WHICH_ACTION;
+
+			if (mayRezz) {
+				boolean rezzIce = stream(affordables).anyMatch(aa -> aa instanceof RezzIce);
+				if (rezzIce)
+					evt = NotificationEvent.WHICH_ICE_TO_REZZ;
+			}
+
+			boolean iceBreaker = stream(affordables).anyMatch(aa -> aa instanceof UseIceBreakerAbility);
+			if (iceBreaker)
+				evt = NotificationEvent.WHICH_ICEBREAKER;
+
 			// TODO gestion des abilites de rezz (qui peuvent ne peut pas être
 			// payable, mais le runner ne doit pas le savoir !!)
-			Question q = ask(player, anyAction ? NotificationEvent.WHICH_ACTION : NotificationEvent.WHICH_ABILITY);
+			Question q = ask(player, evt);
 
 			for (AbstractAbility aa : affordables) {
 

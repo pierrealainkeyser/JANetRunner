@@ -38,6 +38,8 @@ public enum NotificationEvent {
 
 	// questions
 	WHICH_ACTION, //
+	WHICH_ICE_TO_REZZ, //
+	WHICH_ICEBREAKER, //
 	WHICH_ABILITY, //
 	DISCARD_CARD, //
 	WANT_TO_JACKOFF, //

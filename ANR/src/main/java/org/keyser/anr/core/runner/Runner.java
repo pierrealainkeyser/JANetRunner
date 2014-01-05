@@ -213,7 +213,7 @@ public class Runner extends PlayableUnit {
 		}
 	}
 
-	class UseIceBreakerAbility extends AbstractAbility {
+	public class UseIceBreakerAbility extends AbstractAbility {
 
 		private final BreakCostAnalysis analysis;
 

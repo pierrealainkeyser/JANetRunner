@@ -325,7 +325,7 @@ public class Corp extends PlayableUnit {
 		}
 	}
 
-	class RezzIce extends AbstractRezzCard {
+	public class RezzIce extends AbstractRezzCard {
 		RezzIce(CorpCard card, Cost cost) {
 			super(card, "rezz-ice", cost);
 		}
@@ -382,8 +382,13 @@ public class Corp extends PlayableUnit {
 		if (cc.isRezzed())
 			a.addAll(cc.getPaidAbilities());
 		else {
-			if (cc instanceof Asset || cc instanceof Upgrade)
-				a.add(new RezzCard(cc, cc.getCost()));
+			if (cc instanceof Asset || cc instanceof Upgrade) {
+
+				//on ne rezz pas les ambush
+				if (!cc.isAmbush()) {
+					a.add(new RezzCard(cc, cc.getCost()));
+				}
+			}
 		}
 	}
 

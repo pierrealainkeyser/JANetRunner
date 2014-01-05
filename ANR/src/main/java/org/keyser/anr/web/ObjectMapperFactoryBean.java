@@ -34,13 +34,15 @@ public class ObjectMapperFactoryBean implements FactoryBean<ObjectMapper> {
 
 			jgen.writeStartObject();
 
-			jgen.writeNumberField("card", value.getIce().getIce().getId());
+			//jgen.writeNumberField("card", value.getIce().getIce().getId());
 			jgen.writeArrayFieldStart("costs");
 
 			JsonSerializer<Object> jsc = provider.findValueSerializer(Cost.class, null);
 			for (Entry<Integer, Cost> e : value.entrySet())
 				jsc.serialize(e.getValue(), jgen, provider);
 
+			jgen.writeEndArray();
+			
 			jgen.writeEndObject();
 
 		}

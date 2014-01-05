@@ -395,4 +395,8 @@ public class Run extends AbstractGameContent implements Flow {
 		return ice;
 	}
 
+	public CorpServer getTarget() {
+		return target;
+	}
+
 }

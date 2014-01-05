@@ -6,7 +6,10 @@ public enum CardSubType {
 	IA, FRACTER, KILLER, DECODER,
 
 	// pour les ices
-	BARRIER, SENTRY, CODEGATE, TRAP;
+	BARRIER, SENTRY, CODEGATE, TRAP,
+
+	// pour des pieges
+	AMBUSH;
 
 	public boolean isIceBreaker() {
 		return IA == this || FRACTER == this || KILLER == this || DECODER == this;

@@ -181,24 +181,14 @@ div.card div {
 
 #noActionPlease {
 	position: absolute;
-	right: 300px;
-	bottom: 0px;
+	left: 50%;
 	display: none;
-}
-
-#noActionPlease div {
-	border-radius: 5px 5px 0px 0px;
-	display: inline-block;
+	bottom: -2px;
 	margin: 0;
 }
 
-#noActionPlease span {
-	display: inline-block;
-	padding: 0px 5px;
-}
-
-#noActionPlease span:FIRST-CHILD {
-	padding: 10px 15px;
+#noActionPlease .panel-body {
+	padding: 5px;
 }
 
 #runInProgress {
@@ -215,21 +205,44 @@ div.card div {
 }
 
 #runInProgress p {
-	margin-top: 50;
+	margin-top: 45;
 	-webkit-transform: rotate(90deg)
 }
 
 #runInProgress p span {
 	padding-right: 2500px;
+	padding-left: 150px;
 }
 
 #encounteredIce {
 	opacity: 0;
 	height: 84;
 	width: 120;
-
 	background-color: #d9534f;
 	position: absolute;
+}
+
+#encounterMonitor {
+	position: absolute;
+	top: 500;
+	left: 400;
+}
+
+#encounterMonitor .panel-heading {
+	text-align: center;
+}
+
+#encounterMonitor ul.routines {
+	padding-left: 0px;
+	list-style-type: none;
+}
+
+#encounterMonitor .list-group-item {
+	padding: 5px 5px;
+}
+
+#encounterMonitor li.broken {
+	text-decoration: line-through;
 }
 
 .cardplace {
@@ -280,7 +293,7 @@ div.tokens>span {
 	background-size: cover;
 }
 
-.label .sprite {
+#action .sprite, #encounterMonitor .sprite, .label .sprite {
 	height: 16px;
 	width: 16px;
 }

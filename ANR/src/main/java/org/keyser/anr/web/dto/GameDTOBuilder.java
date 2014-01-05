@@ -10,6 +10,7 @@ import org.keyser.anr.core.CardLocation;
 import org.keyser.anr.core.CardLocation.Where;
 import org.keyser.anr.core.CardLocationIce;
 import org.keyser.anr.core.CardLocationOnServer;
+import org.keyser.anr.core.EncounteredIce;
 import org.keyser.anr.core.Game;
 import org.keyser.anr.core.Notification;
 import org.keyser.anr.core.NotificationEvent;
@@ -17,6 +18,7 @@ import org.keyser.anr.core.PlayableUnit;
 import org.keyser.anr.core.Player;
 import org.keyser.anr.core.Question;
 import org.keyser.anr.core.Response;
+import org.keyser.anr.core.Run;
 import org.keyser.anr.core.Wallet;
 import org.keyser.anr.core.WalletActions;
 import org.keyser.anr.core.WalletCredits;
@@ -109,7 +111,6 @@ public class GameDTOBuilder {
 							g.addLog("A card is advanced");
 					}
 				});
-
 			} else if (NotificationEvent.NEXT_STEP == type) {
 				g.setStep(i.getStep());
 			} else if (NotificationEvent.CORP_SCORE_AGENDA == type) {
@@ -142,6 +143,12 @@ public class GameDTOBuilder {
 				g.addLog("The runner draws a card");
 			} else if (NotificationEvent.RUNNER_INSTALLED == type) {
 				g.addLog(getName(i.getCard()) + " is installed");
+			} else if (NotificationEvent.START_OF_RUN == type) {							
+				g.runOnServer(LocationDTO.server(serverLocation(i.getRun().getTarget())));
+			} else if (NotificationEvent.APPROCHING_ICE == type) {
+				g.iceOnRun(location(i.getRun().getEncounter().getIce()));
+			} else if (NotificationEvent.END_OF_RUN == type) {
+				g.endOfRun();
 			}
 
 		}
@@ -230,6 +237,14 @@ public class GameDTOBuilder {
 
 		// mise à jours des questions
 		game.getQuestions().values().stream().forEach(q -> updateQuestion(g, q));
+
+		Run r = game.getRun();
+		if (r != null) {				
+			g.runOnServer(LocationDTO.server(serverLocation(r.getTarget())));
+			EncounteredIce encounter = r.getEncounter();
+			if (encounter != null)
+				g.iceOnRun(location(encounter.getIce()));
+		}
 
 		return g;
 	}
@@ -325,8 +340,11 @@ public class GameDTOBuilder {
 	 * @return
 	 */
 	private LocationDTO serverLocation(CardLocationOnServer i) {
+		return serverLocation(i.getServer());
+	}
+
+	private LocationDTO serverLocation(CorpServer ser) {
 		LocationDTO s = null;
-		CorpServer ser = i.getServer();
 		if (ser instanceof CorpRDServer)
 			s = LocationDTO.rd;
 		else if (ser instanceof CorpArchivesServer)

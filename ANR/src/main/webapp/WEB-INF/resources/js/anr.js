@@ -22,7 +22,7 @@ var viewAgenda = { padding : 30, hspacing : 85 };
 var hideAgenda = { padding : -115, hspacing : 0 };
 
 var actionMapping = {//
-"none" : "I'm not doing anything until a new card is installed",//
+"none" : "I'm not doing anything until anything changes",//
 "none-till-next" : "I'm not doing anything until my next turn",//
 "click-for-credit" : "Gain {credits}",//
 "click-for-draw" : "Draw a card",//
@@ -33,12 +33,14 @@ var actionMapping = {//
 "play-operation" : "Play this operation",//
 "advance-card" : "Advance this card",//
 "rezz-card" : "Rezz this card",//
+"rezz-ice" : "Rezz this ice",//
 "score-agenda" : "Score this agenda {agenda}",//
 "install-program" : "Install this program",//
 "install-hardware" : "Install this hardware",//
 "install-resource" : "Install this resource",//
 "play-event" : "Play this event",//
 "run" : "Initiate a run on this server",//
+"use-ice-breaker" : "Swap breaker",//
 };
 
 // gestion des bordures
@@ -214,39 +216,111 @@ var placeFunction = { hand : function(v) {
 } };
 
 /**
- * Comme le run sur un serveur { remote : 1, ice : 1 }
+ * Comme le run sur un serveur { remote : 1}
  * 
  * @param server
  */
-function displayRun(server, callback) {
-	var loc = placeFunction.ice(server);
-
+function displayRun(server) {
+	var loc = placeFunction.ice(server.value);
 	var run = $("#runInProgress");
-	var ei = $("#encounteredIce");
-
 	var opt = { duration : 225 };
 
 	run.css({ top : 0, left : loc.x - 22, height : "0%" });
 	run.animate({ height : "100%" }, opt);
 
-	//TODO a placer dans le encounter
+}
+
+/**
+ * Rencontre d'une glace, {server: 'hq', ice:0}
+ * 
+ * @param ice
+ */
+function encounterIce(ice) {
+	var loc = placeFunction.ice(ice.value);
+
+	var ei = $("#encounteredIce");
+	var opt = { duration : 225 };
+
 	if (loc.y) {
 		var left = loc.x - 21;
 		ei.css({ top : 0, left : left, opacity : 0 });
-		ei.animate({ top : loc.y + 14, left : left, opacity : 100 }, opt, callback);
+		ei.animate({ top : loc.y + 14, left : left, opacity : 100 }, opt);
 	}
+
 }
 
 /**
  * Termine le run
  */
-function endRun(callback) {
+function endRun() {
 	var run = $("#runInProgress");
 	var ei = $("#encounteredIce");
 
 	var opt = { duration : 225 };
 	run.animate({ top : -3, height : 0 }, opt);
-	ei.animate({ top : 0, opacity : 0 }, opt, callback);
+	ei.animate({ top : 0, opacity : 0 }, opt);
+}
+
+/**
+ * Affiche le hackOMatic
+ * 
+ * @param routines
+ * @param breaker
+ */
+function hackOMatic(ice, breaker) {
+
+	var em = $("#encounterMonitor");
+	em.prop("breaker", breaker);
+
+	var core = em.find("ul.core");
+	core.empty();
+
+	em.find(".ice").text(ice.text);
+	em.find(".icebreaker").text(breaker.text);
+
+	var nb = 0;
+	_.each(ice.routines, function(r) {
+		var li = $("<li/>");
+		var check = $("<input type='checkbox' onchange='updateCost();'/>");
+		if (r.broken) {
+			li.addClass("broken");
+			check.attr({ disabled : true });
+		} else {
+			++nb;
+		}
+
+		var span = $("<span/>");
+
+		check.appendTo(li);
+		span.html(" " + interpolateSprites(r.text)).appendTo(li);
+		li.appendTo(core);
+	});
+
+	new Action({}, { option : "Break all routines for " + breaker.costs[nb - 1] }, $("#breakAll")).bind();
+	new Action({}, { option : "" }, $("#breakSelected")).bind();
+	new Action({}, { option : "Break none and meet my fate" }, $("#breakNone")).bind();
+	updateCost();
+}
+
+function updateCost() {
+
+	var act = $("#breakSelected").prop("ANRAction");
+
+	var em = $("#encounterMonitor");
+	var breaker = em.prop("breaker");
+	var nb = em.find(":checked").length;
+
+	var bs = $("#breakSelected");
+	if (nb > 0) {
+
+		var cost = breaker.costs[nb - 1];
+		act.response.option = "Break selecteds routines for " + cost;
+		bs.show();
+
+	} else {
+		// rien de selectionne
+		bs.hide();
+	}
 }
 
 /**
@@ -317,6 +391,10 @@ function initANR() {
 
 	confactions($("#nothing"));
 	confactions($("#nothingTillMyTurn"));
+
+	confactions($("#breakAll"));
+	confactions($("#breakSelected"));
+	confactions($("#breakNone"));
 
 	var corpWidget = $(".faction.corp");
 	var runnerWidget = $(".faction.runner");
@@ -413,6 +491,25 @@ function updateGame(game) {
 		wallets.runner.actions.value(w.actions);
 		wallets.runner.memory_units.value(w.memory);
 		wallets.runner.links.value(w.link);
+	}
+
+	if (game.run != undefined) {
+		if (game.run.target != undefined) {
+			displayRun(game.run.target);
+			// on reinit la réponse de base
+			lastUnwantedAbility = -1;
+		}
+
+		if (game.run.ice != undefined) {
+			encounterIce(game.run.ice);
+
+			// on reinit la réponse de base
+			lastUnwantedAbility = -1;
+		}
+
+		if (game.run.done == true) {
+			endRun();
+		}
 	}
 
 	var main = $('div#main');
@@ -543,9 +640,24 @@ function handleQuestion(q, r) {
 	var widget = null;
 	if (card != undefined)
 		widget = card.widget;
-	if ('WHICH_ACTION' == q.what) {
+	var matchAct = /WHICH_(.+)/.exec(q.what);
+	var mayAddNoAction = true;
+	var mayAddNotYet = false;
+
+	if (matchAct) {
 		msg.addClass("label label-info");
-		msg.text("Please, play an action");
+		var type = matchAct[1];
+		if ("ACTION" == type)
+			msg.text("Please, play an action");
+		else if ("ABILITY" == type) {
+			msg.text("Would you like to play an ability ?");
+			mayAddNotYet = true;
+		} else if ("ICE_TO_REZZ" == type)
+			msg.text("Would you like to rezz the approched ice ?");
+		else if ("ICEBREAKER" == type) {
+			msg.text("Would you like to use an icebreaker ?");
+			mayAddNoAction = false;
+		}
 
 		if ('click-for-credit' == r.option)
 			widget = faction == 'corp' ? $("#hq") : $("#grip");
@@ -561,11 +673,6 @@ function handleQuestion(q, r) {
 				act = new Action(q, r, widget);
 
 		}
-	} else if ('WHICH_ABILITY' == q.what) {
-		msg.addClass("label label-danger");
-		msg.text("Would you like to play an ability ?");
-		if (widget != undefined)
-			act = new Action(q, r, widget);
 	} else if ('DISCARD_CARD' == q.what) {
 		msg.addClass("label label-warning");
 		msg.text("Select " + r.args.nb + " card" + (r.args.nb > 1 ? "s" : "") + " to discard");
@@ -579,18 +686,24 @@ function handleQuestion(q, r) {
 			act.push(new DiscardAction(q, r, c));
 		}
 	} else if ('WANT_TO_JACKOFF' == q.what) {
-		msg.addClass("label label-danger");
+		msg.addClass("label label-warning");
 		msg.text("Would you like to jack-off ?");
 	}
 
-	if (act == undefined) {
+	if (act == undefined && mayAddNoAction) {
 		if ('none' == r.option) {
-
 			act = [];
 
 			var nr = _.clone(r);
 			nr.option = "none-till-next";
-			act.push(new Action(q, nr, $("#nothingTillMyTurn")));
+			var notYet = $("#nothingTillMyTurn");
+
+			if (mayAddNotYet) {
+				act.push(new Action(q, nr, notYet));
+				notYet.show();
+			} else
+				notYet.hide();
+
 			act.push(new Action(q, r, $("#nothing")));
 
 			// on masque le widget avant l'emission

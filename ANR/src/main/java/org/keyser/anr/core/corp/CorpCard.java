@@ -21,6 +21,10 @@ public abstract class CorpCard extends Card {
 		return rezzed;
 	}
 
+	public boolean isAmbush() {
+		return hasSubtype(CardSubType.AMBUSH);
+	}
+
 	public void setRezzed(boolean rezzed) {
 		this.rezzed = rezzed;
 		notification(NotificationEvent.CARD_REZZ_CHANGED.apply().m(this));

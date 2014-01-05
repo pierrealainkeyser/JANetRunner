@@ -41,6 +41,10 @@ public abstract class Card extends AbstractGameContent {
 		return location;
 	}
 
+	protected boolean hasSubtype(CardSubType s) {
+		return subTypes.contains(s);
+	}
+
 	/**
 	 * Change la position de la carte en se désenregistrant de la zone
 	 * précédente.

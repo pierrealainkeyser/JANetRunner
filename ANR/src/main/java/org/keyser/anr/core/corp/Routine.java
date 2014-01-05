@@ -6,4 +6,6 @@ import org.keyser.anr.core.Run;
 public interface Routine {
 
 	public void trigger(Run run, Flow next);
+
+	public String asString();
 }

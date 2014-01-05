@@ -23,6 +23,8 @@ public class GameDTO {
 
 	private List<String> logs;
 
+	private RunDTO run;
+
 	public void addLog(String log) {
 		if (logs == null)
 			logs = new ArrayList<>();
@@ -38,6 +40,22 @@ public class GameDTO {
 		if (d == null)
 			addCard(d = new CardDTO().setId(id));
 		return d;
+	}
+
+	public void endOfRun() {
+		run = new RunDTO();
+		run.setDone(true);
+	}
+
+	public void runOnServer(LocationDTO server) {
+		run = new RunDTO();
+		run.setTarget(server);
+	}
+
+	public void iceOnRun(LocationDTO ice) {
+		if (run == null)
+			run = new RunDTO();
+		run.setIce(ice);
 	}
 
 	public PlayerDTO create(Player p) {
@@ -123,5 +141,9 @@ public class GameDTO {
 
 	public List<String> getLogs() {
 		return logs;
+	}
+
+	public RunDTO getRun() {
+		return run;
 	}
 }
