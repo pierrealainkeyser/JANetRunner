@@ -40,7 +40,6 @@ var actionMapping = {//
 "install-resource" : "Install this resource",//
 "play-event" : "Play this event",//
 "run" : "Initiate a run on this server",//
-"use-ice-breaker" : "Swap breaker",//
 };
 
 // gestion des bordures
@@ -221,7 +220,7 @@ var placeFunction = { hand : function(v) {
  * @param server
  */
 function displayRun(server) {
-	var loc = placeFunction.ice(server.value);
+	var loc = placeFunction.ice(server);
 	var run = $("#runInProgress");
 	var opt = { duration : 225 };
 
@@ -236,7 +235,7 @@ function displayRun(server) {
  * @param ice
  */
 function encounterIce(ice) {
-	var loc = placeFunction.ice(ice.value);
+	var loc = placeFunction.ice(ice);
 
 	var ei = $("#encounteredIce");
 	var opt = { duration : 225 };
@@ -265,18 +264,16 @@ function endRun() {
  * Affiche le hackOMatic
  * 
  * @param routines
- * @param breaker
  */
-function hackOMatic(ice, breaker) {
+function displayEncounteredIce(ice) {
 
 	var em = $("#encounterMonitor");
-	em.prop("breaker", breaker);
-
 	var core = em.find("ul.core");
 	core.empty();
 
-	em.find(".ice").text(ice.text);
-	em.find(".icebreaker").text(breaker.text);
+	var c = cards[ice.card + ""];
+
+	em.find(".ice").text(c.def.name);
 
 	var nb = 0;
 	_.each(ice.routines, function(r) {
@@ -296,12 +293,53 @@ function hackOMatic(ice, breaker) {
 		li.appendTo(core);
 	});
 
-	new Action({}, { option : "Break all routines for " + breaker.costs[nb - 1] }, $("#breakAll")).bind();
-	new Action({}, { option : "" }, $("#breakSelected")).bind();
+	var ba = $("#breakAll");
+	var bs = $("#breakSelected");
+
+	ba.hide();
+	bs.hide();
+
+	new Action({}, { option : "TBD" }, ba).bind();
+	new Action({}, { option : "" }, bs).bind();
 	new Action({}, { option : "Break none and meet my fate" }, $("#breakNone")).bind();
 	updateCost();
 }
 
+/**
+ * Affiche le breaker
+ * 
+ * @param breaker
+ */
+function displayBreaker(breaker) {
+	var em = $("#encounterMonitor");
+	em.prop("breaker", breaker);
+
+	//on cherche la carte associé
+	var c = cards[breaker.card + ""];
+
+	var ba = $("#breakAll");
+	var bs = $("#breakSelected");
+	
+	if (c) {
+		em.find(".icebreaker").text(c.def.name);
+
+		if (breaker.all) {
+			var act = ba.prop("ANRAction");
+			act.response.option = "Break all routines for " + breaker.all;
+			ba.show();
+		} else {
+			ba.hide();
+		}
+		updateCost();
+	} else {
+		ba.hide();
+		bs.hide();
+	}
+}
+
+/**
+ * Mise à jour des couts de break
+ */
 function updateCost() {
 
 	var act = $("#breakSelected").prop("ANRAction");
@@ -312,7 +350,7 @@ function updateCost() {
 
 	var bs = $("#breakSelected");
 	if (nb > 0) {
-
+		//TODO gestion de la longeur
 		var cost = breaker.costs[nb - 1];
 		act.response.option = "Break selecteds routines for " + cost;
 		bs.show();
@@ -622,7 +660,7 @@ function updateGame(game) {
 }
 
 /**
- * Gestion d'une question de base
+ * Gestion d'une question de base. TODO faire autrement car il peut y avoir plusieurs réponse....
  * 
  * @param q
  * @param r
@@ -642,7 +680,6 @@ function handleQuestion(q, r) {
 		widget = card.widget;
 	var matchAct = /WHICH_(.+)/.exec(q.what);
 	var mayAddNoAction = true;
-	var mayAddNotYet = false;
 
 	if (matchAct) {
 		msg.addClass("label label-info");
@@ -656,7 +693,13 @@ function handleQuestion(q, r) {
 			msg.text("Would you like to rezz the approched ice ?");
 		else if ("ICEBREAKER" == type) {
 			msg.text("Would you like to use an icebreaker ?");
-			mayAddNoAction = false;
+
+			displayEncounteredIce(r.args.ice);
+			if(r.args.analyses.length>0){
+				//utilisation du premier
+				displayBreaker(r.args.analyses[0]);
+			}
+
 		}
 
 		if ('click-for-credit' == r.option)
@@ -690,7 +733,7 @@ function handleQuestion(q, r) {
 		msg.text("Would you like to jack-off ?");
 	}
 
-	if (act == undefined && mayAddNoAction) {
+	if (act == undefined) {
 		if ('none' == r.option) {
 			act = [];
 

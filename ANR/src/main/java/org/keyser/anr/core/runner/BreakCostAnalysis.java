@@ -1,5 +1,6 @@
 package org.keyser.anr.core.runner;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -34,10 +35,28 @@ public class BreakCostAnalysis {
 		this.ice = ice;
 	}
 
-	
-
 	public void add(int nb, Cost c) {
 		nbRoutines.put(nb, c);
+	}
+
+	/**
+	 * Supprime les couts pas payable
+	 * 
+	 * @param g
+	 * @return true si on peut payer qqch
+	 */
+	public boolean removeUnaffordable(Game game) {
+
+		Wallet wallet = game.getRunner().getWallet();
+		UseIceBreaker act = new UseIceBreaker(iceBreaker);
+		Iterator<Cost> it = nbRoutines.values().iterator();
+		while (it.hasNext()) {
+			Cost n = it.next();
+			if (!wallet.isAffordable(n, act))
+				it.remove();
+		}
+
+		return nbRoutines.size() > 0;
 	}
 
 	/**
@@ -62,15 +81,22 @@ public class BreakCostAnalysis {
 	}
 
 	/**
+	 * Renvoi le cout pour casser toutes les routines
+	 * 
+	 * @return
+	 */
+	public Cost costToBreakAll() {
+		return costToBreak(getRoutinesCount());
+	}
+
+	/**
 	 * Renvoi le nombre de cout
 	 * 
 	 * @param nb
 	 * @return
 	 */
 	public Cost costToBreak(int nb) {
-		Cost cost = nbRoutines.get(nb);
-		if (cost == null)
-			throw new IllegalArgumentException("no cost for " + nb + " routines");
+		Cost cost = nbRoutines.get(nb);		
 		return cost;
 	}
 
@@ -85,8 +111,6 @@ public class BreakCostAnalysis {
 	public int getRequiredBoost() {
 		return requiredBoost;
 	}
-
-
 
 	public Set<Entry<Integer, Cost>> entrySet() {
 		return nbRoutines.entrySet();

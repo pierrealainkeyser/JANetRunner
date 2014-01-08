@@ -24,6 +24,10 @@ public class UseIceBreaker extends Event {
 		this.subBrokens = subBrokens;
 	}
 
+	public UseIceBreaker(Card iceBreaker) {
+		this(iceBreaker, 0, 0);
+	}
+
 	public Card getIceBreaker() {
 		return iceBreaker;
 	}

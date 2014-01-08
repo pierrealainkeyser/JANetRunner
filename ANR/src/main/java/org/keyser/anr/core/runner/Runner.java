@@ -215,16 +215,16 @@ public class Runner extends PlayableUnit {
 
 	public class UseIceBreakerAbility extends AbstractAbility {
 
-		private final BreakCostAnalysis analysis;
+		private final BreakCostAnalysisCumuled all;
 
-		UseIceBreakerAbility(BreakCostAnalysis analysis) {
-			super("use-ice-breaker", analysis.costToBreak(1));
-			this.analysis = analysis;
+		UseIceBreakerAbility(BreakCostAnalysisCumuled all) {
+			super("use-ice-breaker", Cost.free());
+			this.all = all;
 		}
 
 		@Override
 		protected void registerQuestion(Question q) {
-			q.ask(getName(), analysis.getIceBreaker()).to(BreakRoutinesCommand.class, this::useBreaker).setContent(analysis);
+			q.ask(getName()).to(BreakRoutinesCommand.class, this::useBreaker).setContent(all);
 		}
 
 		/**
@@ -234,7 +234,7 @@ public class Runner extends PlayableUnit {
 		 */
 		public void useBreaker(BreakRoutinesCommand brc) {
 
-			EncounteredIce ice = analysis.getIce();
+			EncounteredIce ice = all.getIce();
 			List<Routine> toBeBrokens = ice.getToBeBrokens();
 			List<Routine> brokens = new ArrayList<>();
 
@@ -244,8 +244,10 @@ public class Runner extends PlayableUnit {
 			// on réaliser 2 boucles pour eviter les problemes d'index
 			brokens.forEach(r -> ice.addBroken(r));
 
+			BreakCostAnalysis bca = all.find(brc.getIcebreaker());
+
 			// on break les routines dans la joie
-			analysis.apply(brc.getRoutines().size(), getGame(), next);
+			bca.apply(brc.getRoutines().size(), getGame(), next);
 
 		}
 	}
@@ -324,12 +326,20 @@ public class Runner extends PlayableUnit {
 
 		// on va chercher un icebreaker approprié
 		if (game.mayUseIceBreaker()) {
+
 			EncounteredIce ei = game.getRun().getEncounter();
+			BreakCostAnalysisCumuled bcac = new BreakCostAnalysisCumuled(ei);
 
-			Consumer<BreakCostAnalysis> useBreak = (bca) -> a.add(new UseIceBreakerAbility(bca));
+			Consumer<BreakCostAnalysis> useBreak = (bca) -> {
+				//on supprime ce qu'on ne peut payer et on rajouter
+				if (bca.removeUnaffordable(game))
+					bcac.add(bca);
+			};
 
-			//on transmet la closure pour les ices breakers
+			// on transmet la closure pour les ices breakers
 			forEncounter(ei).forEach(ibr -> useBreak.accept(ibr.getBreakCostAnalysis(ei)));
+
+			a.add(new UseIceBreakerAbility(bcac));
 
 		}
 

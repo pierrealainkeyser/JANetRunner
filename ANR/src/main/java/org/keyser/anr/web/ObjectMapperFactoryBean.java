@@ -19,11 +19,54 @@ import org.codehaus.jackson.map.ser.std.SerializerBase;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.CostAction;
 import org.keyser.anr.core.CostCredit;
+import org.keyser.anr.core.EncounteredIce;
+import org.keyser.anr.core.corp.Routine;
 import org.keyser.anr.core.runner.BreakCostAnalysis;
 import org.springframework.beans.factory.FactoryBean;
 
 public class ObjectMapperFactoryBean implements FactoryBean<ObjectMapper> {
 
+	/**
+	 * Transforme les {@link EncounteredIce} en json
+	 * 
+	 * @author PAF
+	 * 
+	 */
+	public static class EncounteredIceSerializer extends SerializerBase<EncounteredIce> {
+
+		public EncounteredIceSerializer() {
+			super(EncounteredIce.class, true);
+		}
+
+		@Override
+		public void serialize(EncounteredIce value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
+
+			jgen.writeStartObject();
+			jgen.writeNumberField("card", value.getIce().getId());
+			jgen.writeNumberField("nb", value.countUnbrokens());
+
+			jgen.writeArrayFieldStart("routines");
+			for (Routine r : value.getAll()) {
+
+				jgen.writeStartObject();
+				jgen.writeStringField("text", r.asString());
+				jgen.writeBooleanField("broken", value.isBroken(r));
+				
+				jgen.writeEndObject();
+			}
+			jgen.writeEndArray();
+
+			jgen.writeEndObject();
+		}
+
+	}
+
+	/**
+	 * Transforme les {@link BreakCostAnalysis} en json
+	 * 
+	 * @author PAF
+	 * 
+	 */
 	public static class BreakCostAnalysisSerializer extends SerializerBase<BreakCostAnalysis> {
 		public BreakCostAnalysisSerializer() {
 			super(BreakCostAnalysis.class, true);
@@ -33,23 +76,26 @@ public class ObjectMapperFactoryBean implements FactoryBean<ObjectMapper> {
 		public void serialize(BreakCostAnalysis value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
 
 			jgen.writeStartObject();
-
-			//jgen.writeNumberField("card", value.getIce().getIce().getId());
-			jgen.writeArrayFieldStart("costs");
-
+			
 			JsonSerializer<Object> jsc = provider.findValueSerializer(Cost.class, null);
+
+			jgen.writeNumberField("card", value.getIceBreaker().getId());		
+			jgen.writeObjectField("all", value.costToBreakAll());
+			
+			jgen.writeArrayFieldStart("costs");
+		
 			for (Entry<Integer, Cost> e : value.entrySet())
 				jsc.serialize(e.getValue(), jgen, provider);
 
 			jgen.writeEndArray();
-			
+
 			jgen.writeEndObject();
 
 		}
 	}
 
 	/**
-	 * Transform les {@link Cost} en chaine
+	 * Transforme les {@link Cost} en json
 	 * 
 	 * @author PAF
 	 * 
@@ -91,6 +137,7 @@ public class ObjectMapperFactoryBean implements FactoryBean<ObjectMapper> {
 		SimpleModule mod = new SimpleModule("ANR", new Version(0, 0, 0, null));
 		mod.addSerializer(new CostSerializer());
 		mod.addSerializer(new BreakCostAnalysisSerializer());
+		mod.addSerializer(new EncounteredIceSerializer());
 		om.registerModule(mod);
 
 		SerializationConfig sc = om.getSerializationConfig().withSerializationInclusion(Inclusion.NON_NULL);

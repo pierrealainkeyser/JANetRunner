@@ -30,6 +30,8 @@ import org.keyser.anr.core.runner.Runner.UseIceBreakerAbility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.xml.internal.bind.util.Which;
+
 public class Game implements Notifier, ConfigurableEventListener {
 
 	abstract class AbstractDiscardPhaseEvent extends AbstractTurnEvent {
@@ -209,12 +211,9 @@ public class Game implements Notifier, ConfigurableEventListener {
 					q.ask("none").to(toEnd);
 				else
 					triggeredFlow.apply(null);
-			} else {
-
+			} else if (evt != NotificationEvent.WHICH_ACTION && evt != NotificationEvent.WHICH_ICEBREAKER) {
 				// si pas d'action possible, mais juste des evenements
-				if (wallet.amountOf(WalletActions.class) == 0) {
-					q.ask("none").to(toEnd);
-				}
+				q.ask("none").to(toEnd);
 			}
 
 			q.fire();

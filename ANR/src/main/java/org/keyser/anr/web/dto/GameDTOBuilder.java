@@ -143,15 +143,25 @@ public class GameDTOBuilder {
 				g.addLog("The runner draws a card");
 			} else if (NotificationEvent.RUNNER_INSTALLED == type) {
 				g.addLog(getName(i.getCard()) + " is installed");
-			} else if (NotificationEvent.START_OF_RUN == type) {							
-				g.runOnServer(LocationDTO.server(serverLocation(i.getRun().getTarget())));
+			} else if (NotificationEvent.START_OF_RUN == type) {
+				runOnServer(g, i.getRun());
 			} else if (NotificationEvent.APPROCHING_ICE == type) {
-				g.iceOnRun(location(i.getRun().getEncounter().getIce()));
+				iceOnRun(g, i.getRun());
 			} else if (NotificationEvent.END_OF_RUN == type) {
 				g.endOfRun();
 			}
 
 		}
+	}
+
+	private void iceOnRun(GameDTO g, Run r) {
+		LocationDTO l = location(r.getEncounter().getIce());
+		g.iceOnRun(l.getValue());
+	}
+
+	private void runOnServer(GameDTO g, Run run) {
+		LocationDTO l = LocationDTO.server(serverLocation(run.getTarget()));
+		g.runOnServer(l.getValue());
 	}
 
 	private void handleCardNotif(GameDTO g, Notification i, BiConsumer<Card, CardDTO> consumer) {
@@ -239,11 +249,12 @@ public class GameDTOBuilder {
 		game.getQuestions().values().stream().forEach(q -> updateQuestion(g, q));
 
 		Run r = game.getRun();
-		if (r != null) {				
-			g.runOnServer(LocationDTO.server(serverLocation(r.getTarget())));
+		if (r != null) {
+
+			runOnServer(g, r);
 			EncounteredIce encounter = r.getEncounter();
 			if (encounter != null)
-				g.iceOnRun(location(encounter.getIce()));
+				iceOnRun(g, r);
 		}
 
 		return g;

@@ -55,7 +55,7 @@ public class TestRun {
 		Assert.assertEquals(15 - 3, makingNews.getWallet().amountOf(WalletCredits.class));
 
 		// on break
-		tn.find("use-ice-breaker").apply(new BreakRoutinesCommand(0));
+		tn.find("use-ice-breaker").apply(new BreakRoutinesCommand(br, 0));
 
 		// on a payé 2 pour passer le mur avec le bellier
 		Assert.assertEquals(5 - 2, kate.getWallet().amountOf(WalletCredits.class));

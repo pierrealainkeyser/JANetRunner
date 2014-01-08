@@ -17,17 +17,28 @@ public class EncounteredIce {
 
 	private List<Routine> toBeBrokens = new ArrayList<>();
 	private List<Routine> brokens = new ArrayList<>();
+	private List<Routine> all = new ArrayList<>();
 	private boolean bypassed;
 	private final Ice ice;
 
 	public EncounteredIce(Ice ice) {
 		this.ice = ice;
 		toBeBrokens.addAll(ice.getRoutines());
+		all.addAll(toBeBrokens);
+	}
+
+	public void addRoutine(Routine r) {
+		toBeBrokens.add(r);
+		all.add(r);
 	}
 
 	public void addBroken(Routine r) {
 		brokens.add(r);
 		toBeBrokens.remove(r);
+	}
+
+	public boolean isBroken(Routine r) {
+		return brokens.contains(r);
 	}
 
 	public int countBrokens() {
@@ -60,5 +71,9 @@ public class EncounteredIce {
 
 	public List<Routine> getToBeBrokens() {
 		return Collections.unmodifiableList(toBeBrokens);
+	}
+
+	public List<Routine> getAll() {
+		return all;
 	}
 }

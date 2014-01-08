@@ -1,29 +1,30 @@
 package org.keyser.anr.web.dto;
 
+import org.keyser.anr.web.dto.LocationDTO.ExtendedLocationDTO;
+
 public class RunDTO {
 
-	private LocationDTO target;
+	private ExtendedLocationDTO target;
 
-	private LocationDTO ice;
-	
-	
-	//TODO rajouter la liste des routines
+	private ExtendedLocationDTO ice;
+
+	// TODO rajouter la liste des routines
 
 	private boolean done = false;
 
-	public LocationDTO getTarget() {
+	public ExtendedLocationDTO getTarget() {
 		return target;
 	}
 
-	public void setTarget(LocationDTO target) {
+	public void setTarget(ExtendedLocationDTO target) {
 		this.target = target;
 	}
 
-	public LocationDTO getIce() {
+	public ExtendedLocationDTO getIce() {
 		return ice;
 	}
 
-	public void setIce(LocationDTO ice) {
+	public void setIce(ExtendedLocationDTO ice) {
 		this.ice = ice;
 	}
 
