@@ -235,7 +235,7 @@ public class Runner extends PlayableUnit {
 		public void useBreaker(BreakRoutinesCommand brc) {
 
 			EncounteredIce ice = all.getIce();
-			List<Routine> toBeBrokens = ice.getToBeBrokens();
+			List<Routine> toBeBrokens = ice.getAll();
 			List<Routine> brokens = new ArrayList<>();
 
 			// on rajoute toutes les routines
@@ -331,7 +331,7 @@ public class Runner extends PlayableUnit {
 			BreakCostAnalysisCumuled bcac = new BreakCostAnalysisCumuled(ei);
 
 			Consumer<BreakCostAnalysis> useBreak = (bca) -> {
-				//on supprime ce qu'on ne peut payer et on rajouter
+				// on supprime ce qu'on ne peut payer et on rajouter
 				if (bca.removeUnaffordable(game))
 					bcac.add(bca);
 			};
@@ -340,7 +340,6 @@ public class Runner extends PlayableUnit {
 			forEncounter(ei).forEach(ibr -> useBreak.accept(ibr.getBreakCostAnalysis(ei)));
 
 			a.add(new UseIceBreakerAbility(bcac));
-
 		}
 
 		forEachCardInPlay(c -> {

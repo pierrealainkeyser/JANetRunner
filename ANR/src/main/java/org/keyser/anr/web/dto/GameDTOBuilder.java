@@ -147,6 +147,8 @@ public class GameDTOBuilder {
 				runOnServer(g, i.getRun());
 			} else if (NotificationEvent.APPROCHING_ICE == type) {
 				iceOnRun(g, i.getRun());
+			} else if (NotificationEvent.APPROCHING_SERVER == type) {
+				approchingServer(g, i.getRun());
 			} else if (NotificationEvent.END_OF_RUN == type) {
 				g.endOfRun();
 			}
@@ -157,6 +159,11 @@ public class GameDTOBuilder {
 	private void iceOnRun(GameDTO g, Run r) {
 		LocationDTO l = location(r.getEncounter().getIce());
 		g.iceOnRun(l.getValue());
+	}
+
+	private void approchingServer(GameDTO g, Run run) {
+		LocationDTO l = LocationDTO.server(serverLocation(run.getTarget()));
+		g.approchingServer(l.getValue());
 	}
 
 	private void runOnServer(GameDTO g, Run run) {
@@ -255,6 +262,9 @@ public class GameDTOBuilder {
 			EncounteredIce encounter = r.getEncounter();
 			if (encounter != null)
 				iceOnRun(g, r);
+			else 
+				approchingServer(g, r);
+			
 		}
 
 		return g;

@@ -9,7 +9,6 @@ import java.util.Map;
 import org.keyser.anr.core.GameStep;
 import org.keyser.anr.core.Player;
 import org.keyser.anr.web.dto.LocationDTO.ExtendedLocationDTO;
-import org.keyser.anr.web.dto.LocationDTO.ExtendedLocationDTO;
 
 public class GameDTO {
 
@@ -52,6 +51,13 @@ public class GameDTO {
 	public void runOnServer(ExtendedLocationDTO server) {
 		run = new RunDTO();
 		run.setTarget(server);
+	}
+	
+
+	public void approchingServer(ExtendedLocationDTO root) {
+		if (run == null)
+			run = new RunDTO();
+		run.setRoot(root);
 	}
 
 	public void iceOnRun(ExtendedLocationDTO ice) {

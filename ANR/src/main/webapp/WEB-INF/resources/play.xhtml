@@ -50,8 +50,12 @@
 		for (var i = 1; i < 15; ++i)
 			bindRemote(i);
 
-		Mousetrap.bind('d', function(e) {
-			$("#nothing").focus();
+		Mousetrap.bind('n', function(e) {
+			$("#response-no").focus();
+		});
+
+		Mousetrap.bind('y', function(e) {
+			$("#response-yes").focus();
 		});
 
 		//vers runner
@@ -183,7 +187,7 @@
 
 					</ul>
 				</li>
-				<li class="list-group-item">
+				<li class="list-group-item last-row">
 					<button id="breakAll" type="button" class="btn btn-success">
 						<i class="glyphicon glyphicon glyphicon-retweet"> </i>
 					</button>
@@ -232,17 +236,17 @@
 			Programs (<span>0</span>)
 		</div>
 
-		<div id="noActionPlease" class="panel panel-default">
-			<div class="panel-heading"><i class="glyphicon glyphicon-arrow-right"> </i> Response</div>
-			<div class="panel-body">
-				<button id="nothing" type="button" class="btn btn-info">
-					<i class="glyphicon glyphicon-minus-sign"> </i> No
+		<div id="binaryResponse" class="panel panel-default">
+			<span class="header"><i class="glyphicon glyphicon-question-sign"> </i></span> 
+			<span class="panel-body">
+				<button id="response-yes" type="button" class="btn btn-success">
+					<i class="glyphicon glyphicon-ok"> </i> Yes
 				</button>
 
-				<button id="nothingTillMyTurn" type="button" class="btn btn-warning">
-					<i class="glyphicon glyphicon-ban-circle"> </i> Not until next turn
+				<button id="response-no" type="button" class="btn btn-info">
+					<i class="glyphicon glyphicon-minus-sign"> </i> No
 				</button>
-			</div>
+			</span>
 		</div>
 
 		<div id="preview" class="panel panel-default">

@@ -22,8 +22,7 @@ var viewAgenda = { padding : 30, hspacing : 85 };
 var hideAgenda = { padding : -115, hspacing : 0 };
 
 var actionMapping = {//
-"none" : "I'm not doing anything until anything changes",//
-"none-till-next" : "I'm not doing anything until my next turn",//
+"none" : "I'm not doing anything",//
 "click-for-credit" : "Gain {credits}",//
 "click-for-draw" : "Draw a card",//
 "install-ice" : "Install this ice",//
@@ -40,6 +39,9 @@ var actionMapping = {//
 "install-resource" : "Install this resource",//
 "play-event" : "Play this event",//
 "run" : "Initiate a run on this server",//
+"jack-off" : "Jack off now !",//
+"continue-the-run" : "No way",//
+"break-none" : "I'm done breaking",//
 };
 
 // gestion des bordures
@@ -235,6 +237,8 @@ function displayRun(server) {
  * @param ice
  */
 function encounterIce(ice) {
+	syncEncounteredIceBg("label-warning");
+
 	var loc = placeFunction.ice(ice);
 
 	var ei = $("#encounteredIce");
@@ -242,9 +246,46 @@ function encounterIce(ice) {
 
 	if (loc.y) {
 		var left = loc.x - 21;
-		ei.css({ top : 0, left : left, opacity : 0 });
-		ei.animate({ top : loc.y + 14, left : left, opacity : 100 }, opt);
+		if (ei.css("opacity") == 0)
+			ei.css({ top : 0, left : left });
+
+		var targetPos = { top : loc.y + 14, left : left, opacity : 100, height : 84 };
+		ei.prop("moveTo", targetPos);
+		ei.animate(targetPos, opt);
 	}
+}
+
+/**
+ * Mise à jour des coleurs tu background
+ */
+function syncEncounteredIceBg(type) {
+	var ei = $("#encounteredIce");
+	var span = $("#runInProgress").find("span");
+	span.removeClass();
+	span.addClass("label " + type);
+
+	var bg = span.css("background-color");
+	ei.css({ "background-color" : bg })
+}
+
+/**
+ * Rencontre d'un server, {server: 'hq'}
+ * 
+ */
+function approchingServer(server) {
+	syncEncounteredIceBg("label-danger");
+
+	var loc = placeFunction.ice(server);
+	var loctop = placeFunction.server(server);
+
+	var ei = $("#encounteredIce");
+	var opt = { duration : 225 };
+
+	var left = loc.x - 21;
+	if (ei.css("opacity") == 0)
+		ei.css({ top : 0, left : left });
+	var targetPos = { top : loctop.y - 4, left : left, opacity : 100, height : 121 };
+	ei.animate(targetPos, opt);
 
 }
 
@@ -263,11 +304,13 @@ function endRun() {
 /**
  * Affiche le hackOMatic
  * 
- * @param routines
+ * @param q
+ * @param ice
  */
-function displayEncounteredIce(ice) {
+function displayEncounteredIce(q, ice) {
 
 	var em = $("#encounterMonitor");
+	em.find(".icebreaker").html("<span class='label label-warning'>no breaker found</span>");
 	var core = em.find("ul.core");
 	core.empty();
 
@@ -276,6 +319,7 @@ function displayEncounteredIce(ice) {
 	em.find(".ice").text(c.def.name);
 
 	var nb = 0;
+	var rindex = 0;
 	_.each(ice.routines, function(r) {
 		var li = $("<li/>");
 		var check = $("<input type='checkbox' onchange='updateCost();'/>");
@@ -285,6 +329,7 @@ function displayEncounteredIce(ice) {
 		} else {
 			++nb;
 		}
+		check.prop("routineIndex", rindex++);
 
 		var span = $("<span/>");
 
@@ -299,10 +344,41 @@ function displayEncounteredIce(ice) {
 	ba.hide();
 	bs.hide();
 
-	new Action({}, { option : "TBD" }, ba).bind();
-	new Action({}, { option : "" }, bs).bind();
-	new Action({}, { option : "Break none and meet my fate" }, $("#breakNone")).bind();
+	var act = []
+	act.push(new Action(q, { option : "TBD", rid : 0 }, ba));
+	act.push(new Action(q, { option : "", rid : 0 }, bs));
 	updateCost();
+
+	act[0].updateChoosen = useIceBreakerChoosenFactory(true);
+	act[1].updateChoosen = useIceBreakerChoosenFactory(false);
+
+	var ei = $("#encounteredIce");
+	var offset = ei.prop("moveTo");
+	em.css({ left : offset.left + ei.width() + 15, top : offset.top + ei.height() - em.height() });
+
+	em.show();
+	return act;
+}
+
+function useIceBreakerChoosenFactory(all) {
+	return function(choosen) {
+		var em = $("#encounterMonitor");
+		var brc = { icebreaker : em.prop("breaker").card, routines : [] };
+
+		var addRoutines = function() {
+			var c = $(this);
+			brc.routines.push(c.prop("routineIndex"));
+		};
+
+		if (all)
+			em.find("input").each(addRoutines);
+		else
+			em.find(":checked").each(addRoutines);
+
+		console.log(brc);
+		choosen['content'] = brc;
+
+	};
 }
 
 /**
@@ -310,21 +386,20 @@ function displayEncounteredIce(ice) {
  * 
  * @param breaker
  */
-function displayBreaker(breaker) {
+function displayBreaker(breaker, breakAllAction) {
 	var em = $("#encounterMonitor");
 	em.prop("breaker", breaker);
 
-	//on cherche la carte associé
+	// on cherche la carte associé
 	var c = cards[breaker.card + ""];
 
 	var ba = $("#breakAll");
 	var bs = $("#breakSelected");
-	
-	if (c) {
-		em.find(".icebreaker").text(c.def.name);
 
+	if (c) {
+		em.find(".icebreaker").html("<span class='label label-info'>" + c.def.name + "</span>");
 		if (breaker.all) {
-			var act = ba.prop("ANRAction");
+			var act = breakAllAction || ba.prop("ANRAction");
 			act.response.option = "Break all routines for " + breaker.all;
 			ba.show();
 		} else {
@@ -349,16 +424,17 @@ function updateCost() {
 	var nb = em.find(":checked").length;
 
 	var bs = $("#breakSelected");
-	if (nb > 0) {
-		//TODO gestion de la longeur
+	if (nb > 0 && breaker && breaker.costs.length >= nb) {
+
 		var cost = breaker.costs[nb - 1];
 		act.response.option = "Break selecteds routines for " + cost;
 		bs.show();
-
+		return;
 	} else {
 		// rien de selectionne
 		bs.hide();
 	}
+
 }
 
 /**
@@ -427,8 +503,8 @@ function initANR() {
 	confactions($("#hardwares").css(placeFunction.hardwares({ index : 0 })));
 	confactions($("#programs").css(placeFunction.programs({ index : 0 })));
 
-	confactions($("#nothing"));
-	confactions($("#nothingTillMyTurn"));
+	confactions($("#response-yes"));
+	confactions($("#response-no"));
 
 	confactions($("#breakAll"));
 	confactions($("#breakSelected"));
@@ -545,6 +621,13 @@ function updateGame(game) {
 			lastUnwantedAbility = -1;
 		}
 
+		if (game.run.root != undefined) {
+			approchingServer(game.run.root);
+
+			// on reinit la réponse de base
+			lastUnwantedAbility = -1;
+		}
+
 		if (game.run.done == true) {
 			endRun();
 		}
@@ -613,15 +696,60 @@ function updateGame(game) {
 		$("#activePlayer").text(fact);
 	}
 
+	handleQuestion(game);
+}
+
+/**
+ * Gestion des questions
+ * 
+ * @param game
+ */
+function handleQuestion(game) {
+
 	// gestion des actions locals
 	actions = [];
 	var q = game.question;
+
+	// message d'informations
+	var msg = $("#activeMessage");
+	msg.removeClass();
+
 	if (q != undefined) {
 		// un question pour ma faction
 		if (q.to == faction) {
 			console.debug("new question : " + q.what + " ?");
-			for (i in q.responses) {
-				var a = handleQuestion(q, q.responses[i]);
+
+			var matchAct = /WHICH_(.+)/.exec(q.what);
+
+			if (matchAct) {
+				msg.addClass("label label-info");
+				var type = matchAct[1];
+				if ("ACTION" == type)
+					msg.text("Please, play an action");
+				else if ("ABILITY" == type) {
+					msg.text("Would you like to play an ability ?");
+					mayAddNotYet = true;
+				} else if ("ICE_TO_REZZ" == type) {
+					msg.text("Would you like to rezz the approched ice ?");
+					lastUnwantedAbility = -1;
+				} else if ("ICEBREAKER" == type) {
+					msg.text("Would you like to use an icebreaker ?");
+				}
+			} else if ('DISCARD_CARD' == q.what) {
+				msg.addClass("label label-warning");
+				var r = q.responses[0];
+				msg.text("Select " + r.args.nb + " card" + (r.args.nb > 1 ? "s" : "") + " to discard");
+
+			} else if ('WANT_TO_JACKOFF' == q.what) {
+				msg.addClass("label label-warning");
+				msg.text("Would you like to jack-off ?");
+
+				showBinaryResponse({ yes : { btn : 'btn-danger', icon : 'glyphicon-log-out' }, no : { btn : 'btn-info', icon : 'glyphicon-forward' } });
+			}
+
+			_.each(q.responses, function(r) {
+
+				var a = handleResponse(q, r);
 				if (a instanceof Array) {
 					for (i in a)
 						a[i].bind();
@@ -631,7 +759,7 @@ function updateGame(game) {
 					a.bind();
 					actions.push(a);
 				}
-			}
+			});
 
 			// si on a que un none on fait peter l'action, si pas de changement
 			if (actions.length > 0 && actions[actions.length - 1].response.option == 'none') {
@@ -646,10 +774,6 @@ function updateGame(game) {
 			}
 
 		} else {
-			// en attente
-			var msg = $("#activeMessage");
-			msg.removeClass();
-
 			msg.addClass("label label-primary");
 			msg.text("Please, wait for the other player");
 		}
@@ -660,66 +784,32 @@ function updateGame(game) {
 }
 
 /**
- * Gestion d'une question de base. TODO faire autrement car il peut y avoir plusieurs réponse....
+ * Gestion d'une question de base. TODO faire autrement car il peut y avoir
+ * plusieurs réponse....
  * 
  * @param q
  * @param r
  * @returns {Action}
  */
-function handleQuestion(q, r) {
+function handleResponse(q, r) {
 
 	console.debug(" -> " + JSON.stringify(r));
 
 	var act = null;
-	var msg = $("#activeMessage");
-	msg.removeClass();
-
 	var card = cards[r.card];
 	var widget = null;
 	if (card != undefined)
 		widget = card.widget;
-	var matchAct = /WHICH_(.+)/.exec(q.what);
-	var mayAddNoAction = true;
 
-	if (matchAct) {
-		msg.addClass("label label-info");
-		var type = matchAct[1];
-		if ("ACTION" == type)
-			msg.text("Please, play an action");
-		else if ("ABILITY" == type) {
-			msg.text("Would you like to play an ability ?");
-			mayAddNotYet = true;
-		} else if ("ICE_TO_REZZ" == type)
-			msg.text("Would you like to rezz the approched ice ?");
-		else if ("ICEBREAKER" == type) {
-			msg.text("Would you like to use an icebreaker ?");
-
-			displayEncounteredIce(r.args.ice);
-			if(r.args.analyses.length>0){
-				//utilisation du premier
-				displayBreaker(r.args.analyses[0]);
-			}
-
+	if ("use-ice-breaker" == r.option) {
+		act = displayEncounteredIce(q, r.args.ice);
+		if (r.args.analyses.length > 0) {
+			// utilisation du premier
+			displayBreaker(r.args.analyses[0], act[0]);
 		}
 
-		if ('click-for-credit' == r.option)
-			widget = faction == 'corp' ? $("#hq") : $("#grip");
-		else if ('click-for-draw' == r.option)
-			widget = faction == 'corp' ? $("#rd") : $("#stack");
-		else if ('run' == r.option)
-			widget = widgetServer(r.args);
-
-		if (widget != undefined) {
-			if ("install-ice" == r.option || "install-asset" == r.option || "install-agenda" == r.option || "install-upgrade" == r.option)
-				act = new CorpInstallOnMultiAction(q, r, widget);
-			else
-				act = new Action(q, r, widget);
-
-		}
-	} else if ('DISCARD_CARD' == q.what) {
-		msg.addClass("label label-warning");
-		msg.text("Select " + r.args.nb + " card" + (r.args.nb > 1 ? "s" : "") + " to discard");
-
+		return act;
+	} else if ("discard-selected-card" == r.option) {
 		// les cartes selectionnées
 		r.select = [];
 		act = [];
@@ -728,33 +818,69 @@ function handleQuestion(q, r) {
 			var c = cards[r.args.cards[i] + ""];
 			act.push(new DiscardAction(q, r, c));
 		}
-	} else if ('WANT_TO_JACKOFF' == q.what) {
-		msg.addClass("label label-warning");
-		msg.text("Would you like to jack-off ?");
-	}
+	} else if ("install-ice" == r.option || "install-asset" == r.option || "install-agenda" == r.option || "install-upgrade" == r.option)
+		act = new CorpInstallOnMultiAction(q, r, widget);
+	else {
 
-	if (act == undefined) {
-		if ('none' == r.option) {
+		if ('click-for-credit' == r.option)
+			widget = faction == 'corp' ? $("#hq") : $("#grip");
+		else if ('click-for-draw' == r.option)
+			widget = faction == 'corp' ? $("#rd") : $("#stack");
+		else if ('run' == r.option)
+			widget = widgetServer(r.args);
+		else if ('jack-off' == r.option)
+			widget = $("#response-yes");
+		else if ('continue-the-run' == r.option)
+			widget = $("#response-no");
+
+		if (widget != null)
+			act = new Action(q, r, widget);
+		else if ('none' == r.option) {
+
 			act = [];
+			if ("WHICH_ICEBREAKER" == q.what) {
+				act.push(new Action(q, { option : "break-none", rid : r.rid }, $("#breakNone")));
+			} else {
+				act.push(new Action(q, r, $("#response-no")));
+				showBinaryResponse({ no : { btn : 'btn-info', icon : 'glyphicon-ban-circle' } });
+			}
 
-			var nr = _.clone(r);
-			nr.option = "none-till-next";
-			var notYet = $("#nothingTillMyTurn");
-
-			if (mayAddNotYet) {
-				act.push(new Action(q, nr, notYet));
-				notYet.show();
-			} else
-				notYet.hide();
-
-			act.push(new Action(q, r, $("#nothing")));
-
-			// on masque le widget avant l'emission
-			$("#noActionPlease").stop().animate({ height : 'toggle' });
 		}
 	}
 
 	return act;
+}
+
+function showBinaryResponse(mode) {
+
+	var ryes = $("#response-yes");
+	var rno = $("#response-no");
+	if (mode.yes != undefined)
+		showBinaryButton(ryes, mode.yes);
+	else
+		ryes.hide();
+
+	if (mode.no != undefined)
+		showBinaryButton(rno, mode.no);
+	else
+		rno.hide();
+
+	$("#binaryResponse").stop().animate({ height : 'toggle' });
+}
+
+function showBinaryButton(btn, mode) {
+	if (mode.btn) {
+		btn.removeClass();
+		btn.addClass("btn " + mode.btn);
+	}
+
+	if (mode.icon) {
+		var i = btn.find("i");
+		i.removeClass();
+		i.addClass("glyphicon " + mode.icon);
+	}
+
+	btn.show();
 }
 
 function interpolateSprites(input) {
@@ -804,6 +930,8 @@ function Action(q, r, widget) {
 
 		} else
 			this.widget.prop("ANRAction", this).addClass("withAction");
+
+		return this;
 	}
 
 	/**
@@ -814,10 +942,13 @@ function Action(q, r, widget) {
 		this.clearAll();
 		var choosen = { qid : q.qid, rid : r.rid };
 
-		var opt = $("#noActionPlease");
+		var opt = $("#binaryResponse");
 		if (opt.is(':visible')) {
 			opt.stop().animate({ height : 'toggle' });
 		}
+
+		// on masque la gestion du run
+		$("#encounterMonitor").hide();
 
 		if (this.updateChoosen != undefined)
 			this.updateChoosen(choosen);
@@ -987,7 +1118,8 @@ function CorpInstallOnMultiAction(q, r, widget) {
  * 
  * @param wigdet
  */
-function executeAction() {
+function executeAction(evt) {
+	evt.preventDefaults
 	var widget = $(":focus")
 	if (widget != undefined) {
 		var act = widget.prop("ANRAction");

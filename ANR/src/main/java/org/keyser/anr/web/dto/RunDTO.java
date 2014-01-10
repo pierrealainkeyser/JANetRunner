@@ -2,13 +2,22 @@ package org.keyser.anr.web.dto;
 
 import org.keyser.anr.web.dto.LocationDTO.ExtendedLocationDTO;
 
+/**
+ * Represente un run
+ * 
+ * @author PAF
+ * 
+ */
 public class RunDTO {
 
 	private ExtendedLocationDTO target;
 
 	private ExtendedLocationDTO ice;
 
-	// TODO rajouter la liste des routines
+	/**
+	 * La racine du serveur lorsque celle-ci est approchée
+	 */
+	private ExtendedLocationDTO root;
 
 	private boolean done = false;
 
@@ -34,5 +43,13 @@ public class RunDTO {
 
 	public void setDone(boolean done) {
 		this.done = done;
+	}
+
+	public ExtendedLocationDTO getRoot() {
+		return root;
+	}
+
+	public void setRoot(ExtendedLocationDTO root) {
+		this.root = root;
 	}
 }

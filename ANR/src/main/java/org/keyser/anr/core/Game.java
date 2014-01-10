@@ -211,7 +211,7 @@ public class Game implements Notifier, ConfigurableEventListener {
 					q.ask("none").to(toEnd);
 				else
 					triggeredFlow.apply(null);
-			} else if (evt != NotificationEvent.WHICH_ACTION && evt != NotificationEvent.WHICH_ICEBREAKER) {
+			} else if (evt != NotificationEvent.WHICH_ACTION) {
 				// si pas d'action possible, mais juste des evenements
 				q.ask("none").to(toEnd);
 			}
@@ -365,7 +365,7 @@ public class Game implements Notifier, ConfigurableEventListener {
 			int remove = hs - max;
 
 			Question q = ask(Player.CORP, NotificationEvent.DISCARD_CARD);
-			q.ask("selected-card").to(CardSet.class, this::corpDiscardCardDone).setContent(asDiscardSet(hand, remove));
+			q.ask("discard-selected-card").to(CardSet.class, this::corpDiscardCardDone).setContent(asDiscardSet(hand, remove));
 			q.fire();
 		} else {
 			corpEndOfDiscardAction();
@@ -496,7 +496,7 @@ public class Game implements Notifier, ConfigurableEventListener {
 			int remove = hs - max;
 
 			Question q = ask(Player.RUNNER, NotificationEvent.DISCARD_CARD);
-			q.ask("selected-card").to(CardSet.class, this::runnerDiscardCardDone).setContent(asDiscardSet(hand, remove));
+			q.ask("discard-selected-card").to(CardSet.class, this::runnerDiscardCardDone).setContent(asDiscardSet(hand, remove));
 			q.fire();
 		} else {
 			runnerEndOfDiscardAction();
