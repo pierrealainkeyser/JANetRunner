@@ -4,6 +4,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.keyser.anr.core.corp.CorpServer;
+import org.keyser.anr.core.corp.nbn.AstroScriptPilotProgram;
 import org.keyser.anr.core.corp.nbn.MakingNews;
 import org.keyser.anr.core.corp.neutral.WallOfStatic;
 import org.keyser.anr.core.runner.BreakRoutinesCommand;
@@ -65,6 +66,36 @@ public class TestRun {
 
 		// le run est un succes
 		Assert.assertTrue(r.isSuccessful());
+	}
+
+	/**
+	 * Gestion des acces simple pour voler un agenda non protégé
+	 */
+	@Test
+	public void testSingleAccessStealAgenda() {
+		MakingNews makingNews = new MakingNews();
+		KateMcCaffrey kate = new KateMcCaffrey();
+
+		TestNotifier tn = new TestNotifier();
+		Game g = new Game(kate, makingNews, () -> {
+		});
+		g.setNotifier(tn);
+
+		AstroScriptPilotProgram astro = new AstroScriptPilotProgram();
+		makingNews.addToRD(astro);
+		g.setup();
+
+		Run r = g.startRun(makingNews.getRd(), () -> System.out.println("run done"));
+		r.apply();
+
+		// on continu le run
+		tn.find("continue-the-run").apply();
+
+		// le run est un succes
+		Assert.assertTrue(r.isSuccessful());
+
+		// l'agenda est bien volé
+		Assert.assertEquals(astro.getScore(), kate.getScore());
 
 	}
 

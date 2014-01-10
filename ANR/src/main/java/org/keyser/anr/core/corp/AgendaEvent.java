@@ -1,16 +1,14 @@
 package org.keyser.anr.core.corp;
 
-import org.keyser.anr.core.Event;
-
-class AgendaEvent extends Event {
-	private final Agenda agenda;
+class AgendaEvent extends CorpCardEvent {
 
 	public AgendaEvent(Agenda agenda) {
-		this.agenda = agenda;
+		super(agenda);
 	}
 
-	public Agenda getAgenda() {
-		return agenda;
+	@Override
+	public Agenda getCard() {
+		return (Agenda) super.getCard();
 	}
 
 }

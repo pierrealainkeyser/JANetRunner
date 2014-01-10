@@ -124,6 +124,21 @@
 </script>
 </head>
 <body>
+
+	<div id="modalError">
+		<div id="errorPanel" class="panel panel-danger">
+			<div class="panel-heading">
+				<i class="glyphicon glyphicon-off"></i> Error
+			</div>
+			<div class="panel-body">
+				<p>Connection with server lost...</p>
+				<p>
+					<a class="btn btn-default btn-sm" href=""><i class="glyphicon glyphicon-refresh"></i> reload</a>
+				</p>
+			</div>
+		</div>
+	</div>
+
 	<div class="faction corp">
 		<p>
 			<a title="Toggle scored agendas"><img data-th-src="'/img/'+${corp}+'.png'" /></a>
@@ -237,8 +252,7 @@
 		</div>
 
 		<div id="binaryResponse" class="panel panel-default">
-			<span class="header"><i class="glyphicon glyphicon-question-sign"> </i></span> 
-			<span class="panel-body">
+			<span class="header"><i class="glyphicon glyphicon-question-sign"> </i></span> <span class="panel-body">
 				<button id="response-yes" type="button" class="btn btn-success">
 					<i class="glyphicon glyphicon-ok"> </i> Yes
 				</button>

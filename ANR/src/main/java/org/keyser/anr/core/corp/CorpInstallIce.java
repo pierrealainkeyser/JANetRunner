@@ -1,21 +1,19 @@
 package org.keyser.anr.core.corp;
 
-import org.keyser.anr.core.Event;
-
 /**
  * L'evenement la Corp a piocher
  * 
  * @author PAF
  * 
  */
-public class CorpInstallIce extends Event {
-	private final Ice ice;
+public class CorpInstallIce extends CorpCardEvent {
 
 	public CorpInstallIce(Ice ice) {
-		this.ice = ice;
+		super(ice);
 	}
 
-	public Ice getIce() {
-		return ice;
+	@Override
+	public Ice getCard() {
+		return (Ice) super.getCard();
 	}
 }

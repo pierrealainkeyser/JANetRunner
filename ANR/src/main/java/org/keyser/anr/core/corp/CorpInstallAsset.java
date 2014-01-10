@@ -1,15 +1,16 @@
 package org.keyser.anr.core.corp;
 
-import org.keyser.anr.core.Event;
 
-public class CorpInstallAsset extends Event {
-	private final Asset asset;
+public class CorpInstallAsset extends CorpCardEvent {
 
 	public CorpInstallAsset(Asset asset) {
-		this.asset = asset;
+		super(asset);
+	}
+	
+	@Override
+	public Asset getCard() {
+		return (Asset)super.getCard();
 	}
 
-	public Asset getAsset() {
-		return asset;
-	}
+	
 }

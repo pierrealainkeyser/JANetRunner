@@ -1,7 +1,9 @@
 package org.keyser.anr.core.corp;
 
+import org.keyser.anr.core.CardLocation;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Faction;
+import org.keyser.anr.core.Flow;
 
 public abstract class Agenda extends InstallableCorpCard {
 
@@ -42,6 +44,22 @@ public abstract class Agenda extends InstallableCorpCard {
 	@Override
 	public boolean isAdvanceable() {
 		return true;
+	}
+
+	/**
+	 * L'agenda est volé
+	 * 
+	 * @param next
+	 */
+	public void steal(Flow next) {
+		setLocation(CardLocation.RUNNER_SCORE);
+
+		setRezzed(true);
+
+		// on supprime les avancements
+		setAdvancement(null);
+
+		getGame().apply(new RunnerStealAgenda(this), next);
 	}
 
 }

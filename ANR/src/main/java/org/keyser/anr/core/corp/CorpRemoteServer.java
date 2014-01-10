@@ -76,7 +76,16 @@ public final class CorpRemoteServer extends CorpServer {
 			});
 
 		}
+	}
 
+	@Override
+	public CardAccessGroup getAccessedCards(CorpAccessSettings setting) {
+		CardAccessGroup grp = super.getAccessedCards(setting);
+		if (agenda != null)
+			grp.add(agenda);
+		if (asset != null)
+			grp.add(asset);
+		return grp;
 	}
 
 	public Agenda getAgenda() {

@@ -183,6 +183,8 @@ public class Corp extends PlayableUnit {
 			super("install-ice", Cost.action(1));
 			this.ice = ice;
 			this.alls = alls;
+			
+			//TODO gestion de l'action
 		}
 
 		private void install(CorpServer cs) {

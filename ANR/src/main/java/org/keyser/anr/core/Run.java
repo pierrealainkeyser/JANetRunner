@@ -1,11 +1,22 @@
 package org.keyser.anr.core;
 
+import static java.util.Arrays.asList;
+import static org.keyser.anr.core.RecursiveIterator.recurse;
+
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import org.keyser.anr.core.Game.PingPong;
+import org.keyser.anr.core.corp.Agenda;
+import org.keyser.anr.core.corp.CardAccessGroup;
+import org.keyser.anr.core.corp.CorpAccessSettings;
+import org.keyser.anr.core.corp.CorpCard;
 import org.keyser.anr.core.corp.CorpServer;
 import org.keyser.anr.core.corp.Routine;
+import org.keyser.anr.core.corp.StealAgendaAction;
+import org.keyser.anr.core.corp.ThrashCardAction;
+import org.keyser.anr.core.corp.TrashableCard;
 
 public class Run extends AbstractGameContent implements Flow {
 
@@ -77,13 +88,59 @@ public class Run extends AbstractGameContent implements Flow {
 		public final EncounteredIce getIce() {
 			return ice;
 		}
+	}
 
+	public class CardAccededEvent extends RunEvent {
+		private final CorpCard card;
+
+		private Cost stealCost;
+
+		private Cost trashCost;
+
+		public CardAccededEvent(CorpCard card) {
+			this.card = card;
+			// on accede gratuite au carte
+			if (card instanceof Agenda) {
+				setStealCost(Cost.free());
+			} else if (card instanceof TrashableCard) {
+
+				// on peut trasher la carte pour le cout donnée
+				TrashableCard tc = (TrashableCard) card;
+				setTrashCost(tc.getTrashCost().clone());
+			}
+		}
+
+		public CorpCard getCard() {
+			return card;
+		}
+
+		public Cost getStealCost() {
+			return stealCost;
+		}
+
+		public void setStealCost(Cost stealCost) {
+			this.stealCost = stealCost;
+		}
+
+		public Cost getTrashCost() {
+			return trashCost;
+		}
+
+		public void setTrashCost(Cost trashCost) {
+			this.trashCost = trashCost;
+		}
 	}
 
 	public class RunIsFailledEvent extends RunEvent {
 	}
 
 	public class RunIsSuccessfulEvent extends RunEvent {
+
+		private final CorpAccessSettings settings = new CorpAccessSettings();
+
+		public CorpAccessSettings getCorpAccess() {
+			return settings;
+		}
 	}
 
 	public enum RunOption {
@@ -290,7 +347,7 @@ public class Run extends AbstractGameContent implements Flow {
 	}
 
 	/**
-	 * Le run � �chou�
+	 * Le run a échoué
 	 */
 	private void failTheRun() {
 		// fin du run
@@ -354,10 +411,101 @@ public class Run extends AbstractGameContent implements Flow {
 	/**
 	 * Phase 4.5
 	 */
-	private void accessPhase() {
+	private void accessPhase(RunIsSuccessfulEvent event) {
 		// TODO gestion de la phase d'access
 
-		cleanUpTheRun();
+		CardAccessGroup accessed = target.getAccessedCards(event.getCorpAccess());
+		if (accessed.needToSort()) {
+			Question q = ask(Player.RUNNER, NotificationEvent.SORT_ON_ACCESS);
+			q.ask("sort-accededs-cards").setContent(accessed).to(Integer[].class, ids -> {
+				accessing(accessed.inOrder(asList(ids)));
+			});
+			q.fire();
+		} else
+			accessing(accessed.inOrder());
+
+	}
+
+	/**
+	 * Réalise l'accès au carte
+	 * 
+	 * @param cards
+	 */
+	private void accessing(List<CorpCard> cards) {
+		recurse(cards.iterator(), this::triggerAccess, this::cleanUpTheRun);
+	}
+
+	/**
+	 * Acces à la carte
+	 * 
+	 * @param card
+	 * @param next
+	 */
+	private void triggerAccess(CorpCard card, Flow next) {
+		apply(new CardAccededEvent(card), evt -> checkAccess(evt, next));
+	}
+
+	/**
+	 * On vient d'acceder à la carte
+	 * 
+	 * @param evt
+	 * @param next
+	 */
+	private void checkAccess(CardAccededEvent evt, Flow next) {
+		CorpCard c = evt.getCard();
+		Cost trashCost = evt.getTrashCost();
+
+		Wallet w = getGame().getRunner().getWallet();
+		if (trashCost != null) {
+			ThrashCardAction tca = new ThrashCardAction(c);
+
+			if (w.isAffordable(trashCost, tca)) {
+
+				Question q = ask(Player.RUNNER, NotificationEvent.TRASH_CARD);
+				q.ask("trash-it", c).setCost(trashCost).to(() -> {
+
+					// on consomme et on trashe
+						w.consume(trashCost, tca);
+						c.trash(next);
+					});
+				q.ask("dont-trash-it").to(next);
+				q.fire();
+				return;
+			}
+		} else {
+			Cost stealCost = evt.getStealCost();
+			if (stealCost != null) {
+
+				StealAgendaAction sta = new StealAgendaAction((Agenda) c);
+
+				// si gratuit, on est obligé de volée
+				if (stealCost.isZero()) {
+					stealAgenda(stealCost, sta, next);
+				} else {
+
+					Question q = ask(Player.RUNNER, NotificationEvent.STEAL_AGENDA);
+					q.ask("steal-it", c).setCost(stealCost).to(() -> stealAgenda(stealCost, sta, next));
+					q.ask("dont-steal-it").to(next);
+					q.fire();
+				}
+				return;
+			}
+		}
+
+		next.apply();
+	}
+
+	/**
+	 * Wollet l'agenda
+	 * 
+	 * @param sta
+	 * @param next
+	 */
+	private void stealAgenda(Cost stealCost, StealAgendaAction sta, Flow next) {
+
+		Wallet w = getGame().getRunner().getWallet();
+		w.consume(stealCost, sta);
+		sta.getCard().steal(next);
 	}
 
 	/**
@@ -367,13 +515,13 @@ public class Run extends AbstractGameContent implements Flow {
 
 		notification(NotificationEvent.APPROCHING_SERVER.apply().m(this));
 
-		// on approche de la glace le runner peut d�brancher
+		// on approche de la glace le runner peut débrancher
 		apply(new JackOffBeforeServerEvent(), (j) -> jackOffDecision(j, this::afterNotJackingOffOnServer));
 
 	}
 
 	/**
-	 * Permet de se d�brancher
+	 * Permet de se débrancher
 	 */
 	public void jackout() {
 		this.condition = RunCondition.JACKED_OUT;

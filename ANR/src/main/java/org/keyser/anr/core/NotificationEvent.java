@@ -28,6 +28,9 @@ public enum NotificationEvent {
 	START_OF_RUN, //
 	APPROCHING_ICE, //
 	APPROCHING_SERVER, //
+	SORT_ON_ACCESS, //
+	TRASH_CARD, //
+	STEAL_AGENDA, //
 	END_OF_RUN, //
 
 	// events des cartes et du wallet

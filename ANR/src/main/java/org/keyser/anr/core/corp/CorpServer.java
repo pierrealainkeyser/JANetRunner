@@ -98,4 +98,11 @@ public abstract class CorpServer {
 		return upgrades;
 	}
 
+	public CardAccessGroup getAccessedCards(CorpAccessSettings setting) {
+
+		CardAccessGroup grp = new CardAccessGroup();
+		upgrades.forEach(c -> grp.add(c));
+		return grp;
+	}
+
 }

@@ -576,6 +576,10 @@ function bootANR(gid) {
 	$ws.onopen = function() {
 		$ws.send('ready', { game : gid });
 	};
+	
+	$ws.onclose = function(){
+		$("#modalError").show();
+	};
 }
 
 /**
@@ -1119,7 +1123,6 @@ function CorpInstallOnMultiAction(q, r, widget) {
  * @param wigdet
  */
 function executeAction(evt) {
-	evt.preventDefaults
 	var widget = $(":focus")
 	if (widget != undefined) {
 		var act = widget.prop("ANRAction");
