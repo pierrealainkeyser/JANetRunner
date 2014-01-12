@@ -93,9 +93,15 @@ public class TestRun {
 
 		// le run est un succes
 		Assert.assertTrue(r.isSuccessful());
+		
+		
+		//on vole l'agenda
+		tn.find("steal-it").apply();
 
 		// l'agenda est bien volé
 		Assert.assertEquals(astro.getScore(), kate.getScore());
+
+		Assert.assertTrue(kate.getScoreds().contains(astro));
 
 	}
 

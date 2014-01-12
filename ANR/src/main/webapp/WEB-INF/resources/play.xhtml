@@ -78,6 +78,10 @@
 		Mousetrap.bind('p r', function(e) {
 			$("#programs").focus();
 		});
+		
+		Mousetrap.bind('r s', function(e) {
+			toggleRunnerScore();
+		});
 
 		//vers la main
 		Mousetrap.bind('h a', function(e) {
@@ -216,7 +220,6 @@
 					</button>
 				</li>
 			</ul>
-
 		</div>
 
 		<div id="rd" class="cardplace" tabindex="-1">
@@ -281,7 +284,14 @@
 
 		<div id="corpScore" class="panel panel-default">
 			<div class="panel-heading" title="Agendas scoreds by the corp">
-				<i class="glyphicon glyphicon-star-empty"></i> Scoreds
+				Corp's <i class="sprite agenda"></i>
+			</div>
+			<div class="panel-body"></div>
+		</div>
+		
+		<div id="runnerScore" class="panel panel-default">
+			<div class="panel-heading" title="Agendas scoreds by the runner">
+				Runner's <i class="sprite agenda"></i>
 			</div>
 			<div class="panel-body"></div>
 		</div>

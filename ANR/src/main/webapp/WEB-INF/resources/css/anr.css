@@ -131,11 +131,18 @@ div.card div {
 	left: -155px;
 }
 
-#corpScore .panel-heading {
+#runnerScore {
+	position: absolute;
+	width: 0px;
+	top: 190px;
+	left: -155px;
+}
+
+#corpScore .panel-heading, #runnerScore .panel-heading{
 	text-align: right;
 }
 
-#corpScore .panel-body {
+#corpScore .panel-body, #runnerScore .panel-body {
 	height: 121px;
 }
 
@@ -277,7 +284,7 @@ div.card div {
 	z-index: 100;
 }
 
-#encounterMonitor .last-row {
+.list-group-item.last-row {
 	height: 40;
 }
 
@@ -326,6 +333,10 @@ div.card div {
 
 .withAction.card {
 	border: 3px dashed #428bca;
+}
+
+.withAction{
+	cursor: pointer;
 }
 
 div.tokens {

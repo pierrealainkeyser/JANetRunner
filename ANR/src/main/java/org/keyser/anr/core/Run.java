@@ -466,6 +466,7 @@ public class Run extends AbstractGameContent implements Flow {
 
 					// on consomme et on trashe
 						w.consume(trashCost, tca);
+						c.setRezzed(true);
 						c.trash(next);
 					});
 				q.ask("dont-trash-it").to(next);
@@ -478,11 +479,12 @@ public class Run extends AbstractGameContent implements Flow {
 
 				StealAgendaAction sta = new StealAgendaAction((Agenda) c);
 
-				// si gratuit, on est obligé de volée
+				// si gratuit, on est obligé de le voler, mais on le voit
 				if (stealCost.isZero()) {
-					stealAgenda(stealCost, sta, next);
+					Question q = ask(Player.RUNNER, NotificationEvent.STEAL_AGENDA);
+					q.ask("steal-it", c).to(() -> stealAgenda(stealCost, sta, next));
+					q.fire();
 				} else {
-
 					Question q = ask(Player.RUNNER, NotificationEvent.STEAL_AGENDA);
 					q.ask("steal-it", c).setCost(stealCost).to(() -> stealAgenda(stealCost, sta, next));
 					q.ask("dont-steal-it").to(next);
@@ -492,7 +494,9 @@ public class Run extends AbstractGameContent implements Flow {
 			}
 		}
 
-		next.apply();
+		Question q = ask(Player.RUNNER, NotificationEvent.SHOW_ACCESSED_CARD);
+		q.ask("done").to(next);
+		q.fire();
 	}
 
 	/**

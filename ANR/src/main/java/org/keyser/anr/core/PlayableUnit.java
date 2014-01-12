@@ -3,6 +3,7 @@ package org.keyser.anr.core;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.keyser.anr.core.EventMatcher.Builder;
@@ -144,6 +145,14 @@ public abstract class PlayableUnit extends AbstractGameContent implements Instal
 	 */
 	public void setActionInProgress(boolean actionInProgress) {
 		this.actionInProgress = actionInProgress;
+	}
+
+	public void forEach(Consumer<Card> add) {
+		getHand().forEach(add);
+		getDiscard().forEach(add);
+		getStack().forEach(add);
+		getScoreds().forEach(add);
+
 	}
 
 }

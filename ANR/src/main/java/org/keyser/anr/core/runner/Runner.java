@@ -462,12 +462,9 @@ public class Runner extends PlayableUnit {
 		return resources;
 	}
 
+	@Override
 	public void forEach(Consumer<Card> add) {
-
-		getHand().forEach(add);
-		getDiscard().forEach(add);
-		getStack().forEach(add);
-
+		super.forEach(add);
 		forEachCardInPlay(add);
 	}
 

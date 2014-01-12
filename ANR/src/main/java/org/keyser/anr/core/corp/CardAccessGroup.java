@@ -22,7 +22,10 @@ public class CardAccessGroup {
 	}
 
 	public List<CorpCard> inOrder() {
-		return sequential;
+		List<CorpCard> c = new ArrayList<>(anyOrder.size() + sequential.size());
+		c.addAll(anyOrder);
+		c.addAll(sequential);
+		return c;
 	}
 
 	/**

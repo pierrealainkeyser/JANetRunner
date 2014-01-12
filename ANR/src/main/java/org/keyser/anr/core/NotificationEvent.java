@@ -31,6 +31,7 @@ public enum NotificationEvent {
 	SORT_ON_ACCESS, //
 	TRASH_CARD, //
 	STEAL_AGENDA, //
+	SHOW_ACCESSED_CARD, //
 	END_OF_RUN, //
 
 	// events des cartes et du wallet

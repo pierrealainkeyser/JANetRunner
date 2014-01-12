@@ -540,12 +540,11 @@ public class Corp extends PlayableUnit {
 		return ons.stream().filter(c -> c != null).findFirst().get();
 	}
 
-	public void forEach(Consumer<Card> c) {
-		getHand().forEach(c);
-		getDiscard().forEach(c);
-		getStack().forEach(c);
+	@Override
+	public void forEach(Consumer<Card> add) {
+		super.forEach(add);
 
-		forEachCardInServer(c);
+		forEachCardInServer(add);
 	}
 
 	/**

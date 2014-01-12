@@ -42,6 +42,9 @@ var actionMapping = {//
 "jack-off" : "Jack off now !",//
 "continue-the-run" : "No way",//
 "break-none" : "I'm done breaking",//
+"trash-it" : "Thrash it",//
+"dont-trash-it" : "I'm not thrashing it",//
+"steal-it" : "Steal this agenda",//
 };
 
 // gestion des bordures
@@ -67,7 +70,7 @@ hspacing : function() {
 }, vspacingCorpScore : function() {
 	return 43;
 }, vspacingRunnerScore : function() {
-	return 10;
+	return 197;
 }, vspacingRunnerRow : function() {
 	return 143;
 } }
@@ -166,7 +169,7 @@ var placeFunction = { hand : function(v) {
 
 	return { x : bx + hspacing * index, y : by, rotate : 0 };
 }, runnerScore : function(v) {
-	var bx = mainInsets.right() - mainInsets.runnerScore.padding;
+	var bx = mainInsets.left() + mainInsets.runnerScore.padding;
 	var by = mainInsets.top() + mainInsets.vspacingRunnerScore();
 	var hspacing = mainInsets.runnerScore.hspacing;
 	var index = v.index;
@@ -482,6 +485,31 @@ function toggleCorpScore() {
 	syncCorpScore();
 }
 
+/**
+ * Maj de la zone de la taille de score
+ */
+function syncRunnerScore() {
+	var scoreWidth = 0;
+	// TODO a rendre dynamique
+	if (_.isEqual(mainInsets.runnerScore, viewAgenda))
+		scoreWidth = (locationHandler.runnerScore.size() * mainInsets.runnerScore.hspacing + 80) + 111 + mainInsets.left();
+
+	$("#runnerScore").animate({ width : scoreWidth });
+}
+
+/**
+ * changement d'état de la zone de score
+ */
+function toggleRunnerScore() {
+	if (_.isEqual(mainInsets.runnerScore, hideAgenda))
+		mainInsets.runnerScore = viewAgenda;
+	else
+		mainInsets.runnerScore = hideAgenda;
+
+	locationHandler.runnerScore.updateAll();
+	syncRunnerScore();
+}
+
 function toggleEventLog() {
 	var el = $("#eventlog");
 	var from = el.css("margin-left");
@@ -576,8 +604,8 @@ function bootANR(gid) {
 	$ws.onopen = function() {
 		$ws.send('ready', { game : gid });
 	};
-	
-	$ws.onclose = function(){
+
+	$ws.onclose = function() {
 		$("#modalError").show();
 	};
 }
@@ -749,6 +777,19 @@ function handleQuestion(game) {
 				msg.text("Would you like to jack-off ?");
 
 				showBinaryResponse({ yes : { btn : 'btn-danger', icon : 'glyphicon-log-out' }, no : { btn : 'btn-info', icon : 'glyphicon-forward' } });
+			} else if ('TRASH_CARD' == q.what) {
+				msg.addClass("label label-success");
+				msg.text("Would you like to trash this card ?");
+
+				var c = cards[q.responses[0].card + ""];
+				c.showBeforeAccess();
+				showBinaryResponse({ no : { btn : 'btn-danger', icon : 'glyphicon-remove' } });
+			} else if ('STEAL_AGENDA' == q.what) {
+				msg.addClass("label label-success");
+				msg.text("You are about to steal an agenda !");
+
+				var c = cards[q.responses[0].card + ""];
+				c.showBeforeAccess();
 			}
 
 			_.each(q.responses, function(r) {
@@ -834,7 +875,7 @@ function handleResponse(q, r) {
 			widget = widgetServer(r.args);
 		else if ('jack-off' == r.option)
 			widget = $("#response-yes");
-		else if ('continue-the-run' == r.option)
+		else if ('continue-the-run' == r.option || 'dont-trash-it' == r.option)
 			widget = $("#response-no");
 
 		if (widget != null)
@@ -1348,7 +1389,6 @@ function Card(def) {
 		this.widget.focus(function() {
 			var me = $(this);
 			var card = me.prop("card");
-
 			var prev = $("#preview");
 			prev.find("img").attr("src", card.getUrl());
 			prev.stop().show('slide');
@@ -1504,13 +1544,26 @@ function Card(def) {
 			}
 		}
 
-		if ((this.loc.type == 'rd' || this.loc.type == 'stack') || (!this.rezzed && !this.local))
-			w.removeAttr("tabindex");
-		else
-			w.attr("tabindex", "-1");
+		this.removeTabIndex((this.loc.type == 'rd' || this.loc.type == 'stack') || (!this.rezzed && !this.local));
 
 		if (location != undefined || card.visible != undefined)
 			this.animate();
+	}
+
+	this.showBeforeAccess = function() {
+		this.beforeRezzAccess = this.rezzed;
+		this.rezzed = true;
+		this.removeTabIndex(false);
+		this.animate();
+	}
+
+	this.hideAfterAcess = function() {
+		this.rezzed = this.beforeRezzAccess;
+		if (!this.beforeRezzAccess) {
+			this.removeTabIndex(true);
+			this.animate();
+		}
+		delete this.beforeRezzAccess;
 	}
 
 	/**
@@ -1543,6 +1596,14 @@ function Card(def) {
 		}
 
 		w.transition(trans);
+	}
+
+	this.removeTabIndex = function(removeTabIndex) {
+		var w = this.widget;
+		if (removeTabIndex)
+			w.removeAttr("tabindex");
+		else
+			w.attr("tabindex", "-1");
 	}
 
 	this.isVisible = function() {

@@ -8,6 +8,6 @@ import org.keyser.anr.core.corp.Upgrade;
 @CardDef(name = "SanSan City Grid", oid = "01092")
 public class SanSanCityGrid extends Upgrade {
 	public SanSanCityGrid() {
-		super(Faction.NBN.infl(3), Cost.credit(6), Cost.credit(3));
+		super(Faction.NBN.infl(3), Cost.credit(6), Cost.credit(5));
 	}
 }
