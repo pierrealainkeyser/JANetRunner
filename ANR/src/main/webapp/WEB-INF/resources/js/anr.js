@@ -15,7 +15,6 @@ var actions = [];
 
 // le nombre de maj de carte
 var updateCount = 0;
-var lastUnwantedAbility = 0;
 
 // pour afficher ou masquer les agendas
 var viewAgenda = { padding : 30, hspacing : 85 };
@@ -358,8 +357,8 @@ function displayEncounteredIce(q, ice) {
 	var ei = $("#encounteredIce");
 	var offset = ei.prop("moveTo");
 	em.css({ left : offset.left + ei.width() + 15, top : offset.top + ei.height() - em.height() });
-
-	em.show();
+	
+	em.show().animo({ animation : 'lightSpeedIn', duration : 0.40 });
 	return act;
 }
 
@@ -606,7 +605,10 @@ function bootANR(gid) {
 	};
 
 	$ws.onclose = function() {
-		$("#modalError").show();
+		var me=$("#modalError");
+		me.show();
+
+		me.find("#errorPanel").animo({ animation : 'bounceIn', duration : 0.25 });
 	};
 }
 
@@ -642,22 +644,14 @@ function updateGame(game) {
 	if (game.run != undefined) {
 		if (game.run.target != undefined) {
 			displayRun(game.run.target);
-			// on reinit la réponse de base
-			lastUnwantedAbility = -1;
 		}
 
 		if (game.run.ice != undefined) {
 			encounterIce(game.run.ice);
-
-			// on reinit la réponse de base
-			lastUnwantedAbility = -1;
 		}
 
 		if (game.run.root != undefined) {
 			approchingServer(game.run.root);
-
-			// on reinit la réponse de base
-			lastUnwantedAbility = -1;
 		}
 
 		if (game.run.done == true) {
@@ -700,14 +694,12 @@ function updateGame(game) {
 			textStep = "Draw phase";
 			// remise à zéro avant la phase de draw
 			if (faction == 'corp') {
-				lastUnwantedAbility = -1;
 			}
 			break;
 		case "RUNNER_ACT":
 			textStep = "Action phase";
 			// remise à zéro au changement de phase
 			if (faction == 'runner') {
-				lastUnwantedAbility = -1;
 			}
 			break;
 		case "RUNNER_DISCARD":
@@ -719,13 +711,22 @@ function updateGame(game) {
 		}
 
 		// TODO faire mieux que cela
-		$("#activeStep").text(textStep);
+		var as = $("#activeStep");
+
+		if (as.text() != textStep) {
+			as.text(textStep);
+			as.animo({ animation : 'bounceIn', duration : 0.25 });
+		}
 
 		var fact = "Runner turn";
 		if (game.step.indexOf("CORP") == 0)
 			fact = "Corp turn";
+		var ap = $("#activePlayer");
 
-		$("#activePlayer").text(fact);
+		if (ap.text() != fact) {
+			ap.text(fact);
+			ap.parent().animo({ animation : 'bounceIn', duration : 0.25 });
+		}
 	}
 
 	handleQuestion(game);
@@ -763,7 +764,6 @@ function handleQuestion(game) {
 					mayAddNotYet = true;
 				} else if ("ICE_TO_REZZ" == type) {
 					msg.text("Would you like to rezz the approched ice ?");
-					lastUnwantedAbility = -1;
 				} else if ("ICEBREAKER" == type) {
 					msg.text("Would you like to use an icebreaker ?");
 				}
@@ -805,23 +805,12 @@ function handleQuestion(game) {
 					actions.push(a);
 				}
 			});
-
-			// si on a que un none on fait peter l'action, si pas de changement
-			if (actions.length > 0 && actions[actions.length - 1].response.option == 'none') {
-
-				console.log("contains 'none' " + lastUnwantedAbility + " " + updateCount);
-
-				// TODO gestion plus permante des actions
-				if (lastUnwantedAbility == updateCount) {
-					actions[actions.length - 1].applyAction();
-					return;
-				}
-			}
-
 		} else {
 			msg.addClass("label label-primary");
 			msg.text("Please, wait for the other player");
 		}
+
+		msg.parent().animo({ animation : 'bounceIn', duration : 0.25 });
 	}
 
 	// gestion du popup des actions
@@ -992,7 +981,7 @@ function Action(q, r, widget) {
 			opt.stop().animate({ height : 'toggle' });
 		}
 
-		// on masque la gestion du run
+		// FIXME le faire conditionnelement... ou ne pas le faire
 		$("#encounterMonitor").hide();
 
 		if (this.updateChoosen != undefined)
@@ -1007,7 +996,7 @@ function Action(q, r, widget) {
 
 		// on conserve l'ancien resultat ou l'on n'a rien fait
 		if (this.response.option == 'none') {
-			lastUnwantedAbility = updateCount;
+			//TODO
 		} else if (this.response.option == 'none-till-next') {
 			// TODO on desactive jusqu'au prochain tour
 		}
@@ -1199,10 +1188,10 @@ function displayANRAction(act) {
 	var widget = $("#action");
 	if (act != undefined) {
 		widget.find("div.panel-body").html(act.getHTML());
-		widget.stop().show('slide');
+		widget.stop().show('fast');
 	} else {
 		var widget = $("#action");
-		widget.stop().hide('slide', function() {
+		widget.stop().hide('fast', function() {
 			widget.find("p").text("");
 		});
 	}
@@ -1256,6 +1245,7 @@ function ValueWidget(widget) {
 	this.value = function(val) {
 		if (val != undefined) {
 			this.val = val;
+			this.widget.animo({ animation : 'bounceIn', duration : 0.25 });
 			this.widget.text("" + val);
 		}
 		return this.val;
@@ -1391,13 +1381,14 @@ function Card(def) {
 			var card = me.prop("card");
 			var prev = $("#preview");
 			prev.find("img").attr("src", card.getUrl());
-			prev.stop().show('slide');
+					
+			prev.stop().show('fast');
 
 			displayANRAction(me.prop("ANRAction"));
 		});
 		this.widget.blur(function() {
 			var prev = $("#preview");
-			prev.stop().hide('slide');
+			prev.stop().hide('fast');
 			displayANRAction();
 		});
 		this.widget.click(executeAction);

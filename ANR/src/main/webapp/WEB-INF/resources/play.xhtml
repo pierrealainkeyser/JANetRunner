@@ -4,6 +4,7 @@
 <link rel="icon" type="image/png" href="/img/favicon.png" />
 <link href="/css/bootstrap.css" rel="stylesheet" />
 <link href="/css/anr.css" rel="stylesheet" />
+<link href="/css/animate+animo.css" rel="stylesheet" type="text/css" />
 
 <script type="text/javascript" src="/js/jquery-2.0.3.min.js"></script>
 <script type="text/javascript" src="/js/jquery.transit.min.js"></script>
@@ -11,6 +12,9 @@
 <script type="text/javascript" src="/js/lodash.min.js"></script>
 <script type="text/javascript" src="/js/jquery.json-2.2.min.js"></script>
 <script type="text/javascript" src="/js/jquery.websocket-0.0.1.js"></script>
+
+<script type="text/javascript" src="/js/animo.js"></script>
+
 
 <script type="text/javascript" src="/js/anr.js"></script>
 
@@ -78,7 +82,7 @@
 		Mousetrap.bind('p r', function(e) {
 			$("#programs").focus();
 		});
-		
+
 		Mousetrap.bind('r s', function(e) {
 			toggleRunnerScore();
 		});
@@ -288,7 +292,7 @@
 			</div>
 			<div class="panel-body"></div>
 		</div>
-		
+
 		<div id="runnerScore" class="panel panel-default">
 			<div class="panel-heading" title="Agendas scoreds by the runner">
 				Runner's <i class="sprite agenda"></i>
