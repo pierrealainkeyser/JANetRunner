@@ -152,7 +152,6 @@ public class GameDTOBuilder {
 			} else if (NotificationEvent.END_OF_RUN == type) {
 				g.endOfRun();
 			}
-
 		}
 	}
 
@@ -262,9 +261,9 @@ public class GameDTOBuilder {
 			EncounteredIce encounter = r.getEncounter();
 			if (encounter != null)
 				iceOnRun(g, r);
-			else 
+			else
 				approchingServer(g, r);
-			
+
 		}
 
 		return g;
