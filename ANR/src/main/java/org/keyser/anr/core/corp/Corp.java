@@ -183,8 +183,8 @@ public class Corp extends PlayableUnit {
 			super("install-ice", Cost.action(1));
 			this.ice = ice;
 			this.alls = alls;
-			
-			//TODO gestion de l'action
+
+			// TODO gestion de l'action
 		}
 
 		private void install(CorpServer cs) {
@@ -386,7 +386,7 @@ public class Corp extends PlayableUnit {
 		else {
 			if (cc instanceof Asset || cc instanceof Upgrade) {
 
-				//on ne rezz pas les ambush
+				// on ne rezz pas les ambush
 				if (!cc.isAmbush()) {
 					a.add(new RezzCard(cc, cc.getCost()));
 				}
@@ -561,7 +561,7 @@ public class Corp extends PlayableUnit {
 	 * 
 	 * @param bi
 	 */
-	private void forEachIce(BiConsumer<CorpServer, Ice> bi) {
+	public void forEachIce(BiConsumer<CorpServer, Ice> bi) {
 		forEachServer(cs -> cs.forEachIce(bi));
 	}
 
@@ -648,4 +648,15 @@ public class Corp extends PlayableUnit {
 		this.rd = rd;
 	}
 
+	/**
+	 * Renvoi vrai s'il y a une glace
+	 * 
+	 * @return
+	 */
+	public boolean hasIce() {
+
+		boolean[] ice = new boolean[1];
+		forEachIce((c, i) -> ice[0] = true);
+		return ice[0];
+	}
 }

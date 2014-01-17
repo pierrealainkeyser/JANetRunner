@@ -144,6 +144,14 @@ public abstract class Card extends AbstractGameContent {
 	public void setUnique(boolean unique) {
 		this.unique = unique;
 	}
+	
+	public void addSubtype(CardSubType cst){
+		subTypes.add(cst);
+	}
+	
+	public void removeSubtype(CardSubType cst){
+		subTypes.remove(cst);
+	}
 
 	public List<CardSubType> getSubTypes() {
 		return Collections.unmodifiableList(subTypes);

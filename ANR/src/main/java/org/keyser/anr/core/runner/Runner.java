@@ -78,6 +78,11 @@ public class Runner extends PlayableUnit {
 		ClickForDraw() {
 			super("click-for-draw", Cost.action(1));
 		}
+		
+		@Override
+		public boolean isEnabled() {
+			return !getStack().isEmpty();
+		}
 
 		@Override
 		public void apply() {

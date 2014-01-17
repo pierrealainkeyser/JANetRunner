@@ -798,6 +798,9 @@ function handleQuestion(game) {
 			} else if ('SPECIAL_RUN' == q.what) {
 				msg.addClass("label label-info");
 				msg.text("Choose a server for your run !");
+			} else if ('RUNNER_TARGET_ICE' == q.what) {
+				msg.addClass("label label-info");
+				msg.text("Choose an ice !");
 			}
 
 			_.each(q.responses, function(r) {
@@ -984,6 +987,12 @@ function Action(q, r, widget) {
 		} else
 			this.widget.prop("ANRAction", this).addClass("withAction");
 
+		// si une carte est associe au widget
+		var card = this.widget.prop("card");
+		if (card != null) {
+			card.removeTabIndex(false);
+		}
+
 		return this;
 	}
 
@@ -1032,7 +1041,16 @@ function Action(q, r, widget) {
 		}
 	}
 
+	/**
+	 * Nettoyage unitaire
+	 */
 	this.clean = function() {
+
+		var card = widget.prop("card");
+		if (card != undefined) {
+			card.computeTabIndex();
+		}
+
 		widget.removeProp("ANRAction").removeClass("withAction");
 	}
 }
@@ -1398,10 +1416,13 @@ function Card(def) {
 		this.widget.focus(function() {
 			var me = $(this);
 			var card = me.prop("card");
-			var prev = $("#preview");
-			prev.find("img").attr("src", card.getUrl());
 
-			prev.stop().show('fast');
+			//on affiche que les cartes actives ou locale
+			if (card.rezzed || card.local) {
+				var prev = $("#preview");
+				prev.find("img").attr("src", card.getUrl());
+				prev.stop().show('fast');
+			}
 
 			displayANRAction(me.prop("ANRAction"));
 		});
@@ -1507,7 +1528,7 @@ function Card(def) {
 				else if (location.type == 'server')
 					location.value['upgradeIndex'] = nindex;
 				else if (/.*Score$/.test(location.type) || location.type == 'hardwares' || location.type == 'programs' || location.type == 'resources') {
-					location.value = { index : nindex };									
+					location.value = { index : nindex };
 
 					// la carte est visible
 					this.rezzed = true;
@@ -1554,24 +1575,30 @@ function Card(def) {
 			}
 		}
 
-		this.removeTabIndex((this.loc.type == 'rd' || this.loc.type == 'stack') || (!this.rezzed && !this.local));
+		this.computeTabIndex();
 
 		if (location != undefined || card.visible != undefined)
 			this.animate();
+	}
+
+	/**
+	 * Permet de calculer l'index apres une action
+	 */
+	this.computeTabIndex = function() {
+		this.removeTabIndex((this.loc.type == 'rd' || this.loc.type == 'stack') || (!this.rezzed && !this.local));
 	}
 
 	this.showBeforeAccess = function() {
 		this.beforeAccess = { rezzed : this.rezzed, zIndex : this.widget.css('zIndex') };
 		this.rezzed = true;
 		this.widget.css('zIndex', 100);
-		this.removeTabIndex(false);
 		this.animate();
 	}
 
 	this.hideAfterAcess = function() {
 		this.rezzed = this.beforeAccess.rezzed;
 		this.widget.css('zIndex', this.beforeAccess.zIndex);
-		this.removeTabIndex(true);
+		this.computeTabIndex();
 		if (!this.rezzed) {
 			this.animate();
 		}

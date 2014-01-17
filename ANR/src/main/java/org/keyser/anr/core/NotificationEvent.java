@@ -23,6 +23,8 @@ public enum NotificationEvent {
 	RUNNER_TAG_CHANGED, //
 	RUNNER_LINK_CHANGED, //
 	RUNNER_INSTALLED, //
+	
+	RUNNER_TARGET_ICE,//
 
 	// events du run
 	START_OF_RUN, //
@@ -55,7 +57,7 @@ public enum NotificationEvent {
 
 	// sur les cartes
 	CARD_POWER_COUNTER, //
-	CARD_CREDITS;//
+	CARD_CREDITS; //
 
 	public Notification apply() {
 		return new Notification(this);
