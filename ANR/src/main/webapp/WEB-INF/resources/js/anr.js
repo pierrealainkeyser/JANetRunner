@@ -44,6 +44,7 @@ var actionMapping = {//
 "trash-it" : "Thrash it",//
 "dont-trash-it" : "I'm not thrashing it",//
 "steal-it" : "Steal this agenda",//
+"access-done" : "Access done",//
 };
 
 // gestion des bordures
@@ -69,7 +70,7 @@ hspacing : function() {
 }, vspacingCorpScore : function() {
 	return 43;
 }, vspacingRunnerScore : function() {
-	return 197;
+	return 198;
 }, vspacingRunnerRow : function() {
 	return 143;
 } }
@@ -173,7 +174,7 @@ var placeFunction = { hand : function(v) {
 	var hspacing = mainInsets.runnerScore.hspacing;
 	var index = v.index;
 
-	return { x : bx - hspacing * index, y : by, rotate : 0 };
+	return { x : bx + hspacing * index, y : by, rotate : 0 };
 }, grip : function(v) {
 	if (v) {
 		return placeFunction.hand(v);
@@ -357,7 +358,7 @@ function displayEncounteredIce(q, ice) {
 	var ei = $("#encounteredIce");
 	var offset = ei.prop("moveTo");
 	em.css({ left : offset.left + ei.width() + 15, top : offset.top + ei.height() - em.height() });
-	
+
 	em.show().animo({ animation : 'lightSpeedIn', duration : 0.40 });
 	return act;
 }
@@ -489,7 +490,6 @@ function toggleCorpScore() {
  */
 function syncRunnerScore() {
 	var scoreWidth = 0;
-	// TODO a rendre dynamique
 	if (_.isEqual(mainInsets.runnerScore, viewAgenda))
 		scoreWidth = (locationHandler.runnerScore.size() * mainInsets.runnerScore.hspacing + 80) + 111 + mainInsets.left();
 
@@ -605,7 +605,7 @@ function bootANR(gid) {
 	};
 
 	$ws.onclose = function() {
-		var me=$("#modalError");
+		var me = $("#modalError");
 		me.show();
 
 		me.find("#errorPanel").animo({ animation : 'bounceIn', duration : 0.25 });
@@ -693,14 +693,12 @@ function updateGame(game) {
 		case "CORP_DRAW":
 			textStep = "Draw phase";
 			// remise à zéro avant la phase de draw
-			if (faction == 'corp') {
-			}
+			if (faction == 'corp') {}
 			break;
 		case "RUNNER_ACT":
 			textStep = "Action phase";
 			// remise à zéro au changement de phase
-			if (faction == 'runner') {
-			}
+			if (faction == 'runner') {}
 			break;
 		case "RUNNER_DISCARD":
 			textStep = "Discard phase";
@@ -784,12 +782,22 @@ function handleQuestion(game) {
 				var c = cards[q.responses[0].card + ""];
 				c.showBeforeAccess();
 				showBinaryResponse({ no : { btn : 'btn-danger', icon : 'glyphicon-remove' } });
+			} else if ('SHOW_ACCESSED_CARD' == q.what) {
+				msg.addClass("label label-info");
+				msg.text("Accessing a card");
+
+				var c = cards[q.responses[0].card + ""];
+				c.showBeforeAccess();
+				showBinaryResponse({ no : { btn : 'btn-info', icon : 'glyphicon-log-out' } });
 			} else if ('STEAL_AGENDA' == q.what) {
 				msg.addClass("label label-success");
 				msg.text("You are about to steal an agenda !");
 
 				var c = cards[q.responses[0].card + ""];
 				c.showBeforeAccess();
+			} else if ('SPECIAL_RUN' == q.what) {
+				msg.addClass("label label-info");
+				msg.text("Choose a server for your run !");
 			}
 
 			_.each(q.responses, function(r) {
@@ -864,8 +872,19 @@ function handleResponse(q, r) {
 			widget = widgetServer(r.args);
 		else if ('jack-off' == r.option)
 			widget = $("#response-yes");
-		else if ('continue-the-run' == r.option || 'dont-trash-it' == r.option)
+		else if ('continue-the-run' == r.option) {
 			widget = $("#response-no");
+		} else if ('dont-trash-it' == r.option || 'dont-steal-it' == r.option || 'access-done' == r.option) {
+			act = new Action(q, r, $("#response-no"));
+			act.updateChoosen = function() {
+				card.hideAfterAcess();
+			}
+			return act;
+		} else if (/^(.+)-run-rd$/.exec(r.option)) {
+			widget = $("#rd");
+		} else if (/^(.+)-run-hq$/.exec(r.option)) {
+			widget = $("#hq");
+		}
 
 		if (widget != null)
 			act = new Action(q, r, widget);
@@ -876,7 +895,7 @@ function handleResponse(q, r) {
 				act.push(new Action(q, { option : "break-none", rid : r.rid }, $("#breakNone")));
 			} else {
 				act.push(new Action(q, r, $("#response-no")));
-				showBinaryResponse({ no : { btn : 'btn-info', icon : 'glyphicon-ban-circle' } });
+				showBinaryResponse({ no : { text : 'Log out', btn : 'btn-info', icon : 'glyphicon-ban-circle' } });
 			}
 
 		}
@@ -996,7 +1015,7 @@ function Action(q, r, widget) {
 
 		// on conserve l'ancien resultat ou l'on n'a rien fait
 		if (this.response.option == 'none') {
-			//TODO
+			// TODO
 		} else if (this.response.option == 'none-till-next') {
 			// TODO on desactive jusqu'au prochain tour
 		}
@@ -1381,7 +1400,7 @@ function Card(def) {
 			var card = me.prop("card");
 			var prev = $("#preview");
 			prev.find("img").attr("src", card.getUrl());
-					
+
 			prev.stop().show('fast');
 
 			displayANRAction(me.prop("ANRAction"));
@@ -1488,7 +1507,7 @@ function Card(def) {
 				else if (location.type == 'server')
 					location.value['upgradeIndex'] = nindex;
 				else if (/.*Score$/.test(location.type) || location.type == 'hardwares' || location.type == 'programs' || location.type == 'resources') {
-					location.value = { index : nindex };
+					location.value = { index : nindex };									
 
 					// la carte est visible
 					this.rezzed = true;
@@ -1523,7 +1542,7 @@ function Card(def) {
 				this.rezzed = true;
 				w.css("zIndex", location.value.hand + 1);
 			} else if (location.type == 'hq_id' || location.type == 'grip_id') {
-				w.css("zIndex", 500);
+				w.css("zIndex", 50);
 			} else if (location.type == 'upgrade') {
 				w.css("zIndex", 1);
 			} else if (location.type == 'ice' || location.type == 'server') {
@@ -1542,16 +1561,18 @@ function Card(def) {
 	}
 
 	this.showBeforeAccess = function() {
-		this.beforeRezzAccess = this.rezzed;
+		this.beforeAccess = { rezzed : this.rezzed, zIndex : this.widget.css('zIndex') };
 		this.rezzed = true;
+		this.widget.css('zIndex', 100);
 		this.removeTabIndex(false);
 		this.animate();
 	}
 
 	this.hideAfterAcess = function() {
-		this.rezzed = this.beforeRezzAccess;
-		if (!this.beforeRezzAccess) {
-			this.removeTabIndex(true);
+		this.rezzed = this.beforeAccess.rezzed;
+		this.widget.css('zIndex', this.beforeAccess.zIndex);
+		this.removeTabIndex(true);
+		if (!this.rezzed) {
 			this.animate();
 		}
 		delete this.beforeRezzAccess;

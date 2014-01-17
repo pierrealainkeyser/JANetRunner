@@ -10,7 +10,7 @@ import org.keyser.anr.core.runner.EventCard;
 public class Diesel extends EventCard {
 
 	public Diesel() {
-		super(Faction.SHAPER.infl(2), Cost.credit(2));
+		super(Faction.SHAPER.infl(2), Cost.free());
 	}
 
 	@Override

@@ -26,9 +26,7 @@ public final class CorpRDServer extends CorpCentralServer {
 		if (!st.isEmpty()) {
 			int size = st.size();
 			int nb = Math.min(size, accededs);
-			int from = size - nb;
-			List<CorpCard> lasts = new ArrayList<>(st.subList(from, size));
-			Collections.reverse(lasts);
+			List<CorpCard> lasts = new ArrayList<>(st.subList(0, nb));
 			lasts.forEach(c -> grp.addSequential(c));
 		}
 

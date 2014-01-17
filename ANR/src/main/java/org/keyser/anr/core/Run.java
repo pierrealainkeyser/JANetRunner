@@ -412,10 +412,9 @@ public class Run extends AbstractGameContent implements Flow {
 	 * Phase 4.5
 	 */
 	private void accessPhase(RunIsSuccessfulEvent event) {
-		// TODO gestion de la phase d'access
-
 		CardAccessGroup accessed = target.getAccessedCards(event.getCorpAccess());
 		if (accessed.needToSort()) {
+			//TODO faire les choses autrements, successivement
 			Question q = ask(Player.RUNNER, NotificationEvent.SORT_ON_ACCESS);
 			q.ask("sort-accededs-cards").setContent(accessed).to(Integer[].class, ids -> {
 				accessing(accessed.inOrder(asList(ids)));
@@ -469,7 +468,7 @@ public class Run extends AbstractGameContent implements Flow {
 						c.setRezzed(true);
 						c.trash(next);
 					});
-				q.ask("dont-trash-it").to(next);
+				q.ask("dont-trash-it", c).to(next);
 				q.fire();
 				return;
 			}
@@ -487,7 +486,7 @@ public class Run extends AbstractGameContent implements Flow {
 				} else {
 					Question q = ask(Player.RUNNER, NotificationEvent.STEAL_AGENDA);
 					q.ask("steal-it", c).setCost(stealCost).to(() -> stealAgenda(stealCost, sta, next));
-					q.ask("dont-steal-it").to(next);
+					q.ask("dont-steal-it", c).to(next);
 					q.fire();
 				}
 				return;
@@ -495,7 +494,7 @@ public class Run extends AbstractGameContent implements Flow {
 		}
 
 		Question q = ask(Player.RUNNER, NotificationEvent.SHOW_ACCESSED_CARD);
-		q.ask("done").to(next);
+		q.ask("access-done", c).to(next);
 		q.fire();
 	}
 

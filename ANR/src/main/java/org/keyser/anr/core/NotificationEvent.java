@@ -33,6 +33,7 @@ public enum NotificationEvent {
 	STEAL_AGENDA, //
 	SHOW_ACCESSED_CARD, //
 	END_OF_RUN, //
+	SPECIAL_RUN, // un run spécial est lancé
 
 	// events des cartes et du wallet
 	WALLET_CHANGED, //
