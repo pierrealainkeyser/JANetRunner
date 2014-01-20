@@ -24,7 +24,8 @@ public enum NotificationEvent {
 	RUNNER_LINK_CHANGED, //
 	RUNNER_INSTALLED, //
 	
-	RUNNER_TARGET_ICE,//
+	TARGET_ICE,//
+	CLOSED_QUESTION,//
 
 	// events du run
 	START_OF_RUN, //

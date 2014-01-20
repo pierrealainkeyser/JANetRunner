@@ -198,7 +198,7 @@ public class GameDTOBuilder {
 	 */
 	private void updateQuestion(GameDTO g, Question q) {
 
-		QuestionDTO d = new QuestionDTO(q.getQid(), q.getTo(), q.getType());
+		QuestionDTO d = new QuestionDTO(q.getQid(), q.getTo(), q.getType(), q.getMessage());
 		q.getResponses().values().forEach(r -> d.add(possibleReponse(r)));
 		g.setQuestion(d);
 	}

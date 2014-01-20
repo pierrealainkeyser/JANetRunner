@@ -14,6 +14,8 @@ public class Notification {
 	private final NotificationEvent type;
 	
 	private Game game;
+	
+	private String message;
 
 	public Notification(NotificationEvent type) {
 		this.type = type;
@@ -22,6 +24,12 @@ public class Notification {
 
 	public NotificationEvent getType() {
 		return type;
+	}
+	
+
+	public Notification m(String message) {
+		this.message = message;
+		return this;
 	}
 
 	public Notification m(Card card) {
@@ -108,6 +116,10 @@ public class Notification {
 
 	public void setGame(Game game) {
 		this.game = game;
+	}
+
+	public String getMessage() {
+		return message;
 	}
 
 }

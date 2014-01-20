@@ -85,10 +85,16 @@ public class QuestionDTO {
 	 */
 	private final NotificationEvent what;
 
-	public QuestionDTO(int qid, Player to, NotificationEvent what) {
+	/**
+	 * Un test
+	 */
+	private final String text;
+
+	public QuestionDTO(int qid, Player to, NotificationEvent what, String text) {
 		this.qid = qid;
 		this.to = to.name().toLowerCase();
 		this.what = what;
+		this.text = text;
 	}
 
 	public void add(PossibleResponseDTO p) {
@@ -130,6 +136,10 @@ public class QuestionDTO {
 		}
 		builder.append("]");
 		return builder.toString();
+	}
+
+	public String getText() {
+		return text;
 	}
 
 }

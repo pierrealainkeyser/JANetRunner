@@ -530,9 +530,6 @@ function initANR() {
 	confactions($("#hardwares").css(placeFunction.hardwares({ index : 0 })));
 	confactions($("#programs").css(placeFunction.programs({ index : 0 })));
 
-	confactions($("#response-yes"));
-	confactions($("#response-no"));
-
 	confactions($("#breakAll"));
 	confactions($("#breakSelected"));
 	confactions($("#breakNone"));
@@ -759,7 +756,6 @@ function handleQuestion(game) {
 					msg.text("Please, play an action");
 				else if ("ABILITY" == type) {
 					msg.text("Would you like to play an ability ?");
-					mayAddNotYet = true;
 				} else if ("ICE_TO_REZZ" == type) {
 					msg.text("Would you like to rezz the approched ice ?");
 				} else if ("ICEBREAKER" == type) {
@@ -774,21 +770,21 @@ function handleQuestion(game) {
 				msg.addClass("label label-warning");
 				msg.text("Would you like to jack-off ?");
 
-				showBinaryResponse({ yes : { btn : 'btn-danger', icon : 'glyphicon-log-out' }, no : { btn : 'btn-info', icon : 'glyphicon-forward' } });
+				showBinaryResponsePanel({ yes : { btn : 'btn-danger', icon : 'glyphicon-log-out' }, no : { btn : 'btn-info', icon : 'glyphicon-forward' } });
 			} else if ('TRASH_CARD' == q.what) {
 				msg.addClass("label label-success");
 				msg.text("Would you like to trash this card ?");
 
 				var c = cards[q.responses[0].card + ""];
 				c.showBeforeAccess();
-				showBinaryResponse({ no : { btn : 'btn-danger', icon : 'glyphicon-remove' } });
+				showBinaryResponsePanel({ no : { btn : 'btn-danger', icon : 'glyphicon-remove' } });
 			} else if ('SHOW_ACCESSED_CARD' == q.what) {
 				msg.addClass("label label-info");
 				msg.text("Accessing a card");
 
 				var c = cards[q.responses[0].card + ""];
 				c.showBeforeAccess();
-				showBinaryResponse({ no : { btn : 'btn-info', icon : 'glyphicon-log-out' } });
+				showBinaryResponsePanel({ no : { btn : 'btn-info', icon : 'glyphicon-log-out' } });
 			} else if ('STEAL_AGENDA' == q.what) {
 				msg.addClass("label label-success");
 				msg.text("You are about to steal an agenda !");
@@ -798,9 +794,21 @@ function handleQuestion(game) {
 			} else if ('SPECIAL_RUN' == q.what) {
 				msg.addClass("label label-info");
 				msg.text("Choose a server for your run !");
-			} else if ('RUNNER_TARGET_ICE' == q.what) {
+			} else if ('TARGET_ICE' == q.what) {
 				msg.addClass("label label-info");
 				msg.text("Choose an ice !");
+			} 
+			else if ('CLOSED_QUESTION'==q.what){
+				msg.addClass("label label-info");
+				msg.text(q.text);
+				
+				var elements=[];
+				_.each(q.responses, function(r) {
+					elements.push({text:r.args,btn:'btn-info',icon:'glyphicon-plus'});
+				})
+				
+				var rp = new ResponsePanel(elements);
+				rp.toggle();
 			}
 
 			_.each(q.responses, function(r) {
@@ -866,7 +874,6 @@ function handleResponse(q, r) {
 	} else if ("install-ice" == r.option || "install-asset" == r.option || "install-agenda" == r.option || "install-upgrade" == r.option)
 		act = new CorpInstallOnMultiAction(q, r, widget);
 	else {
-
 		if ('click-for-credit' == r.option)
 			widget = faction == 'corp' ? $("#hq") : $("#grip");
 		else if ('click-for-draw' == r.option)
@@ -888,17 +895,19 @@ function handleResponse(q, r) {
 		} else if (/^(.+)-run-hq$/.exec(r.option)) {
 			widget = $("#hq");
 		}
+		else if ('CLOSED_QUESTION'==q.what){			
+			widget=$("#"+getResponseId(r.args));			
+		}
 
 		if (widget != null)
 			act = new Action(q, r, widget);
 		else if ('none' == r.option) {
-
 			act = [];
 			if ("WHICH_ICEBREAKER" == q.what) {
 				act.push(new Action(q, { option : "break-none", rid : r.rid }, $("#breakNone")));
 			} else {
+				showBinaryResponsePanel({ no : { btn : 'btn-info', icon : 'glyphicon-ban-circle' } });
 				act.push(new Action(q, r, $("#response-no")));
-				showBinaryResponse({ no : { text : 'Log out', btn : 'btn-info', icon : 'glyphicon-ban-circle' } });
 			}
 
 		}
@@ -907,36 +916,51 @@ function handleResponse(q, r) {
 	return act;
 }
 
-function showBinaryResponse(mode) {
+function showBinaryResponsePanel(mode) {
+	var elements = [];
+	if (mode.yes != undefined) {
+		var m = _.clone(mode.yes);
+		m.text = 'Yes';
+		elements.push(m);
+	}
 
-	var ryes = $("#response-yes");
-	var rno = $("#response-no");
-	if (mode.yes != undefined)
-		showBinaryButton(ryes, mode.yes);
-	else
-		ryes.hide();
+	if (mode.no != undefined) {
+		var m = _.clone(mode.no);
+		m.text = 'No';
+		elements.push(m);
+	}
 
-	if (mode.no != undefined)
-		showBinaryButton(rno, mode.no);
-	else
-		rno.hide();
-
-	$("#binaryResponse").stop().animate({ height : 'toggle' });
+	var rp = new ResponsePanel(elements);
+	rp.toggle();
+	
 }
 
-function showBinaryButton(btn, mode) {
-	if (mode.btn) {
-		btn.removeClass();
-		btn.addClass("btn " + mode.btn);
-	}
+/**
+ * format l'id de reponse
+ * 
+ * @param str
+ * @returns {String}
+ */
+function getResponseId(str){
+	var rep = str.replace(/ /g,'').toLowerCase();
+	return "response-" + rep;
+}
 
-	if (mode.icon) {
-		var i = btn.find("i");
-		i.removeClass();
-		i.addClass("glyphicon " + mode.icon);
+function ResponsePanel(elements) {
+	this.panel = $("#responsePanel");
+	
+	var area = $("#responseBody");
+	area.empty();
+	_.each(elements, function(el) {		
+		var id = getResponseId(el.text);
+		var b = $("<button id='" + id + "' type='button' class='btn " + el.btn + "'><i class='glyphicon " + el.icon + "'> </i> " + el.text + "</button>");
+		confactions(b);
+		b.appendTo(area);
+	});
+		
+	this.toggle = function(){
+		this.panel .stop().animate({ height : 'toggle' });
 	}
-
-	btn.show();
 }
 
 function interpolateSprites(input) {
@@ -1004,7 +1028,7 @@ function Action(q, r, widget) {
 		this.clearAll();
 		var choosen = { qid : q.qid, rid : r.rid };
 
-		var opt = $("#binaryResponse");
+		var opt = $("#responsePanel");
 		if (opt.is(':visible')) {
 			opt.stop().animate({ height : 'toggle' });
 		}
@@ -1417,7 +1441,7 @@ function Card(def) {
 			var me = $(this);
 			var card = me.prop("card");
 
-			//on affiche que les cartes actives ou locale
+			// on affiche que les cartes actives ou locale
 			if (card.rezzed || card.local) {
 				var prev = $("#preview");
 				prev.find("img").attr("src", card.getUrl());
