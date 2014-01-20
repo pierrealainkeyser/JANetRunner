@@ -297,11 +297,7 @@ public class Runner extends PlayableUnit {
 					Resource r = (Resource) c;
 					game.apply(new ResourceInstallationCostDeterminationEvent(r), (de) -> a.add(new InstallResource(r, de.getEffective())));
 				} else if (c instanceof Hardware) {
-					Hardware h = (Hardware) c;
-
-					// TODO on peut avoir des materiels qui s'installe sur des
-					// programmes.
-					game.apply(new HardwareInstallationCostDeterminationEvent(h), (de) -> a.add(new InstallHardware(h, de.getEffective())));
+					addInstallHardwareAbility(a,(Hardware) c);					
 				} else if (c instanceof EventCard) {
 					EventCard event = (EventCard) c;
 					a.add(new PlayEvent(event, event.getCost()));
@@ -346,9 +342,21 @@ public class Runner extends PlayableUnit {
 			});
 		});
 	}
+	
+	/**
+	 * Permet de lister les abilités d'installation de materiel. Lance des {@link ProgramInstallationCostDeterminationEvent} qu'il est possible de modifier
+	 * @param a
+	 * @param h
+	 */
+	public void addInstallHardwareAbility(List<AbstractAbility> a, Hardware h){
+		
+		//TODO gestion du materiel qui s'intalle sur un program
+		
+		getGame().apply(new HardwareInstallationCostDeterminationEvent(h), (de) -> a.add(new InstallHardware(h, de.getEffective())));
+	}
 
 	/**
-	 * Permet de lister les abilités d'installation de program. Lancer des {@link ProgramInstallationCostDeterminationEvent} qu'il est possible de modifier
+	 * Permet de lister les abilités d'installation de program. Lance des {@link ProgramInstallationCostDeterminationEvent} qu'il est possible de modifier
 	 * 
 	 * @param a
 	 * @param p

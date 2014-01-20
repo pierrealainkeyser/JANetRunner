@@ -1,6 +1,7 @@
 package org.keyser.anr.core.runner.shaper;
 
 import static org.keyser.anr.core.Cost.credit;
+import static org.keyser.anr.core.EventMatcher.match;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,6 @@ import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.CostCredit;
 import org.keyser.anr.core.CostDeterminationEvent;
 import org.keyser.anr.core.DefaultInstallable;
-import org.keyser.anr.core.EventMatcher;
 import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.Game;
@@ -20,6 +20,8 @@ import org.keyser.anr.core.Player;
 import org.keyser.anr.core.Question;
 import org.keyser.anr.core.Wallet;
 import org.keyser.anr.core.runner.EventCard;
+import org.keyser.anr.core.runner.Hardware;
+import org.keyser.anr.core.runner.HardwareInstallationCostDeterminationEvent;
 import org.keyser.anr.core.runner.Program;
 import org.keyser.anr.core.runner.ProgramInstallationCostDeterminationEvent;
 import org.keyser.anr.core.runner.Runner;
@@ -42,15 +44,18 @@ public class Modded extends EventCard {
 
 		// on modifie le cout
 		DefaultInstallable di = new DefaultInstallable();
-		di.add(EventMatcher.match(ProgramInstallationCostDeterminationEvent.class).auto().sync(this::reduceCost));
+		di.add(match(ProgramInstallationCostDeterminationEvent.class).auto().sync(this::reduceCost));
+		di.add(match(HardwareInstallationCostDeterminationEvent.class).auto().sync(this::reduceCost));
 		di.bind(g);
 
 		Runner runner = g.getRunner();
 		List<AbstractAbility> a = new ArrayList<>();
 		runner.getHand().forEach(c -> {
-			if (c instanceof Program) {
+			if (c instanceof Program)
 				runner.addInstallProgramAbility(a, (Program) c);
-			}
+			else if (c instanceof Hardware)
+				runner.addInstallHardwareAbility(a, (Hardware) c);
+
 		});
 
 		di.unbind(g);
@@ -79,7 +84,7 @@ public class Modded extends EventCard {
 		q.m("Applying Modded");
 		Wallet wallet = getGame().getRunner().getWallet();
 
-		// on enregistre l'action du modde
+		// on enregistre l'action du modded
 		for (AbstractAbility aa : listAllAbilities())
 			aa.register(q, wallet, next);
 
