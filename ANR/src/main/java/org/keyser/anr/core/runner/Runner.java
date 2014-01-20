@@ -78,7 +78,7 @@ public class Runner extends PlayableUnit {
 		ClickForDraw() {
 			super("click-for-draw", Cost.action(1));
 		}
-		
+
 		@Override
 		public boolean isEnabled() {
 			return !getStack().isEmpty();
@@ -91,7 +91,7 @@ public class Runner extends PlayableUnit {
 		}
 	}
 
-	class InstallProgramAbility extends CardAbility {
+	public class InstallProgramAbility extends CardAbility {
 		private final Program prog;
 
 		private final List<ProgramSpace> spaces;
@@ -310,17 +310,7 @@ public class Runner extends PlayableUnit {
 			}
 
 			if (!progs.isEmpty()) {
-
-				progs.forEach(p -> {
-
-					List<ProgramSpace> spaces = new ArrayList<>();
-					forEachProgramSpace(ps -> {
-						if (ps.mayHost(p))
-							spaces.add(ps);
-					});
-
-					game.apply(new ProgramInstallationCostDeterminationEvent(p), (de) -> a.add(new InstallProgramAbility(p, de.getEffective(), spaces)));
-				});
+				progs.forEach(p -> addInstallProgramAbility(a, p));
 			}
 
 			game.getCorp().forEachServer(cs -> {
@@ -355,7 +345,23 @@ public class Runner extends PlayableUnit {
 					a.add(aa);
 			});
 		});
+	}
 
+	/**
+	 * Permet de lister les abilités d'installation de program. Lancer des {@link ProgramInstallationCostDeterminationEvent} qu'il est possible de modifier
+	 * 
+	 * @param a
+	 * @param p
+	 */
+	public void addInstallProgramAbility(List<AbstractAbility> a, Program p) {
+
+		List<ProgramSpace> spaces = new ArrayList<>();
+		forEachProgramSpace(ps -> {
+			if (ps.mayHost(p))
+				spaces.add(ps);
+		});
+
+		getGame().apply(new ProgramInstallationCostDeterminationEvent(p), (de) -> a.add(new InstallProgramAbility(p, de.getEffective(), spaces)));
 	}
 
 	@SuppressWarnings("unchecked")

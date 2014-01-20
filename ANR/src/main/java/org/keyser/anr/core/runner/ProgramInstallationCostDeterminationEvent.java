@@ -11,7 +11,7 @@ public class ProgramInstallationCostDeterminationEvent extends CostDetermination
 		this.program = program;
 	}
 
-	public Program getHardware() {
+	public Program getProgram() {
 		return program;
 	}
 

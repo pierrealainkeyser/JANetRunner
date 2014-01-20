@@ -797,18 +797,20 @@ function handleQuestion(game) {
 			} else if ('TARGET_ICE' == q.what) {
 				msg.addClass("label label-info");
 				msg.text("Choose an ice !");
-			} 
-			else if ('CLOSED_QUESTION'==q.what){
+			} else if ('CLOSED_QUESTION' == q.what) {
 				msg.addClass("label label-info");
 				msg.text(q.text);
-				
-				var elements=[];
+
+				var elements = [];
 				_.each(q.responses, function(r) {
-					elements.push({text:r.args,btn:'btn-info',icon:'glyphicon-plus'});
+					elements.push({ text : r.args, btn : 'btn-info', icon : 'glyphicon-plus' });
 				})
-				
+
 				var rp = new ResponsePanel(elements);
 				rp.toggle();
+			} else if ('CUSTOM_QUESTION' == q.what) {
+				msg.addClass("label label-info");
+				msg.text(q.text);
 			}
 
 			_.each(q.responses, function(r) {
@@ -894,9 +896,8 @@ function handleResponse(q, r) {
 			widget = $("#rd");
 		} else if (/^(.+)-run-hq$/.exec(r.option)) {
 			widget = $("#hq");
-		}
-		else if ('CLOSED_QUESTION'==q.what){			
-			widget=$("#"+getResponseId(r.args));			
+		} else if ('CLOSED_QUESTION' == q.what) {
+			widget = $("#" + getResponseId(r.args));
 		}
 
 		if (widget != null)
@@ -932,7 +933,7 @@ function showBinaryResponsePanel(mode) {
 
 	var rp = new ResponsePanel(elements);
 	rp.toggle();
-	
+
 }
 
 /**
@@ -941,25 +942,25 @@ function showBinaryResponsePanel(mode) {
  * @param str
  * @returns {String}
  */
-function getResponseId(str){
-	var rep = str.replace(/ /g,'').toLowerCase();
+function getResponseId(str) {
+	var rep = str.replace(/ /g, '').toLowerCase();
 	return "response-" + rep;
 }
 
 function ResponsePanel(elements) {
 	this.panel = $("#responsePanel");
-	
+
 	var area = $("#responseBody");
 	area.empty();
-	_.each(elements, function(el) {		
+	_.each(elements, function(el) {
 		var id = getResponseId(el.text);
 		var b = $("<button id='" + id + "' type='button' class='btn " + el.btn + "'><i class='glyphicon " + el.icon + "'> </i> " + el.text + "</button>");
 		confactions(b);
 		b.appendTo(area);
 	});
-		
-	this.toggle = function(){
-		this.panel .stop().animate({ height : 'toggle' });
+
+	this.toggle = function() {
+		this.panel.stop().animate({ height : 'toggle' });
 	}
 }
 

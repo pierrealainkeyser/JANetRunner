@@ -26,6 +26,7 @@ public enum NotificationEvent {
 	
 	TARGET_ICE,//
 	CLOSED_QUESTION,//
+	CUSTOM_QUESTION,//
 
 	// events du run
 	START_OF_RUN, //
