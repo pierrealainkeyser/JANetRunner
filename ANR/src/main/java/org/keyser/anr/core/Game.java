@@ -32,6 +32,8 @@ import org.slf4j.LoggerFactory;
 
 public class Game implements Notifier, ConfigurableEventListener {
 
+	public static final String NONE_OPTION = "none";
+
 	abstract class AbstractDiscardPhaseEvent extends AbstractTurnEvent {
 		private int maxHandsize = 5;
 
@@ -206,12 +208,12 @@ public class Game implements Notifier, ConfigurableEventListener {
 				// si la corp peut activer des cartes mais qu'il n'y a pas de
 				// question
 				if (mayRezz)
-					q.ask("none").to(toEnd);
+					q.ask(NONE_OPTION).to(toEnd);
 				else
 					triggeredFlow.apply(null);
 			} else if (evt != NotificationEvent.WHICH_ACTION) {
 				// si pas d'action possible, mais juste des evenements
-				q.ask("none").to(toEnd);
+				q.ask(NONE_OPTION).to(toEnd);
 			}
 
 			q.fire();

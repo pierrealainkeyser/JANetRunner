@@ -30,11 +30,29 @@ import org.keyser.anr.core.WinCondition;
 
 public class Corp extends PlayableUnit {
 
-	class AdvanceCard extends CardAbility {
+	/**
+	 * L'action d'avancer une carte
+	 * 
+	 * @author PAF
+	 * 
+	 */
+	public static class AdvanceCardAction {
 		private final CorpCard card;
 
-		AdvanceCard(CorpCard card) {
-			super(card, "advance-card", Cost.action(1).add(Cost.credit(1)));
+		public AdvanceCardAction(CorpCard card) {
+			this.card = card;
+		}
+
+		public CorpCard getCard() {
+			return card;
+		}
+	}
+
+	public class AdvanceCard extends CardAbility {
+		private final CorpCard card;
+
+		private AdvanceCard(CorpCard card) {
+			super(card, "advance-card", Cost.action(1).add(Cost.credit(1)), new AdvanceCardAction(card));
 			this.card = card;
 		}
 
@@ -47,7 +65,6 @@ public class Corp extends PlayableUnit {
 
 			next.apply();
 		}
-
 	}
 
 	/**
@@ -552,7 +569,7 @@ public class Corp extends PlayableUnit {
 	 * 
 	 * @param c
 	 */
-	private void forEachCardInServer(Consumer<Card> c) {
+	public void forEachCardInServer(Consumer<Card> c) {
 		forEachServer(cs -> cs.forEach(c));
 	}
 

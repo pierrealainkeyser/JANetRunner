@@ -40,6 +40,5 @@ public class Tollbooth extends Ice {
 		}
 
 		next.apply();
-
 	}
 }
