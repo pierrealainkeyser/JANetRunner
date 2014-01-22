@@ -551,9 +551,14 @@ function initANR() {
 	wallets['corp'] = { score : new ValueWidget(corpWidget.find("span.score")), credits : new ValueWidget(corpWidget.find("span.credits")),
 		actions : new ValueWidget(corpWidget.find("span.actions")) };
 
-	wallets['runner'] = { score : new ValueWidget(runnerWidget.find("span.score")), credits : new ValueWidget(runnerWidget.find("span.credits")),
-		actions : new ValueWidget(runnerWidget.find("span.actions")), links : new ValueWidget(runnerWidget.find("span.links")),
-		memory_units : new ValueWidget(runnerWidget.find("span.memory_units")) };
+	wallets['runner'] = { score : new ValueWidget(runnerWidget.find("span.score")),//
+	credits : new ValueWidget(runnerWidget.find("span.credits")),//
+	actions : new ValueWidget(runnerWidget.find("span.actions")),//
+	links : new ValueWidget(runnerWidget.find("span.links")),//
+	memory_units : new ValueWidget(runnerWidget.find("span.memory_units")),//
+	tags : new ValueWidget(runnerWidget.find("span.tags")),//
+	brain_damages : new ValueWidget(runnerWidget.find("span.brain_damages")),//
+	};
 
 	locationHandler = {// 
 	hq : new CardCounter($("#hq").find("span")), //
@@ -636,6 +641,8 @@ function updateGame(game) {
 		wallets.runner.actions.value(w.actions);
 		wallets.runner.memory_units.value(w.memory);
 		wallets.runner.links.value(w.link);
+		wallets.runner.tags.value(w.tags);
+		wallets.runner.brain_damages.value(w.brain_damages);		
 	}
 
 	if (game.run != undefined) {
@@ -797,20 +804,31 @@ function handleQuestion(game) {
 			} else if ('TARGET_ICE' == q.what) {
 				msg.addClass("label label-info");
 				msg.text("Choose an ice !");
-			} else if ('CLOSED_QUESTION' == q.what) {
+			} else if (/.+_QUESTION/.exec(q.what)) {
 				msg.addClass("label label-info");
 				msg.text(q.text);
 
-				var elements = [];
-				_.each(q.responses, function(r) {
-					elements.push({ text : r.args, btn : 'btn-info', icon : 'glyphicon-plus' });
-				})
+				if ('CLOSED_QUESTION' == q.what) {
+					var elements = [];
+					_.each(q.responses, function(r) {
+						elements.push({ text : r.args, btn : 'btn-info', icon : 'glyphicon-plus' });
+					})
 
-				var rp = new ResponsePanel(elements);
-				rp.toggle();
-			} else if ('CUSTOM_QUESTION' == q.what) {
-				msg.addClass("label label-info");
-				msg.text(q.text);
+					var rp = new ResponsePanel({ buttons : elements });
+					rp.toggle();
+				} else if ('TRACE_QUESTION' == q.what) {
+					var arg = q.responses[0].args;
+					var lbl = "<i title='Current strength' class='sprite link'/> " + arg.yours;
+
+					if (arg.match != null) {
+						lbl += " (<i title='Match strength' class='glyphicon glyphicon-flash'/> " + arg.match + ") " ;
+					}
+
+					var rp = new ResponsePanel({ numberInput : { id : 'trace-input', text : lbl+" add ", max : arg.max, sprite : 'credits' },//
+					buttons : [ { text : "Commit", btn : 'btn-info', icon : 'glyphicon-thumbs-up' } ] //
+					});
+					rp.toggle();
+				}
 			}
 
 			_.each(q.responses, function(r) {
@@ -884,8 +902,22 @@ function handleResponse(q, r) {
 			widget = widgetServer(r.args);
 		else if ('jack-off' == r.option)
 			widget = $("#response-yes");
-		else if ('continue-the-run' == r.option) {
+		else if ('continue-the-run' == r.option)
 			widget = $("#response-no");
+		else if ('increase-trace' == r.option) {
+			act = new Action(q, r, $("#response-commit"));
+			act.updateChoosen = function(choosen) {
+				choosen.content = $("#trace-input").val();
+			}
+			act.getHTML = function() {
+				var inc = $("#trace-input").val();
+				var lbl = "Don't increase trace";
+				if (inc > 0)
+					lbl = "Increase trace for " + inc + "{credits}";
+				return interpolateSprites(lbl);
+
+			};
+			return act;
 		} else if ('dont-trash-it' == r.option || 'dont-steal-it' == r.option || 'access-done' == r.option) {
 			act = new Action(q, r, $("#response-no"));
 			act.updateChoosen = function() {
@@ -931,7 +963,7 @@ function showBinaryResponsePanel(mode) {
 		elements.push(m);
 	}
 
-	var rp = new ResponsePanel(elements);
+	var rp = new ResponsePanel({ buttons : elements });
 	rp.toggle();
 
 }
@@ -952,7 +984,21 @@ function ResponsePanel(elements) {
 
 	var area = $("#responseBody");
 	area.empty();
-	_.each(elements, function(el) {
+	if (elements.numberInput) {
+		var inp = elements.numberInput;
+		var span = $("<span/>");
+		span.html(inp.text);
+		span.appendTo(area);
+
+		var b = $("<input type='number' id='" + inp.id + "' min='0' max='" + inp.max + "' value='0'>");
+		b.appendTo(area);
+
+		if (inp.sprite) {
+			$("<i class='sprite " + inp.sprite + "'/>").appendTo(area);
+		}
+	}
+
+	_.each(elements.buttons, function(el) {
 		var id = getResponseId(el.text);
 		var b = $("<button id='" + id + "' type='button' class='btn " + el.btn + "'><i class='glyphicon " + el.icon + "'> </i> " + el.text + "</button>");
 		confactions(b);

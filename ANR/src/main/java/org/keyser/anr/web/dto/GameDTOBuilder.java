@@ -44,6 +44,8 @@ import org.keyser.anr.web.dto.QuestionDTO.PossibleResponseDTO;
  */
 public class GameDTOBuilder {
 
+	private static final String BRAIN_DAMAGE = "brain_damages";
+	private static final String TAGS = "tags";
 	private static final String LINK = "link";
 	private static final String MEMORY = "memory";
 	private static final String AGENDA = "agenda";
@@ -125,6 +127,12 @@ public class GameDTOBuilder {
 			} else if (NotificationEvent.RUNNER_LINK_CHANGED == type) {
 				int left = i.getGame().getRunner().getLink();
 				g.create(Player.RUNNER).setValue(LINK, left);
+			} else if (NotificationEvent.RUNNER_TAG_CHANGED == type) {
+				int tags = i.getGame().getRunner().getTags();
+				g.create(Player.RUNNER).setValue(TAGS, tags);
+			} else if (NotificationEvent.RUNNER_BRAIN_CHANGED == type) {
+				int tags = i.getGame().getRunner().getBrainDamages();
+				g.create(Player.RUNNER).setValue(BRAIN_DAMAGE, tags);
 			} else if (NotificationEvent.CORP_INSTALLED == type) {
 				g.addLog("Something is installed by the corp");
 			} else if (NotificationEvent.CORP_INSTALLED_AN_ICE == type) {
@@ -287,6 +295,8 @@ public class GameDTOBuilder {
 		w.forEach(wu -> updateWallet(g, p, wu));
 		p.setValue(MEMORY, runner.getCoreSpace().getMemoryLeft());
 		p.setValue(LINK, runner.getLink());
+		p.setValue(TAGS, runner.getTags());
+		p.setValue(BRAIN_DAMAGE, runner.getBrainDamages());
 		return p;
 	}
 

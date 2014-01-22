@@ -21,12 +21,14 @@ public enum NotificationEvent {
 	RUNNER_SCORE_AGENDA, //
 	RUNNER_MEMORY_CHANGED, //
 	RUNNER_TAG_CHANGED, //
+	RUNNER_BRAIN_CHANGED, //
 	RUNNER_LINK_CHANGED, //
 	RUNNER_INSTALLED, //
 	
 	TARGET_ICE,//
 	CLOSED_QUESTION,//
 	CUSTOM_QUESTION,//
+	TRACE_QUESTION,//
 
 	// events du run
 	START_OF_RUN, //
@@ -59,7 +61,7 @@ public enum NotificationEvent {
 
 	// sur les cartes
 	CARD_POWER_COUNTER, //
-	CARD_CREDITS; //
+	CARD_CREDITS;  //
 
 	public Notification apply() {
 		return new Notification(this);

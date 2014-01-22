@@ -266,6 +266,8 @@ public class Runner extends PlayableUnit {
 	private final List<Resource> resources = new ArrayList<>();
 
 	private int tags;
+	
+	private int brainDamages;
 
 	private int link;
 
@@ -467,6 +469,11 @@ public class Runner extends PlayableUnit {
 		// TODO Auto-generated method stub
 
 	}
+	
+	public void setBrainDamages(int brainDamages) {
+		this.brainDamages = brainDamages;
+		notification(NotificationEvent.RUNNER_BRAIN_CHANGED.apply());
+	}
 
 	public void setTags(int tags) {
 		this.tags = tags;
@@ -519,6 +526,10 @@ public class Runner extends PlayableUnit {
 	public void setLink(int link) {
 		this.link = link;
 		notification(NotificationEvent.RUNNER_LINK_CHANGED.apply());
+	}
+
+	public int getBrainDamages() {
+		return brainDamages;
 	}
 
 }
