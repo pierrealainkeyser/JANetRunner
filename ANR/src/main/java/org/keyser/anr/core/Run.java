@@ -414,7 +414,7 @@ public class Run extends AbstractGameContent implements Flow {
 	private void accessPhase(RunIsSuccessfulEvent event) {
 		CardAccessGroup accessed = target.getAccessedCards(event.getCorpAccess());
 		if (accessed.needToSort()) {
-			//TODO faire les choses autrements, successivement
+			// TODO faire les choses autrements, successivement
 			Question q = ask(Player.RUNNER, NotificationEvent.SORT_ON_ACCESS);
 			q.ask("sort-accededs-cards").setContent(accessed).to(Integer[].class, ids -> {
 				accessing(accessed.inOrder(asList(ids)));
@@ -441,7 +441,11 @@ public class Run extends AbstractGameContent implements Flow {
 	 * @param next
 	 */
 	private void triggerAccess(CorpCard card, Flow next) {
-		apply(new CardAccededEvent(card), evt -> checkAccess(evt, next));
+
+		// on accede en branchant la carte
+		card.whileBound(() -> {
+			apply(new CardAccededEvent(card), evt -> checkAccess(evt, next));
+		});
 	}
 
 	/**

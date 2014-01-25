@@ -25,4 +25,8 @@ public class CardAbility extends AbstractAbility {
 		q.ask(getName(), card).to(this::doNext).setCost(getCost());
 	}
 
+	public Card getCard() {
+		return card;
+	}
+
 }

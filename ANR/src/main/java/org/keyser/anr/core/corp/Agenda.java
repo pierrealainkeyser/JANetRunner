@@ -41,6 +41,15 @@ public abstract class Agenda extends InstallableCorpCard {
 		return adv != null && adv >= req;
 	}
 
+	/**
+	 * Renvoi vrai si l'agenda est scoré
+	 * 
+	 * @return
+	 */
+	public boolean isScored() {
+		return getLocation() == CardLocation.CORP_SCORE;
+	}
+
 	@Override
 	public boolean isAdvanceable() {
 		return true;

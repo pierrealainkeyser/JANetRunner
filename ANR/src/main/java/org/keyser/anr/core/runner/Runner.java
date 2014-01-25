@@ -266,7 +266,7 @@ public class Runner extends PlayableUnit {
 	private final List<Resource> resources = new ArrayList<>();
 
 	private int tags;
-	
+
 	private int brainDamages;
 
 	private int link;
@@ -275,6 +275,19 @@ public class Runner extends PlayableUnit {
 		super(faction);
 		getWallet().add(new WalletBadPub());
 		coreSpace.setMemory(4);
+	}
+
+	/**
+	 * Force la defausse
+	 * 
+	 * @param damage
+	 * @param next
+	 */
+	public void doDamage(int damage, Flow next) {
+
+		//
+
+		next.apply();
 	}
 
 	@Override
@@ -299,7 +312,7 @@ public class Runner extends PlayableUnit {
 					Resource r = (Resource) c;
 					game.apply(new ResourceInstallationCostDeterminationEvent(r), (de) -> a.add(new InstallResource(r, de.getEffective())));
 				} else if (c instanceof Hardware) {
-					addInstallHardwareAbility(a,(Hardware) c);					
+					addInstallHardwareAbility(a, (Hardware) c);
 				} else if (c instanceof EventCard) {
 					EventCard event = (EventCard) c;
 					a.add(new PlayEvent(event, event.getCost()));
@@ -344,21 +357,26 @@ public class Runner extends PlayableUnit {
 			});
 		});
 	}
-	
+
 	/**
-	 * Permet de lister les abilités d'installation de materiel. Lance des {@link ProgramInstallationCostDeterminationEvent} qu'il est possible de modifier
+	 * Permet de lister les abilités d'installation de materiel. Lance des
+	 * {@link ProgramInstallationCostDeterminationEvent} qu'il est possible de
+	 * modifier
+	 * 
 	 * @param a
 	 * @param h
 	 */
-	public void addInstallHardwareAbility(List<AbstractAbility> a, Hardware h){
-		
-		//TODO gestion du materiel qui s'intalle sur un program
-		
+	public void addInstallHardwareAbility(List<AbstractAbility> a, Hardware h) {
+
+		// TODO gestion du materiel qui s'intalle sur un program
+
 		getGame().apply(new HardwareInstallationCostDeterminationEvent(h), (de) -> a.add(new InstallHardware(h, de.getEffective())));
 	}
 
 	/**
-	 * Permet de lister les abilités d'installation de program. Lance des {@link ProgramInstallationCostDeterminationEvent} qu'il est possible de modifier
+	 * Permet de lister les abilités d'installation de program. Lance des
+	 * {@link ProgramInstallationCostDeterminationEvent} qu'il est possible de
+	 * modifier
 	 * 
 	 * @param a
 	 * @param p
@@ -469,7 +487,7 @@ public class Runner extends PlayableUnit {
 		// TODO Auto-generated method stub
 
 	}
-	
+
 	public void setBrainDamages(int brainDamages) {
 		this.brainDamages = brainDamages;
 		notification(NotificationEvent.RUNNER_BRAIN_CHANGED.apply());
