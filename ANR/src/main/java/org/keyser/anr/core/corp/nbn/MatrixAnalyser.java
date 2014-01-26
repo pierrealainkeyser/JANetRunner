@@ -42,6 +42,7 @@ public class MatrixAnalyser extends Ice {
 		Corp corp = getGame().getCorp();
 
 		Question q = getGame().ask(Player.CORP, NotificationEvent.CUSTOM_QUESTION);
+		q.m("Matrix Analyzer : put an advancement token");
 
 		corp.forEachCardInServer(c -> {
 			if (c instanceof CorpCard)
@@ -66,7 +67,7 @@ public class MatrixAnalyser extends Ice {
 			Wallet wallet = corp.getWallet();
 			// attention ce n'est pas un avancement normal
 			if (wallet.isAffordable(cost, null)) {
-				q.ask("advance-card", cc).to(() -> {
+				q.ask("advance-card", cc).setCost(cost).to(() -> {
 					game.notification(NotificationEvent.CORP_ADVANCE_CARD.apply().m(cc));
 
 					Integer adv = cc.getAdvancement();

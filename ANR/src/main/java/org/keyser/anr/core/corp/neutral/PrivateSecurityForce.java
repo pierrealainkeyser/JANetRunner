@@ -10,11 +10,13 @@ import org.keyser.anr.core.runner.AddDamageEvent.DamageType;
 
 @CardDef(name = "Private Security Force", oid = "01107")
 public class PrivateSecurityForce extends Agenda {
+	public static final String DO_1_MEAT_DAMAGE = "Do 1 meat damage";
 
 	private class MeatDamageAbility extends AgendaAbility {
 
+
 		protected MeatDamageAbility(Agenda card) {
-			super(card, "Do 1 meat damage", Cost.action(1));
+			super(card, DO_1_MEAT_DAMAGE, Cost.action(1));
 		}
 
 		@Override

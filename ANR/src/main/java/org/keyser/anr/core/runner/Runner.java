@@ -1,6 +1,7 @@
 package org.keyser.anr.core.runner;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -21,6 +22,7 @@ import org.keyser.anr.core.Player;
 import org.keyser.anr.core.Question;
 import org.keyser.anr.core.WalletBadPub;
 import org.keyser.anr.core.WalletCredits;
+import org.keyser.anr.core.WinCondition;
 import org.keyser.anr.core.corp.CorpServer;
 import org.keyser.anr.core.corp.Routine;
 
@@ -284,10 +286,18 @@ public class Runner extends PlayableUnit {
 	 * @param next
 	 */
 	public void doDamage(int damage, Flow next) {
+		List<? extends Card> hand = getHand();
+		if (hand.isEmpty()) {
+			Game g = getGame();
+			g.setResult(WinCondition.FLATLINE);
 
-		//
-
-		next.apply();
+			// applique l'evenement
+			g.apply(new RunnerFlatlinedEvent(), next);
+		} else {
+			ArrayList<? extends Card> h = new ArrayList<>(hand);
+			Collections.shuffle(h);
+			h.get(0).trash(next);
+		}
 	}
 
 	@Override

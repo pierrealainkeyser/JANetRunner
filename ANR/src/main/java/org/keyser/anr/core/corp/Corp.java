@@ -363,8 +363,8 @@ public class Corp extends PlayableUnit {
 			Game g = getGame();
 
 			agenda.setLocation(CardLocation.CORP_SCORE);
-			
-			//la carte est attachée maintenant
+
+			// la carte est attachée maintenant
 			agenda.setRezzed(true);
 
 			// on supprime les avancements
@@ -385,6 +385,16 @@ public class Corp extends PlayableUnit {
 
 	public Corp(Faction faction) {
 		super(faction);
+	}
+
+	/**
+	 * Renvoi l'action d'activer la glace
+	 * 
+	 * @param ice
+	 * @return
+	 */
+	public RezzIce rezzIceAbility(Ice ice) {
+		return new RezzIce(ice, Cost.free());
 	}
 
 	private void addAbility(CorpCard cc, List<AbstractAbility> a) {
@@ -490,7 +500,9 @@ public class Corp extends PlayableUnit {
 		}
 
 		// gestion des actions des cartes
-		forEachCardInServer(c -> addAbility((CorpCard) c, a));
+		Consumer<Card> addAbility = c -> addAbility((CorpCard) c, a);
+		forEachCardInServer(addAbility);
+		getScoreds().forEach(addAbility);
 	}
 
 	public int getIndex(CorpServer server) {

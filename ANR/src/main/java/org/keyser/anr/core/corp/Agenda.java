@@ -1,6 +1,7 @@
 package org.keyser.anr.core.corp;
 
 import org.keyser.anr.core.CardLocation;
+import org.keyser.anr.core.CardLocation.Where;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.Flow;
@@ -32,6 +33,9 @@ public abstract class Agenda extends InstallableCorpCard {
 	 */
 	public boolean isScorable() {
 
+		if (isScored())
+			return false;
+
 		Integer adv = getAdvancement();
 
 		// il faut envoyer un evenement dans le moteur !!
@@ -47,12 +51,12 @@ public abstract class Agenda extends InstallableCorpCard {
 	 * @return
 	 */
 	public boolean isScored() {
-		return getLocation() == CardLocation.CORP_SCORE;
+		return getLocation().getWhere() == Where.CORP_SCORE;
 	}
 
 	@Override
 	public boolean isAdvanceable() {
-		return true;
+		return !isScored();
 	}
 
 	/**
