@@ -202,7 +202,7 @@ public class Corp extends PlayableUnit {
 			this.ice = ice;
 			this.alls = alls;
 
-			// TODO gestion de l'action
+			// TODO gestion de l'action, pour la réduction du cout...
 		}
 
 		private void install(CorpServer cs) {

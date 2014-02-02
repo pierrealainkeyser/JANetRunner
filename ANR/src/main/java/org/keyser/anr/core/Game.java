@@ -673,7 +673,7 @@ public class Game implements Notifier, ConfigurableEventListener {
 	}
 
 	public boolean runnerHasRunedLastTurn() {
-		// TODO Auto-generated method stub
+		// TODO implémentation des stats
 		return false;
 	}
 }

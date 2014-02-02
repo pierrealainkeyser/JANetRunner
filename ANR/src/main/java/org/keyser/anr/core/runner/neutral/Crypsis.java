@@ -13,5 +13,7 @@ public class Crypsis extends IceBreaker {
 
 	public Crypsis() {
 		super(Faction.RUNNER_NEUTRAL.infl(0), credit(5), 1, 1, new BreakerScheme().setBoost(credit(1), 1).setBreak(credit(1), 1), CardSubType.IA);
+		
+		//TODO gestion des tokens
 	}
 }

@@ -218,7 +218,6 @@ public class GameDTOBuilder {
 	private void updateWallet(GameDTO g, PlayerDTO p, WalletUnit wu) {
 		int amount = wu.getAmount();
 
-		// TODO gestion des autres types de wallet
 		if (wu instanceof WalletCredits)
 			p.setValue(CREDITS, amount);
 		else if (wu instanceof WalletActions)

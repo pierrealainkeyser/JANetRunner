@@ -103,7 +103,7 @@ public class RemoteCardLoader implements InitializingBean {
 			try {
 				tmp = loadURL(url);
 			} catch (IOException e) {
-				// TODO
+				// TODO gestion de l'erreur
 			}
 			tmp.renameTo(fileInCache);
 

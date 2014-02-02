@@ -18,6 +18,8 @@ import org.keyser.anr.web.GameAccess;
 import org.keyser.anr.web.GameDef;
 import org.keyser.anr.web.GameFactory;
 import org.keyser.anr.web.GameGateway;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Une fabrique de {@link ConnectedGameEndpoint}
@@ -30,6 +32,8 @@ public class GameDTOFactory implements GameFactory {
 	private GameDTOBuilder builder = new GameDTOBuilder();
 
 	private ObjectMapper mapper;
+
+	private final static Logger logger = LoggerFactory.getLogger(GameDTOFactory.class);
 
 	public static enum KeyMode {
 		SIMPLE, UNIQUE;
@@ -59,7 +63,7 @@ public class GameDTOFactory implements GameFactory {
 		try (InputStream fis = def.getDeckCorp().openStream()) {
 			c = parser.parseCorp(fis);
 		} catch (IOException e) {
-			// TODO faire mieux...
+			logger.info("Error while parsing corp Deck", e);
 			return null;
 		}
 
@@ -67,14 +71,14 @@ public class GameDTOFactory implements GameFactory {
 		try (InputStream fis = def.getDeckRunner().openStream()) {
 			r = parser.parseRunner(fis);
 		} catch (IOException e) {
-			// TODO faire mieux...
+			logger.info("Error while parsing runner Deck", e);
 			return null;
 		}
 
 		Flow nowhere = () -> {
 		};
 
-		//TODO l'initialisation de la partie ne devrait pas se faire ici
+		// TODO l'initialisation de la partie ne devrait pas se faire ici
 		Game g = new Game(r, c, nowhere);
 		g.setup();
 

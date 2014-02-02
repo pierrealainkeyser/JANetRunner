@@ -10,5 +10,7 @@ import org.keyser.anr.core.runner.Program;
 public class NetShield extends Program {
 	public NetShield() {
 		super(SHAPER.infl(1), credit(2), 1);
+		
+		//TODO
 	}
 }

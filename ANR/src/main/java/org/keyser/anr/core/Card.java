@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * FIXME gestion du cout
+ * 
  * 
  * @author PAF
  * 

@@ -485,7 +485,7 @@ public class Runner extends PlayableUnit {
 	}
 
 	public boolean hasVirus() {
-		// TODO Auto-generated method stub
+		// TODO gestion des virus
 		return false;
 	}
 
@@ -494,7 +494,7 @@ public class Runner extends PlayableUnit {
 	}
 
 	public void purgeVirus(Flow next) {
-		// TODO Auto-generated method stub
+		// TODO gestion des virus
 
 	}
 

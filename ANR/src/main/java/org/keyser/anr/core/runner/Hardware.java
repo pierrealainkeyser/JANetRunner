@@ -7,7 +7,6 @@ public abstract class Hardware extends InstallableRunnerCard {
 
 	public Hardware(Influence influence, Cost cost) {
 		super(influence, cost);
-		// TODO Auto-generated constructor stub
 	}
 
 }

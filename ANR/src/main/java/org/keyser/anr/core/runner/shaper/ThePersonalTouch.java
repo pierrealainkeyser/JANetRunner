@@ -10,5 +10,7 @@ public class ThePersonalTouch extends Hardware {
 
 	public ThePersonalTouch() {
 		super(Faction.SHAPER.infl(2), Cost.credit(2));
+		
+		//TODO
 	}
 }
