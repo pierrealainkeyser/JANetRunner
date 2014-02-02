@@ -1,7 +1,6 @@
 package org.keyser.anr.core.corp;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.keyser.anr.core.CardLocation;

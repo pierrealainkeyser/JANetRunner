@@ -5,7 +5,6 @@ import static org.keyser.anr.core.EventMatcher.match;
 import org.keyser.anr.core.CardAbility;
 import org.keyser.anr.core.CardDef;
 import org.keyser.anr.core.Cost;
-import org.keyser.anr.core.EventMatcher;
 import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.WalletCredits;
 import org.keyser.anr.core.runner.Resource;

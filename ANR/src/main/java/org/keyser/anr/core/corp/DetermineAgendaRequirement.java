@@ -6,9 +6,12 @@ public class DetermineAgendaRequirement extends Event {
 
 	private final int defaultRequirement;
 
+	private final Agenda agenda;
+
 	private int requirement;
 
-	public DetermineAgendaRequirement(int defaultRequirement) {
+	public DetermineAgendaRequirement(Agenda agenda, int defaultRequirement) {
+		this.agenda = agenda;
 		this.defaultRequirement = defaultRequirement;
 		setRequirement(defaultRequirement);
 	}
@@ -27,12 +30,10 @@ public class DetermineAgendaRequirement extends Event {
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("DetermineAgendaRequirement [defaultRequirement=");
-		builder.append(defaultRequirement);
-		builder.append(", requirement=");
-		builder.append(requirement);
-		builder.append("]");
-		return builder.toString();
+		return "DetermineAgendaRequirement [defaultRequirement=" + defaultRequirement + ", agenda=" + agenda + ", requirement=" + requirement + "]";
+	}
+
+	public Agenda getAgenda() {
+		return agenda;
 	}
 }

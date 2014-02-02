@@ -39,7 +39,7 @@ public abstract class Agenda extends InstallableCorpCard {
 		Integer adv = getAdvancement();
 
 		// il faut envoyer un evenement dans le moteur !!
-		DetermineAgendaRequirement dar = getGame().apply(new DetermineAgendaRequirement(requirement));
+		DetermineAgendaRequirement dar = getGame().apply(new DetermineAgendaRequirement(this, requirement));
 
 		int req = dar.getRequirement();
 		return adv != null && adv >= req;
