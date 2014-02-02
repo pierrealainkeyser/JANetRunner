@@ -2,9 +2,7 @@ package org.keyser.anr.core.corp.nbn;
 
 import static org.keyser.anr.core.EventMatcher.match;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.keyser.anr.core.CardDef;
 import org.keyser.anr.core.Cost;
@@ -32,23 +30,10 @@ public class AstroScriptPilotProgram extends Agenda {
 
 			Integer pc = getPowerCounter();
 			if (super.isEnabled() && pc != null && pc > 0) {
-				Collection<CorpCard> adv = listAdvanceable();
+				Collection<CorpCard> adv = getGame().getCorp().listAdvanceable();
 				return !adv.isEmpty();
 			}
 			return false;
-		}
-
-		private Collection<CorpCard> listAdvanceable() {
-
-			List<CorpCard> all = new ArrayList<>();
-			getGame().getCorp().forEachCardInServer(c -> {
-				CorpCard cc = (CorpCard) c;
-				if (cc.isAdvanceable())
-					all.add(cc);
-
-			});
-
-			return all;
 		}
 
 		private void handleQuestion(Question q, CorpCard cc, Flow next) {
@@ -63,16 +48,15 @@ public class AstroScriptPilotProgram extends Agenda {
 					Integer adv = cc.getAdvancement();
 					cc.setAdvancement(adv == null ? 1 : adv + 1);
 					next.apply();
-
 				});
-
 		}
 
 		@Override
 		public void apply() {
-			Question q = getGame().ask(Player.CORP, NotificationEvent.CUSTOM_QUESTION);
+			Game g = getGame();
+			Question q = g.ask(Player.CORP, NotificationEvent.CUSTOM_QUESTION);
 			q.m("AstroScript Pilot Program : put and advancement token");
-			listAdvanceable().forEach(c -> handleQuestion(q, c, next));
+			g.getCorp().listAdvanceable().forEach(c -> handleQuestion(q, c, next));
 			q.fire();
 		}
 	}
@@ -81,7 +65,7 @@ public class AstroScriptPilotProgram extends Agenda {
 		super(Faction.NBN, 2, 3);
 
 		// rajoute un token lorsque qu'on le score
-		add(match(CorpScoreAgenda.class).auto().pred(csa -> csa.getCard() == this).call(() -> setPowerCounter(1)));
+		add(match(CorpScoreAgenda.class).auto().pred(this::equals).call(() -> setPowerCounter(1)));
 		addAction(new AstroTokenAbility(this));
 	}
 

@@ -16,7 +16,7 @@ public class GhostBranch extends Asset {
 	public GhostBranch() {
 		super(Faction.NBN.infl(1), Cost.credit(0), Cost.credit(0), CardSubType.AMBUSH);
 
-		add(match(CardAccededEvent.class).pred(e -> e.getCard() == this).async(this::fireTags));
+		add(match(CardAccededEvent.class).pred(this::equals).async(this::fireTags));
 	}
 
 	/**

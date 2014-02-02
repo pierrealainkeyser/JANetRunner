@@ -1,6 +1,7 @@
 package org.keyser.anr.core.corp;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -523,6 +524,24 @@ public class Corp extends PlayableUnit {
 	@Override
 	protected CardLocation discardLocation() {
 		return CardLocation.ARCHIVES;
+	}
+
+	/**
+	 * Renvoi la liste des cartes avancables
+	 * 
+	 * @return
+	 */
+	public Collection<CorpCard> listAdvanceable() {
+
+		List<CorpCard> all = new ArrayList<>();
+		getGame().getCorp().forEachCardInServer(c -> {
+			CorpCard cc = (CorpCard) c;
+			if (cc.isAdvanceable())
+				all.add(cc);
+
+		});
+
+		return all;
 	}
 
 	/**

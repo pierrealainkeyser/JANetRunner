@@ -52,12 +52,17 @@ public class Run extends AbstractGameContent implements Flow {
 	}
 
 	/**
-	 * La glace est rencontr�
+	 * La glace est rencontre
 	 * 
 	 * @author PAF
 	 * 
 	 */
-	public class IceIsEncounterEvent extends RunEvent {
+	public class IceIsEncounterEvent extends RunEvent implements CardAccess{
+		
+		@Override
+		public Card getCard() {
+			return getIce().getIce();
+		}
 	}
 
 	/**
@@ -90,7 +95,7 @@ public class Run extends AbstractGameContent implements Flow {
 		}
 	}
 
-	public class CardAccededEvent extends RunEvent {
+	public class CardAccededEvent extends RunEvent implements CardAccess{
 		private final CorpCard card;
 
 		private Cost stealCost;
@@ -110,6 +115,7 @@ public class Run extends AbstractGameContent implements Flow {
 			}
 		}
 
+		@Override
 		public CorpCard getCard() {
 			return card;
 		}

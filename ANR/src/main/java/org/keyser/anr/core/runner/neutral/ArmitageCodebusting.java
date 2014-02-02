@@ -1,5 +1,7 @@
 package org.keyser.anr.core.runner.neutral;
 
+import static org.keyser.anr.core.EventMatcher.match;
+
 import org.keyser.anr.core.CardAbility;
 import org.keyser.anr.core.CardDef;
 import org.keyser.anr.core.Cost;
@@ -15,7 +17,7 @@ public class ArmitageCodebusting extends Resource {
 	public ArmitageCodebusting() {
 		super(Faction.RUNNER_NEUTRAL.infl(0), Cost.credit(1));
 
-		add(EventMatcher.match(RunnerInstalledResource.class).pred(rir -> rir.getCard() == ArmitageCodebusting.this).call(this::addCreditOnInstall));
+		add(match(RunnerInstalledResource.class).pred(this::equals).call(this::addCreditOnInstall));
 
 		addAction(new CardAbility(this, "Take 2{credits} from Armitage Codebusting", Cost.action(1)) {
 

@@ -522,6 +522,10 @@ public class Runner extends PlayableUnit {
 		forEachCardInPlay(add);
 	}
 
+	public boolean hasInstalledCard() {
+		return !hardwares.isEmpty() || !resources.isEmpty() || !coreSpace.isEmpty();
+	}
+
 	public void forEachCardInPlay(Consumer<Card> add) {
 		hardwares.forEach(add);
 		resources.forEach(add);

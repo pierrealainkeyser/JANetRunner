@@ -24,7 +24,7 @@ public abstract class PersistanceBoostBreaker extends IceBreaker {
 		super(influence, cost, memoryUnit, strength, scheme, subtypes);
 
 		add(match(CleanTheRunEvent.class).name(name).sync(this::resetBoost));
-		add(match(UseIceBreaker.class).name(name).pred(u -> u.getIceBreaker() == this).sync(this::alterBoost));
+		add(match(UseIceBreaker.class).name(name).pred(this::equals).sync(this::alterBoost));
 	}
 
 	private void alterBoost(UseIceBreaker uib) {

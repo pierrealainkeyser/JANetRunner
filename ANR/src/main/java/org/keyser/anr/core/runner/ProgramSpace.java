@@ -95,4 +95,8 @@ public class ProgramSpace {
 		this.location = location;
 	}
 
+	public boolean isEmpty() {
+		return programs.isEmpty();
+	}
+
 }

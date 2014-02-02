@@ -671,4 +671,9 @@ public class Game implements Notifier, ConfigurableEventListener {
 			return run.mayUseIceBreaker() && !run.getEncounter().isAllRoutinesBroken();
 		return false;
 	}
+
+	public boolean runnerHasRunedLastTurn() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

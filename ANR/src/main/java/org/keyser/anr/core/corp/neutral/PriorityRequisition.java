@@ -22,7 +22,7 @@ import org.keyser.anr.core.corp.Ice;
 public class PriorityRequisition extends Agenda {
 	public PriorityRequisition() {
 		super(Faction.CORP_NEUTRAL, 3, 5);
-		add(match(CorpScoreAgenda.class).auto().pred(csa -> csa.getCard() == this).async(this::activateIce));
+		add(match(CorpScoreAgenda.class).auto().pred(this::equals).async(this::activateIce));
 	}
 
 	private void activateIce(CorpScoreAgenda evt, Flow next) {

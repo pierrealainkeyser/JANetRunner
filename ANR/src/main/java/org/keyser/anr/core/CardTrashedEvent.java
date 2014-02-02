@@ -1,6 +1,6 @@
 package org.keyser.anr.core;
 
-public class CardTrashedEvent extends Event {
+public class CardTrashedEvent extends Event implements CardAccess {
 
 	private final Card card;
 
@@ -8,6 +8,7 @@ public class CardTrashedEvent extends Event {
 		this.card = card;
 	}
 
+	@Override
 	public Card getCard() {
 		return card;
 	}

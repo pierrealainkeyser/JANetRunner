@@ -30,6 +30,11 @@ public class Wallet implements Installable {
 		return this;
 	}
 
+	public Wallet remove(WalletUnit sw) {
+		wallets.remove(sw);
+		return this;
+	}
+
 	public void notification(Notification notif) {
 		if (notifier != null)
 			notifier.notification(notif);

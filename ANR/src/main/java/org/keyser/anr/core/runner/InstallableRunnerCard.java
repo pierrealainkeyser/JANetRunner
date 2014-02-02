@@ -12,13 +12,15 @@ import org.keyser.anr.core.Installable;
 public abstract class InstallableRunnerCard extends RunnerCard implements Installable {
 
 	/**
-	 * FIXME � d�placer sur les card
+	 * FIXME  à  déplacer sur les cartes
 	 */
 	private final DefaultInstallable di = new DefaultInstallable();
 
 	public InstallableRunnerCard(Influence influence, Cost cost, CardSubType... subtypes) {
 		super(influence, cost, subtypes);
 	}
+	
+	
 
 	protected InstallableRunnerCard add(EventMatcher.Builder<?> em) {
 		di.add(em);

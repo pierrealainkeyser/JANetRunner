@@ -1,6 +1,7 @@
 package org.keyser.anr.core.runner;
 
 import org.keyser.anr.core.Card;
+import org.keyser.anr.core.CardAccess;
 import org.keyser.anr.core.Event;
 
 /**
@@ -10,7 +11,7 @@ import org.keyser.anr.core.Event;
  * @author PAF
  * 
  */
-public class UseIceBreaker extends Event {
+public class UseIceBreaker extends Event implements CardAccess {
 
 	private final Card iceBreaker;
 
@@ -26,6 +27,11 @@ public class UseIceBreaker extends Event {
 
 	public UseIceBreaker(Card iceBreaker) {
 		this(iceBreaker, 0, 0);
+	}
+	
+	@Override
+	public Card getCard() {
+		return getIceBreaker();
 	}
 
 	public Card getIceBreaker() {

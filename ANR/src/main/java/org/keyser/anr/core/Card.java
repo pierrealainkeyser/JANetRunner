@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * FIXME gestion du cout
@@ -35,6 +36,16 @@ public abstract class Card extends AbstractGameContent {
 		this.influence = influence;
 		this.cost = cost;
 		this.subTypes.addAll(Arrays.asList(sub));
+	}
+
+	/**
+	 * Permet de matcher une carte
+	 * 
+	 * @param ca
+	 * @return
+	 */
+	public boolean equals(CardAccess ca) {
+		return ca.getCard() == this;
 	}
 
 	public CardLocation getLocation() {
@@ -144,12 +155,12 @@ public abstract class Card extends AbstractGameContent {
 	public void setUnique(boolean unique) {
 		this.unique = unique;
 	}
-	
-	public void addSubtype(CardSubType cst){
+
+	public void addSubtype(CardSubType cst) {
 		subTypes.add(cst);
 	}
-	
-	public void removeSubtype(CardSubType cst){
+
+	public void removeSubtype(CardSubType cst) {
 		subTypes.remove(cst);
 	}
 
