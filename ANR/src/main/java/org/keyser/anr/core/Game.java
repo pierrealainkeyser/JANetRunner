@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.function.IntFunction;
 import java.util.stream.Stream;
 
+import org.keyser.anr.core.CardLocation.Where;
 import org.keyser.anr.core.corp.Agenda;
 import org.keyser.anr.core.corp.Asset;
 import org.keyser.anr.core.corp.Corp;
@@ -616,6 +617,8 @@ public class Game implements Notifier, ConfigurableEventListener {
 				CardLocationUpgrade clu = (CardLocationUpgrade) location;
 				CorpServer server = clu.getServer();
 				server.removeUpgrade((Upgrade) card);
+			} else if (location instanceof CardLocationHosted) {
+				card.setHost(null);
 			}
 		}
 	}
@@ -651,6 +654,9 @@ public class Game implements Notifier, ConfigurableEventListener {
 				CardLocationUpgrade clu = (CardLocationUpgrade) location;
 				CorpServer server = clu.getServer();
 				server.addUpgrade((Upgrade) card);
+			} else if (location instanceof CardLocationHosted) {
+				Card host = ((CardLocationHosted) location).getHost();
+				card.setHost(host);
 			}
 		}
 

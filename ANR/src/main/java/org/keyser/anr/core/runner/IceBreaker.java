@@ -11,6 +11,8 @@ public abstract class IceBreaker extends Program {
 
 	private final int strength;
 
+	private int bonusStrength;
+
 	public IceBreaker(Influence influence, Cost cost, int memoryUnit, int strength, BreakerScheme scheme, CardSubType... subtypes) {
 		super(influence, cost, memoryUnit, subtypes);
 		this.strength = strength;
@@ -28,7 +30,15 @@ public abstract class IceBreaker extends Program {
 	}
 
 	public int getStrength() {
-		return strength;
+		return strength + bonusStrength;
+	}
+
+	public int getBonusStrength() {
+		return bonusStrength;
+	}
+
+	public void setBonusStrength(int bonusStrength) {
+		this.bonusStrength = bonusStrength;
 	}
 
 }

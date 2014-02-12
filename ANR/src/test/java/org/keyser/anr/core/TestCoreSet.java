@@ -11,6 +11,7 @@ import org.keyser.anr.core.corp.neutral.PrivateSecurityForce;
 import org.keyser.anr.core.corp.neutral.WallOfStatic;
 import org.keyser.anr.core.runner.shaper.GordianBlade;
 import org.keyser.anr.core.runner.shaper.KateMcCaffrey;
+import org.keyser.anr.core.runner.shaper.ThePersonalTouch;
 
 public class TestCoreSet {
 
@@ -92,6 +93,46 @@ public class TestCoreSet {
 		tn.find(DO_1_MEAT_DAMAGE).apply();
 		Assert.assertEquals(WinCondition.FLATLINE, g.getResult());
 		Assert.assertTrue(done[0]);
+	}
+
+	@Test
+	public void testThePersonnalTouch() {
+		MakingNews makingNews = new MakingNews();
+		KateMcCaffrey kate = new KateMcCaffrey();
+
+		boolean[] done = new boolean[1];
+		TestNotifier tn = new TestNotifier();
+		Game g = new Game(kate, makingNews, () -> done[0] = true);
+		g.setNotifier(tn);
+
+		GordianBlade gordian = new GordianBlade();
+		ThePersonalTouch thetouch = new ThePersonalTouch();
+		kate.addToStack(gordian);
+		kate.addToStack(thetouch);
+		makingNews.addToRD(new WallOfStatic());
+		kate.getWallet().wallet(WalletCredits.class, wc -> wc.setAmount(10));
+		g.setup();
+
+		// on install la lame
+		gordian.setLocation(CardLocation.PROGRAMS);
+
+		kate.draw(() -> {
+		});
+
+		g.start();
+		tn.find("click-for-credit").apply();
+		tn.find("click-for-credit").apply();
+		tn.find("click-for-credit").apply();
+
+		tn.find("install-hardware").apply();
+
+		Assert.assertEquals(3, gordian.getStrength());
+		Assert.assertEquals(1, gordian.getBonusStrength());
+
+		gordian.trash(() -> {
+		});
+
+		Assert.assertEquals(CardLocation.HEAP, thetouch.getLocation());
 
 	}
 }

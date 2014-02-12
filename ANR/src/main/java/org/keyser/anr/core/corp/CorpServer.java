@@ -52,6 +52,14 @@ public abstract class CorpServer {
 	}
 
 	/**
+	 * Renvoi vrai s'il y a des cartes installé
+	 * @return
+	 */
+	public boolean hasInstalledCard() {
+		return !upgrades.isEmpty() || ices.isEmpty();
+	}
+
+	/**
 	 * Pour toutes les glaces
 	 * 
 	 * @param bi

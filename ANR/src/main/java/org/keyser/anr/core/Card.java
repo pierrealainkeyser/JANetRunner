@@ -1,8 +1,11 @@
 package org.keyser.anr.core;
 
+import static org.keyser.anr.core.RecursiveIterator.recurse;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -30,6 +33,16 @@ public abstract class Card extends AbstractGameContent {
 	private boolean unique = false;
 
 	private final List<CardSubType> subTypes = new ArrayList<>();
+
+	/**
+	 * Toutes les cartes hotes
+	 */
+	private final List<Card> hosteds = new ArrayList<>();
+
+	/**
+	 * La carte hote
+	 */
+	private Card host;
 
 	public Card(Influence influence, Cost cost, CardSubType... sub) {
 		this.influence = influence;
@@ -78,6 +91,13 @@ public abstract class Card extends AbstractGameContent {
 	protected abstract void doTrash();
 
 	public final void trash(Flow next) {
+		// il faut dupliquer la carte, car les cartes hosteds peuvent
+		// disparaitre
+		Iterator<Card> iterator = new ArrayList<>(hosteds).iterator();
+		recurse(iterator, (c, n) -> c.applyTrashEvent(n), () -> applyTrashEvent(next));
+	}
+
+	private void applyTrashEvent(Flow next) {
 		doTrash();
 		getGame().apply(new CardTrashedEvent(this), next);
 	}
@@ -165,5 +185,22 @@ public abstract class Card extends AbstractGameContent {
 
 	public List<CardSubType> getSubTypes() {
 		return Collections.unmodifiableList(subTypes);
+	}
+
+	public Card getHost() {
+		return host;
+	}
+
+	public void setHost(Card host) {
+		if (this.host != null)
+			this.host.hosteds.remove(this);
+
+		this.host = host;
+		if (host != null)
+			host.hosteds.add(this);
+	}
+
+	public List<Card> getHosteds() {
+		return hosteds;
 	}
 }

@@ -5,15 +5,7 @@ import java.util.Collection;
 public class CardLocation {
 
 	public enum Where {
-		ARCHIVES, GRIP, HEAP, HQ, ICE, RD, STACK, UPGRADE, ASSET, RUNNER_SCORE, CORP_SCORE, HARDWARES, PROGRAMS, RESOURCES;
-
-		public boolean isCorp() {
-			return HQ == this || RD == this || ARCHIVES == this || ICE == this || UPGRADE == this || ASSET == this || CORP_SCORE == this;
-		}
-
-		public boolean isRunner() {
-			return !isCorp();
-		}
+		ARCHIVES, GRIP, HEAP, HQ, ICE, RD, STACK, UPGRADE, ASSET, RUNNER_SCORE, CORP_SCORE, HARDWARES, PROGRAMS, RESOURCES, HOSTED;
 	}
 
 	public final static CardLocation ARCHIVES = new CardLocation(Where.ARCHIVES);
@@ -51,22 +43,15 @@ public class CardLocation {
 		else if (Where.STACK == where)
 			return (Collection<Card>) g.getRunner().getStack();
 		else if (Where.RESOURCES == where)
-			return (Collection<Card>) g.getRunner().getResources();		
+			return (Collection<Card>) g.getRunner().getResources();
 		else if (Where.HARDWARES == where)
-			return (Collection<Card>) g.getRunner().getHardwares();
+			return (Collection<Card>) g.getRunner().getHardwares();		
+		
 		return null;
 	}
 
 	public Where getWhere() {
 		return where;
-	}
-
-	public boolean isCorp() {
-		return where.isCorp();
-	}
-
-	public boolean isRunner() {
-		return where.isRunner();
 	}
 
 	@Override

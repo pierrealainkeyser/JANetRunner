@@ -595,6 +595,10 @@ public class Corp extends PlayableUnit {
 
 		forEachCardInServer(add);
 	}
+	
+	public void forEachInstallCard(Consumer<Card> c){
+		
+	}
 
 	/**
 	 * Parcours toutes les cartes

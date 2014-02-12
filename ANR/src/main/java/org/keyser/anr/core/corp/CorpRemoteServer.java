@@ -22,6 +22,11 @@ public final class CorpRemoteServer extends CorpServer {
 	}
 
 	@Override
+	public boolean hasInstalledCard() {
+		return super.hasInstalledCard() || asset != null || agenda != null;
+	}
+
+	@Override
 	public void forEach(Consumer<Card> c) {
 		super.forEach(c);
 		if (asset != null)

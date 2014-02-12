@@ -30,6 +30,7 @@ public enum NotificationEvent {
 	CUSTOM_QUESTION, //
 	TRACE_QUESTION, //
 	SELECT_AMOUNT_QUESTION, //
+	EXPOSE_CARD, //
 
 	// events du run
 	START_OF_RUN, //

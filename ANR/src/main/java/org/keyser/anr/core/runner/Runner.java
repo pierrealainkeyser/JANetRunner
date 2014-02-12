@@ -130,18 +130,19 @@ public class Runner extends PlayableUnit {
 
 		private final InstallableRunnerCard card;
 
-		public InstallAbility(String code, InstallableRunnerCard card, Cost more) {
+		private final CardLocation cardLocation;
+
+		public InstallAbility(String code, InstallableRunnerCard card, Cost more, CardLocation cardLocation) {
 			super(card, code, Cost.action(1).add(more));
 			this.card = card;
+			this.cardLocation = cardLocation;
 		}
-
-		abstract CardLocation getLocation();
 
 		@Override
 		public void apply() {
 
 			// on install la location
-			card.setLocation(getLocation());
+			card.setLocation(cardLocation);
 
 			Game game = getGame();
 
@@ -159,15 +160,8 @@ public class Runner extends PlayableUnit {
 	}
 
 	class InstallResource extends InstallAbility {
-		public InstallResource(InstallableRunnerCard card, Cost more) {
-			super("install-resource", card, more);
-		}
-
-		@Override
-		CardLocation getLocation() {
-
-			// TODO faire autrement pour le placement sur les cartes...
-			return CardLocation.RESOURCES;
+		public InstallResource(InstallableRunnerCard card, Cost more, CardLocation loc) {
+			super("install-resource", card, more, loc);
 		}
 
 		@Override
@@ -177,15 +171,8 @@ public class Runner extends PlayableUnit {
 	}
 
 	class InstallHardware extends InstallAbility {
-		public InstallHardware(InstallableRunnerCard card, Cost more) {
-			super("install-hardware", card, more);
-		}
-
-		@Override
-		CardLocation getLocation() {
-
-			// TODO faire autrement pour le placement sur les cartes...
-			return CardLocation.HARDWARES;
+		public InstallHardware(InstallableRunnerCard card, Cost more, CardLocation loc) {
+			super("install-hardware", card, more, loc);
 		}
 
 		@Override
@@ -320,7 +307,7 @@ public class Runner extends PlayableUnit {
 			for (Card c : getHand()) {
 				if (c instanceof Resource) {
 					Resource r = (Resource) c;
-					game.apply(new ResourceInstallationCostDeterminationEvent(r), (de) -> a.add(new InstallResource(r, de.getEffective())));
+					game.apply(new ResourceInstallationCostDeterminationEvent(r), (de) -> a.add(new InstallResource(r, de.getEffective(), CardLocation.RESOURCES)));
 				} else if (c instanceof Hardware) {
 					addInstallHardwareAbility(a, (Hardware) c);
 				} else if (c instanceof EventCard) {
@@ -377,10 +364,9 @@ public class Runner extends PlayableUnit {
 	 * @param h
 	 */
 	public void addInstallHardwareAbility(List<AbstractAbility> a, Hardware h) {
-
-		// TODO gestion du materiel qui s'intalle sur un program
-
-		getGame().apply(new HardwareInstallationCostDeterminationEvent(h), (de) -> a.add(new InstallHardware(h, de.getEffective())));
+		getGame().apply(new HardwareInstallationCostDeterminationEvent(h), (de) -> {
+			h.possibleInstallPlaces().forEach(cl -> a.add(new InstallHardware(h, de.getEffective(), cl)));
+		});
 	}
 
 	/**
