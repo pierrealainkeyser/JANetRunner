@@ -1,0 +1,73 @@
+<html lang="en">
+<head>
+<title>Android Netrunner : the online card game</title>
+<link rel="icon" type="image/png" href="/img/favicon.png" />
+<link href="/css/bootstrap.css" rel="stylesheet" />
+<link rel="stylesheet" href="/css/animate.css" />
+<link rel="stylesheet" href="/css/icons.css" />
+<link rel="stylesheet/less" type="text/css" href="/css/anr.less" />
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.4/less.min.js"></script>
+<script type="text/javascript" src="/js/jquery-2.0.3.min.js"></script>
+
+<script type="text/javascript" src="/js/lodash.min.js"></script>
+<script type="text/javascript" src="/js/jquery.json-2.2.min.js"></script>
+<script type="text/javascript" src="/js/jquery.websocket-0.0.1.js"></script>
+
+<script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/1.13.1/TweenLite.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/1.13.1/easing/EasePack.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/1.13.1/plugins/CSSPlugin.min.js"></script>
+
+<script type="text/javascript" src="/js/anr-card.js"></script>
+
+<script type="text/javascript" data-th-inline="javascript">
+	/*<![CDATA[*/
+	$(function() {
+
+		var gameId = /*[[${gameId}]]*/12345;
+		bootANR(gameId);
+
+	});
+	
+	/*]]>*/
+</script>
+</head>
+<body>
+	<div id="conf">
+		<div class="card small"></div>
+		<div class="card big"></div>
+		
+		<div class="shadow">
+			<div class="front">
+				<div class="vertical"></div>
+				<div class="horizontal"></div>
+			</div>
+			<div class="back">
+				<div class="vertical"></div>
+				<div class="horizontal"></div>
+			</div>
+		</div>
+		
+	</div>
+
+	
+	<div id="modalError">
+		<div id="errorPanel" class="panel panel-danger">
+			<div class="panel-heading">
+				<i class="glyphicon glyphicon-off"></i> Error
+			</div>
+			<div class="panel-body">
+				<p>Connection with server lost...</p>
+				<p>
+					<a class="btn btn-default btn-sm" href=""><i class="glyphicon glyphicon-refresh"></i> reload</a>
+				</p>
+			</div>
+		</div>
+	</div>
+	
+
+	<div id="main">
+	</div>
+</body>
+</html>
