@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.function.IntFunction;
 import java.util.stream.Stream;
 
-import org.keyser.anr.core.CardLocation.Where;
 import org.keyser.anr.core.corp.Agenda;
 import org.keyser.anr.core.corp.Asset;
 import org.keyser.anr.core.corp.Corp;

@@ -999,7 +999,11 @@ function ResponsePanel(elements) {
 	}
 
 	_.each(elements.buttons, function(el) {
-		var id = getResponseId(el.text);
+		var id = null;
+		if(el.idOption)
+			id=getResponseId(el.idOption);
+		else
+			id=getResponseId(el.text);
 		var b = $("<button id='" + id + "' type='button' class='btn " + el.btn + "'><i class='glyphicon " + el.icon + "'> </i> " + el.text + "</button>");
 		confactions(b);
 		b.appendTo(area);
@@ -1066,6 +1070,15 @@ function Action(q, r, widget) {
 
 		return this;
 	}
+	
+	/**
+	 * Permet de replacer l'action sur le composant
+	 */
+	this.rebind = function(widget){
+		this.widget=widget;
+		this.widget.prop("ANRAction", this).addClass("withAction");
+		return this;
+	}
 
 	/**
 	 * Permet d'envoyer le message vers la socket. La function updateChoosen
@@ -1092,14 +1105,6 @@ function Action(q, r, widget) {
 
 	this.applyAction = function() {
 		console.info("applying : " + r.option);
-
-		// on conserve l'ancien resultat ou l'on n'a rien fait
-		if (this.response.option == 'none') {
-			// TODO
-		} else if (this.response.option == 'none-till-next') {
-			// TODO on desactive jusqu'au prochain tour
-		}
-
 		this.sendToWs();
 	};
 
@@ -1148,7 +1153,25 @@ function ManyAction(widget) {
 	}
 
 	this.applyAction = function() {
-	//
+		var elements = [];
+		var i=0;
+		_.each(this.alls, function(r) {
+			elements.push({ text : r.getHTML(), idOption:"id"+i++, btn : 'btn-default' });
+		})
+
+		var rp = new ResponsePanel({ buttons : elements });
+		rp.toggle();	
+		
+		i=0;
+		_.each(this.alls, function(r) {
+			var widget= $("#response-id"+i++);
+						
+			r.rebind(widget);
+			confactions(widget);
+			actions.push(r);
+		})
+		
+		this.clearAll();
 	}
 
 	/**
@@ -1296,6 +1319,7 @@ function displayANRAction(act) {
 	var widget = $("#action");
 	if (act != undefined) {
 		widget.find("div.panel-body").html(act.getHTML());
+		//FIXME il faut recalculer la taille du paneau....
 		widget.stop().show('fast');
 	} else {
 		var widget = $("#action");

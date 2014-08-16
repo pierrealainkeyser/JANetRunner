@@ -1,11 +1,16 @@
 package org.keyser.anr.core.runner.shaper;
 
+import java.util.function.Consumer;
+
 import org.keyser.anr.core.CardDef;
 import org.keyser.anr.core.CardSubType;
+import org.keyser.anr.core.ConfigurableEventListener;
+import org.keyser.anr.core.CoolEffect;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.Game;
+import org.keyser.anr.core.Game.RunnerTurnEndedEvent;
 import org.keyser.anr.core.NotificationEvent;
 import org.keyser.anr.core.Player;
 import org.keyser.anr.core.Question;
@@ -33,9 +38,41 @@ public class Tinkering extends EventCard {
 
 		Question q = game.ask(Player.RUNNER, NotificationEvent.TARGET_ICE);
 		c.forEachIce((srv, ice) -> {
-			q.ask("Add ice subtype", ice).to(() -> addSubtype(ice, next));
+			q.ask("Add all subtypes", ice).to(() -> addSubtype(ice, next));
 		});
 		q.fire();
+	}
+
+	/**
+	 * L'effet qui rajoute les types ou les retire à la fin du tour
+	 * 
+	 * @author PAF
+	 *
+	 */
+	private static class TinkeringEffect extends CoolEffect {
+
+		private final Ice ice;
+
+		public TinkeringEffect(Ice ice) {
+			super(RunnerTurnEndedEvent.class);
+			this.ice = ice;
+
+			alterType(ice::addSubtype);
+		}
+
+		@Override
+		public void unbind(ConfigurableEventListener conf) {
+			alterType(ice::removeSubtype);
+			super.unbind(conf);
+
+		}
+
+		private void alterType(Consumer<CardSubType> alter) {
+			alter.accept(CardSubType.BARRIER);
+			alter.accept(CardSubType.CODEGATE);
+			alter.accept(CardSubType.SENTRY);
+		}
+
 	}
 
 	/**
@@ -47,17 +84,11 @@ public class Tinkering extends EventCard {
 	private void addSubtype(Ice ice, Flow next) {
 
 		Game game = getGame();
-		Question q = game.ask(Player.RUNNER, NotificationEvent.CLOSED_QUESTION);
-		q.m("Select a subtype to add");
-		q.ask("Add code gate").setContent("Code gate").to(() -> commitSubtype(ice, next, CardSubType.CODEGATE));
-		q.ask("Add barrier").setContent("Barrier").to(() -> commitSubtype(ice, next, CardSubType.BARRIER));
-		q.ask("Add sentry").setContent("Sentry").to(() -> commitSubtype(ice, next, CardSubType.SENTRY));
-		q.fire();
-	}
 
-	private void commitSubtype(Ice ice, Flow next, CardSubType type) {
-		ice.addSubtype(type);
+		// on attache le
+		TinkeringEffect clean = new TinkeringEffect(ice);
+		clean.bind(game);
+
 		next.apply();
 	}
-
 }

@@ -22,6 +22,11 @@ public class GameController {
 	public GameController(GameRepository repository) {
 		this.repository = repository;
 	}
+	
+	@RequestMapping(value = "gsap")
+	public String play(){
+		return "gsap";
+	}
 
 	@RequestMapping(value = "play/{gameId}")
 	public String play(@PathVariable String gameId, Model model) {
