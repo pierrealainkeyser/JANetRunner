@@ -1,6 +1,6 @@
-html,body,body>div.container {
+html , body , body > div.container {
 	height: 100%;
-	overflow:hidden;
+	overflow: hidden;
 }
 
 #modalError {
@@ -10,7 +10,6 @@ html,body,body>div.container {
 	width: 100%;
 	background: rgba(0, 0, 0, 0.75);
 	display: none;
-	
 	#errorPanel {
 		position: absolute;
 		left: 50%;
@@ -20,29 +19,22 @@ html,body,body>div.container {
 	}
 }
 
-
-@card-width:80px;
-@card-height:111px;
-@card-shadow-color:rgba(0,0,0,0.35);
-
-@token-text-color:#E8E8E8;
-@token-recurring-text-color:#FFCC33;
-@token-text-border:#383838;
-
-.text-border(@border-color){
-		text-shadow: 
-					2px 0px 0 @border-color,
-					0px 2px 0 @border-color,
-					0px -1px 0 @border-color,
-					-1px 0px 0 @border-color;
+@card-width: 80px;
+@card-height: 111px;
+@card-shadow-color: rgba(0, 0, 0, 0.35);
+@token-text-color: #E8E8E8;
+@token-recurring-text-color: #FFCC33;
+@token-text-border: #383838;
+.text-border (@border-color) {
+	text-shadow: 2px 0px 0 @border-color, 0px 2px 0 @border-color, 0px -1px 0 @border-color, -1px 0px 0 @border-color;
 }
 
-.round-shadow(@border-radius){
+.round-shadow (@border-radius) {
 	border-radius: @border-radius;
 	box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.75);
 }
 
-.inner-token(@token-width){
+.inner-token (@token-width) {
 	display: inline-block;
 	width: @token-width;
 	height: @token-width;
@@ -51,97 +43,86 @@ html,body,body>div.container {
 	font-weight: bold;
 	font-size: 15px;
 	padding-right: 2px;
-				
 	background-image: url(/img/tokens.png);
-	background-size: @token-width*4 @token-width*4;
-	
-	color:@token-text-color;
-	.text-border(@token-text-border);    			
-	
-	&.credit{
-		background-position:0 0;    				    				
-		.round-shadow(@token-width);
+	background-size: @token-width * 4 @token-width * 4;
+	color: @token-text-color;
+	.text-border (@token-text-border);
+	&.credit {
+		background-position: 0 0;
+		.round-shadow (@token-width);
 	}
-	
-	&.recurring{
-		background-position:0 0;    				    				
-		.round-shadow(@token-width);
-		color:@token-recurring-text-color;
+
+	&.recurring {
+		background-position: 0 0;
+		.round-shadow (@token-width);
+		color: @token-recurring-text-color;
 	}
-	
-	&.advance{
-		background-position:0 -@token-width;    			
-		.round-shadow(@token-width);
+
+	&.advance {
+		background-position: 0 -@token-width;
+		.round-shadow (@token-width);
 	}
-	
-	&.brain{
-		background-position:-@token-width 0;    				
+
+	&.brain {
+		background-position: -@token-width 0;
 	}
-	
-	&.tag{
-		background-position:-@token-width -@token-width;    				
+
+	&.tag {
+		background-position: -@token-width -@token-width;
 	}
-	
-	&.badpub{
-		background-position:0 -@token-width*2;    				
+
+	&.badpub {
+		background-position: 0 -@token-width * 2;
 	}
-	
-	&.virus{
-		background-position:-@token-width -@token-width*2;    				
+
+	&.virus {
+		background-position: -@token-width -@token-width * 2;
 	}
-	
-	&.power{
-		background-position:0 -@token-width*3;    				
+
+	&.power {
+		background-position: 0 -@token-width * 3;
 	}
 }
 
-
-
-div#conf{	
-	
-	position:absolute;
-	left:-1000px;
-	
-	/*
-	display:none;
-	*/
-	
-	.card{
-		&.small{
+div#conf {
+	position: absolute;
+	left: -1000px;
+	.card {
+		&.small {
 			width: @card-width;
 			height: @card-height;
 		}
-		
-		&.big{
+
+		&.big {
 			width: @card-width * 2.75;
-			height: @card-height  * 2.75;
+			height: @card-height * 2.75;
 		}
 	}
-	
-	.shadow{
-		@shadow-delta:2.5px;
-		@shadow-blur:5px;
-		
-	
-		.front{
-			.horizontal{
+
+	.shadow {
+		@shadow-delta: 2.5px;
+		@shadow-blur: 5px;
+		.front {
+			.horizontal {
 				box-shadow: @shadow-delta -@shadow-delta @shadow-blur 0px @card-shadow-color;
 			}
-			.vertical{
+
+			.vertical {
 				box-shadow: @shadow-delta @shadow-delta @shadow-blur 0px @card-shadow-color;
 			}
-		}		
-		.back{
-			.horizontal{
+		}
+
+		.back {
+			.horizontal {
 				box-shadow: -@shadow-delta -@shadow-delta @shadow-blur 0px @card-shadow-color;
 			}
-			.vertical{
+
+			.vertical {
 				box-shadow: -@shadow-delta @shadow-delta @shadow-blur 0px @card-shadow-color;
 			}
-		}	
+		}
 	}
 }
-
 
 div#main {
 	width: 100%;
@@ -149,98 +130,87 @@ div#main {
 	background-image: url(/img/android-netrunner-logo.png);
 	background-repeat: no-repeat;
 	background-position: center;
-	position: relative; 
-	
-	div.card 
-	{
-		padding : 0px;
+	position: relative;
+	div.card {
+		padding: 0px;
 		margin: 0px;
 		position: absolute;
 		top: 0px;
 		left: 0px;
-		
+		cursor: pointer;
 		opacity: 0;
-		
 		&.corp img.back {
 			content: url(/img/back-corp.png);
 		}
-	
+
 		&.runner img.back {
 			content: url(/img/back-runner.png);
 		}
-		
-		div.ext{
+
+		div.ext {
 			position: absolute;
 			top: 0px;
-			left: 0px;				
-			background: rgba(255,255,255,0.8);
-			border-radius: 8px 0px;					
+			left: 0px;
+			background: rgba(255, 255, 255, 0.8);
+			border-radius: 8px 0px;
 			box-shadow: 3px 3px 5px 0px @card-shadow-color;
-
-			
-			.info{
-				position:absolute;
-				top:3px;
-				right:0px;				
-			
-				.token{
-					.inner-token(30px);
-					margin-bottom:3px;									
+			.info {
+				position: absolute;
+				top: 3px;
+				right: 0px;
+				.token {
+					.inner-token (30px);
+					margin-bottom: 3px;
 				}
-				
-				span:not(.token){
-					color:@token-text-border;
+
+				span:not(.token) {
+					color: @token-text-border;
 					margin-right: 35px;
 					margin-left: 4px;
 				}
-				
-				a.btn.close-card{
-					position:absolute;
-					top:-1px;
-					right:2px;
+
+				a.btn.close-card {
+					position: absolute;
+					top: -1px;
+					right: 2px;
 					padding: 6px;
-				}				
+				}
 			}
-			
-			.action{
-				position:absolute;
-				padding: 2px;				
+
+			.action {
+				position: absolute;
+				padding: 2px;
 				bottom: 0px;
 				right: 0px;
-				
 				text-align: center;
 				width: 100%;
-				
-				background: rgba(230,230,230,0.8);				
+				background: rgba(230, 230, 230, 0.8);
 				border-top: @card-shadow-color 1px solid;
-				
-				a{
+				a {
 					padding: 4px 8px 4px 4px;
-					border-radius:0px;
-					
-					&:first-child{
-						border-radius:5px 0px 0px 5px;
-					}									
-					
-					&:last-child{
-						border-radius:0px 5px 5px 0px;
+					border-radius: 0px;
+					&:first-child {
+						border-radius: 5px 0px 0px 5px;
+					}
+
+					&:last-child {
+						border-radius: 0px 5px 5px 0px;
 					}
 				}
 			}
 		}
-		
-		div.tokens{
+
+		div.tokens {
 			position: absolute;
 			top: 0px;
 			left: 0px;
 			padding: 2px;
 			width: 100%;
-			
-			.token{				
-				.inner-token(25px);				
+			.token {
+				.inner-token (25px);
 			}
 		}
-		
+
 		img {
 			position: absolute;
 			top: 0px;
@@ -249,12 +219,10 @@ div#main {
 			height: 100%;
 			padding: 0px;
 			margin: 0px;
-			
-			border-radius:5px;
-			border: 1px solid rgba(0,0,0,0.15);
-			 
-			&.front { 
-				backface-visibility : hidden;			
+			border-radius: 5px;
+			border: 1px solid rgba(0, 0, 0, 0.15);
+			&.front {
+				backface-visibility: hidden;
 			}
 		}
 	}

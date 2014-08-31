@@ -14,8 +14,17 @@ function bootANR(gameId) {
 	cardManager.servers.createServer(1);
 	cardManager.servers.createServer(2);
 
-	var corp = cardManager.createCard({ faction : 'corp', url : '01080.png' });
-	corp.updateCoords({ left : 500, top : 200, vertical : false, showExt : false, face : 'back' });
+	var corp = cardManager.createCard({
+		faction : 'corp',
+		url : '01080.png'
+	});
+	corp.updateCoords({
+		left : 500,
+		top : 200,
+		vertical : false,
+		showExt : false,
+		face : 'back'
+	});
 
 	$("<span class='token credit'>15</span>").appendTo(corp.tokens);
 	$("<span class='token brain'>1</span>").appendTo(corp.tokens);
@@ -41,51 +50,160 @@ function bootANR(gameId) {
 
 	cardManager.prepare();
 
-	var card = cardManager.createCard({ faction : 'corp', url : '01090.png' });
-	card.updateCoords({ face : 'back' });
-	card.setLayoutKey({ type : 'server', server : 2, subType : 'ice', index : 0 });
+	var card = cardManager.createCard({
+		faction : 'corp',
+		url : '01090.png'
+	});
+	card.updateCoords({
+		face : 'back'
+	});
+	card.setLayoutKey({
+		type : 'server',
+		server : 2,
+		subType : 'ice',
+		index : 0
+	});
 
-	card.addTokens({ advance : 3, recurring : 2 });
+	card.addTokens({
+		advance : 3,
+		recurring : 2
+	});
 
-	cardManager.createCard({ faction : 'corp', url : '01089.png' }).setLayoutKey({ type : 'server', server : 2, subType : 'ice', index : 1 });
-	cardManager.createCard({ faction : 'corp', url : '01088.png' }).setLayoutKey({ type : 'server', server : 1, subType : 'ice', index : 0 });
+	cardManager.createCard({
+		faction : 'corp',
+		url : '01089.png'
+	}).setLayoutKey({
+		type : 'server',
+		server : 2,
+		subType : 'ice',
+		index : 1
+	});
+	cardManager.createCard({
+		faction : 'corp',
+		url : '01088.png'
+	}).setLayoutKey({
+		type : 'server',
+		server : 1,
+		subType : 'ice',
+		index : 0
+	});
 
-	var c2 = cardManager.createCard({ faction : 'corp', url : '01081.png' });
-	c2.setLayoutKey({ type : 'server', server : 0, subType : 'assetOrUpgrade', index : 0 });
-	c2.updateCoords({ face : 'back' });
+	var c2 = cardManager.createCard({
+		faction : 'corp',
+		url : '01081.png'
+	});
+	c2.setLayoutKey({
+		type : 'server',
+		server : 0,
+		subType : 'assetOrUpgrade',
+		index : 0
+	});
+	c2.updateCoords({
+		face : 'back'
+	});
 
-	var c3 = cardManager.createCard({ faction : 'corp', url : '01081.png' });
-	c3.setLayoutKey({ type : 'server', server : 0, subType : 'assetOrUpgrade', index : 1 });
+	var c3 = cardManager.createCard({
+		faction : 'corp',
+		url : '01081.png'
+	});
+	c3.setLayoutKey({
+		type : 'server',
+		server : 0,
+		subType : 'assetOrUpgrade',
+		index : 1
+	});
 
-	var c4 = cardManager.createCard({ faction : 'corp', url : '01081.png' });
-	c4.setLayoutKey({ type : 'server', server : 2, subType : 'assetOrUpgrade', index : 2 });
-	c4.updateCoords({ face : 'back' });
-	c4.addTokens({ advance : 3 });
+	var c4 = cardManager.createCard({
+		faction : 'corp',
+		url : '01081.png'
+	});
+	c4.setLayoutKey({
+		type : 'server',
+		server : 2,
+		subType : 'assetOrUpgrade',
+		index : 2
+	});
+	c4.updateCoords({
+		face : 'back'
+	});
+	c4.addTokens({
+		advance : 3
+	});
 
-	cardManager.createCard({ faction : 'corp', url : '01092.png' }).setLayoutKey({ type : 'server', server : 1, subType : 'upgrade', index : 0 });
-	var c5 = cardManager.createCard({ faction : 'corp', url : '01091.png' });
-	c5.setLayoutKey({ type : 'server', server : 0, subType : 'upgrade', index : 0 });
+	cardManager.createCard({
+		faction : 'corp',
+		url : '01092.png'
+	}).setLayoutKey({
+		type : 'server',
+		server : 1,
+		subType : 'upgrade',
+		index : 0
+	});
+	var c5 = cardManager.createCard({
+		faction : 'corp',
+		url : '01091.png'
+	});
+	c5.setLayoutKey({
+		type : 'server',
+		server : 0,
+		subType : 'upgrade',
+		index : 0
+	});
 
-	var c6 = cardManager.createCard({ faction : 'corp', url : '01081.png' });
-	c6.setLayoutKey({ type : 'server', server : 1, subType : 'assetOrUpgrade', index : 0 });
-	c6.updateCoords({ face : 'back' });
+	var c6 = cardManager.createCard({
+		faction : 'corp',
+		url : '01081.png'
+	});
+	c6.setLayoutKey({
+		type : 'server',
+		server : 1,
+		subType : 'assetOrUpgrade',
+		index : 0
+	});
+	c6.updateCoords({
+		face : 'back'
+	});
 
 	cardManager.doLayout();
 	cardManager.update();
 
 	setTimeout(function() {
 
-		c3.setLayoutKey({ type : 'server', server : 2, subType : 'assetOrUpgrade', index : 1 });
-		c3.updateCoords({ face : 'back' });
-		c3.addTokens({ advance : 3 });
+		c3.setLayoutKey({
+			type : 'server',
+			server : 2,
+			subType : 'assetOrUpgrade',
+			index : 1
+		});
+		c3.updateCoords({
+			face : 'back'
+		});
+		c3.addTokens({
+			advance : 3
+		});
 
-		c2.setLayoutKey({ type : 'server', server : 2, subType : 'assetOrUpgrade', index : 3 });
-		c5.setLayoutKey({ type : 'server', server : 2, subType : 'assetOrUpgrade', index : 4 });
+		c2.setLayoutKey({
+			type : 'server',
+			server : 2,
+			subType : 'assetOrUpgrade',
+			index : 3
+		});
+		c5.setLayoutKey({
+			type : 'server',
+			server : 2,
+			subType : 'assetOrUpgrade',
+			index : 4
+		});
 
-		c4.updateCoords({ face : 'front' });
+		c4.updateCoords({
+			face : 'front'
+		});
 
 		setTimeout(function() {
-			corp.addTokens({ advance : 3, recurring : 2 });
+			corp.addTokens({
+				advance : 3,
+				recurring : 2
+			});
 		}, 1000);
 
 		cardManager.doLayout();
@@ -157,19 +275,32 @@ function CardManager(cardContainer) {
 		var shadow = conf.find(".shadow");
 
 		this.area = {// 
-		shadow : { //
-		front : { //
-		horizontal : shadow.find(".front").find(".horizontal").css("box-shadow"), // 
-		vertical : shadow.find(".front").find(".vertical").css("box-shadow") //
-		}, //
-		back : { // 
-		horizontal : shadow.find(".back").find(".horizontal").css("box-shadow"), // 
-		vertical : shadow.find(".back").find(".vertical").css("box-shadow") //
-		} //			
-		},//
-		card : { width : card.width(), height : card.height() },//
-		cardBig : { width : cardBig.width(), height : cardBig.height() },//
-		main : { width : this.cardContainer.width(), height : this.cardContainer.height() } //
+			shadow : { //
+				front : { //
+					horizontal : shadow.find(".front").find(".horizontal").css("box-shadow"), // 
+					vertical : shadow.find(".front").find(".vertical").css("box-shadow")
+				//
+				}, //
+				back : { // 
+					horizontal : shadow.find(".back").find(".horizontal").css("box-shadow"), // 
+					vertical : shadow.find(".back").find(".vertical").css("box-shadow")
+				//
+				}
+			//			
+			},//
+			card : {
+				width : card.width(),
+				height : card.height()
+			},//
+			cardBig : {
+				width : cardBig.width(),
+				height : cardBig.height()
+			},//
+			main : {
+				width : this.cardContainer.width(),
+				height : this.cardContainer.height()
+			}
+		//
 		};
 	}
 
@@ -255,7 +386,9 @@ function Card(def, cardManager) {
 	// gestion du layout
 	this.layoutManager = null;
 	this.layoutKey = null;
-	this.coords = { face : 'front' };
+	this.coords = {
+		face : 'front'
+	};
 
 	this.extended = false;
 
@@ -291,11 +424,17 @@ function Card(def, cardManager) {
 	close.appendTo(this.ext.find("div.info"));
 
 	var extendMe = function() {
-		if (!me.extended) {		
+		if (!me.extended) {
 			me.coordsBackup = _.clone(me.coords);
 
 			// TODO il faut trouver le bon endroit pour montrer le composant
-			me.updateCoords({ top : me.coords.top - 120, vertical : true, showExt : true, face : 'front', zIndex : 1000 });
+			me.updateCoords({
+				top : me.coords.top - 120,
+				vertical : true,
+				showExt : true,
+				face : 'front',
+				zIndex : 1000
+			});
 			me.extended = true;
 			me.cardManager.update();
 		} else {
@@ -372,36 +511,84 @@ function Card(def, cardManager) {
 
 		if (_.isBoolean(this.coords.showExt) && this.coords.showExt) {
 
-			_.extend(extCss, { width : big.width + 175, height : big.height + 40, autoAlpha : 1 });
-			_.extend(primaryCss, { width : big.width, height : big.height });
-			_.extend(tokensCss, { autoAlpha : 0 });
+			_.extend(extCss, {
+				width : big.width + 175,
+				height : big.height + 40,
+				autoAlpha : 1
+			});
+			_.extend(primaryCss, {
+				width : big.width,
+				height : big.height
+			});
+			_.extend(tokensCss, {
+				autoAlpha : 0
+			});
 
 			rotation = 0;
 
 		} else {
-			_.extend(extCss, { width : 0, height : 0, autoAlpha : 0 });
-			_.extend(primaryCss, { width : normal.width, height : normal.height });
-			_.extend(tokensCss, { autoAlpha : 1 });
+			_.extend(extCss, {
+				width : 0,
+				height : 0,
+				autoAlpha : 0
+			});
+			_.extend(primaryCss, {
+				width : normal.width,
+				height : normal.height
+			});
+			_.extend(tokensCss, {
+				autoAlpha : 1
+			});
 		}
 
-		_.extend(primaryCss, { top : this.coords.top, left : this.coords.left, rotation : rotation, autoAlpha : 1, zIndex : this.coords.zIndex || 0 });
-		_.extend(innerCss, { rotationY : faceup ? 0 : -180 });
+		_.extend(primaryCss, {
+			top : this.coords.top,
+			left : this.coords.left,
+			rotation : rotation,
+			autoAlpha : 1,
+			zIndex : this.coords.zIndex || 0
+		});
+		_.extend(innerCss, {
+			rotationY : faceup ? 0 : -180
+		});
 
-		var backCss = _.extend(_.clone(innerCss), { boxShadow : shadow });
+		var backCss = _.extend(_.clone(innerCss), {
+			boxShadow : shadow
+		});
 
 		if (_.isBoolean(set) && set) {
-			TweenLite.set(this.primary, { css : primaryCss });
-			TweenLite.set(this.front, { css : innerCss });
-			TweenLite.set(this.back, { css : backCss });
-			TweenLite.set(this.ext, { css : extCss });
-			TweenLite.set(this.tokens, { css : tokensCss });
+			TweenLite.set(this.primary, {
+				css : primaryCss
+			});
+			TweenLite.set(this.front, {
+				css : innerCss
+			});
+			TweenLite.set(this.back, {
+				css : backCss
+			});
+			TweenLite.set(this.ext, {
+				css : extCss
+			});
+			TweenLite.set(this.tokens, {
+				css : tokensCss
+			});
 		} else {
 
-			TweenLite.to(this.primary, ANIM_DURATION, { css : primaryCss });
-			TweenLite.to(this.front, ANIM_DURATION, { css : innerCss });
-			TweenLite.to(this.back, ANIM_DURATION, { css : backCss });
-			TweenLite.to(this.ext, ANIM_DURATION, { css : extCss });
-			TweenLite.to(this.tokens, ANIM_DURATION, { css : tokensCss });
+			TweenLite.to(this.primary, ANIM_DURATION, {
+				css : primaryCss
+			});
+			TweenLite.to(this.front, ANIM_DURATION, {
+				css : innerCss
+			});
+			TweenLite.to(this.back, ANIM_DURATION, {
+				css : backCss
+			});
+			TweenLite.to(this.ext, ANIM_DURATION, {
+				css : extCss
+			});
+			TweenLite.to(this.tokens, ANIM_DURATION, {
+				css : tokensCss
+			});
 		}
 		this.cleanDirty();
 	}
@@ -468,7 +655,9 @@ function ServersArray(cardManager) {
 		layout.currentX = x;
 		layout.previousWidth = half;
 
-		return { left : x };
+		return {
+			left : x
+		};
 	}, LAYOUT_HIGHEST);
 	this.serverLayout.beforeLayout = function() {
 		this.currentX = 80;
@@ -501,7 +690,9 @@ function Server(server, cardManager) {
 	this.iceVSpacing = 5;
 	this.iceSign = -1;
 
-	this.coords = { left : 0 };
+	this.coords = {
+		left : 0
+	};
 
 	var me = this;
 
@@ -513,7 +704,12 @@ function Server(server, cardManager) {
 
 		var left = me.coords.left;
 		var top = iceBottom + (index * me.iceSign * (w + me.iceVSpacing));
-		return { left : left, top : top, vertical : false, zIndex : index };
+		return {
+			left : left,
+			top : top,
+			vertical : false,
+			zIndex : index
+		};
 	}, LAYOUT_HIGH);
 
 	var horizontalLayout = function(index, layout, hFactor) {
@@ -531,7 +727,12 @@ function Server(server, cardManager) {
 		}
 
 		var top = cardManager.area.main.height - hFactor * (h + me.iceVSpacing);
-		return { left : left, top : top, vertical : true, zIndex : index };
+		return {
+			left : left,
+			top : top,
+			vertical : true,
+			zIndex : index
+		};
 	}
 
 	var computeHorizontalServerWidthForSize = function(size) {
@@ -584,15 +785,10 @@ function Server(server, cardManager) {
 		switch (layoutKey.subType) {
 		case 'ice':
 			return this.iceLayout;
-			break;
-
 		case 'assetOrUpgrade':
 			return this.assetOrUpgradeLayout;
-			break;
-
 		case 'upgrade':
 			return this.upgradeLayout;
-			break;
 		}
 
 		return null;
