@@ -376,6 +376,42 @@ function animateCss(element, classx, onEnd) {
 	return element;
 }
 
+function TokensManager(smallTokens, bigTokens, defaults) {
+	var me = this;
+	this.smallTokens = smallTokens;
+	this.bigTokens = bigTokens;
+
+	if (defaults) {
+		_.each(defaults, function(def) {
+			me.addTokens({
+				def : 0
+			});
+		});
+	}
+
+	this.addTokens = function(tokens) {
+		var info = smallTokens;
+		_.each(tokens, function(value, key) {
+			var tok = $("<span class='token " + key + " animated bounceIn'>" + value + "</span>")
+			animateCss(tok, "bounceIn").appendTo(me.tokens);
+
+			var text = key;
+			switch (text) {
+			case "advance":
+				text = "Advancement";
+				break;
+			case "recurring":
+				text = "Recurring credit";
+				break;
+			}
+
+			tok = $("<div class='animated bounceIn'><span class='token " + key + "'>" + value + "</span><span>" + text + "</span></div>");
+			animateCss(tok, "bounceIn").appendTo(info);
+
+		});
+	}
+}
+
 function Card(def, cardManager) {
 	var me = this;
 	DirtyComponent.call(this);
@@ -404,6 +440,9 @@ function Card(def, cardManager) {
 	this.back = this.primary.find("img.back");
 	this.ext = this.primary.find("div.ext");
 	this.tokens = this.primary.find("div.tokens");
+	this.info = this.ext.find("div.info");
+
+	TokensManager.call(this, this.info, this.tokens);
 
 	var closeMe = function(event) {
 		if (me.extended) {
@@ -445,30 +484,8 @@ function Card(def, cardManager) {
 	this.front.on('click', extendMe);
 	this.back.on('click', extendMe);
 
-	this.addTokens = function(tokens) {
-		var info = me.ext.find("div.info");
-		_.each(tokens, function(value, key) {
-			var tok = $("<span class='token " + key + " animated bounceIn'>" + value + "</span>")
-			animateCss(tok, "bounceIn").appendTo(me.tokens);
-
-			var text = key;
-			switch (text) {
-			case "advance":
-				text = "Advancement";
-				break;
-			case "recurring":
-				text = "Recurring credit";
-				break;
-			}
-
-			tok = $("<div class='animated bounceIn'><span class='token " + key + "'>" + value + "</span><span>" + text + "</span></div>");
-			animateCss(tok, "bounceIn").appendTo(info);
-
-		});
-	}
-
 	/**
-	 * Mise Ã  jour de la position en fonction de la clef
+	 * Mise à jour de la position en fonction de la clef
 	 */
 	this.setLayoutKey = function(layoutKey, remove) {
 
