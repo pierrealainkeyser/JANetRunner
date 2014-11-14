@@ -17,13 +17,28 @@ function bootANR(gameId) {
 	}, cardManager);
 
 	var breaking = new Card({
-		faction : 'breaking',
+		faction : 'corp',
 		url : '01082'
 	}, cardManager);
 
 	var anonymous = new Card({
-		faction : 'anonymous',
+		faction : 'corp',
 		url : '01083'
+	}, cardManager);
+
+	var sansan = new Card({
+		faction : 'corp',
+		url : '01092'
+	}, cardManager);
+
+	var psf = new Card({
+		faction : 'corp',
+		url : '01107'
+	}, cardManager);
+
+	var melange = new Card({
+		faction : 'corp',
+		url : '01108'
 	}, cardManager);
 
 	var absoluteContainer = new BoxContainer(cardManager,
@@ -40,35 +55,41 @@ function bootANR(gameId) {
 				angle : 0,
 				zIndex : 1
 			}));
-	hbox2.absolutePosition = new LayoutCoords(200, 300);
+	hbox2.absolutePosition = new LayoutCoords(200, 400);
 
 	cardManager.startCycle();
+
+	var s1 = new Server(1, cardManager);
+	var s2 = new Server(2, cardManager);
 
 	absoluteContainer.addChild(hbox);
 	absoluteContainer.addChild(hbox2);
 
+	s1.setParent(hbox2);
+	s2.setParent(hbox2);
+
 	astro.setParent(hbox)
 	anonymous.setParent(hbox)
 	breaking.setParent(hbox)
+	sansan.setParent(hbox);
+	psf.setParent(hbox);
+	melange.setParent(hbox);
 
 	cardManager.runCycle();
 
-	setTimeout(function() {
-		cardManager.startCycle();
+	setTimeout(cardManager.within(function() {
+		astro.setParent(s1.ices);
+		anonymous.setParent(s1.ices);
+		sansan.setParent(s2.ices);
+	}), 1000)
 
-		astro.setParent(hbox2)
-
-		cardManager.runCycle();
-	}, 1000)
-
-	setTimeout(function() {
-		cardManager.startCycle();
-
-		astro.setParent(hbox)
-		anonymous.setParent(hbox2)
-
-		cardManager.runCycle();
-	}, 2000)
+	setTimeout(cardManager.within(function() {
+		astro.setParent(s2.assertOrUpgrades)
+		breaking.setParent(s2.ices)
+		psf.setParent(s2.upgrades);
+		melange.setParent(s2.upgrades);
+		anonymous.setParent(s2.upgrades);
+	}), 2000)
 
 }
 
@@ -254,20 +275,7 @@ function Card(def, cardManager) {
 	this.front.on('click', extendMe);
 	this.back.on('click', extendMe);
 
-	/**
-	 * Mise à jour de la position en fonction de la clef
-	 */
-	this.setLayoutKey = function(layoutKey, remove) {
-
-		if (!_.isNull(this.layoutManager))
-			this.layoutManager.remove(this);
-
-		this.layoutKey = layoutKey;
-		this.layoutManager = this.cardManager.findLayoutManager(this.layoutKey);
-		this.layoutManager.add(this);
-	}
-
-	this.fireCoordsChanged = function() {
+	this.repaint = function() {
 		this.update(this.firstTimeShow);
 		this.firstTimeShow = false;
 	}
@@ -280,9 +288,9 @@ function Card(def, cardManager) {
 		var box = this.getBaseBox();
 
 		var faceup = true;
-		var rotation = this.coords.horizontal ? 90 : 0;
+		var horizontal = this.coords.angle == 90;
+		var rotation = this.coords.angle;
 		var shadow = null;
-		var horizontal = this.coords.angle == 0;
 
 		if (horizontal) {
 			if (faceup)
@@ -379,124 +387,68 @@ function Card(def, cardManager) {
 	}
 }
 
-function Server(server, cardManager) {
+var ICE_LAYOUT = new VerticalCenteredLayoutFunction(5, {
+	angle : 90,
+	zIndex : 1
+});
 
-	DirtyComponent.call(this);
+var ROOT_SERVER_LAYOUT = new HorizontalLayoutFunction(-40, {
+	angle : 0,
+	zIndex : 1
+});
 
-	this.server = server;
-	this.cardManager = cardManager;
-	this.serverWidth = 120;
-
-	this.cardOffset = 0.33;
-	this.iceVSpacing = 5;
-	this.iceSign = -1;
-
-	this.coords = {
-		left : 0
-	};
-
+var INNER_SERVER_LAYOUT = new function() {
 	var me = this;
+	LayoutFunction.call(this);
 
-	this.iceLayout = cardManager.createLayoutManager(function(index, layout) {
-		var h = me.cardManager.area.card.height;
-		var w = me.cardManager.area.card.width;
+	this.lastBoxY = 0;
+	this.maxWidth = 0;
 
-		var iceBottom = cardManager.area.main.height - me.iceVSpacing - h * 3;
+	this.beforeLayout = function(boxContainer) {
+		this.lastBoxY = 0;
+		this.maxWidth = 0;
 
-		var left = me.coords.left;
-		var top = iceBottom + (index * me.iceSign * (w + me.iceVSpacing));
-		return {
-			left : left,
-			top : top,
-			vertical : false,
-			zIndex : index
-		};
-	}, LAYOUT_HIGH);
-
-	var horizontalLayout = function(index, layout, hFactor) {
-		var h = me.cardManager.area.card.height;
-		var w = me.cardManager.area.card.width;
-
-		var left = me.coords.left;
-
-		var size = layout.size();
-		if (size > 0) {
-			var offset = w * me.cardOffset;
-			var totalW = ((size - 1) * offset) + w;
-			var delta = (totalW - w) / 2;
-			left += -delta + (offset * index)
-		}
-
-		var top = cardManager.area.main.height - hFactor * (h + me.iceVSpacing);
-		return {
-			left : left,
-			top : top,
-			vertical : true,
-			zIndex : index
-		};
-	}
-
-	var computeHorizontalServerWidthForSize = function(size) {
-		var w = me.cardManager.area.card.width;
-		var offset = w * me.cardOffset;
-		var totalW = ((size - 1) * offset) + w;
-		return totalW;
-	}
-
-	var horizontalLayoutChange = function() {
-
-		if (_.isFunction(me.widthChanged)) {
-
-			var sizes = [];
-			sizes.push(me.cardManager.area.card.height);
-			sizes
-					.push(computeHorizontalServerWidthForSize(me.assetOrUpgradeLayout
-							.size()));
-			sizes.push(computeHorizontalServerWidthForSize(me.upgradeLayout
-					.size()));
-
-			var maxSize = _.max(sizes, function(i) {
-				return i;
-			});
-
-			me.serverWidth = maxSize;
-			me.widthChanged();
-		}
-
+		_.each(boxContainer.childs, function(box, index) {
+			var width = me.getBounds(box).dimension.width;
+			if (width > me.maxWidth)
+				me.maxWidth = width;
+		});
 	};
 
-	this.assetOrUpgradeLayout = cardManager.createLayoutManager(function(index,
-			layout) {
-		return horizontalLayout(index, layout, 2);
-	}, LAYOUT_HIGH);
-	this.assetOrUpgradeLayout.onDirty = horizontalLayoutChange;
-
-	this.upgradeLayout = cardManager.createLayoutManager(
-			function(index, layout) {
-				return horizontalLayout(index, layout, 1);
-			}, LAYOUT_HIGH);
-	this.upgradeLayout.onDirty = horizontalLayoutChange;
-
-	/**
-	 * Invalide tous les layouts
-	 */
-	this.onDirty = function() {
-		this.iceLayout.makeDirty();
-		this.assetOrUpgradeLayout.makeDirty();
-		this.upgradeLayout.makeDirty();
-	}
-
-	this.findLayoutManager = function(layoutKey) {
-
-		switch (layoutKey.subType) {
-		case 'ice':
-			return this.iceLayout;
-		case 'assetOrUpgrade':
-			return this.assetOrUpgradeLayout;
-		case 'upgrade':
-			return this.upgradeLayout;
+	this.applyLayout = function(boxContainer, index, box) {
+		var boxBounds = me.getBounds(box).dimension;
+		var x = (me.maxWidth - boxBounds.width) / 2;
+		var card = boxContainer.layoutManager.area.card;
+		if (box.serverLayoutKey === 'ices') {
+			return new LayoutCoords(x, -card.height + 10);
+		} else if (box.serverLayoutKey === 'assertOrUpgrades') {
+			return new LayoutCoords(x, 0);
+		} else if (box.serverLayoutKey === 'upgrades') {
+			return new LayoutCoords(x, card.height + 5);
 		}
 
 		return null;
 	}
+}
+
+/**
+ * Un server contenant plusieurs containers
+ */
+function Server(def, cardManager) {
+	var me = this;
+	this.def = def;
+
+	BoxContainer.call(this, cardManager, INNER_SERVER_LAYOUT);
+
+	this.ices = new BoxContainer(cardManager, ICE_LAYOUT);
+	this.ices.serverLayoutKey = 'ices';
+	this.addChild(this.ices);
+
+	this.assertOrUpgrades = new BoxContainer(cardManager, ROOT_SERVER_LAYOUT);
+	this.assertOrUpgrades.serverLayoutKey = 'assertOrUpgrades';
+	this.addChild(this.assertOrUpgrades);
+
+	this.upgrades = new BoxContainer(cardManager, ROOT_SERVER_LAYOUT);
+	this.upgrades.serverLayoutKey = 'upgrades';
+	this.addChild(this.upgrades);
 }

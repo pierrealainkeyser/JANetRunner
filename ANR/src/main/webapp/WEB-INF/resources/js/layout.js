@@ -6,7 +6,7 @@ function Point(x, y) {
 	this.y = y;
 
 	this.min = function(point) {
-		return new Point(Math.min(point.x, this.x), Math.max(point.y, this.y));
+		return new Point(Math.min(point.x, this.x), Math.min(point.y, this.y));
 	}
 
 	this.max = function(point) {
@@ -20,6 +20,10 @@ function Point(x, y) {
 function Dimension(width, height) {
 	this.width = width;
 	this.height = height;
+
+	this.swap = function() {
+		return new Dimension(this.height, this.width);
+	}
 }
 
 function DimensionChangedEvent() {
@@ -80,6 +84,13 @@ function LayoutFunction() {
 	this.childBoxChanged = function(boxContainer, box) {
 		boxContainer.requireLayout();
 	}
+
+	/**
+	 * Détermination de la taille d'un element dans le layout
+	 */
+	this.getBounds = function(box) {
+		return box.getBounds();
+	}
 }
 
 function HorizontalLayoutFunction(spacing, baseConfig) {
@@ -93,15 +104,69 @@ function HorizontalLayoutFunction(spacing, baseConfig) {
 	};
 
 	this.applyLayout = function(boxContainer, index, box) {
+		var boxBounds = box.getBounds().dimension;
 
-		var w = box.getBaseBox().width;
+		var cfg = this.baseConfig;
 
-		var lc = new LayoutCoords(this.lastBoxX, 0, this.baseConfig);
+		// en cas de recouvrement permet de gérer la superposition avec le
+		// zIndex
+		if (this.spacing < 0) {
+			cfg = _.extend(_.clone(cfg), {
+				zIndex : cfg.zIndex + index
+			})
+		}
 
-		this.lastBoxX += w + this.spacing;
+		var lc = new LayoutCoords(this.lastBoxX, 0, cfg);
+		this.lastBoxX += boxBounds.width + this.spacing;
 
 		return lc;
 	}
+}
+
+function VerticalCenteredLayoutFunction(spacing, baseConfig) {
+	var me = this;
+	LayoutFunction.call(this);
+	this.baseConfig = baseConfig
+	this.spacing = spacing;
+	this.direction = -1;
+	this.lastBoxY = 0;
+	this.maxWidth = 0;
+
+	this.beforeLayout = function(boxContainer) {
+		this.lastBoxY = 0;
+		this.maxWidth = 0;
+
+		_.each(boxContainer.childs, function(box, index) {
+			var width = me.getBounds(box).dimension.width;
+			if (width > me.maxWidth)
+				me.maxWidth = width;
+		});
+	};
+
+	this.isRotatedConfig = function() {
+		return me.baseConfig.angle === 90;
+	}
+
+	this.getBounds = function(box) {
+		return box.getBounds(me.isRotatedConfig());
+	}
+
+	this.applyLayout = function(boxContainer, index, box) {
+
+		var boxBounds = box.getBounds().dimension;
+		var x = (me.maxWidth - boxBounds.width) / 2;
+
+		var lc = new LayoutCoords(x, this.lastBoxY, this.baseConfig);
+
+		var delta = boxBounds.width + this.spacing;
+		if (this.direction == -1) {
+			delta = -delta;
+		}
+
+		this.lastBoxY += delta;
+
+		return lc;
+	};
 }
 
 function AbsoluteLayoutFunction() {
@@ -141,6 +206,7 @@ function LayoutCoords(x, y, config) {
  * Gere tous les layouts
  */
 function LayoutManager() {
+	var me = this;
 	this.boxId = 0;
 
 	this.layoutCycle = null;
@@ -155,6 +221,16 @@ function LayoutManager() {
 
 	this.runCycle = function() {
 		this.layoutCycle.run();
+	}
+
+	this.within = function(closure) {
+		return function() {
+			console.log("-----start cycle")
+			me.startCycle();
+			closure();
+			me.runCycle();
+			console.log("---------end cycle")
+		};
 	}
 
 	/**
@@ -182,13 +258,11 @@ function LayoutManager() {
 function LayoutCycle() {
 	this.layoutNeeded = {};
 	this.layoutCoordsChanged = {};
+	this.repaintNeeded = {};
 
 	this.run = function() {
 
 		while (!_.isEmpty(this.layoutNeeded)) {
-
-			console.log("LayoutCycle.run")
-			console.log(this.layoutNeeded)
 
 			// recopie de la map des layouts triés dans un tableau trié par
 			// profondeur décroissante
@@ -199,14 +273,18 @@ function LayoutCycle() {
 			// reset des layouts, qui seront remis en oeuvre à la prochaine
 			// passe
 			this.layoutNeeded = {};
+
+			console.log("LayoutCycle.run")
+			console.log(layoutByDepths)
+
 			_.each(layoutByDepths, function(boxcontainer) {
-				console.log("doLayout " + boxcontainer.boxId + " depth="
+				console.log("doLayout boxId=" + boxcontainer.boxId + " depth="
 						+ boxcontainer.depth)
 				boxcontainer.doLayout();
 			});
 		}
 
-		// application par profondeur croissante
+		// application des changements de coordonnées par profondeur croissante
 		var coordsChangedByDepths = _.sortBy(
 				_.values(this.layoutCoordsChanged), "depth");
 
@@ -215,6 +293,11 @@ function LayoutCycle() {
 		_.each(coordsChangedByDepths, function(box) {
 			box.syncCoord();
 		});
+
+		// application des repaints
+		_.each(this.repaintNeeded, function(box) {
+			box.repaint();
+		});
 	}
 
 	this.registerLayoutCoordsChanged = function(box) {
@@ -222,7 +305,7 @@ function LayoutCycle() {
 	}
 
 	this.registerCoordsChanged = function(box) {
-		this.layoutNeeded[box.boxId] = box;
+		this.repaintNeeded[box.boxId] = box;
 	}
 
 	this.requireLayout = function(boxcontainer) {
@@ -244,13 +327,13 @@ function Box(layoutManager) {
 	this.parent = null;
 	this.depth = 0;
 
-	// la taille
+	// la taille de la boite
 	this.baseBox = new Dimension(0, 0);
 
 	// la position dans le parent
 	this.coordsInParent = new LayoutCoords(0, 0);
 
-	// les coordonnées
+	// les coordonnées graphique rééel
 	this.coords = new LayoutCoords(0, 0);
 
 	/**
@@ -276,8 +359,13 @@ function Box(layoutManager) {
 	/**
 	 * Renvoi la position courrante
 	 */
-	this.getBounds = function() {
-		return new Bounds(this.getPositionInParent(), this.getBaseBox());
+	this.getBounds = function(swap) {
+		var basebox = this.getBaseBox();
+		if (swap) {
+			basebox = basebox.swap();
+		}
+		return new Bounds(this.getPositionInParent(), basebox);
+
 	}
 
 	this.getCurrentCoord = function() {
@@ -308,9 +396,13 @@ function Box(layoutManager) {
 		this.coordsInParent = newCords;
 		// indique que la position à change
 		if (positionChanged) {
-			this.layoutManager.registerLayoutCoordsChanged(this);
+			this.fireLayoutCoordChanged(this);
 		}
 	};
+
+	this.fireLayoutCoordChanged = function() {
+		this.layoutManager.registerLayoutCoordsChanged(this);
+	}
 
 	/**
 	 * Synchronisation des coordonnées
@@ -326,12 +418,8 @@ function Box(layoutManager) {
 		this.coords = newCoords;
 
 		if (changed) {
-			this.fireCoordsChanged();
+			this.layoutManager.registerCoordsChanged(this);
 		}
-	}
-
-	this.fireCoordsChanged = function() {
-		this.layoutManager.registerCoordsChanged(this);
 	}
 
 	/**
@@ -342,18 +430,26 @@ function Box(layoutManager) {
 			this.parent.childBoxChanged(evt);
 		}
 	}
+
+	/**
+	 * Synchronisation graphique
+	 */
+	this.repaint = function() {
+
+	}
 }
 
 /**
  * Contient des box et est un box
  */
 function BoxContainer(layoutManager, layoutFunction) {
+	var me = this;
 	Box.call(this, layoutManager);
 	this.childs = [];
 	this.layoutFunction = layoutFunction;
 
 	// le dernier composant de layout
-	this.lastBounds = {};
+	this.lastBounds = undefined;
 
 	/**
 	 * Mise à jour de la profondeur
@@ -396,37 +492,50 @@ function BoxContainer(layoutManager, layoutFunction) {
 		this.requireLayout();
 	}
 
+	this.super_getBounds = this.getBounds;
+	this.getBounds = function(swap) {
+		if (this.lastBounds) {
+			return new Bounds(this.getPositionInParent(),
+					this.lastBounds.dimension);
+		}
+		return this.super_getBounds(swap);
+	}
+
 	/**
 	 * Réalise le layout
 	 */
 	this.doLayout = function() {
 		if (!_.isEmpty(this.childs)) {
-			var me = this;
 
 			// boxe de base
-			var bounds = new Bounds(new Point(0, 0), this.getBaseBox());
+			var bounds = new Bounds(new Point(0, 0), me.getBaseBox());
 
 			// appel à la fonction de layout
-			this.layoutFunction.beforeLayout();
+			me.layoutFunction.beforeLayout(me);
 
 			// calcul du layout
-			_.each(this.childs, function(box, index) {
+			_.each(me.childs, function(box, index) {
 				var updated = me.layoutFunction.applyLayout(me, index, box);
 
 				// mise à jour des coordonnées
 				box.updateLayoutCoord(updated);
 
-				var boxBounds = box.getBounds();
+				var boxBounds = me.layoutFunction.getBounds(box);
+				console.log("boxbounds boxId=" + box.boxId + " "
+						+ JSON.stringify(boxBounds))
 
 				// mise à jour de la taille du bounds courrant
 				bounds = bounds.merge(boxBounds);
 			});
 
+			console.log("merged bounds boxId=" + me.boxId + " "
+					+ JSON.stringify(bounds))
+
 			// en cas de changement on notifie le layout
-			if (!_.isEqual(bounds, this.lastBounds)) {
-				this.notifyBoxChanged(new DimensionChangedEvent());
+			if (!_.isEqual(bounds, me.lastBounds)) {
+				me.notifyBoxChanged(new DimensionChangedEvent());
 			}
-			this.lastBounds = bounds;
+			me.lastBounds = bounds;
 		}
 	}
 
