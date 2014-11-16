@@ -34,19 +34,27 @@ html , body , body > div.container {
 	box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.75);
 }
 
+.text-token () {
+	font-weight: bold;
+	font-size: 15px;
+	color: @token-text-color;
+	.text-border (@token-text-border);
+}
+
+.clear-padding () {
+	margin: 0px;
+	padding: 0px;
+}
+
 .inner-token (@token-width) {
 	display: inline-block;
 	width: @token-width;
 	height: @token-width;
 	line-height: @token-width;
-	text-align: center;
-	font-weight: bold;
-	font-size: 15px;
-	padding-right: 2px;
 	background-image: url(/img/tokens.png);
 	background-size: @token-width * 4 @token-width * 4;
-	color: @token-text-color;
-	.text-border (@token-text-border);
+	.text-token ();
+	text-align: center;
 	&.credit {
 		background-position: 0 0;
 		.round-shadow (@token-width);
@@ -124,6 +132,23 @@ div#conf {
 	}
 }
 
+div.cardstack {
+	@offset: 10px;
+	border-radius: 5px;
+	border: 1.5px dashed #cccccc;
+	.clear-padding;
+	margin-left: -@offset;
+	margin-top: -@offset * 1.5;
+	position: absolute;
+	width: @card-width + @offset * 2;
+	height: @card-height + @offset * 2.2;
+	text-align: center;
+	font-weight: bold;
+	font-size: 11px;
+	color: #999999;
+	z-index: 0;
+}
+
 div#main {
 	width: 100%;
 	height: 100%;
@@ -132,11 +157,8 @@ div#main {
 	background-position: center;
 	position: relative;
 	div.card {
-		padding: 0px;
-		margin: 0px;
+		.clear-padding;
 		position: absolute;
-		top: 0px;
-		left: 0px;
 		cursor: pointer;
 		opacity: 0;
 		&.corp img.back {
@@ -147,78 +169,74 @@ div#main {
 			content: url(/img/back-runner.png);
 		}
 
-		div.ext {
+		.ext {
+			@border-radius: 8px;
 			position: absolute;
-			top: 0px;
-			left: 0px;
+			cursor: default;
 			background: rgba(255, 255, 255, 0.8);
-			border-radius: 8px 0px;
+			border-radius: @border-radius;
 			box-shadow: 3px 3px 5px 0px @card-shadow-color;
-			.info {
-				position: absolute;
-				top: 3px;
-				right: 0px;
-				.token {
-					.inner-token (30px);
-					margin-bottom: 3px;
-				}
-
-				span:not(.token) {
-					color: @token-text-border;
-					margin-right: 35px;
-					margin-left: 4px;
-				}
-
-				a.btn.close-card {
-					position: absolute;
-					top: -1px;
-					right: 2px;
-					padding: 6px;
-				}
-			}
-
 			.action {
 				position: absolute;
-				padding: 2px;
-				bottom: 0px;
-				right: 0px;
+				.clear-padding;
 				text-align: center;
 				width: 100%;
 				background: rgba(230, 230, 230, 0.8);
 				border-top: @card-shadow-color 1px solid;
-				a {
-					padding: 4px 8px 4px 4px;
-					border-radius: 0px;
-					&:first-child {
-						border-radius: 5px 0px 0px 5px;
-					}
+				border-bottom-right-radius: @border-radius;
+				border-bottom-left-radius: @border-radius;
+			}
 
-					&:last-child {
-						border-radius: 0px 5px 5px 0px;
-					}
+			a.btn {
+				position: absolute;
+				&.btn-danger {
+					border-radius: 0px;
+					width: 25px;
+					height: 25px;
+					padding: 4px;
+				}
+
+				&:not(.btn-danger) {
+					padding: 5px 4px;
+				}
+			}
+
+			.token-wrapper {
+				position: absolute;
+				min-width: 180px;
+				@token-size: 25px;
+				.token {
+					position: absolute;
+					.inner-token (@token-size);
+				}
+
+				.text {
+					display: inline-block;
+					line-height: @token-size;
+					padding: 0 0 0 @token-size+5;
+					font-weight: bold;
 				}
 			}
 		}
 
-		div.tokens {
-			position: absolute;
-			top: 0px;
-			left: 0px;
-			padding: 2px;
-			width: 100%;
-			.token {
-				.inner-token (25px);
+		.tokens {
+			.token-wrapper {
+				@token-size: 23px;
+				position: absolute;
+				height: @token-size;
+				width: @token-size;
+				.token {
+					position: absolute;
+					.inner-token (@token-size);
+				}
 			}
 		}
 
 		img {
 			position: absolute;
-			top: 0px;
-			left: 0px;
 			width: 100%;
 			height: 100%;
-			padding: 0px;
-			margin: 0px;
+			.clear-padding;
 			border-radius: 5px;
 			border: 1px solid rgba(0, 0, 0, 0.15);
 			&.front {
