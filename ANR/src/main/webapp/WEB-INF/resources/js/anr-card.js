@@ -1,64 +1,56 @@
 var ANIM_DURATION = 0.3;
 
-var LAYOUT_HIGHEST = 0;
-var LAYOUT_HIGH = 5;
-var LAYOUT_NORMAL = 10;
-var LAYOUT_LOW = 10;
-
 var cardManager = null;
 var hbox2 = null;
 
 function bootANR(gameId) {
 	cardManager = new CardManager($("#main"));
 	cardManager.prepare();
-	//
-	// var astro = new Card({ faction : 'corp', url : '01081' }, cardManager);
-	// var breaking = new Card({ faction : 'corp', url : '01082' },
-	// cardManager);
-	// var anonymous = new Card({ faction : 'corp', url : '01083' },
-	// cardManager);
-	// var sansan = new Card({ faction : 'corp', url : '01092' }, cardManager);
-	// var psf = new Card({ faction : 'corp', url : '01107' }, cardManager);
-	// var melange = new Card({ faction : 'corp', url : '01108' }, cardManager);
+
+	var astro = new Card({ faction : 'corp', url : '01081' }, cardManager);
+	var breaking = new Card({ faction : 'corp', url : '01082' }, cardManager);
+	var anonymous = new Card({ faction : 'corp', url : '01083' }, cardManager);
+	var sansan = new Card({ faction : 'corp', url : '01092' }, cardManager);
+	var psf = new Card({ faction : 'corp', url : '01107' }, cardManager);
+	var melange = new Card({ faction : 'corp', url : '01108' }, cardManager);
 	var kate = new Card({ faction : 'runner', url : '01033' }, cardManager);
 	// kate.face = 'down';
 	var absoluteContainer = new BoxContainer(cardManager, new AbsoluteLayoutFunction());
 
-	// var hbox = new BoxContainer(cardManager, new HorizontalLayoutFunction({
-	// spacing : 10 }, { angle : 0, zIndex : 1 }));
-	// hbox.absolutePosition = new LayoutCoords(100, 50);
+	var hbox = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 10 }, { angle : 0, zIndex : 1 }));
+	hbox.absolutePosition = new LayoutCoords(50, 500);
 
 	hbox2 = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 10 }, { angle : 0, zIndex : 1 }));
-	hbox2.absolutePosition = new LayoutCoords(200, 400);
+	hbox2.absolutePosition = new LayoutCoords(700, 100);
 
 	cardManager.startCycle();
 
 	var extbox = new ExtBox(cardManager, absoluteContainer);
 
-	// absoluteContainer.addChild(hbox);
+	absoluteContainer.addChild(hbox);
 	absoluteContainer.addChild(hbox2);
+
+	var s1 = new Server({ id : 1, name : "Archives" }, cardManager);
+	var s2 = new Server({ id : 1, name : "R&D" }, cardManager);
+
+	s1.setParent(hbox);
+	s2.setParent(hbox);
 
 	kate.addTokens({ credit : 5, brain : 1, advance : 3, badpub : 1 });
 	kate.setParent(hbox2)
 
-	/*
-	 * var s1 = new Server({ id : 1, name : "Archives" }, cardManager); var s2 =
-	 * new Server({ id : 1, name : "R&D" }, cardManager);
-	 * 
-	 * absoluteContainer.addChild(hbox); absoluteContainer.addChild(hbox2);
-	 * absoluteContainer.addChild(extbox);
-	 * 
-	 * s1.setParent(hbox2); s2.setParent(hbox2);
-	 * 
-	 * astro.setParent(hbox) anonymous.setParent(hbox) breaking.setParent(hbox)
-	 * sansan.setParent(hbox); psf.setParent(hbox); melange.setParent(hbox);
-	 */
+	astro.setParent(s2.assertOrUpgrades);
+	breaking.setParent(s2.ices)
+	sansan.setParent(s2.ices)
+	psf.setParent(s2.upgrades);
+	melange.setParent(s2.upgrades);
+	anonymous.setParent(s1.assertOrUpgrades);
 
 	cardManager.runCycle();
 
 	setTimeout(cardManager.within(function() {
 
-		kate.absolutePosition = new LayoutCoords(200, 100);
+		kate.absolutePosition = new LayoutCoords(600, 400);
 		extbox.displayCard(kate);
 
 		extbox.addToken({ css : 'credit', amount : 18, text : 'Credit' });
@@ -69,6 +61,8 @@ function bootANR(gameId) {
 
 		var act = "<span class='icon icon-click'></span> : Gain 1<span class='icon icon-credit'></span>";
 		extbox.addAction({ text : act });
+		act = "<span class='icon icon-click'></span> : Draw 1 card</span>";
+		extbox.addAction({ text : act });
 		extbox.addToken({ css : 'tag', amount : 2, text : 'Tag' });
 		extbox.addToken({ css : 'brain', amount : 3, text : 'Brain damage' });
 
@@ -78,20 +72,6 @@ function bootANR(gameId) {
 		var act = "<span class='icon icon-click'></span> + 2<span class='icon icon-credit'></span> : Remove a tag";
 		extbox.addAction({ text : act });
 	}), 4000)
-
-	// setTimeout(cardManager.within(function() { astro.setParent(s1.ices);
-	// anonymous.setParent(s1.ices); sansan.setParent(s2.ices);
-	//	  
-	// astro.addTokens({ credit : 2 }) }), 1000)
-	//	  
-	// setTimeout(cardManager.within(function() {
-	// astro.setParent(s2.assertOrUpgrades) breaking.setParent(s2.ices)
-	// psf.setParent(s2.upgrades); melange.setParent(s2.upgrades);
-	// anonymous.setParent(s2.upgrades);
-	//	  
-	// astro.addTokens({ brain : 2 })
-	// s1.setParent(null); }), 2000)
-
 }
 
 function CardManager(cardContainer) {
@@ -326,9 +306,9 @@ function ExtBox(cardManager, absoluteContainer) {
 	Box.call(this.closeButton, cardManager);
 	ElementBox.call(this.closeButton, this.closeButton);
 
-	BoxContainer.call(this, cardManager, new VerticalLayoutFunction({ spacing : 3 }));
+	BoxContainer.call(this, cardManager, new VerticalLayoutFunction({ spacing : 3 }, {}));
 
-	this.inner = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 5 }));
+	this.inner = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 5 }, {}));
 	this.tokens = new BoxContainer(cardManager, new VerticalLayoutFunction({ spacing : 3, padding : 3 }, { initial : { x : 3, y : 3 } }));
 	this.actions = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 2, padding : 3 }, { initial : { x : 2, y : 2 } }));
 	// suppression du draw qui est inutile
@@ -348,10 +328,10 @@ function ExtBox(cardManager, absoluteContainer) {
 
 		this.closeCard();
 		this.displayedCard = card;
-		
+
 		// TODO changemenent de parent
 		this.displayedCard.setParent(absoluteContainer);
-		
+
 		this.displayedCard.mode = "extended";
 		this.displayedCard.ext.empty();
 
@@ -421,7 +401,7 @@ function ExtBox(cardManager, absoluteContainer) {
 // TODO gestion de tailles dans la configuration
 
 var ICE_LAYOUT = new VerticalLayoutFunction({ spacing : 5, direction : -1, align : 'center' }, { angle : 90 });
-var ROOT_SERVER_LAYOUT = new HorizontalLayoutFunction({ spacing : -40 });
+var ROOT_SERVER_LAYOUT = new HorizontalLayoutFunction({ spacing : -40 }, {});
 var INNER_SERVER_LAYOUT = new function() {
 	var me = this;
 	LayoutFunction.call(this);

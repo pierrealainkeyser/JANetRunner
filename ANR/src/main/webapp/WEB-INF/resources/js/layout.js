@@ -154,7 +154,7 @@ function VerticalLayoutFunction(innerCfg, baseConfig) {
 	LayoutFunction.call(this);
 	this.baseConfig = baseConfig
 	this.spacing = innerCfg.spacing || 0;
-	this.align = innerCfg.mode || "left";
+	this.align = innerCfg.align || "left";
 	this.padding = innerCfg.padding || 0;
 
 	this.direction = innerCfg.direction || 1;
@@ -199,8 +199,9 @@ function VerticalLayoutFunction(innerCfg, baseConfig) {
 		if (this.isRotatedConfig())
 			more = boxBounds.width;
 
-		if (this.align == 'center')
+		if (this.align == 'center'){
 			x = (me.maxWidth - boxBounds.width) / 2;
+		}
 
 		if (index == 0) {
 			this.lastBoxY += this.padding;
