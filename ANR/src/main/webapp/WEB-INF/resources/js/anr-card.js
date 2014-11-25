@@ -18,13 +18,13 @@ function bootANR(gameId) {
 	cardManager.startCycle();
 	cardManager.extbox = new ExtBox(cardManager, absoluteContainer);
 
-	var astro = new Card({ faction : 'corp', url : '01081' }, cardManager);
-	var breaking = new Card({ faction : 'corp', url : '01082' }, cardManager);
-	var anonymous = new Card({ faction : 'corp', url : '01083' }, cardManager);
-	var sansan = new Card({ faction : 'corp', url : '01092' }, cardManager);
-	var psf = new Card({ faction : 'corp', url : '01107' }, cardManager);
-	var melange = new Card({ faction : 'corp', url : '01108' }, cardManager);
-	var kate = new Card({ faction : 'runner', url : '01033' }, cardManager);
+	var astro = cardManager.createCard({ id : 9, faction : 'corp', url : '01081' }, cardManager);
+	var breaking = cardManager.createCard({ id : 8, faction : 'corp', url : '01082' }, cardManager);
+	var anonymous = cardManager.createCard({ id : 7, faction : 'corp', url : '01083' }, cardManager);
+	var sansan = cardManager.createCard({ id : 6, faction : 'corp', url : '01092' }, cardManager);
+	var psf = cardManager.createCard({ id : 5, faction : 'corp', url : '01107' }, cardManager);
+	var melange = cardManager.createCard({ id : 4, faction : 'corp', url : '01108' }, cardManager);
+	var kate = cardManager.createCard({ id : 3, faction : 'runner', url : '01033' });
 	var egnima = cardManager.createCard({ id : 1, faction : 'corp', url : '01111' });
 	var gordian = cardManager.createCard({ id : 2, faction : 'runner', url : '01043' });
 	gordian.setActions([ { text : "3<span class='icon icon-credit'></span> : Break selected(s) subroutine(s)" } ]);
@@ -38,11 +38,10 @@ function bootANR(gameId) {
 	s1.setParent(hbox);
 	s2.setParent(hbox);
 
-	kate.setTokens({ credit : 5, brain : 1, advance : 3, badpub : 1 });
+	kate.setTokens({ credit : 5, brain : 1, advance : 3, badpub : 1, tag : 2, recurring : 2, virus : 1, power : 1 });
 	kate.setParent(hbox2);
 
 	egnima.face = "down";
-	egnima.absolutePosition = new LayoutCoords(10, 25, { zIndex : 10 });
 	egnima.setSubs([ { text : "The Runner loses <span class='icon icon-click'></span>, if able" }, { text : "End the run" } ]);
 	egnima.setActions([ { text : "Continue", cls : "btn-warning" } ]);
 	egnima.setTokens({ advance : 1 });
@@ -95,9 +94,16 @@ function CardManager(cardContainer) {
 		if (def.id !== null) {
 			this.cards[def.id] = card;
 		}
-		card.primary.on('click', me.within(function() {
-			me.toggleCard(card);
-		}));
+
+		var callback = function(event) {
+			var closure = me.within(function() {
+				me.toggleCard(card);
+			});
+			closure();
+		};
+
+		card.front.on('click', callback);
+		card.back.on('click', callback);
 
 		return card;
 	}
@@ -137,13 +143,14 @@ function CardManager(cardContainer) {
 		var id = card.getId();
 
 		if (me.extbox.displayedCard != null) {
-			if (id == me.extbox.displayedCard.getId()) {
+			var displayedId = me.extbox.displayedCard.getId();
+			if (id == displayedId) {
 				// on ne fait rien
 			} else if (me.extbox.secondaryCard != null && id == me.extbox.secondaryCard.getId()) {
 				me.extbox.closeSecondary();
 			} else {
 
-				if (id == selectionContext.cardId) {
+				if (displayedId != selectionContext.cardId) {
 					me.extbox.displayPrimary(card);
 				} else {
 					// affichage en tant que carte secondaire
@@ -328,6 +335,7 @@ function Card(def, cardManager) {
 
 		if (this.mode === "secondary") {
 			_.extend(innerCss, { rotationY : -360 });
+			_.extend(tokenCss, { autoAlpha : 0 });
 			rotation = -360;
 		}
 
@@ -362,6 +370,33 @@ function Card(def, cardManager) {
 }
 
 /**
+ * une boite supprimable
+ */
+function RemovableBox() {
+	var me = this;
+
+	/**
+	 * Supprime l'élément de facon graphique
+	 */
+	this.remove = function(withoutManager) {
+
+		var closure = null;
+		if (withoutManager) {
+			me.setParent(null);
+			closure = function() {
+				me.element.remove();
+			};
+		} else
+			closure = layoutManager.within(function() {
+				me.setParent(null);
+				me.element.remove();
+			});
+
+		animateCss(me.element, "bounceOut", closure);
+	}
+}
+
+/**
  * Permet de gerer un unique token
  */
 function BoxToken(layoutManager, key, value, text) {
@@ -376,11 +411,30 @@ function BoxToken(layoutManager, key, value, text) {
 
 	Box.call(this, layoutManager);
 	ElementBox.call(this, this.element);
+	RemovableBox.call(this);
 
 	/**
 	 * Duplication du token
 	 */
 	this.clone = function() {
+		var text = "?";
+		if (key == "credit")
+			text = "Credits";
+		else if (key == "advance")
+			text = "Advancements";
+		else if (key == "badpub")
+			text = "Bad publicities";
+		else if (key == "tag")
+			text = "Tags";
+		else if (key == "brain")
+			text = "Brain damages";
+		else if (key == "recurring")
+			text = "Recurring credits";
+		else if (key == "power")
+			text = "Power counters";
+		else if (key == "virus")
+			text = "Virus counters";
+
 		return new BoxToken(layoutManager, key, value, text);
 	}
 
@@ -391,17 +445,6 @@ function BoxToken(layoutManager, key, value, text) {
 		me.element.find("span").text(value);
 		animateCss(this.element, "rubberBand");
 	};
-
-	/**
-	 * Supprime l'élément de facon graphique
-	 */
-	this.remove = function() {
-		animateCss(this.element, "bounceOut", layoutManager.within(function() {
-
-			me.setParent(null);
-			me.element.remove();
-		}));
-	}
 }
 
 /**
@@ -464,17 +507,7 @@ function BoxAction(layoutManager, key) {
 
 	Box.call(this, layoutManager);
 	ElementBox.call(this, this.element);
-
-	/**
-	 * Supprime l'élément de facon graphique
-	 */
-	this.remove = function() {
-		animateCss(this.element, "bounceOut", layoutManager.within(function() {
-
-			me.setParent(null);
-			me.element.remove();
-		}));
-	}
+	RemovableBox.call(this);
 
 	/**
 	 * Permet d'enregistrer l'écouteur
@@ -505,7 +538,9 @@ function ExtBox(cardManager, absoluteContainer) {
 	Box.call(this.closeButton, cardManager);
 	ElementBox.call(this.closeButton, this.closeButton);
 
-	BoxContainer.call(this, cardManager, new VerticalLayoutFunction({ spacing : 3 }, {}));
+	var coreLayout = new VerticalLayoutFunction({ spacing : 3 }, {});
+	// coreLayout.afterLayout=
+	BoxContainer.call(this, cardManager, coreLayout);
 
 	// la zone vide pour la seconde carte
 	this.blankBox = new Box(cardManager);
@@ -569,17 +604,19 @@ function ExtBox(cardManager, absoluteContainer) {
 	 * Affichage de la carte
 	 */
 	this.displayPrimary = function(card) {
+		console.log("-----------display primary " + card.getId())
 
 		this.closeCard();
 		this.displayedCard = card;
+		this.displayedCard.mode = "extended";
 
-		// TODO changemenent de parent
+		// TODO calcul de la position
+		this.displayedCard.absolutePosition = new LayoutCoords(50, 50, { zIndex : 10 });
 		this.displayedCard.setParent(absoluteContainer);
 
 		this.tokensContainer.removeAllChilds();
 		this.tokensContainer.addChild(this.header);
 
-		this.displayedCard.mode = "extended";
 		this.displayedCard.ext.empty();
 
 		// rajout des routines, actions et tokens
@@ -599,19 +636,30 @@ function ExtBox(cardManager, absoluteContainer) {
 		this.header.element.appendTo(card.ext);
 		this.closeButton.appendTo(card.ext);
 
+		this.closeButton.click(function(event) {
+			event.stopPropagation();
+			var closure = cardManager.within(function() {
+				me.closeCard();
+			});
+			closure();
+		});
+
 		this.innerContainer.requireLayout();
+		this.actionsContainer.requireLayout();
+		this.requireLayout();
 	}
 
 	/**
 	 * Rajoute le dernier element
 	 */
 	this.displaySecondary = function(card) {
+		console.log("-----------display secondary " + card.getId())
+
 		this.closeSecondary();
 		this.secondaryCard = card;
 		this.secondaryCard.mode = "secondary";
 
-		// TODO changemenent de parent
-		this.displayedCard.setParent(absoluteContainer);
+		this.secondaryCard.setParent(null);
 		this.secondaryActions = [];
 
 		_.each(card.actions, function(act) {
@@ -622,15 +670,8 @@ function ExtBox(cardManager, absoluteContainer) {
 		});
 
 		this.innerContainer.requireLayout();
-	}
-
-	/**
-	 * Efface toutes les actions
-	 */
-	this.clearActions = function() {
-		_.each(this.actionsContainer.childs, function(box) {
-			box.remove();
-		});
+		this.actionsContainer.requireLayout();
+		this.requireLayout();
 	}
 
 	/**
@@ -678,7 +719,6 @@ function ExtBox(cardManager, absoluteContainer) {
 	 */
 	this.closeSecondary = function() {
 		if (this.secondaryCard !== null) {
-
 			this.secondaryCard.mode = "plain";
 
 			// TODO gestion de la remise en place dans le layout parent
@@ -686,7 +726,7 @@ function ExtBox(cardManager, absoluteContainer) {
 
 			// suppression des actions secondaires
 			_.each(this.secondaryActions, function(box) {
-				box.remove();
+				box.remove(true);
 			});
 
 			this.secondaryCard = null;
@@ -696,33 +736,29 @@ function ExtBox(cardManager, absoluteContainer) {
 		}
 	}
 
-	this.super_doLayout = this.doLayout;
-	this.doLayout = function() {
-		this.super_doLayout();
-
-		if (this.displayedCard !== null) {
-			var dimension = this.getBounds().dimension;
-			this.displayedCard.setExtBox(dimension);
-
-			// place de la seconde carte au dessus de la premiere
-			if (this.secondaryCard !== null) {
-
-				var absolute = this.displayedCard.mergeChildCoord(this.blankBox);
-				absolute.zIndex = this.displayedCard.coords.zIndex + 1;
-				absolute.noShadow = true;
-				this.secondaryCard.setCoords(absolute);
-			}
+	/**
+	 * Mise à jour des positions
+	 */
+	this.updateSecondaryCard = function() {
+		// place de la seconde carte au dessus de la premiere
+		if (this.secondaryCard !== null) {
+			var absolute = this.displayedCard.mergeChildCoord(this.blankBox);
+			absolute.zIndex = this.displayedCard.coords.zIndex + 1;
+			absolute.noShadow = true;
+			this.secondaryCard.setCoords(absolute);
 		}
 	}
 
-	this.closeButton.click(function(event) {
-		event.stopPropagation();
-		var closure = cardManager.within(function() {
-			me.closeCard();
-		});
-		closure();
+	this.super_doLayout = this.doLayout;
+	this.doLayout = function() {
+		this.super_doLayout();
+		if (this.displayedCard !== null) {
+			var dimension = this.getBounds().dimension;
+			this.displayedCard.setExtBox(dimension);
+			this.updateSecondaryCard();
+		}
 
-	});
+	}
 }
 
 // TODO gestion de tailles dans la configuration
