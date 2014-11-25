@@ -3,6 +3,11 @@ html , body , body > div.container {
 	overflow: hidden;
 }
 
+.animated {
+	-webkit-animation-duration: 0.3s ! important;
+	animation-duration: 0.3s ! important;
+}
+
 #modalError {
 	position: absolute;
 	z-index: 10000;
@@ -185,9 +190,10 @@ div#main {
 				border-top: @card-shadow-color 1px solid;
 				border-bottom-right-radius: @border-radius;
 				border-bottom-left-radius: @border-radius;
+				z-index: -1;
 			}
 
-			a.btn {
+			button {
 				position: absolute;
 				&.btn-danger {
 					border-radius: 0px;
@@ -201,9 +207,35 @@ div#main {
 				}
 			}
 
+			label.sub {
+				position: absolute;
+				width: 230px;
+				&.broken {
+					text-decoration: line-through;
+					font-weight: normal;
+				}
+			}
+
+			.header {
+				position: absolute;
+				width: 230px;
+				line-height: 20px;
+				&:not(.title) {
+					font-style: italic;
+					text-transform: capitalize;
+				}
+
+				&.title {
+					font-weight: bold;
+					font-family: serif;
+					border-bottom: 1px solid @card-shadow-color;
+					text-transform: uppercase;
+				}
+			}
+
 			.token-wrapper {
 				position: absolute;
-				min-width: 180px;
+				width: 160px;
 				@token-size: 25px;
 				.token {
 					position: absolute;
