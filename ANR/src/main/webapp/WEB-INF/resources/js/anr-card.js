@@ -28,6 +28,7 @@ function bootANR(gameId) {
 	var egnima = cardManager.createCard({ id : 1, faction : 'corp', url : '01111' });
 	var gordian = cardManager.createCard({ id : 2, faction : 'runner', url : '01043' });
 	gordian.setActions([ { text : "3<span class='icon icon-credit'></span> : Break selected(s) subroutine(s)" } ]);
+	melange.setActions([ { text : "<span class='icon icon-click'></span>,<span class='icon icon-click'></span>,<span class='icon icon-click'></span> : Gain 7 <span class='icon icon-credit'></span>" } ]);
 
 	absoluteContainer.addChild(hbox);
 	absoluteContainer.addChild(hbox2);
@@ -186,6 +187,38 @@ function animateCss(element, classx, onEnd) {
 var CARD_TOKEN_LAYOUT = new GridLayoutFunction({ columns : 3, padding : 3 }, { initial : { x : 3, y : 3 } });
 
 /**
+ * L'image d'une carte
+ */
+function GhostCard(card) {
+	var me = this;
+	me.type = 'ghost';
+	this.firstTimeShow = true;
+
+	Box.call(this, card.cardManager);
+	AnimatedBox.call(this, "fade");
+	var img = $("<img class='ghost' src='/card-img/" + card.def.url + "'/>");
+	this.element = img.appendTo(card.cardManager.cardContainer);
+
+	this.getBaseBox = function() {
+		return card.cardManager.area.card;
+	}
+
+	this.draw = function() {
+		var box = this.getBaseBox();
+		var rotation = this.coords.angle;
+		var primaryCss = { width : box.width, height : box.height, top : this.coords.y, left : this.coords.x, rotation : rotation,
+			zIndex : this.coords.zIndex || 0 };
+
+		if (this.firstTimeShow)
+			TweenLite.set(this.element, { css : primaryCss });
+		else
+			TweenLite.to(this.element, ANIM_DURATION, { css : primaryCss });
+
+		this.firstTimeShow = false;
+	}
+}
+
+/**
  * Un carte qui peut contenir d'autre carte
  */
 function Card(def, cardManager) {
@@ -201,6 +234,9 @@ function Card(def, cardManager) {
 	// la liste des actions et des sous-routines
 	this.actions = [];
 	this.subs = [];
+
+	// l'image fantome
+	this.ghost = null;
 
 	// gestion du layout
 
@@ -226,6 +262,25 @@ function Card(def, cardManager) {
 		});
 		return tok;
 	};
+
+	/**
+	 * Rajoute un ghost dans le parent
+	 */
+	this.applyGhost = function() {
+		this.ghost = new GhostCard(this);
+		this.parent.replaceChild(this, this.ghost);
+		this.parent = null;
+	}
+
+	/**
+	 * Supprime le ghost et retourne à sa place
+	 */
+	this.unapplyGhost = function() {
+		this.ghost.parent.replaceChild(this.ghost, this);
+		this.ghost.remove(true);
+
+		this.ghost = null;
+	}
 
 	/**
 	 * Accède à l'ID de la carte
@@ -372,8 +427,16 @@ function Card(def, cardManager) {
 /**
  * une boite supprimable
  */
-function RemovableBox() {
+function AnimatedBox(animation) {
 	var me = this;
+	animation = animation || "bounce";
+
+	/**
+	 * Rajoute l'animation d'entrée
+	 */
+	this.add = function() {
+		animateCss(me.element, animation + "In");
+	}
 
 	/**
 	 * Supprime l'élément de facon graphique
@@ -392,7 +455,7 @@ function RemovableBox() {
 				me.element.remove();
 			});
 
-		animateCss(me.element, "bounceOut", closure);
+		animateCss(me.element, animation + "Out", closure);
 	}
 }
 
@@ -411,7 +474,7 @@ function BoxToken(layoutManager, key, value, text) {
 
 	Box.call(this, layoutManager);
 	ElementBox.call(this, this.element);
-	RemovableBox.call(this);
+	AnimatedBox.call(this);
 
 	/**
 	 * Duplication du token
@@ -461,6 +524,7 @@ function BoxSubroutine(layoutManager, text) {
 	this.element.append(text);
 	Box.call(this, layoutManager);
 	ElementBox.call(this, this.element);
+	AnimatedBox.call(this);
 
 	/**
 	 * Indique que la routine est cassée
@@ -480,6 +544,7 @@ function BoxHeader(layoutManager, text) {
 	this.element = $("<span class='header'>" + text + "</span>");
 	Box.call(this, layoutManager);
 	ElementBox.call(this, this.element);
+	AnimatedBox.call(this);
 
 	/**
 	 * Mise à jour du text
@@ -507,7 +572,7 @@ function BoxAction(layoutManager, key) {
 
 	Box.call(this, layoutManager);
 	ElementBox.call(this, this.element);
-	RemovableBox.call(this);
+	AnimatedBox.call(this);
 
 	/**
 	 * Permet d'enregistrer l'écouteur
@@ -555,8 +620,8 @@ function ExtBox(cardManager, absoluteContainer) {
 	this.header.addClass("title");
 
 	this.innerContainer = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 5 }, {}));
-	this.tokensContainer = new BoxContainer(cardManager, new VerticalLayoutFunction({ spacing : 3, padding : 3 }, { initial : { x : 3, y : 3 } }));
-	this.actionsContainer = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 2, padding : 4 }, { initial : { x : 4, y : 4 } }));
+	this.tokensContainer = new BoxContainer(cardManager, new VerticalLayoutFunction({ spacing : 3, padding : 3 }, {}));
+	this.actionsContainer = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 2, padding : 4 }, {}));
 	// suppression du draw qui est inutile
 	this.actionsContainer.draw = function() {
 	};
@@ -594,7 +659,10 @@ function ExtBox(cardManager, absoluteContainer) {
 
 			me.tokensContainer.addChild(header);
 			header.element.appendTo(me.displayedCard.ext);
+			header.add();
 		}
+		
+		box.add();
 
 		me.tokensContainer.addChild(box, lastMatch);
 		box.element.appendTo(me.displayedCard.ext);
@@ -611,7 +679,8 @@ function ExtBox(cardManager, absoluteContainer) {
 		this.displayedCard.mode = "extended";
 
 		// TODO calcul de la position
-		this.displayedCard.absolutePosition = new LayoutCoords(50, 50, { zIndex : 10 });
+		this.displayedCard.absolutePosition = new LayoutCoords(350, 50, { zIndex : 10 });
+		this.displayedCard.applyGhost();
 		this.displayedCard.setParent(absoluteContainer);
 
 		this.tokensContainer.removeAllChilds();
@@ -659,6 +728,7 @@ function ExtBox(cardManager, absoluteContainer) {
 		this.secondaryCard = card;
 		this.secondaryCard.mode = "secondary";
 
+		this.secondaryCard.applyGhost();
 		this.secondaryCard.setParent(null);
 		this.secondaryActions = [];
 
@@ -681,6 +751,7 @@ function ExtBox(cardManager, absoluteContainer) {
 		var act = new BoxAction(cardManager, def.text)
 		me.actionsContainer.addChild(act);
 		act.element.appendTo(me.displayedCard.ext);
+		act.add();
 
 		if (def.cls) {
 			act.element.addClass(def.cls);
@@ -706,8 +777,7 @@ function ExtBox(cardManager, absoluteContainer) {
 			this.displayedCard.mode = "plain";
 			this.displayedCard.ext.empty();
 
-			// TODO gestion de la remise en place dans le layout parent
-			this.displayedCard.setParent(hbox2);
+			this.displayedCard.unapplyGhost();
 			this.displayedCard = null;
 		}
 
@@ -721,8 +791,7 @@ function ExtBox(cardManager, absoluteContainer) {
 		if (this.secondaryCard !== null) {
 			this.secondaryCard.mode = "plain";
 
-			// TODO gestion de la remise en place dans le layout parent
-			this.secondaryCard.setParent(hbox2);
+			this.secondaryCard.unapplyGhost();
 
 			// suppression des actions secondaires
 			_.each(this.secondaryActions, function(box) {
