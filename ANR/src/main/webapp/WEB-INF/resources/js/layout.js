@@ -453,13 +453,13 @@ function Box(layoutManager) {
 	/**
 	 * Mise à jour du parent
 	 */
-	this.setParent = function(parent) {
+	this.setParent = function(parent, index) {
 		if (this.parent) {
 			this.parent.removeChild(this);
 		}
 		this.parent = parent;
 		if (this.parent) {
-			this.parent.addChild(this);
+			this.parent.addChild(this, index);
 		}
 	}
 
@@ -643,6 +643,15 @@ function BoxContainer(layoutManager, layoutFunction) {
 	this.removeChild = function(box) {
 		this.childs = _.without(this.childs, box);
 		this.requireLayout();
+	}
+
+	/**
+	 * Remplace un element parent un autre
+	 */
+	this.replaceChild = function(remove, add) {
+		var index = _.indexOf(this.child, remove);
+		add.setParent(this, index);
+		this.removeChild(remove);
 	}
 
 	this.super_getBounds = this.getBounds;

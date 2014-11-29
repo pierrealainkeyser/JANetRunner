@@ -186,6 +186,38 @@ function animateCss(element, classx, onEnd) {
 var CARD_TOKEN_LAYOUT = new GridLayoutFunction({ columns : 3, padding : 3 }, { initial : { x : 3, y : 3 } });
 
 /**
+ * L'image d'une carte
+ */
+function GhostCard(card) {
+	var me = this;
+	me.type = 'ghost';
+	this.firstTimeShow = true;
+
+	Box.call(this, card.cardManager);
+	RemovableBox.call(this);
+	var img = $("<img class='ghost' src='/card-img/" + card.def.url + "'/>");
+	this.element = img.appendTo(card.cardManager.cardContainer);
+
+	this.getBaseBox = function() {
+		return card.cardManager.area.card;
+	}
+
+	this.draw = function() {
+		var box = this.getBaseBox();
+		var rotation = this.coords.angle;
+		var primaryCss = { width : box.width, height : box.height, top : this.coords.y, left : this.coords.x, rotation : rotation,
+			zIndex : this.coords.zIndex || 0 };
+		
+		if(this.firstTimeShow)
+			TweenLite.set(this.element, { css : primaryCss });
+		else
+			TweenLite.to(this.element, ANIM_DURATION,  { css : primaryCss });
+		
+		this.firstTimeShow = false;
+	}
+}
+
+/**
  * Un carte qui peut contenir d'autre carte
  */
 function Card(def, cardManager) {
@@ -201,6 +233,9 @@ function Card(def, cardManager) {
 	// la liste des actions et des sous-routines
 	this.actions = [];
 	this.subs = [];
+
+	// l'image fantome
+	this.ghost = null;
 
 	// gestion du layout
 
@@ -226,6 +261,26 @@ function Card(def, cardManager) {
 		});
 		return tok;
 	};
+
+	/**
+	 * Rajoute un ghost dans le parent
+	 */
+	this.applyGhost = function() {
+		this.ghost = new GhostCard(this);
+		this.parent.replaceChild(this, this.ghost);
+		this.parent = null;
+	}
+
+	/**
+	 * Supprime le ghost et retourne à sa place
+	 */
+	this.unapplyGhost = function() {
+		this.setParent(null);
+		this.ghost.parent.replaceChild(this.ghost, this);		
+		this.ghost.remove(true);
+		
+		this.ghost = null;
+	}
 
 	/**
 	 * Accède à l'ID de la carte
@@ -612,6 +667,7 @@ function ExtBox(cardManager, absoluteContainer) {
 
 		// TODO calcul de la position
 		this.displayedCard.absolutePosition = new LayoutCoords(50, 50, { zIndex : 10 });
+		this.displayedCard.applyGhost();
 		this.displayedCard.setParent(absoluteContainer);
 
 		this.tokensContainer.removeAllChilds();
@@ -659,6 +715,7 @@ function ExtBox(cardManager, absoluteContainer) {
 		this.secondaryCard = card;
 		this.secondaryCard.mode = "secondary";
 
+		this.secondaryCard.applyGhost();
 		this.secondaryCard.setParent(null);
 		this.secondaryActions = [];
 
@@ -706,8 +763,7 @@ function ExtBox(cardManager, absoluteContainer) {
 			this.displayedCard.mode = "plain";
 			this.displayedCard.ext.empty();
 
-			// TODO gestion de la remise en place dans le layout parent
-			this.displayedCard.setParent(hbox2);
+			this.displayedCard.unapplyGhost();
 			this.displayedCard = null;
 		}
 
@@ -721,8 +777,7 @@ function ExtBox(cardManager, absoluteContainer) {
 		if (this.secondaryCard !== null) {
 			this.secondaryCard.mode = "plain";
 
-			// TODO gestion de la remise en place dans le layout parent
-			this.secondaryCard.setParent(hbox2);
+			this.secondaryCard.unapplyGhost();
 
 			// suppression des actions secondaires
 			_.each(this.secondaryActions, function(box) {
