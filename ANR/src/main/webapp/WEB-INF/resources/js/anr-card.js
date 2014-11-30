@@ -195,7 +195,6 @@ function GhostCard(card) {
 	this.firstTimeShow = true;
 
 	Box.call(this, card.cardManager);
-<<<<<<< HEAD
 	AnimatedBox.call(this, "fade");
 	var img = $("<img class='ghost' src='/card-img/" + card.def.url + "'/>");
 	this.element = img.appendTo(card.cardManager.cardContainer);
@@ -215,27 +214,6 @@ function GhostCard(card) {
 		else
 			TweenLite.to(this.element, ANIM_DURATION, { css : primaryCss });
 
-=======
-	RemovableBox.call(this);
-	var img = $("<img class='ghost' src='/card-img/" + card.def.url + "'/>");
-	this.element = img.appendTo(card.cardManager.cardContainer);
-
-	this.getBaseBox = function() {
-		return card.cardManager.area.card;
-	}
-
-	this.draw = function() {
-		var box = this.getBaseBox();
-		var rotation = this.coords.angle;
-		var primaryCss = { width : box.width, height : box.height, top : this.coords.y, left : this.coords.x, rotation : rotation,
-			zIndex : this.coords.zIndex || 0 };
-		
-		if(this.firstTimeShow)
-			TweenLite.set(this.element, { css : primaryCss });
-		else
-			TweenLite.to(this.element, ANIM_DURATION,  { css : primaryCss });
-		
->>>>>>> refs/remotes/origin/master
 		this.firstTimeShow = false;
 	}
 }
@@ -298,16 +276,8 @@ function Card(def, cardManager) {
 	 * Supprime le ghost et retourne à sa place
 	 */
 	this.unapplyGhost = function() {
-<<<<<<< HEAD
 		this.ghost.parent.replaceChild(this.ghost, this);
 		this.ghost.remove(true);
-
-=======
-		this.setParent(null);
-		this.ghost.parent.replaceChild(this.ghost, this);		
-		this.ghost.remove(true);
-		
->>>>>>> refs/remotes/origin/master
 		this.ghost = null;
 	}
 
@@ -708,11 +678,7 @@ function ExtBox(cardManager, absoluteContainer) {
 		this.displayedCard.mode = "extended";
 
 		// TODO calcul de la position
-<<<<<<< HEAD
 		this.displayedCard.absolutePosition = new LayoutCoords(350, 50, { zIndex : 10 });
-=======
-		this.displayedCard.absolutePosition = new LayoutCoords(50, 50, { zIndex : 10 });
->>>>>>> refs/remotes/origin/master
 		this.displayedCard.applyGhost();
 		this.displayedCard.setParent(absoluteContainer);
 
