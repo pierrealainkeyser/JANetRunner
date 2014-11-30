@@ -27,6 +27,7 @@ html , body , body > div.container {
 @card-width: 80px;
 @card-height: 111px;
 @card-shadow-color: rgba(0, 0, 0, 0.35);
+@card-action-color: rgba(230, 230, 230, 0.8);
 @token-text-color: #E8E8E8;
 @token-recurring-text-color: #FFCC33;
 @token-text-border: #383838;
@@ -161,13 +162,12 @@ div#main {
 	background-repeat: no-repeat;
 	background-position: center;
 	position: relative;
-	
-	.ghost{
+	.ghost {
 		.clear-padding;
 		position: absolute;
 		opacity: 0.35;
 	}
-	
+
 	div.card {
 		.clear-padding;
 		position: absolute;
@@ -193,7 +193,7 @@ div#main {
 				.clear-padding;
 				text-align: center;
 				width: 100%;
-				background: rgba(230, 230, 230, 0.8);
+				background: @card-action-color;
 				border-top: @card-shadow-color 1px solid;
 				border-bottom-right-radius: @border-radius;
 				border-bottom-left-radius: @border-radius;
@@ -212,6 +212,12 @@ div#main {
 				&:not(.btn-danger) {
 					padding: 5px 4px;
 				}
+
+				.cost {
+					&:after {
+						content: " : ";
+					}
+				}
 			}
 
 			label.sub {
@@ -220,6 +226,19 @@ div#main {
 				&.broken {
 					text-decoration: line-through;
 					font-weight: normal;
+				}
+
+				&:not(.broken) {
+					cursor: pointer;
+					input {
+						cursor: pointer;
+					}
+				}
+
+				&.all {
+					font-style: italic;
+					font-weight: normal;
+					border-top: @card-action-color 1px solid;
 				}
 			}
 
@@ -235,7 +254,7 @@ div#main {
 				&.title {
 					font-weight: bold;
 					font-family: serif;
-					border-bottom: 1px solid @card-shadow-color;
+					border-bottom: @card-shadow-color 1px solid;
 					text-transform: uppercase;
 				}
 			}

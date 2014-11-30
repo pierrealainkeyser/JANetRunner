@@ -34,6 +34,13 @@ function Dimension(width, height) {
 	this.max = function(dimension) {
 		return new Dimension(Math.max(dimension.width, this.width), Math.max(dimension.height, this.height));
 	}
+
+	/**
+	 * Convertie la point en bounds
+	 */
+	this.asBounds = function(point) {
+		return new Bounds(point, this);
+	}
 }
 
 function DimensionChangedEvent() {
@@ -65,6 +72,60 @@ function Bounds(point, dimension) {
 		var merged = new Bounds(tl, new Dimension(br.x - tl.x, br.y - tl.y));
 
 		return merged;
+	}
+
+	/**
+	 * soustrait radius à tous les éléments rendant la boite plus petite
+	 */
+	this.minus = function(radius) {
+
+		var bounds = new Bounds(this.point, this.dimension);
+		bounds.point.x += radius;
+		bounds.point.y += radius;
+		bounds.dimension.width -= radius * 2;
+		bounds.dimension.height -= radius * 2;
+		return bounds;
+	}
+
+	/**
+	 * Renvoi le point qui permet de faire rentrer bounds dans le container. ie. pour avoir this.contains(bounds)===true
+	 */
+	this.getMatchingPoint = function(bounds) {
+		var tl0 = this.getTopLeft();
+		var br0 = this.getBottomRight();
+
+		var tl1 = bounds.getTopLeft();
+		var br1 = bounds.getBottomRight();
+
+		var x = tl1.x;
+		var y = tl1.y;
+
+		if (tl0.x > x)
+			x = tl0.x;
+
+		if (tl0.y > y)
+			y = tl0.y;
+
+		if (br0.x < br1.x)
+			x -= br1.x - br0.x;
+
+		if (br0.y < br1.y)
+			y -= br1.y - br0.y;
+
+		return new Point(x, y);
+	}
+
+	/**
+	 * Renvoi vrai si la boite bounds est contenu dans celle-ci
+	 */
+	this.contains = function(bounds) {
+		var tl0 = this.getTopLeft();
+		var br0 = this.getBottomRight();
+
+		var tl1 = bounds.getTopLeft();
+		var br1 = bounds.getBottomRight();
+
+		return (tl0.x <= tl1.x && tl0.y <= tl1.y) && (br0.x >= br1.x && br0.y >= br1.y);
 	}
 
 }
@@ -287,6 +348,8 @@ function StackedLayoutFunction() {
 
 		var cfg = {};
 		cfg.zIndex = index;
+
+		// TODO
 
 		return new LayoutCoords(0, 0, cfg);
 	}
@@ -535,8 +598,12 @@ function Box(layoutManager) {
 		this.coords = newCoords;
 
 		if (changed) {
-			this.layoutManager.registerCoordsChanged(this);
+			this.fireCoordsChanged();
 		}
+	}
+
+	this.fireCoordsChanged = function() {
+		this.layoutManager.registerCoordsChanged(this);
 	}
 
 	/**

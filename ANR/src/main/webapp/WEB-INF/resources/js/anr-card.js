@@ -27,8 +27,13 @@ function bootANR(gameId) {
 	var kate = cardManager.createCard({ id : 3, faction : 'runner', url : '01033' });
 	var egnima = cardManager.createCard({ id : 1, faction : 'corp', url : '01111' });
 	var gordian = cardManager.createCard({ id : 2, faction : 'runner', url : '01043' });
-	gordian.setActions([ { text : "3<span class='icon icon-credit'></span> : Break selected(s) subroutine(s)" } ]);
-	melange.setActions([ { text : "<span class='icon icon-click'></span>,<span class='icon icon-click'></span>,<span class='icon icon-click'></span> : Gain 7 <span class='icon icon-credit'></span>" } ]);
+
+	var gordianBreak = { text : "Break selected(s) subroutine(s)", type : "break",
+		costs : { 1 : "1<span class='icon icon-credit'></span>", 2 : "2<span class='icon icon-credit'></span>" } };
+
+	gordian.setActions([ gordianBreak ]);
+	melange.setActions([ { text : "Gain 7<span class='icon icon-credit'></span>",
+		cost : "<span class='icon icon-click'></span>,<span class='icon icon-click'></span>,<span class='icon icon-click'></span>" } ]);
 
 	absoluteContainer.addChild(hbox);
 	absoluteContainer.addChild(hbox2);
@@ -133,6 +138,14 @@ function CardManager(cardContainer) {
 	}
 
 	/**
+	 * Renvoi la taille
+	 */
+	this.getBounds = function() {
+		// TODO gestion du radius de padding
+		return new Bounds({ x : 0, y : 0 }, new Dimension(this.area.main.width, this.area.main.height)).minus(70);
+	}
+
+	/**
 	 * Affichage de la carte
 	 */
 	this.toggleCard = function(card) {
@@ -146,7 +159,7 @@ function CardManager(cardContainer) {
 		if (me.extbox.displayedCard != null) {
 			var displayedId = me.extbox.displayedCard.getId();
 			if (id == displayedId) {
-				// on ne fait rien
+				me.extbox.closeCard();
 			} else if (me.extbox.secondaryCard != null && id == me.extbox.secondaryCard.getId()) {
 				me.extbox.closeSecondary();
 			} else {
@@ -266,10 +279,10 @@ function Card(def, cardManager) {
 	/**
 	 * Rajoute un ghost dans le parent
 	 */
-	this.applyGhost = function() {
+	this.applyGhost = function(parent) {
 		this.ghost = new GhostCard(this);
 		this.parent.replaceChild(this, this.ghost);
-		this.parent = null;
+		this.setParent(parent);
 	}
 
 	/**
@@ -433,7 +446,7 @@ function AnimatedBox(animation) {
 	/**
 	 * Rajoute l'animation d'entrée
 	 */
-	this.add = function() {
+	this.entrance = function() {
 		animateCss(me.element, animation + "In");
 	}
 
@@ -512,7 +525,7 @@ function BoxToken(layoutManager, key, value, text) {
 /**
  * Permet de gerer une routine
  */
-function BoxSubroutine(layoutManager, text) {
+function BoxSubroutine(extbox, text) {
 	var me = this;
 	me.type = 'sub';
 	this.element = $("<label class='sub'/>");
@@ -521,17 +534,55 @@ function BoxSubroutine(layoutManager, text) {
 	this.checkbox.appendTo(this.element);
 	$("<span class='icon icon-subroutine'></span>").appendTo(this.element);
 	this.element.append(text);
-	Box.call(this, layoutManager);
+	Box.call(this, extbox.cardManager);
 	ElementBox.call(this, this.element);
 	AnimatedBox.call(this);
+
+	this.checkbox.change(function() {
+		extbox.updateBreakActions();
+	});
 
 	/**
 	 * Indique que la routine est cassée
 	 */
 	this.setBroken = function() {
 		this.checkbox.attr("disabled", true);
+		this.checkbox.prop("checked", false);
 		this.element.addClass('broken');
 	}
+
+	/**
+	 * Indique que la routine est selectionnée
+	 */
+	this.isChecked = function() {
+		return this.checkbox.is(':checked');
+	}
+}
+
+/**
+ * Le bouton pour tous cocher/decocher
+ */
+function BoxAllSubroutine(extbox, text) {
+	var me = this;
+	me.type = 'sub';
+
+	me.type = 'sub';
+	this.element = $("<label class='sub all'/>");
+
+	var checkbox = $("<input type='checkbox' />");
+	this.checkbox = checkbox.appendTo(this.element);
+	this.element.append(text);
+	Box.call(this, extbox.cardManager);
+	ElementBox.call(this, this.element);
+	AnimatedBox.call(this);
+
+	this.checkbox.change(function() {
+		var value = me.checkbox.prop("checked");
+		$('input:checkbox').prop('checked', this.checked);
+
+		me.element.find("input:checkbox").prop("checked", value);
+		extbox.updateBreakActions();
+	});
 }
 
 /**
@@ -564,14 +615,44 @@ function BoxHeader(layoutManager, text) {
 /**
  * Permet de gerer une action
  */
-function BoxAction(layoutManager, key) {
+function BoxAction(extbox, def) {
 	var me = this;
 	me.type = 'action';
-	this.element = $('<button class="btn btn-default">' + key + '</button>');
+	me.def = def;
+	this.element = $('<button class="btn btn-default"/>');
 
-	Box.call(this, layoutManager);
+	this.cost = $("<span class='cost'/>").appendTo(this.element);
+	this.element.append(def.text);
+
+	if (def.cls)
+		this.element.addClass(def.cls);
+
+	Box.call(this, extbox.cardManager);
 	ElementBox.call(this, this.element);
 	AnimatedBox.call(this);
+
+	/**
+	 * Gestion de l'activation
+	 */
+	this.setEnabled = function(enabled) {
+		this.element.prop("disabled", !enabled);
+	}
+
+	/**
+	 * Mise à jour du prix
+	 */
+	this.setCost = function(cost) {
+		if (cost) {
+			this.cost.html(cost);
+			this.cost.show();
+		} else {
+			this.cost.hide();
+		}
+
+		animateCss(this.element, "pulse")
+	}
+
+	this.setCost(def.cost);
 
 	/**
 	 * Permet d'enregistrer l'écouteur
@@ -589,6 +670,7 @@ function BoxAction(layoutManager, key) {
 function ExtBox(cardManager, absoluteContainer) {
 	var me = this;
 
+	this.cardManager = cardManager;
 	this.displayedCard = null;
 	this.secondaryCard = null;
 	this.secondaryActions = [];
@@ -658,10 +740,10 @@ function ExtBox(cardManager, absoluteContainer) {
 
 			me.tokensContainer.addChild(header);
 			header.element.appendTo(me.displayedCard.ext);
-			header.add();
+			header.entrance();
 		}
-		
-		box.add();
+
+		box.entrance();
 
 		me.tokensContainer.addChild(box, lastMatch);
 		box.element.appendTo(me.displayedCard.ext);
@@ -677,10 +759,13 @@ function ExtBox(cardManager, absoluteContainer) {
 		this.displayedCard = card;
 		this.displayedCard.mode = "extended";
 
-		// TODO calcul de la position
-		this.displayedCard.absolutePosition = new LayoutCoords(350, 50, { zIndex : 10 });
-		this.displayedCard.applyGhost();
-		this.displayedCard.setParent(absoluteContainer);
+		// calcul de la position
+		var coords = this.displayedCard.coords;
+		var big = cardManager.area.cardBig;
+		var small = cardManager.area.card;
+		this.displayedCard.absolutePosition = new LayoutCoords(coords.x - (big.width - small.width) / 2, coords.y - (big.height - small.height) / 2,
+				{ zIndex : 10 });
+		this.displayedCard.applyGhost(absoluteContainer);
 
 		this.tokensContainer.removeAllChilds();
 		this.tokensContainer.addChild(this.header);
@@ -689,6 +774,12 @@ function ExtBox(cardManager, absoluteContainer) {
 
 		// rajout des routines, actions et tokens
 		_.each(card.subs, me.addSub);
+
+		if (!_.isEmpty(card.subs)) {
+			var sub = new BoxAllSubroutine(this, " check all");
+			addInTokens(sub);
+		}
+
 		_.each(card.actions, me.addAction);
 
 		card.tokensContainer.each(function(token) {
@@ -714,6 +805,9 @@ function ExtBox(cardManager, absoluteContainer) {
 
 		this.innerContainer.requireLayout();
 		this.actionsContainer.requireLayout();
+
+		this.updateBreakActions();
+
 		this.requireLayout();
 	}
 
@@ -727,8 +821,7 @@ function ExtBox(cardManager, absoluteContainer) {
 		this.secondaryCard = card;
 		this.secondaryCard.mode = "secondary";
 
-		this.secondaryCard.applyGhost();
-		this.secondaryCard.setParent(null);
+		this.secondaryCard.applyGhost(null);
 		this.secondaryActions = [];
 
 		_.each(card.actions, function(act) {
@@ -740,22 +833,46 @@ function ExtBox(cardManager, absoluteContainer) {
 
 		this.innerContainer.requireLayout();
 		this.actionsContainer.requireLayout();
+
+		this.updateBreakActions();
 		this.requireLayout();
 	}
 
 	/**
-	 * Rajoute d'une action. TODO il faut passer l'action
+	 * Rajoute d'une action.
 	 */
 	this.addAction = function(def) {
-		var act = new BoxAction(cardManager, def.text)
+		var act = new BoxAction(this, def)
 		me.actionsContainer.addChild(act);
 		act.element.appendTo(me.displayedCard.ext);
-		act.add();
-
-		if (def.cls) {
-			act.element.addClass(def.cls);
-		}
+		act.entrance();
 		return act;
+	}
+
+	/**
+	 * Mise à jour des actions de breaks
+	 */
+	this.updateBreakActions = function() {
+		var selected = 0;
+		_.each(me.subs, function(sub) {
+			if (sub.isChecked())
+				++selected;
+		});
+
+		_.each(me.actionsContainer.childs, function(act) {
+
+			var def = act.def;
+			if ("break" === def.type) {
+				if (selected == 0) {
+					act.setEnabled(false);
+					act.setCost(null);
+				} else {
+					act.setEnabled(true);
+					act.setCost(def.costs[selected]);
+				}
+			}
+
+		});
 
 	}
 
@@ -763,7 +880,7 @@ function ExtBox(cardManager, absoluteContainer) {
 	 * Rajoute une sous routine
 	 */
 	this.addSub = function(def) {
-		var sub = new BoxSubroutine(cardManager, def.text);
+		var sub = new BoxSubroutine(me, def.text);
 		addInTokens(sub);
 		me.subs.push(sub)
 	}
@@ -823,6 +940,28 @@ function ExtBox(cardManager, absoluteContainer) {
 		if (this.displayedCard !== null) {
 			var dimension = this.getBounds().dimension;
 			this.displayedCard.setExtBox(dimension);
+
+			// recalcul de la position de la card primaire
+			var coords = this.displayedCard.getCurrentCoord();
+			var bounds = dimension.asBounds(coords);
+
+			var outer = cardManager.getBounds();
+
+			if (!outer.contains(bounds)) {
+
+				// il faut déplacer la boite pour correspondre
+				var p = outer.getMatchingPoint(bounds);
+				this.displayedCard.absolutePosition.x = p.x
+				this.displayedCard.absolutePosition.y = p.y
+
+				// pour mettre à jour la positions dans la seconde carte
+				// #updateSecondaryCard
+				this.displayedCard.coords.x = p.x
+				this.displayedCard.coords.y = p.y
+
+				this.displayedCard.fireCoordsChanged();
+			}
+
 			this.updateSecondaryCard();
 		}
 
