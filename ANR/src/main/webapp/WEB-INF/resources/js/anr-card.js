@@ -753,6 +753,25 @@ function ExtBox(cardManager, absoluteContainer) {
 	};
 
 	/**
+	 * Mise à jour des positions absolu des composants
+	 */
+	this.updateVirtualPosition = function(x, y) {
+
+		if (me.displayedCard) {
+			me.displayedCard.absolutePosition.x = x;
+			me.displayedCard.absolutePosition.y = y;
+
+			me.displayedCard.coords.x = x;
+			me.displayedCard.coords.y = y;
+
+			if (me.secondaryCard) {
+				me.updateSecondaryCard(true);
+			}
+		}
+
+	}
+
+	/**
 	 * Affichage de la carte
 	 */
 	this.displayPrimary = function(card) {
@@ -761,6 +780,11 @@ function ExtBox(cardManager, absoluteContainer) {
 		this.closeCard();
 		this.displayedCard = card;
 		this.displayedCard.mode = "extended";
+
+		card.primary.draggable({ drag : function(event, ui) {
+			var position = card.primary.position();
+			me.updateVirtualPosition(position.left, position.top);
+		} });
 
 		// remise à zero des routines
 		this.subs = [];
@@ -899,6 +923,7 @@ function ExtBox(cardManager, absoluteContainer) {
 		if (this.displayedCard !== null) {
 			this.displayedCard.mode = "plain";
 			this.displayedCard.ext.empty();
+			this.displayedCard.primary.draggable("destroy");
 
 			// remise à zero des routines
 			this.subs = [];
@@ -934,13 +959,17 @@ function ExtBox(cardManager, absoluteContainer) {
 	/**
 	 * Mise à jour des positions
 	 */
-	this.updateSecondaryCard = function() {
+	this.updateSecondaryCard = function(sync) {
 		// place de la seconde carte au dessus de la premiere
 		if (this.secondaryCard !== null) {
 			var absolute = this.displayedCard.mergeChildCoord(this.blankBox);
 			absolute.zIndex = this.displayedCard.coords.zIndex + 1;
 			absolute.noShadow = true;
 			this.secondaryCard.setCoords(absolute);
+
+			if (sync) {
+				this.secondaryCard.update(true);
+			}
 		}
 	}
 
