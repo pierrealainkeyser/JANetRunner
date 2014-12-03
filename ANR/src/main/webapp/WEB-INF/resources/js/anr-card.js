@@ -28,8 +28,11 @@ function bootANR(gameId) {
 	var egnima = cardManager.createCard({ id : 1, faction : 'corp', url : '01111' });
 	var gordian = cardManager.createCard({ id : 2, faction : 'runner', url : '01043' });
 
-	var gordianBreak = { text : "Break selected(s) subroutine(s)", type : "break",
-		costs : { 1 : "1<span class='icon icon-credit'></span>", 2 : "2<span class='icon icon-credit'></span>" } };
+	var gordianBreak = {
+		text : "Break selected(s) subroutine(s)",
+		type : "break",
+		costs : { 1 : { text : "1<span class='icon icon-credit'></span>", enabled : true },
+			2 : { text : "2<span class='icon icon-credit'></span>", enabled : false } } };
 
 	gordian.setActions([ gordianBreak ]);
 	melange.setActions([ { text : "Gain 7<span class='icon icon-credit'></span>",
@@ -759,6 +762,9 @@ function ExtBox(cardManager, absoluteContainer) {
 		this.displayedCard = card;
 		this.displayedCard.mode = "extended";
 
+		// remise à zero des routines
+		this.subs = [];
+
 		// calcul de la position
 		var coords = this.displayedCard.coords;
 		var big = cardManager.area.cardBig;
@@ -867,8 +873,9 @@ function ExtBox(cardManager, absoluteContainer) {
 					act.setEnabled(false);
 					act.setCost(null);
 				} else {
-					act.setEnabled(true);
-					act.setCost(def.costs[selected]);
+					var cost = def.costs[selected];
+					act.setEnabled(cost.enabled);
+					act.setCost(cost.text);
 				}
 			}
 
@@ -892,6 +899,9 @@ function ExtBox(cardManager, absoluteContainer) {
 		if (this.displayedCard !== null) {
 			this.displayedCard.mode = "plain";
 			this.displayedCard.ext.empty();
+
+			// remise à zero des routines
+			this.subs = [];
 
 			this.displayedCard.unapplyGhost();
 			this.displayedCard = null;
