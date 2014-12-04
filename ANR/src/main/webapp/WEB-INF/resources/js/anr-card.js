@@ -47,7 +47,7 @@ function bootANR(gameId) {
 	s1.setParent(hbox);
 	s2.setParent(hbox);
 
-	kate.setTokens({ credit : 5, brain : 1, advance : 3, badpub : 1, tag : 2, recurring : 2, virus : 1, power : 1 });
+	kate.setTokens({ credit : 1 });
 	kate.setParent(hbox2);
 
 	egnima.face = "down";
@@ -70,17 +70,13 @@ function bootANR(gameId) {
 
 	cardManager.extbox.setHeader("Encounter ice")
 
-	// setTimeout(cardManager.within(function() {
-	//
-	// var act = cardManager.extbox.addAction({ text : "Continue", cls :
-	// "btn-warning" });
-	// act.click(function() {
-	// cardManager.extbox.clearActions();
-	// });
-	//
-	// kate.setTokens({ credit : 3, brain : -1 });
-	//
-	// }), 1000)
+	 setTimeout(cardManager.within(function() {
+	
+		 astro.setParent(s2.upgrades);
+	
+	 kate.setTokens({ credit : 3, brain : 1 });
+	
+	 }), 2000)
 }
 
 function CardManager(cardContainer) {
@@ -200,7 +196,7 @@ function animateCss(element, classx, onEnd) {
 	return element;
 }
 
-var CARD_TOKEN_LAYOUT = new GridLayoutFunction({ columns : 3, padding : 3 }, { initial : { x : 3, y : 3 } });
+var CARD_TOKEN_LAYOUT = new GridLayoutFunction({ columns : 3, padding : 3 }, { });
 
 /**
  * L'image d'une carte
@@ -335,6 +331,7 @@ function Card(def, cardManager) {
 				if (value > 0) {
 					tok = new BoxToken(cardManager, key, value)
 					tok.element.appendTo(me.tokens);
+					tok.entrance();
 					me.tokensContainer.addChild(tok);
 				}
 			}
