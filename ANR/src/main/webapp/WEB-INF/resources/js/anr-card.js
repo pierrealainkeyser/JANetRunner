@@ -1007,7 +1007,7 @@ function ExtBox(cardManager, absoluteContainer) {
 // TODO gestion de tailles dans la configuration
 
 var ICE_LAYOUT = new VerticalLayoutFunction({ spacing : 5, direction : -1, align : 'center' }, { angle : 90 });
-var ROOT_SERVER_LAYOUT = new HorizontalLayoutFunction({ spacing : -40 }, {});
+var ROOT_SERVER_LAYOUT = new HorizontalLayoutFunction({ spacing : -40 }, {zIndex:0});
 var INNER_SERVER_LAYOUT = new function() {
 	var me = this;
 	LayoutFunction.call(this);
