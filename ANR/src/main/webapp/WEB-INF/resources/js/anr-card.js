@@ -6,90 +6,291 @@ var hbox2 = null;
 function bootANR(gameId) {
 	cardManager = new CardManager($("#main"));
 	cardManager.prepare();
+	cardManager.makeReady();
 
-	var absoluteContainer = new BoxContainer(cardManager, new AbsoluteLayoutFunction());
+	var objs = {
+		servers : [ //
+		{ id : 1, name : "Archives" },//
+		{ id : 2, name : "R&D" }, //
+		{ id : 3, name : "HQ" } //
+		],
+		cards : [ // 
+				{ id : 1, faction : 'corp', url : '01088', location : { path : [ "server", { id : 1 }, "stack" ], index : 0 } }, //
+				{ id : 2, faction : 'corp', url : '01082', face : "down", location : { path : [ "server", { id : 2 }, "stack" ], index : 0 } }, //
+				{ id : 21, faction : 'corp', url : '01083', face : "down", location : { path : [ "server", { id : 2 }, "stack" ], index : 1 } }, //
+				{ id : 22, faction : 'corp', url : '01091', face : "down", location : { path : [ "server", { id : 2 }, "stack" ], index : 2 } }, //				
+				{ id : 3, faction : 'corp', url : '01080', tokens : { credit : 5, recurring : 2 },
+					location : { path : [ "server", { id : 3 }, "assetOrUpgrades" ], index : 0 } }, //
+				{ id : 4, faction : 'corp', url : '01089', face : "down", location : { path : [ "server", { id : 3 }, "ices" ], index : 0 } }, //
 
-	var hbox = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 10 }, { angle : 0, zIndex : 1 }));
-	hbox.absolutePosition = new LayoutCoords(50, 500);
+				{ id : 5, faction : 'runner', url : '01033', location : { path : [ "grip" ], index : 0 } },//
+				{ id : 6, faction : 'runner', url : '01034', face : "down", location : { path : [ "stack" ], index : 0 } },//
+				{ id : 7, faction : 'runner', url : '01035', face : "down", location : { path : [ "stack" ], index : 1 } },//
+				{ id : 8, faction : 'runner', url : '01036', face : "down", location : { path : [ "stack" ], index : 2 } },//
+				{ id : 9, faction : 'runner', url : '01037', face : "down", location : { path : [ "stack" ], index : 3 } },//
+				{ id : 10, faction : 'runner', url : '01038', face : "down", location : { path : [ "stack" ], index : 4 } },//
+				{ id : 11, faction : 'runner', url : '01039', location : { path : [ "hardware" ], index : 0 } },//
+				{ id : 12, faction : 'runner', url : '01041', tokens : { recurring : 2 }, location : { path : [ "hardware" ], index : 1 } },//
+				{ id : 13, faction : 'runner', url : '01042', location : { path : [ "program" ], index : 0 } },//
+				{ id : 14, faction : 'runner', url : '01043', face : "down", location : { path : [ "stack" ], index : 5 } },//
+				{ id : 15, faction : 'runner', url : '01052', face : "down", location : { path : [ "stack" ], index : 6 } },//
+				{ id : 16, faction : 'runner', url : '01053', face : "down", location : { path : [ "stack" ], index : 7 } },//
+		] };
 
-	hbox2 = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 10 }, { angle : 0, zIndex : 1 }));
-	hbox2.absolutePosition = new LayoutCoords(700, 100);
+	cardManager.within(function() {
+		cardManager.update(objs);
+	})();
 
-	cardManager.startCycle();
-	cardManager.extbox = new ExtBox(cardManager, absoluteContainer);
+	setTimeout(cardManager.within(function() {
+		cardManager.update({ cards : [ //
+		{ id : 5, tokens : { credit : 5, power : 1 } },//
+		{ id : 1, face : "down", location : { path : [ "server", { id : 3 }, "ices" ], index : 1 } },// 
+		{ id : 14, face : "up", location : { path : [ "program" ], index : 1 } },//
+		{ id : 15, face : "up", location : { path : [ "resource" ], index : 2 } },// 
+		{ id : 16, face : "up", location : { path : [ "resource" ], index : 3 } },//
+		{ id : 11, location : { path : [ "heap" ], index : 1 } },//
+		{ id : 12, tokens : { recurring : 0 } },//
+		{ id : 22, face : "down", location : { path : [ "server", { id : 3 }, "upgrades" ], index : 0 } },//
+		] });
+	}), 1500)
 
-	var astro = cardManager.createCard({ id : 9, faction : 'corp', url : '01081' }, cardManager);
-	var breaking = cardManager.createCard({ id : 8, faction : 'corp', url : '01082' }, cardManager);
-	var anonymous = cardManager.createCard({ id : 7, faction : 'corp', url : '01083' }, cardManager);
-	var sansan = cardManager.createCard({ id : 6, faction : 'corp', url : '01092' }, cardManager);
-	var psf = cardManager.createCard({ id : 5, faction : 'corp', url : '01107' }, cardManager);
-	var melange = cardManager.createCard({ id : 4, faction : 'corp', url : '01108' }, cardManager);
-	var kate = cardManager.createCard({ id : 3, faction : 'runner', url : '01033' });
-	var egnima = cardManager.createCard({ id : 1, faction : 'corp', url : '01111' });
-	var gordian = cardManager.createCard({ id : 2, faction : 'runner', url : '01043' });
-
-	var gordianBreak = {
-		text : "Break selected(s) subroutine(s)",
-		type : "break",
-		costs : { 1 : { text : "1<span class='icon icon-credit'></span>", enabled : true },
-			2 : { text : "2<span class='icon icon-credit'></span>", enabled : false } } };
-
-	gordian.setActions([ gordianBreak ]);
-	melange.setActions([ { text : "Gain 7<span class='icon icon-credit'></span>",
-		cost : "<span class='icon icon-click'></span>,<span class='icon icon-click'></span>,<span class='icon icon-click'></span>" } ]);
-
-	absoluteContainer.addChild(hbox);
-	absoluteContainer.addChild(hbox2);
-
-	var s1 = new Server({ id : 1, name : "Archives" }, cardManager);
-	var s2 = new Server({ id : 2, name : "R&D" }, cardManager);
-
-	s1.setParent(hbox);
-	s2.setParent(hbox);
-
-	kate.setTokens({ credit : 1 });
-	kate.setParent(hbox2);
-
-	egnima.face = "down";
-	egnima.setSubs([ { text : "The Runner loses <span class='icon icon-click'></span>, if able" }, { text : "End the run" } ]);
-	egnima.setActions([ { text : "Continue", cls : "btn-warning" } ]);
-	egnima.setTokens({ advance : 1 });
-
-	gordian.setParent(hbox2);
-	gordian.absolutePosition = new LayoutCoords(10, 25, { zIndex : 10 });
-
-	astro.setParent(s2.assertOrUpgrades);
-	breaking.setParent(s2.ices)
-	egnima.setParent(s2.ices);
-	sansan.setParent(s2.ices)
-	psf.setParent(s2.upgrades);
-	melange.setParent(s2.upgrades);
-	anonymous.setParent(s1.assertOrUpgrades);
-
-	cardManager.runCycle();
-
-	cardManager.extbox.setHeader("Encounter ice")
-
-	 setTimeout(cardManager.within(function() {
-	
-		 astro.setParent(s2.upgrades);
-	
-	 kate.setTokens({ credit : 3, brain : 1 });
-	
-	 }), 2000)
+	// var absoluteContainer = new BoxContainer(cardManager, new
+	// AbsoluteLayoutFunction());
+	//
+	// var hbox = new BoxContainer(cardManager, new HorizontalLayoutFunction({
+	// spacing : 10 }, { angle : 0, zIndex : 1 }));
+	// hbox.absolutePosition = new LayoutCoords(50, 500);
+	//
+	// hbox2 = new BoxContainer(cardManager, new HorizontalLayoutFunction({
+	// spacing : 10 }, { angle : 0, zIndex : 1 }));
+	// hbox2.absolutePosition = new LayoutCoords(700, 100);
+	//
+	// cardManager.startCycle();
+	// cardManager.extbox = new ExtBox(cardManager, absoluteContainer);
+	//
+	// var astro = cardManager.createCard({ id : 9, faction : 'corp', url :
+	// '01081' });
+	// var breaking = cardManager.createCard({ id : 8, faction : 'corp', url :
+	// '01082' });
+	// var anonymous = cardManager.createCard({ id : 7, faction : 'corp', url :
+	// '01083' });
+	// var sansan = cardManager.createCard({ id : 6, faction : 'corp', url :
+	// '01092' });
+	// var psf = cardManager.createCard({ id : 5, faction : 'corp', url :
+	// '01107' });
+	// var melange = cardManager.createCard({ id : 4, faction : 'corp', url :
+	// '01108' });
+	// var kate = cardManager.createCard({ id : 3, faction : 'runner', url :
+	// '01033' });
+	// var egnima = cardManager.createCard({ id : 1, faction : 'corp', url :
+	// '01111' });
+	// var gordian = cardManager.createCard({ id : 2, faction : 'runner', url :
+	// '01043' });
+	//
+	// var gordianBreak = {
+	// text : "Break selected(s) subroutine(s)",
+	// type : "break",
+	// costs : { 1 : { text : "1<span class='icon icon-credit'></span>", enabled
+	// : true },
+	// 2 : { text : "2<span class='icon icon-credit'></span>", enabled : false }
+	// } };
+	//
+	// gordian.setActions([ gordianBreak ]);
+	// melange.setActions([ { text : "Gain 7<span class='icon
+	// icon-credit'></span>",
+	// cost : "<span class='icon icon-click'></span>,<span class='icon
+	// icon-click'></span>,<span class='icon icon-click'></span>" } ]);
+	//
+	// absoluteContainer.addChild(hbox);
+	// absoluteContainer.addChild(hbox2);
+	//
+	// var s1 = new Server({ id : 1, name : "Archives" }, cardManager);
+	// var s2 = new Server({ id : 2, name : "R&D" }, cardManager);
+	//
+	// s1.setParent(hbox);
+	// s2.setParent(hbox);
+	//
+	// kate.setTokens({ credit : 1 });
+	// kate.setParent(hbox2);
+	//
+	// egnima.face = "down";
+	// egnima.setSubs([ { text : "The Runner loses <span class='icon
+	// icon-click'></span>, if able" }, { text : "End the run" } ]);
+	// egnima.setActions([ { text : "Continue", cls : "btn-warning" } ]);
+	// egnima.setTokens({ advance : 1 });
+	//
+	// gordian.setParent(hbox2);
+	// gordian.absolutePosition = new LayoutCoords(10, 25, { zIndex : 10 });
+	//
+	// astro.setParent(s2.assetOrUpgrades);
+	// breaking.setParent(s2.ices)
+	// egnima.setParent(s2.ices);
+	// sansan.setParent(s2.ices)
+	// psf.setParent(s2.upgrades);
+	// melange.setParent(s2.upgrades);
+	// anonymous.setParent(s1.assetOrUpgrades);
+	//
+	// cardManager.runCycle();
+	//
+	// cardManager.extbox.setHeader("Encounter ice")
+	//
+	// setTimeout(cardManager.within(function() {
+	//
+	// astro.setParent(s2.upgrades);
+	//
+	// kate.setTokens({ credit : 3, brain : 1 });
+	//
+	// }), 2000)
 }
 
 function CardManager(cardContainer) {
 	var me = this;
 	this.cards = {};
+	this.servers = {};
 	this.cardContainer = cardContainer;
-	this.layoutIds = 0;
-
 	LayoutManager.call(this);
+
+	this.makeReady = function() {
+		this.startCycle();
+		this.absoluteContainer = new BoxContainer(this, new AbsoluteLayoutFunction());
+		this.extbox = new ExtBox(this, this.absoluteContainer);
+		this.serverRows = new BoxContainer(this, new HorizontalLayoutFunction({ spacing : 12 }, {}));
+		this.runnerColums = new BoxContainer(this, new VerticalLayoutFunction({ spacing : 5 }, {}));
+
+		var runnerRow = new BoxContainer(this, new HorizontalLayoutFunction({ spacing : 12, direction : -1 }, {}));
+
+		var horizontalRunnerLayout = new HorizontalLayoutFunction({ spacing : 8, direction : -1 }, {});
+		this.runnerResources = new BoxContainer(this, horizontalRunnerLayout);
+		this.runnerHardwares = new BoxContainer(this, horizontalRunnerLayout);
+		this.runnerPrograms = new BoxContainer(this, horizontalRunnerLayout);
+
+		this.runnerId = new RunnerContainer(this, "Grip");
+		this.runnerStack = new RunnerContainer(this, "Stack");
+		this.runnerHeap = new RunnerContainer(this, "Heap");
+		runnerRow.addChild(this.runnerHeap);
+		runnerRow.addChild(this.runnerStack);
+		runnerRow.addChild(this.runnerId);
+		runnerRow.addChild(this.runnerResources);
+
+		this.runnerColums.addChild(runnerRow);
+		this.runnerColums.addChild(this.runnerHardwares);
+		this.runnerColums.addChild(this.runnerPrograms);
+
+		this.absoluteContainer.addChild(this.serverRows);
+		this.absoluteContainer.addChild(this.runnerColums);
+
+		this.refresh();
+		this.runCycle();
+	};
+
+	/**
+	 * Remise à jour des positions
+	 */
+	this.refresh = function() {
+		var padding = 25;
+		this.serverRows.absolutePosition = new LayoutCoords(padding, this.area.main.height - this.area.card.height * 2 - padding);
+		this.runnerColums.absolutePosition = new LayoutCoords(this.area.main.width - this.area.card.width - padding, padding);
+
+		this.absoluteContainer.requireLayout();
+	};
 
 	$(window).resize(function() {
 		me.prepare();
+
+		me.startCycle();
+		me.refresh();
+		me.runCycle();
 	});
+
+	this.getCard = function(def) {
+		return me.cards[def.id];
+	};
+
+	this.getServer = function(def) {
+		return me.servers[def.id];
+	};
+
+	/**
+	 * Création des cartes qui n'existent pas
+	 */
+	var createAllCards = function(elements) {
+		var allExists = _.every(elements.cards, me.getCard);
+		if (!allExists) {
+			for ( var c in elements.cards) {
+				var def = elements.cards[c];
+				var card = me.getCard(def);
+				if (!card) {
+					me.createCard(def);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Création des serveurs qui n'existent pas
+	 */
+	var createAllServers = function(elements) {
+		var allExists = _.every(elements.servers, me.getServer);
+		if (!allExists) {
+			for ( var c in elements.servers) {
+				var def = elements.servers[c];
+				var serv = me.getServer(def);
+				if (!serv) {
+					serv = new Server(def, me);
+					serv.setParent(me.serverRows);
+					me.servers[def.id] = serv;
+				}
+			}
+		}
+	}
+
+	var findContainer = function(path) {
+		var first = path[0];
+		if ("server" === first) {
+			var server = me.getServer(path[1]);
+			return server.findContainer(path[2]);
+		} else if ("resource" === first)
+			return me.runnerResources;
+		else if ("hardware" === first)
+			return me.runnerHardwares;
+		else if ("program" === first)
+			return me.runnerPrograms;
+		else if ("grip" === first)
+			return me.runnerId;
+		else if ("stack" === first)
+			return me.runnerStack;
+		else if ("heap" === first)
+			return me.runnerHeap;
+
+	};
+
+	/**
+	 * Mise à jour des elements
+	 */
+	this.update = function(elements) {
+		createAllCards(elements);
+		createAllServers(elements);
+
+		for ( var c in elements.cards) {
+			var def = elements.cards[c];
+			var card = me.getCard(def);
+			if (def.location) {
+				var container = findContainer(def.location.path);
+				if (container)
+					card.setParent(container, def.location.index);
+			}
+
+			if (def.face) {
+				card.face = def.face;
+				card.fireCoordsChanged();
+			}
+
+			if (def.tokens) {
+				card.setTokens(def.tokens);
+			}
+
+		}
+	};
 
 	/**
 	 * creation d'une carte
@@ -178,6 +379,17 @@ function CardManager(cardContainer) {
 	}
 }
 
+function RunnerContainer(cardManager, type) {
+	BoxContainer.call(this, cardManager, new StackedLayoutFunction());
+	this.getBaseBox = function() {
+		return cardManager.area.card;
+	};
+	var createdDiv = $("<div class='cardstack'/>");
+	createdDiv.append(type);
+	ElementBox.call(this, createdDiv.appendTo(cardManager.cardContainer));
+
+}
+
 /**
  * Place une animation css avec animate.css
  * 
@@ -196,7 +408,7 @@ function animateCss(element, classx, onEnd) {
 	return element;
 }
 
-var CARD_TOKEN_LAYOUT = new GridLayoutFunction({ columns : 3, padding : 3 }, { });
+var CARD_TOKEN_LAYOUT = new GridLayoutFunction({ columns : 3, padding : 3 }, {});
 
 /**
  * L'image d'une carte
@@ -399,6 +611,7 @@ function Card(def, cardManager) {
 		var primaryCss = {};
 		var innerCss = { rotationY : faceup ? 0 : -180 };
 		var tokenCss = { autoAlpha : 1 };
+		var visible = this.coords.hidden ? 0 : 1;
 
 		if (this.mode === "secondary") {
 			_.extend(innerCss, { rotationY : -360 });
@@ -415,7 +628,7 @@ function Card(def, cardManager) {
 			_.extend(extCss, { width : 0, height : 0, autoAlpha : 0 });
 		}
 
-		_.extend(primaryCss, { width : box.width, height : box.height, top : this.coords.y, left : this.coords.x, rotation : rotation, autoAlpha : 1,
+		_.extend(primaryCss, { width : box.width, height : box.height, top : this.coords.y, left : this.coords.x, rotation : rotation, autoAlpha : visible,
 			zIndex : this.coords.zIndex || 0 });
 
 		var backCss = _.extend(_.clone(innerCss), { boxShadow : shadow });
@@ -462,7 +675,7 @@ function AnimatedBox(animation) {
 				me.element.remove();
 			};
 		} else
-			closure = layoutManager.within(function() {
+			closure = me.layoutManager.within(function() {
 				me.setParent(null);
 				me.element.remove();
 			});
@@ -1004,44 +1217,6 @@ function ExtBox(cardManager, absoluteContainer) {
 	}
 }
 
-// TODO gestion de tailles dans la configuration
-
-var ICE_LAYOUT = new VerticalLayoutFunction({ spacing : 5, direction : -1, align : 'center' }, { angle : 90 });
-var ROOT_SERVER_LAYOUT = new HorizontalLayoutFunction({ spacing : -40 }, {zIndex:0});
-var INNER_SERVER_LAYOUT = new function() {
-	var me = this;
-	LayoutFunction.call(this);
-
-	this.lastBoxY = 0;
-	this.maxWidth = 0;
-
-	this.beforeLayout = function(boxContainer) {
-		this.lastBoxY = 0;
-		this.maxWidth = 0;
-
-		_.each(boxContainer.childs, function(box, index) {
-			var width = me.getBounds(box).dimension.width;
-			if (width > me.maxWidth)
-				me.maxWidth = width;
-		});
-	};
-
-	this.applyLayout = function(boxContainer, index, box) {
-		var boxBounds = me.getBounds(box).dimension;
-		var x = (me.maxWidth - boxBounds.width) / 2;
-		var card = boxContainer.layoutManager.area.card;
-		if (box.serverLayoutKey === 'ices') {
-			return new LayoutCoords(x, -card.height - 5);
-		} else if (box.serverLayoutKey === 'assertOrUpgrades' || box.serverLayoutKey === 'stack') {
-			return new LayoutCoords(x, 0);
-		} else if (box.serverLayoutKey === 'upgrades') {
-			return new LayoutCoords(x, card.height + 10);
-		}
-
-		return null;
-	}
-}
-
 /**
  * Une boite associe à un element Jquery
  */
@@ -1104,6 +1279,45 @@ function HeightBox(element) {
 	}
 }
 
+// TODO gestion de tailles dans la configuration
+
+var ICE_LAYOUT = new VerticalLayoutFunction({ spacing : 5, direction : -1, align : 'center' }, { angle : 90 });
+var ROOT_SERVER_LAYOUT = new HorizontalLayoutFunction({ spacing : -40 }, { zIndex : 0 });
+var STACKED_SERVER_LAYOUT = new StackedLayoutFunction();
+var INNER_SERVER_LAYOUT = new function() {
+	var me = this;
+	LayoutFunction.call(this);
+
+	this.lastBoxY = 0;
+	this.maxWidth = 0;
+
+	this.beforeLayout = function(boxContainer) {
+		this.lastBoxY = 0;
+		this.maxWidth = 0;
+
+		_.each(boxContainer.childs, function(box, index) {
+			var width = me.getBounds(box).dimension.width;
+			if (width > me.maxWidth)
+				me.maxWidth = width;
+		});
+	};
+
+	this.applyLayout = function(boxContainer, index, box) {
+		var boxBounds = me.getBounds(box).dimension;
+		var x = (me.maxWidth - boxBounds.width) / 2;
+		var card = boxContainer.layoutManager.area.card;
+		if (box.serverLayoutKey === 'ices') {
+			return new LayoutCoords(x, -card.height - 5);
+		} else if (box.serverLayoutKey === 'assetOrUpgrades' || box.serverLayoutKey === 'stack') {
+			return new LayoutCoords(x, 0);
+		} else if (box.serverLayoutKey === 'upgrades') {
+			return new LayoutCoords(x, card.height + 10);
+		}
+
+		return null;
+	}
+}
+
 /**
  * Un server contenant plusieurs containers
  */
@@ -1125,13 +1339,30 @@ function Server(def, cardManager) {
 	this.ices.serverLayoutKey = 'ices';
 	this.addChild(this.ices);
 
-	this.assertOrUpgrades = new BoxContainer(cardManager, ROOT_SERVER_LAYOUT);
-	this.assertOrUpgrades.serverLayoutKey = 'assertOrUpgrades';
-	this.addChild(this.assertOrUpgrades);
+	this.stack = new BoxContainer(cardManager, STACKED_SERVER_LAYOUT);
+	this.stack.serverLayoutKey = 'stack';
+	this.addChild(this.stack);
 
-	ElementBox.call(this.assertOrUpgrades, createdDiv.appendTo(cardManager.cardContainer));
+	this.assetOrUpgrades = new BoxContainer(cardManager, ROOT_SERVER_LAYOUT);
+	this.assetOrUpgrades.serverLayoutKey = 'assetOrUpgrades';
+	this.addChild(this.assetOrUpgrades);
+	ElementBox.call(this.assetOrUpgrades, createdDiv.appendTo(cardManager.cardContainer));
 
 	this.upgrades = new BoxContainer(cardManager, ROOT_SERVER_LAYOUT);
 	this.upgrades.serverLayoutKey = 'upgrades';
 	this.addChild(this.upgrades);
+
+	/**
+	 * Renvoi le conteneur approprié
+	 */
+	this.findContainer = function(key) {
+		if ("ices" == key)
+			return me.ices;
+		else if ("assetOrUpgrades" == key)
+			return me.assetOrUpgrades;
+		else if ("upgrades" == key)
+			return me.upgrades;
+		else if ("stack" == key)
+			return me.stack;
+	};
 }

@@ -88,7 +88,8 @@ function Bounds(point, dimension) {
 	}
 
 	/**
-	 * Renvoi le point qui permet de faire rentrer bounds dans le container. ie. pour avoir this.contains(bounds)===true
+	 * Renvoi le point qui permet de faire rentrer bounds dans le container. ie.
+	 * pour avoir this.contains(bounds)===true
 	 */
 	this.getMatchingPoint = function(bounds) {
 		var tl0 = this.getTopLeft();
@@ -178,6 +179,7 @@ function HorizontalLayoutFunction(innerCfg, baseConfig) {
 	this.spacing = innerCfg.spacing || 0;
 	this.padding = innerCfg.padding || 0;
 	this.baseConfig = baseConfig;
+	this.direction = innerCfg.direction || 1;
 	this.lastBoxX = 0;
 
 	this.beforeLayout = function(boxContainer) {
@@ -197,15 +199,27 @@ function HorizontalLayoutFunction(innerCfg, baseConfig) {
 		// en cas de recouvrement permet de gérer la superposition avec le
 		// zIndex
 		if (this.spacing < 0) {
-			cfg = _.extend(_.clone(cfg), { zIndex : cfg.zIndex + index })
+			cfg = _.extend(_.clone(cfg), { zIndex : cfg.zIndex + (boxContainer.size() - index) })
 		}
 
+		var delta = boxBounds.width;
 		if (index == 0) {
 			this.lastBoxX += this.padding;
+		} else {
+			if (delta > 0) {
+				if (this.direction == -1)
+					this.lastBoxX -= this.spacing;
+				else
+					this.lastBoxX += this.spacing;
+			}
 		}
 
 		var lc = new LayoutCoords(this.lastBoxX, this.padding, cfg);
-		this.lastBoxX += boxBounds.width + this.spacing;
+
+		if (this.direction == -1)
+			delta = -delta;
+
+		this.lastBoxX += delta;
 		return lc;
 	}
 }
@@ -346,10 +360,11 @@ function StackedLayoutFunction() {
 
 	this.applyLayout = function(boxContainer, index, box) {
 
-		var cfg = {};
-		cfg.zIndex = index;
+		var size = -(boxContainer.size() - index);
 
-		// TODO
+		var cfg = {};
+		cfg.zIndex = cfg.zIndex + size;
+		cfg.hidden = size < -2;		
 
 		return new LayoutCoords(0, 0, cfg);
 	}
@@ -417,18 +432,21 @@ function LayoutManager() {
 	 * La position dans le parent à changer
 	 */
 	this.registerLayoutCoordsChanged = function(box) {
-		this.layoutCycle.registerLayoutCoordsChanged(box);
+		if (this.layoutCycle)
+			this.layoutCycle.registerLayoutCoordsChanged(box);
 	}
 
 	/**
 	 * La position réelle changer
 	 */
 	this.registerCoordsChanged = function(box) {
-		this.layoutCycle.registerCoordsChanged(box);
+		if (this.layoutCycle)
+			this.layoutCycle.registerCoordsChanged(box);
 	}
 
 	this.requireLayout = function(boxcontainer) {
-		this.layoutCycle.requireLayout(boxcontainer);
+		if (this.layoutCycle)
+			this.layoutCycle.requireLayout(boxcontainer);
 	}
 }
 
@@ -602,6 +620,9 @@ function Box(layoutManager) {
 		}
 	}
 
+	/**
+	 * Changement dans les coordonnées réelles
+	 */
 	this.fireCoordsChanged = function() {
 		this.layoutManager.registerCoordsChanged(this);
 	}
@@ -712,11 +733,15 @@ function BoxContainer(layoutManager, layoutFunction) {
 		this.requireLayout();
 	}
 
+	this.size = function() {
+		return this.childs.length;
+	}
+
 	/**
 	 * Remplace un element parent un autre
 	 */
 	this.replaceChild = function(remove, add) {
-		var index = _.indexOf(this.child, remove);
+		var index = _.indexOf(this.childs, remove);
 		add.setParent(this, index);
 		this.removeChild(remove);
 	}
@@ -749,8 +774,7 @@ function BoxContainer(layoutManager, layoutFunction) {
 				box.updateLayoutCoord(updated);
 
 				var boxBounds = me.layoutFunction.getBounds(box);
-				console.log("boxbounds boxId=" + box.boxId + " " + JSON.stringify(boxBounds))
-				console.debug(me)
+				console.debug("boxbounds boxId=" + box.boxId + " " + JSON.stringify(boxBounds))
 
 				// mise à jour de la taille du bounds courrant
 				bounds = bounds.merge(boxBounds);
@@ -759,7 +783,7 @@ function BoxContainer(layoutManager, layoutFunction) {
 			// mise à jour de fin
 			me.layoutFunction.afterLayout(me, bounds);
 
-			console.log("merged bounds boxId=" + me.boxId + " " + JSON.stringify(bounds))
+			console.debug("merged bounds boxId=" + me.boxId + " " + JSON.stringify(bounds))
 
 			// en cas de changement on notifie le layout
 			if (!_.isEqual(bounds, me.lastBounds)) {
