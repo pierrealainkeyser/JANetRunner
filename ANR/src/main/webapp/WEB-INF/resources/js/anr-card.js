@@ -22,7 +22,6 @@ function bootANR(gameId) {
 				{ id : 3, faction : 'corp', url : '01080', tokens : { credit : 5, recurring : 2 },
 					location : { path : [ "server", { id : 3 }, "assetOrUpgrades" ], index : 0 } }, //
 				{ id : 4, faction : 'corp', url : '01089', face : "down", location : { path : [ "server", { id : 3 }, "ices" ], index : 0 } }, //
-
 				{ id : 5, faction : 'runner', url : '01033', location : { path : [ "grip" ], index : 0 } },//
 				{ id : 6, faction : 'runner', url : '01034', face : "down", location : { path : [ "stack" ], index : 0 } },//
 				{ id : 7, faction : 'runner', url : '01035', face : "down", location : { path : [ "stack" ], index : 1 } },//
@@ -43,15 +42,29 @@ function bootANR(gameId) {
 
 	setTimeout(cardManager.within(function() {
 		cardManager.update({ cards : [ //
-		{ id : 5, tokens : { credit : 5, power : 1 } },//
-		{ id : 1, face : "down", location : { path : [ "server", { id : 3 }, "ices" ], index : 1 } },// 
-		{ id : 14, face : "up", location : { path : [ "program" ], index : 1 } },//
-		{ id : 15, face : "up", location : { path : [ "resource" ], index : 2 } },// 
-		{ id : 16, face : "up", location : { path : [ "resource" ], index : 3 } },//
-		{ id : 11, location : { path : [ "heap" ], index : 1 } },//
-		{ id : 12, tokens : { recurring : 0 } },//
-		{ id : 22, face : "down", location : { path : [ "server", { id : 3 }, "upgrades" ], index : 0 } },//
+				{ id : 5, tokens : { credit : 5, power : 1 } },//
+				{ id : 1, face : "down", subs : [ { text : "<strong>Trace<sup>3</sup></strong> - If successful, place 1 power counter on Data Raven" } ],
+					location : { path : [ "server", { id : 3 }, "ices" ], index : 1 } },// 
+				{ id : 14, face : "up", location : { path : [ "program" ], index : 1 } },//
+				{ id : 15, face : "up", location : { path : [ "resource" ], index : 1 } },// 
+				{ id : 16, face : "up", tokens : { credit : 12 }, location : { path : [ "resource" ], index : 2 } },//
+				{ id : 11, location : { path : [ "heap" ], index : 1 } },//
+				{ id : 12, tokens : { recurring : 0 } },//
+				{ id : 22, face : "down", location : { path : [ "server", { id : 3 }, "upgrades" ], index : 0 } },//
 		] });
+	}), 500)
+
+	setTimeout(cardManager.within(function() {
+		cardManager
+				.update({ cards : [ //
+						{ id : 5, tokens : { credit : 10 } },//
+						{ id : 1, is : "primary", actions : [ { text : "Continue", cls : "warning" } ] },//
+						{
+							id : 16,
+							actions : [ { text : "Take 2<span class='icon icon-credit'></span> from Armitage Codebusting",
+								cost : "<span class='icon icon-click'>" } ] },//
+
+				] });
 	}), 1500)
 
 	// var absoluteContainer = new BoxContainer(cardManager, new
@@ -148,6 +161,7 @@ function CardManager(cardContainer) {
 	this.cards = {};
 	this.servers = {};
 	this.cardContainer = cardContainer;
+	this.primaryCardId = null;
 	LayoutManager.call(this);
 
 	this.makeReady = function() {
@@ -285,8 +299,19 @@ function CardManager(cardContainer) {
 				card.fireCoordsChanged();
 			}
 
-			if (def.tokens) {
+			if (def.tokens)
 				card.setTokens(def.tokens);
+
+			if (def.actions) {
+				card.setActions(def.actions);
+				card.fireCoordsChanged();
+			}
+
+			if (def.subs)
+				card.setSubs(def.subs);
+
+			if (def.is === "primary") {
+				me.primaryCardId = def.id;
 			}
 
 		}
@@ -330,12 +355,30 @@ function CardManager(cardContainer) {
 				front : { horizontal : shadow.find(".front").find(".horizontal").css("box-shadow"),
 					vertical : shadow.find(".front").find(".vertical").css("box-shadow") },
 				back : { horizontal : shadow.find(".back").find(".horizontal").css("box-shadow"),
-					vertical : shadow.find(".back").find(".vertical").css("box-shadow") } //
+					vertical : shadow.find(".back").find(".vertical").css("box-shadow") }, //
+				withAction : shadow.find(".with-action").css("box-shadow"),//
+				withPrimaryAction : shadow.find(".with-primary-action").css("box-shadow"),//
 			},//
 			card : new Dimension(card.width(), card.height()),//
 			cardBig : new Dimension(cardBig.width(), cardBig.height()),//							
 			main : { width : this.cardContainer.width(), height : this.cardContainer.height() } };
 	}
+
+	/**
+	 * Joue l'action
+	 */
+	this.playAction = function(action) {
+
+		_.each(this.cards, function(card) {
+			card.resetActions();
+		});
+
+		me.extbox.removeActions();
+
+		console.info("Playing action : " + JSON.stringify(action));
+
+		// TODO à continuer
+	};
 
 	/**
 	 * Renvoi la taille
@@ -349,8 +392,6 @@ function CardManager(cardContainer) {
 	 * Affichage de la carte
 	 */
 	this.toggleCard = function(card) {
-		var selectionContext = { header : 'Encounter Ice', cardId : 1 };
-
 		this.displayedCard = null;
 		this.secondaryCard = null;
 
@@ -364,7 +405,7 @@ function CardManager(cardContainer) {
 				me.extbox.closeSecondary();
 			} else {
 
-				if (displayedId != selectionContext.cardId) {
+				if (displayedId != me.primaryCardId) {
 					me.extbox.displayPrimary(card);
 				} else {
 					// affichage en tant que carte secondaire
@@ -520,6 +561,16 @@ function Card(def, cardManager) {
 	}
 
 	/**
+	 * Suppression des actions
+	 */
+	this.resetActions = function() {
+		if (!_.isEmpty(me.actions)) {
+			me.actions = [];
+			me.fireCoordsChanged();
+		}
+	}
+
+	/**
 	 * Rajoute la liste des routines
 	 */
 	this.setSubs = function(subs) {
@@ -603,8 +654,13 @@ function Card(def, cardManager) {
 				shadow = this.cardManager.area.shadow.back.vertical;
 		}
 
-		if (this.coords.noShadow === true) {
-			shadow = "";
+		// shadow.replace(/rgba\(.*\)/, "#f0ad4e");
+		if (!_.isEmpty(this.actions)) {
+
+			if (this.cardManager.primaryCardId === this.def.id)
+				shadow = this.cardManager.area.shadow.withPrimaryAction;
+			else
+				shadow = this.cardManager.area.shadow.withAction;
 		}
 
 		var extCss = {};
@@ -617,6 +673,7 @@ function Card(def, cardManager) {
 			_.extend(innerCss, { rotationY : -360 });
 			_.extend(tokenCss, { autoAlpha : 0 });
 			rotation = -360;
+			shadow = "";
 		}
 
 		if (this.mode === "extended" && this.extbox) {
@@ -624,6 +681,7 @@ function Card(def, cardManager) {
 			_.extend(innerCss, { rotationY : 360 });
 			_.extend(tokenCss, { autoAlpha : 0 });
 			rotation = 360;
+			shadow = "";
 		} else {
 			_.extend(extCss, { width : 0, height : 0, autoAlpha : 0 });
 		}
@@ -838,7 +896,7 @@ function BoxAction(extbox, def) {
 	this.element.append(def.text);
 
 	if (def.cls)
-		this.element.addClass(def.cls);
+		this.element.addClass("btn-" + def.cls);
 
 	Box.call(this, extbox.cardManager);
 	ElementBox.call(this, this.element);
@@ -985,8 +1043,6 @@ function ExtBox(cardManager, absoluteContainer) {
 	 * Affichage de la carte
 	 */
 	this.displayPrimary = function(card) {
-		console.log("-----------display primary " + card.getId())
-
 		this.closeCard();
 		this.displayedCard = card;
 		this.displayedCard.mode = "extended";
@@ -1055,8 +1111,6 @@ function ExtBox(cardManager, absoluteContainer) {
 	 * Rajoute le dernier element
 	 */
 	this.displaySecondary = function(card) {
-		console.log("-----------display secondary " + card.getId())
-
 		this.closeSecondary();
 		this.secondaryCard = card;
 		this.secondaryCard.mode = "secondary";
@@ -1086,7 +1140,24 @@ function ExtBox(cardManager, absoluteContainer) {
 		me.actionsContainer.addChild(act);
 		act.element.appendTo(me.displayedCard.ext);
 		act.entrance();
+
+		act.click(function(event) {
+			event.stopPropagation();
+			cardManager.startCycle();
+			cardManager.playAction(def);
+			cardManager.runCycle();
+		});
 		return act;
+	}
+
+	/**
+	 * Suppression des actions
+	 */
+	this.removeActions = function() {
+		// suppression des actions secondaires
+		this.actionsContainer.each(function(box) {
+			box.remove(true);
+		});
 	}
 
 	/**
@@ -1174,7 +1245,6 @@ function ExtBox(cardManager, absoluteContainer) {
 		if (this.secondaryCard !== null) {
 			var absolute = this.displayedCard.mergeChildCoord(this.blankBox);
 			absolute.zIndex = this.displayedCard.coords.zIndex + 1;
-			absolute.noShadow = true;
 			this.secondaryCard.setCoords(absolute);
 
 			if (sync) {
@@ -1230,7 +1300,6 @@ function ElementBox(element) {
 	 */
 	this.getBaseBox = function() {
 		var base = new Dimension(this.element.outerWidth(true), this.element.outerHeight(true));
-		console.debug("basebox=" + JSON.stringify(base) + " " + this.element.text());
 		return base;
 	}
 

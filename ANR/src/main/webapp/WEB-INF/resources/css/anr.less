@@ -27,6 +27,8 @@ html , body , body > div.container {
 @card-width: 80px;
 @card-height: 111px;
 @card-shadow-color: rgba(0, 0, 0, 0.35);
+@card-primary-action-shadow-color: rgb(210, 50, 45);
+@card-action-shadow-color: rgb(240, 173, 78);
 @card-action-color: rgba(230, 230, 230, 0.8);
 @token-text-color: #E8E8E8;
 @token-recurring-text-color: #FFCC33;
@@ -116,6 +118,14 @@ div#conf {
 	.shadow {
 		@shadow-delta: 2.5px;
 		@shadow-blur: 5px;
+		.with-action {
+			box-shadow: 0 0 @shadow-blur 1px @card-action-shadow-color;
+		}
+
+		.with-primary-action {
+			box-shadow: 0 0 @shadow-blur 1px @card-primary-action-shadow-color;
+		}
+
 		.front {
 			.horizontal {
 				box-shadow: @shadow-delta -@shadow-delta @shadow-blur 0px @card-shadow-color;
@@ -211,9 +221,8 @@ div#main {
 
 				&:not(.btn-danger) {
 					padding: 5px 4px;
-					
-					&:disabled{
-						text-decoration:line-through;
+					&:disabled {
+						text-decoration: line-through;
 					}
 				}
 
@@ -227,9 +236,9 @@ div#main {
 			label.sub {
 				position: absolute;
 				width: 230px;
+				font-weight: normal;
 				&.broken {
 					text-decoration: line-through;
-					font-weight: normal;
 				}
 
 				&:not(.broken) {
@@ -276,7 +285,7 @@ div#main {
 					display: inline-block;
 					line-height: @token-size;
 					padding: 0 0 0 @token-size+5;
-					font-weight: bold;
+					font-weight: normal;
 				}
 			}
 		}

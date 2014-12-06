@@ -87,6 +87,16 @@ function Bounds(point, dimension) {
 		return bounds;
 	}
 
+	this.equals = function(other) {
+		if (other) {
+			return this.point.x == other.point.x && //
+			this.point.y == other.point.y && //
+			this.dimension.width == other.dimension.width && //
+			this.dimension.height == other.dimension.height;
+		}
+		return false;
+	}
+
 	/**
 	 * Renvoi le point qui permet de faire rentrer bounds dans le container. ie.
 	 * pour avoir this.contains(bounds)===true
@@ -364,7 +374,7 @@ function StackedLayoutFunction() {
 
 		var cfg = {};
 		cfg.zIndex = cfg.zIndex + size;
-		cfg.hidden = size < -2;		
+		cfg.hidden = size < -2;
 
 		return new LayoutCoords(0, 0, cfg);
 	}
@@ -470,20 +480,13 @@ function LayoutCycle() {
 			// reset des layouts, qui seront remis en oeuvre à la prochaine
 			// passe
 			this.layoutNeeded = {};
-
-			console.debug("LayoutCycle.run")
-			console.debug(layoutByDepths)
-
 			_.each(layoutByDepths, function(boxcontainer) {
-				console.debug("doLayout boxId=" + boxcontainer.boxId + " depth=" + boxcontainer.depth)
 				boxcontainer.doLayout();
 			});
 		}
 
 		// application des changements de coordonnées par profondeur croissante
 		var coordsChangedByDepths = _.sortBy(_.values(this.layoutCoordsChanged), "depth");
-
-		console.debug(coordsChangedByDepths)
 
 		_.each(coordsChangedByDepths, function(box) {
 			box.redraw();
@@ -515,6 +518,7 @@ function LayoutCycle() {
  * @param layoutManager
  */
 function Box(layoutManager) {
+	var me = this;
 	this.layoutManager = layoutManager;
 	this.boxId = layoutManager.nextBoxId();
 
@@ -535,12 +539,12 @@ function Box(layoutManager) {
 	 * Mise à jour du parent
 	 */
 	this.setParent = function(parent, index) {
-		if (this.parent) {
-			this.parent.removeChild(this);
+		if (me.parent) {
+			me.parent.removeChild(me);
 		}
-		this.parent = parent;
-		if (this.parent) {
-			this.parent.addChild(this, index);
+		me.parent = parent;
+		if (me.parent) {
+			me.parent.addChild(me, index);
 		}
 	}
 
@@ -624,7 +628,7 @@ function Box(layoutManager) {
 	 * Changement dans les coordonnées réelles
 	 */
 	this.fireCoordsChanged = function() {
-		this.layoutManager.registerCoordsChanged(this);
+		me.layoutManager.registerCoordsChanged(me);
 	}
 
 	/**
@@ -774,7 +778,6 @@ function BoxContainer(layoutManager, layoutFunction) {
 				box.updateLayoutCoord(updated);
 
 				var boxBounds = me.layoutFunction.getBounds(box);
-				console.debug("boxbounds boxId=" + box.boxId + " " + JSON.stringify(boxBounds))
 
 				// mise à jour de la taille du bounds courrant
 				bounds = bounds.merge(boxBounds);
@@ -783,12 +786,10 @@ function BoxContainer(layoutManager, layoutFunction) {
 			// mise à jour de fin
 			me.layoutFunction.afterLayout(me, bounds);
 
-			console.debug("merged bounds boxId=" + me.boxId + " " + JSON.stringify(bounds))
-
 			// en cas de changement on notifie le layout
-			if (!_.isEqual(bounds, me.lastBounds)) {
+			if (!bounds.equals(me.lastBounds))
 				me.notifyBoxChanged();
-			}
+
 			me.lastBounds = bounds;
 		}
 	}
