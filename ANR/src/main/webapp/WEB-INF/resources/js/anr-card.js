@@ -59,7 +59,7 @@ function bootANR(gameId) {
 		cardManager
 				.update({ cards : [ //
 						{ id : 5, tokens : { credit : 10 } },//
-						{ id : 1, is : "primary", actions : [ { text : "Continue", cls : "warning" } ] },//
+						{ id : 1, is : "primary", actions : [ { id : 1, text : "Continue", cls : "warning" } ] },//
 						{
 							id : 16,
 							actions : [ { text : "Take 2<span class='icon icon-credit'></span> from Armitage Codebusting",
@@ -70,7 +70,7 @@ function bootANR(gameId) {
 
 	setTimeout(cardManager.within(function() {
 		cardManager.update({ cards : [ //
-				{ id : 1, tokens : { power : 1 }, actions : [ { text : "Continue", cls : "warning" } ],
+				{ id : 1, tokens : { power : 1 }, actions : [ { id : 2, text : "Continue", cls : "success" } ],
 					subs : [ { id : 1, text : "<strong>Trace<sup>3</sup></strong> - If successful, place 1 power counter on Data Raven", broken : true } ] },//						
 		] });
 	}), 1000)
@@ -902,9 +902,8 @@ function BoxAllSubroutine(extbox, text) {
 
 	this.checkbox.change(function() {
 		var value = me.checkbox.prop("checked");
-		$('input:checkbox').prop('checked', this.checked);
-
-		me.element.find("input:checkbox").prop("checked", value);
+		//TODO restriction des checkbox dans la carte
+		$('input:checkbox:enabled').prop('checked', this.checked);
 		extbox.updateBreakActions();
 	});
 }
@@ -954,6 +953,19 @@ function BoxAction(extbox, def) {
 	Box.call(this, extbox.cardManager);
 	ElementBox.call(this, this.element);
 	AnimatedBox.call(this);
+
+	/**
+	 * Mise à jour de l'action
+	 */
+	this.update = function(def) {
+		if (me.def.cls) {
+			this.element.removeClass("btn-" + me.def.cls);
+		}
+		if (def.cls)
+			this.element.addClass("btn-" + def.cls);
+
+		me.def = def;
+	}
 
 	/**
 	 * Gestion de l'activation
@@ -1173,6 +1185,13 @@ function ExtBox(cardManager, absoluteContainer) {
 			selected.update(sub);
 		});
 
+		if (card.actions) {
+			// TODO mise à jour des actions, création des autres, suppression
+			// des actions non présentes
+			me.removeActions();
+			_.each(card.actions, me.addAction);
+		}
+
 		card.tokensContainer.each(function(token) {
 			var tok = me.tokensContainer.find(function(s) {
 				return s.type == token.type && s.key == token.key;
@@ -1188,7 +1207,6 @@ function ExtBox(cardManager, absoluteContainer) {
 				if (value > 0)
 					addInTokens(token.clone());
 			}
-
 		});
 
 	};
