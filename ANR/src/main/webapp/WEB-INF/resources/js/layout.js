@@ -32,8 +32,7 @@ function Dimension(width, height) {
 	 * Renvoi le maximum
 	 */
 	this.max = function(dimension) {
-		return new Dimension(Math.max(dimension.width, this.width), Math.max(
-				dimension.height, this.height));
+		return new Dimension(Math.max(dimension.width, this.width), Math.max(dimension.height, this.height));
 	}
 
 	/**
@@ -59,8 +58,7 @@ function Bounds(point, dimension) {
 	}
 
 	this.getBottomRight = function() {
-		return new Point(this.point.x + this.dimension.width, this.point.y
-				+ this.dimension.height);
+		return new Point(this.point.x + this.dimension.width, this.point.y + this.dimension.height);
 	}
 
 	/**
@@ -138,8 +136,7 @@ function Bounds(point, dimension) {
 		var tl1 = bounds.getTopLeft();
 		var br1 = bounds.getBottomRight();
 
-		return (tl0.x <= tl1.x && tl0.y <= tl1.y)
-				&& (br0.x >= br1.x && br0.y >= br1.y);
+		return (tl0.x <= tl1.x && tl0.y <= tl1.y) && (br0.x >= br1.x && br0.y >= br1.y);
 	}
 
 }
@@ -194,11 +191,11 @@ function HorizontalLayoutFunction(innerCfg, baseConfig) {
 	this.baseConfig = baseConfig;
 	this.direction = innerCfg.direction || 1;
 	this.lastBoxX = 0;
-	this.currentPadding=0;
+	this.currentPadding = 0;
 
 	this.beforeLayout = function(boxContainer) {
 		this.lastBoxX = 0;
-		this.currentPadding=boxContainer.size()>0?this.padding:0;
+		this.currentPadding = boxContainer.size() > 0 ? this.padding : 0;
 	};
 
 	this.afterLayout = function(boxContainer, bounds) {
@@ -214,9 +211,7 @@ function HorizontalLayoutFunction(innerCfg, baseConfig) {
 		// en cas de recouvrement permet de gérer la superposition avec le
 		// zIndex
 		if (this.spacing < 0) {
-			cfg = _.extend(_.clone(cfg), {
-				zIndex : cfg.zIndex + (boxContainer.size() - index)
-			})
+			cfg = _.extend(_.clone(cfg), { zIndex : cfg.zIndex + (boxContainer.size() - index) })
 		}
 
 		var delta = boxBounds.width;
@@ -230,8 +225,7 @@ function HorizontalLayoutFunction(innerCfg, baseConfig) {
 					this.lastBoxX += this.spacing;
 			}
 		}
-		
-	
+
 		var lc = new LayoutCoords(this.lastBoxX, this.currentPadding, cfg);
 
 		if (this.direction == -1)
@@ -249,7 +243,7 @@ function VerticalLayoutFunction(innerCfg, baseConfig) {
 	this.spacing = innerCfg.spacing || 0;
 	this.align = innerCfg.align || "left";
 	this.padding = innerCfg.padding || 0;
-	this.currentPadding=0;
+	this.currentPadding = 0;
 
 	this.direction = innerCfg.direction || 1;
 	this.lastBoxY = 0;
@@ -258,7 +252,7 @@ function VerticalLayoutFunction(innerCfg, baseConfig) {
 	this.beforeLayout = function(boxContainer) {
 		this.lastBoxY = 0;
 		this.maxWidth = 0;
-		this.currentPadding=boxContainer.size()>0?this.padding:0;
+		this.currentPadding = boxContainer.size() > 0 ? this.padding : 0;
 
 		if (this.align == 'center') {
 			_.each(boxContainer.childs, function(box, index) {
@@ -293,8 +287,6 @@ function VerticalLayoutFunction(innerCfg, baseConfig) {
 		var more = boxBounds.height;
 		if (this.isRotatedConfig())
 			more = boxBounds.width;
-		
-		console.log(more)
 
 		if (this.align == 'center') {
 			x = (me.maxWidth - boxBounds.width) / 2;
@@ -356,7 +348,8 @@ function GridLayoutFunction(innerCfg, baseConfig) {
 		var x = col * this.maxBox.width + (this.padding * (col + 1));
 		var y = row * this.maxBox.height + (this.padding * (row + 1));
 
-		return new LayoutCoords(x, y, this.baseConfig);
+		var lc = new LayoutCoords(x, y, this.baseConfig);		
+		return lc;
 	}
 }
 
@@ -488,10 +481,9 @@ function LayoutCycle(layoutManager) {
 
 			// recopie de la map des layouts triés dans un tableau trié par
 			// profondeur décroissante
-			var layoutByDepths = _.sortBy(_.values(this.layoutNeeded),
-					function(boxcontainer) {
-						return -boxcontainer.depth;
-					});
+			var layoutByDepths = _.sortBy(_.values(this.layoutNeeded), function(boxcontainer) {
+				return -boxcontainer.depth;
+			});
 			// reset des layouts, qui seront remis en oeuvre à la prochaine
 			// passe
 			this.layoutNeeded = {};
@@ -501,8 +493,7 @@ function LayoutCycle(layoutManager) {
 		}
 
 		// application des changements de coordonnées par profondeur croissante
-		var coordsChangedByDepths = _.sortBy(
-				_.values(this.layoutCoordsChanged), "depth");
+		var coordsChangedByDepths = _.sortBy(_.values(this.layoutCoordsChanged), "depth");
 
 		_.each(coordsChangedByDepths, function(box) {
 			box.redraw();
@@ -628,8 +619,7 @@ function Box(layoutManager) {
 	 * Synchronisation des coordonnées, depuis le parent
 	 */
 	this.redraw = function() {
-		var newCoords = this.parent ? this.parent.mergeChildCoord(this)
-				: new Point(0, 0);
+		var newCoords = this.parent ? this.parent.mergeChildCoord(this) : new Point(0, 0);
 		this.setCoords(newCoords);
 	}
 
@@ -775,8 +765,7 @@ function BoxContainer(layoutManager, layoutFunction) {
 	this.super_getBounds = this.getBounds;
 	this.getBounds = function(swap) {
 		if (this.lastBounds) {
-			return new Bounds(this.getPositionInParent(),
-					this.lastBounds.dimension);
+			return new Bounds(this.getPositionInParent(), this.lastBounds.dimension);
 		}
 		return this.super_getBounds(swap);
 	}
