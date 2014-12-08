@@ -32,7 +32,8 @@ function Dimension(width, height) {
 	 * Renvoi le maximum
 	 */
 	this.max = function(dimension) {
-		return new Dimension(Math.max(dimension.width, this.width), Math.max(dimension.height, this.height));
+		return new Dimension(Math.max(dimension.width, this.width), Math.max(
+				dimension.height, this.height));
 	}
 
 	/**
@@ -58,7 +59,8 @@ function Bounds(point, dimension) {
 	}
 
 	this.getBottomRight = function() {
-		return new Point(this.point.x + this.dimension.width, this.point.y + this.dimension.height);
+		return new Point(this.point.x + this.dimension.width, this.point.y
+				+ this.dimension.height);
 	}
 
 	/**
@@ -136,7 +138,8 @@ function Bounds(point, dimension) {
 		var tl1 = bounds.getTopLeft();
 		var br1 = bounds.getBottomRight();
 
-		return (tl0.x <= tl1.x && tl0.y <= tl1.y) && (br0.x >= br1.x && br0.y >= br1.y);
+		return (tl0.x <= tl1.x && tl0.y <= tl1.y)
+				&& (br0.x >= br1.x && br0.y >= br1.y);
 	}
 
 }
@@ -191,9 +194,11 @@ function HorizontalLayoutFunction(innerCfg, baseConfig) {
 	this.baseConfig = baseConfig;
 	this.direction = innerCfg.direction || 1;
 	this.lastBoxX = 0;
+	this.currentPadding=0;
 
 	this.beforeLayout = function(boxContainer) {
 		this.lastBoxX = 0;
+		this.currentPadding=boxContainer.size()>0?this.padding:0;
 	};
 
 	this.afterLayout = function(boxContainer, bounds) {
@@ -209,12 +214,14 @@ function HorizontalLayoutFunction(innerCfg, baseConfig) {
 		// en cas de recouvrement permet de gérer la superposition avec le
 		// zIndex
 		if (this.spacing < 0) {
-			cfg = _.extend(_.clone(cfg), { zIndex : cfg.zIndex + (boxContainer.size() - index) })
+			cfg = _.extend(_.clone(cfg), {
+				zIndex : cfg.zIndex + (boxContainer.size() - index)
+			})
 		}
 
 		var delta = boxBounds.width;
 		if (index == 0) {
-			this.lastBoxX += this.padding;
+			this.lastBoxX += this.currentPadding;
 		} else {
 			if (delta > 0) {
 				if (this.direction == -1)
@@ -223,8 +230,9 @@ function HorizontalLayoutFunction(innerCfg, baseConfig) {
 					this.lastBoxX += this.spacing;
 			}
 		}
-
-		var lc = new LayoutCoords(this.lastBoxX, this.padding, cfg);
+		
+	
+		var lc = new LayoutCoords(this.lastBoxX, this.currentPadding, cfg);
 
 		if (this.direction == -1)
 			delta = -delta;
@@ -241,6 +249,7 @@ function VerticalLayoutFunction(innerCfg, baseConfig) {
 	this.spacing = innerCfg.spacing || 0;
 	this.align = innerCfg.align || "left";
 	this.padding = innerCfg.padding || 0;
+	this.currentPadding=0;
 
 	this.direction = innerCfg.direction || 1;
 	this.lastBoxY = 0;
@@ -249,6 +258,7 @@ function VerticalLayoutFunction(innerCfg, baseConfig) {
 	this.beforeLayout = function(boxContainer) {
 		this.lastBoxY = 0;
 		this.maxWidth = 0;
+		this.currentPadding=boxContainer.size()>0?this.padding:0;
 
 		if (this.align == 'center') {
 			_.each(boxContainer.childs, function(box, index) {
@@ -283,13 +293,15 @@ function VerticalLayoutFunction(innerCfg, baseConfig) {
 		var more = boxBounds.height;
 		if (this.isRotatedConfig())
 			more = boxBounds.width;
+		
+		console.log(more)
 
 		if (this.align == 'center') {
 			x = (me.maxWidth - boxBounds.width) / 2;
 		}
 
 		if (index == 0) {
-			this.lastBoxY += this.padding;
+			this.lastBoxY += this.currentPadding;
 		} else {
 
 			if (more > 0) {
@@ -415,6 +427,7 @@ function LayoutCoords(x, y, config) {
 function LayoutManager() {
 	var me = this;
 	this.boxId = 0;
+	this.beforeDraw = [];
 
 	this.layoutCycle = null;
 
@@ -423,7 +436,7 @@ function LayoutManager() {
 	}
 
 	this.startCycle = function() {
-		this.layoutCycle = new LayoutCycle();
+		this.layoutCycle = new LayoutCycle(me);
 	}
 
 	this.runCycle = function() {
@@ -463,20 +476,22 @@ function LayoutManager() {
 /**
  * Un cycle de layout
  */
-function LayoutCycle() {
+function LayoutCycle(layoutManager) {
 	this.layoutNeeded = {};
 	this.layoutCoordsChanged = {};
 	this.drawNeeded = {};
 
-	this.run = function() {
+	this.layoutManager = layoutManager;
 
+	this.run = function() {
 		while (!_.isEmpty(this.layoutNeeded)) {
 
 			// recopie de la map des layouts triés dans un tableau trié par
 			// profondeur décroissante
-			var layoutByDepths = _.sortBy(_.values(this.layoutNeeded), function(boxcontainer) {
-				return -boxcontainer.depth;
-			});
+			var layoutByDepths = _.sortBy(_.values(this.layoutNeeded),
+					function(boxcontainer) {
+						return -boxcontainer.depth;
+					});
 			// reset des layouts, qui seront remis en oeuvre à la prochaine
 			// passe
 			this.layoutNeeded = {};
@@ -486,10 +501,16 @@ function LayoutCycle() {
 		}
 
 		// application des changements de coordonnées par profondeur croissante
-		var coordsChangedByDepths = _.sortBy(_.values(this.layoutCoordsChanged), "depth");
+		var coordsChangedByDepths = _.sortBy(
+				_.values(this.layoutCoordsChanged), "depth");
 
 		_.each(coordsChangedByDepths, function(box) {
 			box.redraw();
+		});
+
+		// appel aux evenements avant le draw
+		_.each(this.layoutManager.beforeDraw, function(before) {
+			before();
 		});
 
 		// application des draws
@@ -607,7 +628,8 @@ function Box(layoutManager) {
 	 * Synchronisation des coordonnées, depuis le parent
 	 */
 	this.redraw = function() {
-		var newCoords = this.parent ? this.parent.mergeChildCoord(this) : new Point(0, 0);
+		var newCoords = this.parent ? this.parent.mergeChildCoord(this)
+				: new Point(0, 0);
 		this.setCoords(newCoords);
 	}
 
@@ -753,7 +775,8 @@ function BoxContainer(layoutManager, layoutFunction) {
 	this.super_getBounds = this.getBounds;
 	this.getBounds = function(swap) {
 		if (this.lastBounds) {
-			return new Bounds(this.getPositionInParent(), this.lastBounds.dimension);
+			return new Bounds(this.getPositionInParent(),
+					this.lastBounds.dimension);
 		}
 		return this.super_getBounds(swap);
 	}
@@ -762,36 +785,34 @@ function BoxContainer(layoutManager, layoutFunction) {
 	 * Réalise le layout
 	 */
 	this.doLayout = function() {
-		if (!_.isEmpty(this.childs)) {
 
-			// boxe de base
-			var bounds = new Bounds(new Point(0, 0), me.getBaseBox());
+		// boxe de base
+		var bounds = new Bounds(new Point(0, 0), me.getBaseBox());
 
-			// appel à la fonction de layout
-			me.layoutFunction.beforeLayout(me);
+		// appel à la fonction de layout
+		me.layoutFunction.beforeLayout(me);
 
-			// calcul du layout
-			_.each(me.childs, function(box, index) {
-				var updated = me.layoutFunction.applyLayout(me, index, box);
+		// calcul du layout
+		_.each(me.childs, function(box, index) {
+			var updated = me.layoutFunction.applyLayout(me, index, box);
 
-				// mise à jour des coordonnées
-				box.updateLayoutCoord(updated);
+			// mise à jour des coordonnées
+			box.updateLayoutCoord(updated);
 
-				var boxBounds = me.layoutFunction.getBounds(box);
+			var boxBounds = me.layoutFunction.getBounds(box);
 
-				// mise à jour de la taille du bounds courrant
-				bounds = bounds.merge(boxBounds);
-			});
+			// mise à jour de la taille du bounds courrant
+			bounds = bounds.merge(boxBounds);
+		});
 
-			// mise à jour de fin
-			me.layoutFunction.afterLayout(me, bounds);
+		// mise à jour de fin
+		me.layoutFunction.afterLayout(me, bounds);
 
-			// en cas de changement on notifie le layout
-			if (!bounds.equals(me.lastBounds))
-				me.notifyBoxChanged();
+		// en cas de changement on notifie le layout
+		if (!bounds.equals(me.lastBounds))
+			me.notifyBoxChanged();
 
-			me.lastBounds = bounds;
-		}
+		me.lastBounds = bounds;
 	}
 
 	/**

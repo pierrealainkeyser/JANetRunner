@@ -10,62 +10,331 @@ function bootANR(gameId) {
 
 	var objs = {
 		servers : [ //
-		{ id : 1, name : "Archives" },//
-		{ id : 2, name : "R&D" }, //
-		{ id : 3, name : "HQ" } //
+		{
+			id : 1,
+			name : "Archives"
+		},//
+		{
+			id : 2,
+			name : "R&D"
+		}, //
+		{
+			id : 3,
+			name : "HQ"
+		} //
 		],
 		cards : [ // 
-				{ id : 1, faction : 'corp', url : '01088', location : { path : [ "server", { id : 1 }, "stack" ], index : 0 } }, //
-				{ id : 2, faction : 'corp', url : '01082', face : "down", location : { path : [ "server", { id : 2 }, "stack" ], index : 0 } }, //
-				{ id : 21, faction : 'corp', url : '01083', face : "down", location : { path : [ "server", { id : 2 }, "stack" ], index : 1 } }, //
-				{ id : 22, faction : 'corp', url : '01091', face : "down", location : { path : [ "server", { id : 2 }, "stack" ], index : 2 } }, //				
-				{ id : 3, faction : 'corp', url : '01080', tokens : { credit : 5, recurring : 2 },
-					location : { path : [ "server", { id : 3 }, "assetOrUpgrades" ], index : 0 } }, //
-				{ id : 4, faction : 'corp', url : '01089', face : "down", location : { path : [ "server", { id : 3 }, "ices" ], index : 0 } }, //
-				{ id : 5, faction : 'runner', url : '01033', location : { path : [ "grip" ], index : 0 } },//
-				{ id : 6, faction : 'runner', url : '01034', face : "down", location : { path : [ "stack" ], index : 0 } },//
-				{ id : 7, faction : 'runner', url : '01035', face : "down", location : { path : [ "stack" ], index : 1 } },//
-				{ id : 8, faction : 'runner', url : '01036', face : "down", location : { path : [ "stack" ], index : 2 } },//
-				{ id : 9, faction : 'runner', url : '01037', face : "down", location : { path : [ "stack" ], index : 3 } },//
-				{ id : 10, faction : 'runner', url : '01038', face : "down", location : { path : [ "stack" ], index : 4 } },//
-				{ id : 11, faction : 'runner', url : '01039', location : { path : [ "hardware" ], index : 0 } },//
-				{ id : 12, faction : 'runner', url : '01041', tokens : { recurring : 2 }, location : { path : [ "hardware" ], index : 1 } },//
-				{ id : 13, faction : 'runner', url : '01042', location : { path : [ "program" ], index : 0 } },//
-				{ id : 14, faction : 'runner', url : '01043', face : "down", location : { path : [ "stack" ], index : 5 } },//
-				{ id : 15, faction : 'runner', url : '01052', face : "down", location : { path : [ "stack" ], index : 6 } },//
-				{ id : 16, faction : 'runner', url : '01053', face : "down", location : { path : [ "stack" ], index : 7 } },//
-		] };
+		{
+			id : 1,
+			faction : 'corp',
+			url : '01088',
+			location : {
+				path : [ "server", {
+					id : 1
+				}, "stack" ],
+				index : 0
+			}
+		}, //
+		{
+			id : 2,
+			faction : 'corp',
+			url : '01082',
+			face : "down",
+			location : {
+				path : [ "server", {
+					id : 2
+				}, "stack" ],
+				index : 0
+			}
+		}, //
+		{
+			id : 21,
+			faction : 'corp',
+			url : '01083',
+			face : "down",
+			location : {
+				path : [ "server", {
+					id : 2
+				}, "stack" ],
+				index : 1
+			}
+		}, //
+		{
+			id : 22,
+			faction : 'corp',
+			url : '01091',
+			face : "down",
+			location : {
+				path : [ "server", {
+					id : 2
+				}, "stack" ],
+				index : 2
+			}
+		}, //				
+		{
+			id : 3,
+			faction : 'corp',
+			url : '01080',
+			tokens : {
+				credit : 5,
+				recurring : 2
+			},
+			location : {
+				path : [ "server", {
+					id : 3
+				}, "assetOrUpgrades" ],
+				index : 0
+			}
+		}, //
+		{
+			id : 4,
+			faction : 'corp',
+			url : '01089',
+			face : "down",
+			location : {
+				path : [ "server", {
+					id : 3
+				}, "ices" ],
+				index : 0
+			}
+		}, //
+		{
+			id : 5,
+			faction : 'runner',
+			url : '01033',
+			location : {
+				path : [ "grip" ],
+				index : 0
+			}
+		},//
+		{
+			id : 6,
+			faction : 'runner',
+			url : '01034',
+			face : "down",
+			location : {
+				path : [ "stack" ],
+				index : 0
+			}
+		},//
+		{
+			id : 7,
+			faction : 'runner',
+			url : '01035',
+			face : "down",
+			location : {
+				path : [ "stack" ],
+				index : 1
+			}
+		},//
+		{
+			id : 8,
+			faction : 'runner',
+			url : '01036',
+			face : "down",
+			location : {
+				path : [ "stack" ],
+				index : 2
+			}
+		},//
+		{
+			id : 9,
+			faction : 'runner',
+			url : '01037',
+			face : "down",
+			location : {
+				path : [ "stack" ],
+				index : 3
+			}
+		},//
+		{
+			id : 10,
+			faction : 'runner',
+			url : '01038',
+			face : "down",
+			location : {
+				path : [ "stack" ],
+				index : 4
+			}
+		},//
+		{
+			id : 11,
+			faction : 'runner',
+			url : '01039',
+			location : {
+				path : [ "hardware" ],
+				index : 0
+			}
+		},//
+		{
+			id : 12,
+			faction : 'runner',
+			url : '01041',
+			tokens : {
+				recurring : 2
+			},
+			location : {
+				path : [ "hardware" ],
+				index : 1
+			}
+		},//
+		{
+			id : 13,
+			faction : 'runner',
+			url : '01042',
+			location : {
+				path : [ "program" ],
+				index : 0
+			}
+		},//
+		{
+			id : 14,
+			faction : 'runner',
+			url : '01043',
+			face : "down",
+			location : {
+				path : [ "stack" ],
+				index : 5
+			}
+		},//
+		{
+			id : 15,
+			faction : 'runner',
+			url : '01052',
+			face : "down",
+			location : {
+				path : [ "stack" ],
+				index : 6
+			}
+		},//
+		{
+			id : 16,
+			faction : 'runner',
+			url : '01053',
+			face : "down",
+			location : {
+				path : [ "stack" ],
+				index : 7
+			}
+		},//
+		]
+	};
 
 	cardManager.within(function() {
 		cardManager.update(objs);
 	})();
 
-	setTimeout(cardManager.within(function() {
-		cardManager.update({ cards : [ //
-				{ id : 5, tokens : { credit : 5, power : 1 } },//
-				{ id : 1, face : "down", subs : [ { text : "<strong>Trace<sup>3</sup></strong> - If successful, place 1 power counter on Data Raven" } ],
-					location : { path : [ "server", { id : 3 }, "ices" ], index : 1 } },// 
-				{ id : 14, face : "up", location : { path : [ "program" ], index : 1 } },//
-				{ id : 15, face : "up", location : { path : [ "resource" ], index : 1 } },// 
-				{ id : 16, face : "up", tokens : { credit : 12 }, location : { path : [ "resource" ], index : 2 } },//
-				{ id : 11, location : { path : [ "heap" ], index : 1 } },//
-				{ id : 12, tokens : { recurring : 0 } },//
-				{ id : 22, face : "down", location : { path : [ "server", { id : 3 }, "upgrades" ], index : 0 } },//
-		] });
-	}), 500)
+	setTimeout(
+			cardManager
+					.within(function() {
+						cardManager
+								.update({
+									cards : [ //
+											{
+												id : 5,
+												tokens : {
+													credit : 5,
+													power : 1
+												}
+											},//
+											{
+												id : 1,
+												face : "down",
+												subs : [ {
+													text : "<strong>Trace<sup>3</sup></strong> - If successful, place 1 power counter on Data Raven"
+												} ],
+												location : {
+													path : [ "server", {
+														id : 3
+													}, "ices" ],
+													index : 1
+												}
+											},// 
+											{
+												id : 14,
+												face : "up",
+												location : {
+													path : [ "program" ],
+													index : 1
+												}
+											},//
+											{
+												id : 15,
+												face : "up",
+												location : {
+													path : [ "resource" ],
+													index : 1
+												}
+											},// 
+											{
+												id : 16,
+												face : "up",
+												tokens : {
+													credit : 12
+												},
+												location : {
+													path : [ "resource" ],
+													index : 2
+												}
+											},//
+											{
+												id : 11,
+												location : {
+													path : [ "heap" ],
+													index : 1
+												}
+											},//
+											{
+												id : 12,
+												tokens : {
+													recurring : 0
+												}
+											},//
+											{
+												id : 22,
+												face : "down",
+												location : {
+													path : [ "server", {
+														id : 3
+													}, "upgrades" ],
+													index : 0
+												}
+											},//
+									]
+								});
+					}), 500)
 
-	setTimeout(cardManager.within(function() {
-		cardManager
-				.update({ cards : [ //
-						{ id : 5, tokens : { credit : 10 } },//
-						{ id : 1, is : "primary", actions : [ { text : "Continue", cls : "warning" } ] },//
-						{
-							id : 16,
-							actions : [ { text : "Take 2<span class='icon icon-credit'></span> from Armitage Codebusting",
-								cost : "<span class='icon icon-click'>" } ] },//
+	setTimeout(
+			cardManager
+					.within(function() {
+						cardManager
+								.update({
+									cards : [ //
+											{
+												id : 5,
+												tokens : {
+													credit : 10
+												}
+											},//
+											{
+												id : 1,
+												is : "primary",
+												actions : [ {
+													text : "Continue",
+													cls : "warning"
+												} ]
+											},//
+											{
+												id : 16,
+												actions : [ {
+													text : "Take 2<span class='icon icon-credit'></span> from Armitage Codebusting",
+													cost : "<span class='icon icon-click'>"
+												} ]
+											},//
 
-				] });
-	}), 1500)
+									]
+								});
+					}), 1500)
 
 	// var absoluteContainer = new BoxContainer(cardManager, new
 	// AbsoluteLayoutFunction());
@@ -163,17 +432,33 @@ function CardManager(cardContainer) {
 	this.cardContainer = cardContainer;
 	this.primaryCardId = null;
 	LayoutManager.call(this);
+	
+	//correction de la position avant l'affichage
+	this.beforeDraw.push(function(){
+		me.extbox.checkLayoutBounds();
+	})
 
 	this.makeReady = function() {
 		this.startCycle();
-		this.absoluteContainer = new BoxContainer(this, new AbsoluteLayoutFunction());
+		this.absoluteContainer = new BoxContainer(this,
+				new AbsoluteLayoutFunction());
 		this.extbox = new ExtBox(this, this.absoluteContainer);
-		this.serverRows = new BoxContainer(this, new HorizontalLayoutFunction({ spacing : 12 }, {}));
-		this.runnerColums = new BoxContainer(this, new VerticalLayoutFunction({ spacing : 5 }, {}));
+		this.serverRows = new BoxContainer(this, new HorizontalLayoutFunction({
+			spacing : 12
+		}, {}));
+		this.runnerColums = new BoxContainer(this, new VerticalLayoutFunction({
+			spacing : 5
+		}, {}));
 
-		var runnerRow = new BoxContainer(this, new HorizontalLayoutFunction({ spacing : 12, direction : -1 }, {}));
+		var runnerRow = new BoxContainer(this, new HorizontalLayoutFunction({
+			spacing : 12,
+			direction : -1
+		}, {}));
 
-		var horizontalRunnerLayout = new HorizontalLayoutFunction({ spacing : 8, direction : -1 }, {});
+		var horizontalRunnerLayout = new HorizontalLayoutFunction({
+			spacing : 8,
+			direction : -1
+		}, {});
 		this.runnerResources = new BoxContainer(this, horizontalRunnerLayout);
 		this.runnerHardwares = new BoxContainer(this, horizontalRunnerLayout);
 		this.runnerPrograms = new BoxContainer(this, horizontalRunnerLayout);
@@ -202,8 +487,10 @@ function CardManager(cardContainer) {
 	 */
 	this.refresh = function() {
 		var padding = 25;
-		this.serverRows.absolutePosition = new LayoutCoords(padding, this.area.main.height - this.area.card.height * 2 - padding);
-		this.runnerColums.absolutePosition = new LayoutCoords(this.area.main.width - this.area.card.width - padding, padding);
+		this.serverRows.absolutePosition = new LayoutCoords(padding,
+				this.area.main.height - this.area.card.height * 2 - padding);
+		this.runnerColums.absolutePosition = new LayoutCoords(
+				this.area.main.width - this.area.card.width - padding, padding);
 
 		this.absoluteContainer.requireLayout();
 	};
@@ -352,16 +639,29 @@ function CardManager(cardContainer) {
 		var shadow = conf.find(".shadow");
 		this.area = {// 
 			shadow : { //
-				front : { horizontal : shadow.find(".front").find(".horizontal").css("box-shadow"),
-					vertical : shadow.find(".front").find(".vertical").css("box-shadow") },
-				back : { horizontal : shadow.find(".back").find(".horizontal").css("box-shadow"),
-					vertical : shadow.find(".back").find(".vertical").css("box-shadow") }, //
+				front : {
+					horizontal : shadow.find(".front").find(".horizontal").css(
+							"box-shadow"),
+					vertical : shadow.find(".front").find(".vertical").css(
+							"box-shadow")
+				},
+				back : {
+					horizontal : shadow.find(".back").find(".horizontal").css(
+							"box-shadow"),
+					vertical : shadow.find(".back").find(".vertical").css(
+							"box-shadow")
+				}, //
 				withAction : shadow.find(".with-action").css("box-shadow"),//
-				withPrimaryAction : shadow.find(".with-primary-action").css("box-shadow"),//
+				withPrimaryAction : shadow.find(".with-primary-action").css(
+						"box-shadow"),//
 			},//
 			card : new Dimension(card.width(), card.height()),//
 			cardBig : new Dimension(cardBig.width(), cardBig.height()),//							
-			main : { width : this.cardContainer.width(), height : this.cardContainer.height() } };
+			main : {
+				width : this.cardContainer.width(),
+				height : this.cardContainer.height()
+			}
+		};
 	}
 
 	/**
@@ -385,7 +685,11 @@ function CardManager(cardContainer) {
 	 */
 	this.getBounds = function() {
 		// TODO gestion du radius de padding
-		return new Bounds({ x : 0, y : 0 }, new Dimension(this.area.main.width, this.area.main.height)).minus(70);
+		return new Bounds({
+			x : 0,
+			y : 0
+		}, new Dimension(this.area.main.width, this.area.main.height))
+				.minus(35);
 	}
 
 	/**
@@ -401,7 +705,8 @@ function CardManager(cardContainer) {
 			var displayedId = me.extbox.displayedCard.getId();
 			if (id == displayedId) {
 				me.extbox.closeCard();
-			} else if (me.extbox.secondaryCard != null && id == me.extbox.secondaryCard.getId()) {
+			} else if (me.extbox.secondaryCard != null
+					&& id == me.extbox.secondaryCard.getId()) {
 				me.extbox.closeSecondary();
 			} else {
 
@@ -440,16 +745,20 @@ function RunnerContainer(cardManager, type) {
  * @returns
  */
 function animateCss(element, classx, onEnd) {
-	element.addClass("animated " + classx).one("webkitAnimationEnd", function() {
-		$(this).removeClass("animated " + classx);
+	element.addClass("animated " + classx).one("webkitAnimationEnd",
+			function() {
+				$(this).removeClass("animated " + classx);
 
-		if (_.isFunction(onEnd))
-			onEnd();
-	});
+				if (_.isFunction(onEnd))
+					onEnd();
+			});
 	return element;
 }
 
-var CARD_TOKEN_LAYOUT = new GridLayoutFunction({ columns : 3, padding : 3 }, {});
+var CARD_TOKEN_LAYOUT = new GridLayoutFunction({
+	columns : 3,
+	padding : 3
+}, {});
 
 /**
  * L'image d'une carte
@@ -471,13 +780,23 @@ function GhostCard(card) {
 	this.draw = function() {
 		var box = this.getBaseBox();
 		var rotation = this.coords.angle;
-		var primaryCss = { width : box.width, height : box.height, top : this.coords.y, left : this.coords.x, rotation : rotation,
-			zIndex : this.coords.zIndex || 0 };
+		var primaryCss = {
+			width : box.width,
+			height : box.height,
+			top : this.coords.y,
+			left : this.coords.x,
+			rotation : rotation,
+			zIndex : this.coords.zIndex || 0
+		};
 
 		if (this.firstTimeShow)
-			TweenLite.set(this.element, { css : primaryCss });
+			TweenLite.set(this.element, {
+				css : primaryCss
+			});
 		else
-			TweenLite.to(this.element, ANIM_DURATION, { css : primaryCss });
+			TweenLite.to(this.element, ANIM_DURATION, {
+				css : primaryCss
+			});
 
 		this.firstTimeShow = false;
 	}
@@ -665,44 +984,93 @@ function Card(def, cardManager) {
 
 		var extCss = {};
 		var primaryCss = {};
-		var innerCss = { rotationY : faceup ? 0 : -180 };
-		var tokenCss = { autoAlpha : 1 };
+		var innerCss = {
+			rotationY : faceup ? 0 : -180
+		};
+		var tokenCss = {
+			autoAlpha : 1
+		};
 		var visible = this.coords.hidden ? 0 : 1;
 
 		if (this.mode === "secondary") {
-			_.extend(innerCss, { rotationY : -360 });
-			_.extend(tokenCss, { autoAlpha : 0 });
+			_.extend(innerCss, {
+				rotationY : -360
+			});
+			_.extend(tokenCss, {
+				autoAlpha : 0
+			});
 			rotation = -360;
 			shadow = "";
 		}
 
 		if (this.mode === "extended" && this.extbox) {
-			_.extend(extCss, { width : this.extbox.width, height : this.extbox.height, autoAlpha : 1 });
-			_.extend(innerCss, { rotationY : 360 });
-			_.extend(tokenCss, { autoAlpha : 0 });
+			_.extend(extCss, {
+				width : this.extbox.width,
+				height : this.extbox.height,
+				autoAlpha : 1
+			});
+			_.extend(innerCss, {
+				rotationY : 360
+			});
+			_.extend(tokenCss, {
+				autoAlpha : 0
+			});
 			rotation = 360;
 			shadow = "";
 		} else {
-			_.extend(extCss, { width : 0, height : 0, autoAlpha : 0 });
+			_.extend(extCss, {
+				width : 0,
+				height : 0,
+				autoAlpha : 0
+			});
 		}
 
-		_.extend(primaryCss, { width : box.width, height : box.height, top : this.coords.y, left : this.coords.x, rotation : rotation, autoAlpha : visible,
-			zIndex : this.coords.zIndex || 0 });
+		_.extend(primaryCss, {
+			width : box.width,
+			height : box.height,
+			top : this.coords.y,
+			left : this.coords.x,
+			rotation : rotation,
+			autoAlpha : visible,
+			zIndex : this.coords.zIndex || 0
+		});
 
-		var backCss = _.extend(_.clone(innerCss), { boxShadow : shadow });
+		var backCss = _.extend(_.clone(innerCss), {
+			boxShadow : shadow
+		});
 
 		if (_.isBoolean(set) && set) {
-			TweenLite.set(this.primary, { css : primaryCss });
-			TweenLite.set(this.front, { css : innerCss });
-			TweenLite.set(this.back, { css : backCss });
-			TweenLite.set(this.ext, { css : extCss });
-			TweenLite.set(this.tokens, { css : tokenCss });
+			TweenLite.set(this.primary, {
+				css : primaryCss
+			});
+			TweenLite.set(this.front, {
+				css : innerCss
+			});
+			TweenLite.set(this.back, {
+				css : backCss
+			});
+			TweenLite.set(this.ext, {
+				css : extCss
+			});
+			TweenLite.set(this.tokens, {
+				css : tokenCss
+			});
 		} else {
-			TweenLite.to(this.primary, ANIM_DURATION, { css : primaryCss });
-			TweenLite.to(this.front, ANIM_DURATION, { css : innerCss });
-			TweenLite.to(this.back, ANIM_DURATION, { css : backCss });
-			TweenLite.to(this.ext, ANIM_DURATION, { css : extCss });
-			TweenLite.to(this.tokens, ANIM_DURATION, { css : tokenCss });
+			TweenLite.to(this.primary, ANIM_DURATION, {
+				css : primaryCss
+			});
+			TweenLite.to(this.front, ANIM_DURATION, {
+				css : innerCss
+			});
+			TweenLite.to(this.back, ANIM_DURATION, {
+				css : backCss
+			});
+			TweenLite.to(this.ext, ANIM_DURATION, {
+				css : extCss
+			});
+			TweenLite.to(this.tokens, ANIM_DURATION, {
+				css : tokenCss
+			});
 		}
 	}
 }
@@ -749,7 +1117,8 @@ function BoxToken(layoutManager, key, value, text) {
 	var me = this;
 	this.key = key;
 	me.type = 'token';
-	this.element = $("<div class='token-wrapper'><span class='token " + key + "'>" + value + "</span></div>");
+	this.element = $("<div class='token-wrapper'><span class='token " + key
+			+ "'>" + value + "</span></div>");
 
 	if (text) {
 		this.element.append($("<span class='text'>" + text + "</span>"));
@@ -955,7 +1324,9 @@ function ExtBox(cardManager, absoluteContainer) {
 	Box.call(this.closeButton, cardManager);
 	ElementBox.call(this.closeButton, this.closeButton);
 
-	var coreLayout = new VerticalLayoutFunction({ spacing : 3 }, {});
+	var coreLayout = new VerticalLayoutFunction({
+		spacing : 3
+	}, {});
 	// coreLayout.afterLayout=
 	BoxContainer.call(this, cardManager, coreLayout);
 
@@ -965,15 +1336,29 @@ function ExtBox(cardManager, absoluteContainer) {
 		if (me.secondaryCard !== null)
 			return cardManager.area.cardBig;
 		else
-			return { width : 0, height : 0 };
+			return {
+				width : 0,
+				height : 0
+			};
 	}
 
 	this.header = new BoxHeader(cardManager, "Header");
 	this.header.addClass("title");
 
-	this.innerContainer = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 5 }, {}));
-	this.tokensContainer = new BoxContainer(cardManager, new VerticalLayoutFunction({ spacing : 3, padding : 3 }, {}));
-	this.actionsContainer = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 2, padding : 4 }, {}));
+	this.innerContainer = new BoxContainer(cardManager,
+			new HorizontalLayoutFunction({
+				spacing : 5
+			}, {}));
+	this.tokensContainer = new BoxContainer(cardManager,
+			new VerticalLayoutFunction({
+				spacing : 3,
+				padding : 3
+			}, {}));
+	this.actionsContainer = new BoxContainer(cardManager,
+			new HorizontalLayoutFunction({
+				spacing : 2,
+				padding : 4
+			}, {}));
 	// suppression du draw qui est inutile
 	this.actionsContainer.draw = function() {
 	};
@@ -1047,10 +1432,12 @@ function ExtBox(cardManager, absoluteContainer) {
 		this.displayedCard = card;
 		this.displayedCard.mode = "extended";
 
-		card.primary.draggable({ drag : function(event, ui) {
-			var position = card.primary.position();
-			me.updateVirtualPosition(position.left, position.top);
-		} });
+		card.primary.draggable({
+			drag : function(event, ui) {
+				var position = card.primary.position();
+				me.updateVirtualPosition(position.left, position.top);
+			}
+		});
 
 		// remise à zero des routines
 		this.subs = [];
@@ -1059,8 +1446,11 @@ function ExtBox(cardManager, absoluteContainer) {
 		var coords = this.displayedCard.coords;
 		var big = cardManager.area.cardBig;
 		var small = cardManager.area.card;
-		this.displayedCard.absolutePosition = new LayoutCoords(coords.x - (big.width - small.width) / 2, coords.y - (big.height - small.height) / 2,
-				{ zIndex : 10 });
+		this.displayedCard.absolutePosition = new LayoutCoords(coords.x
+				- (big.width - small.width) / 2, coords.y
+				- (big.height - small.height) / 2, {
+			zIndex : 10
+		});
 		this.displayedCard.applyGhost(absoluteContainer);
 
 		this.tokensContainer.removeAllChilds();
@@ -1183,7 +1573,6 @@ function ExtBox(cardManager, absoluteContainer) {
 					act.setCost(cost.text);
 				}
 			}
-
 		});
 
 	}
@@ -1253,9 +1642,10 @@ function ExtBox(cardManager, absoluteContainer) {
 		}
 	}
 
-	this.super_doLayout = this.doLayout;
-	this.doLayout = function() {
-		this.super_doLayout();
+	/**
+	 * Correction du layout en cas de dépassement
+	 */
+	this.checkLayoutBounds = function() {
 		if (this.displayedCard !== null) {
 			var dimension = this.getBounds().dimension;
 			this.displayedCard.setExtBox(dimension);
@@ -1263,7 +1653,6 @@ function ExtBox(cardManager, absoluteContainer) {
 			// recalcul de la position de la card primaire
 			var coords = this.displayedCard.getCurrentCoord();
 			var bounds = dimension.asBounds(coords);
-
 			var outer = cardManager.getBounds();
 
 			if (!outer.contains(bounds)) {
@@ -1283,7 +1672,6 @@ function ExtBox(cardManager, absoluteContainer) {
 
 			this.updateSecondaryCard();
 		}
-
 	}
 }
 
@@ -1299,7 +1687,8 @@ function ElementBox(element) {
 	 * Utilise l'élément
 	 */
 	this.getBaseBox = function() {
-		var base = new Dimension(this.element.outerWidth(true), this.element.outerHeight(true));
+		var base = new Dimension(this.element.outerWidth(true), this.element
+				.outerHeight(true));
 		return base;
 	}
 
@@ -1312,9 +1701,20 @@ function ElementBox(element) {
 			if (this.firstTimeShow) {
 
 				if (this.coords.initial) {
-					TweenLite.set(this.element, { css : { top : this.coords.initial.y, left : this.coords.initial.x, autoAlpha : 0 } });
+					TweenLite.set(this.element, {
+						css : {
+							top : this.coords.initial.y,
+							left : this.coords.initial.x,
+							autoAlpha : 0
+						}
+					});
 				} else {
-					TweenLite.set(this.element, { css : { top : this.coords.y, left : this.coords.x, } });
+					TweenLite.set(this.element, {
+						css : {
+							top : this.coords.y,
+							left : this.coords.x,
+						}
+					});
 					var animate = false;
 				}
 
@@ -1322,7 +1722,13 @@ function ElementBox(element) {
 			}
 
 			if (animate)
-				TweenLite.to(this.element, ANIM_DURATION, { css : { top : this.coords.y, left : this.coords.x, autoAlpha : 1 } });
+				TweenLite.to(this.element, ANIM_DURATION, {
+					css : {
+						top : this.coords.y,
+						left : this.coords.x,
+						autoAlpha : 1
+					}
+				});
 		}
 	}
 }
@@ -1343,15 +1749,32 @@ function HeightBox(element) {
 
 			var alpha = dim.height == 0 ? 0 : 1;
 
-			TweenLite.set(this.element, { css : { top : this.coords.y, left : this.coords.x, height : dim.height, autoAlpha : alpha } });
+			TweenLite.set(this.element, {
+				css : {
+					top : this.coords.y,
+					left : this.coords.x,
+					height : dim.height,
+					autoAlpha : alpha
+				}
+			});
 		}
 	}
 }
 
 // TODO gestion de tailles dans la configuration
 
-var ICE_LAYOUT = new VerticalLayoutFunction({ spacing : 5, direction : -1, align : 'center' }, { angle : 90 });
-var ROOT_SERVER_LAYOUT = new HorizontalLayoutFunction({ spacing : -40 }, { zIndex : 0 });
+var ICE_LAYOUT = new VerticalLayoutFunction({
+	spacing : 5,
+	direction : -1,
+	align : 'center'
+}, {
+	angle : 90
+});
+var ROOT_SERVER_LAYOUT = new HorizontalLayoutFunction({
+	spacing : -40
+}, {
+	zIndex : 0
+});
 var STACKED_SERVER_LAYOUT = new StackedLayoutFunction();
 var INNER_SERVER_LAYOUT = new function() {
 	var me = this;
@@ -1377,7 +1800,8 @@ var INNER_SERVER_LAYOUT = new function() {
 		var card = boxContainer.layoutManager.area.card;
 		if (box.serverLayoutKey === 'ices') {
 			return new LayoutCoords(x, -card.height - 5);
-		} else if (box.serverLayoutKey === 'assetOrUpgrades' || box.serverLayoutKey === 'stack') {
+		} else if (box.serverLayoutKey === 'assetOrUpgrades'
+				|| box.serverLayoutKey === 'stack') {
 			return new LayoutCoords(x, 0);
 		} else if (box.serverLayoutKey === 'upgrades') {
 			return new LayoutCoords(x, card.height + 10);
@@ -1415,7 +1839,8 @@ function Server(def, cardManager) {
 	this.assetOrUpgrades = new BoxContainer(cardManager, ROOT_SERVER_LAYOUT);
 	this.assetOrUpgrades.serverLayoutKey = 'assetOrUpgrades';
 	this.addChild(this.assetOrUpgrades);
-	ElementBox.call(this.assetOrUpgrades, createdDiv.appendTo(cardManager.cardContainer));
+	ElementBox.call(this.assetOrUpgrades, createdDiv
+			.appendTo(cardManager.cardContainer));
 
 	this.upgrades = new BoxContainer(cardManager, ROOT_SERVER_LAYOUT);
 	this.upgrades.serverLayoutKey = 'upgrades';
