@@ -1,68 +1,96 @@
 package org.keyser.anr.core;
 
-import java.util.Collection;
-
+/**
+ * La position d'une carte. Utilisé pour la partie client
+ * 
+ * @author pakeyser
+ *
+ */
 public class CardLocation {
 
-	public enum Where {
-		ARCHIVES, GRIP, HEAP, HQ, ICE, RD, STACK, UPGRADE, ASSET, RUNNER_SCORE, CORP_SCORE, HARDWARES, PROGRAMS, RESOURCES, HOSTED;
+	public enum Primary {
+		SERVER, GRIP, HEAP, STACK, RUNNER_SCORE, CORP_SCORE, HARDWARES, PROGRAMS, RESOURCES, HOSTED;
 	}
 
-	public final static CardLocation ARCHIVES = new CardLocation(Where.ARCHIVES);
-	public final static CardLocation GRIP = new CardLocation(Where.GRIP);
-	public final static CardLocation HEAP = new CardLocation(Where.HEAP);
-	public final static CardLocation HQ = new CardLocation(Where.HQ);
-	public final static CardLocation RD = new CardLocation(Where.RD);
-	public final static CardLocation STACK = new CardLocation(Where.STACK);
-
-	public final static CardLocation HARDWARES = new CardLocation(Where.HARDWARES);
-	public final static CardLocation PROGRAMS = new CardLocation(Where.PROGRAMS);
-	public final static CardLocation RESOURCES = new CardLocation(Where.RESOURCES);
-
-	public final static CardLocation RUNNER_SCORE = new CardLocation(Where.RUNNER_SCORE);
-	public final static CardLocation CORP_SCORE = new CardLocation(Where.CORP_SCORE);
-
-	private final Where where;
-
-	public CardLocation(Where where) {
-		this.where = where;
+	public enum Secondary {
+		ICES, ASSET_OR_UPGRADES, UPGRADES, STACK
 	}
 
-	@SuppressWarnings("unchecked")
-	public Collection<Card> list(Game g) {
-		if (Where.ARCHIVES == where)
-			return (Collection<Card>) g.getCorp().getDiscard();
-		else if (Where.HQ == where)
-			return (Collection<Card>) g.getCorp().getHand();
-		else if (Where.RD == where)
-			return (Collection<Card>) g.getCorp().getStack();
-		else if (Where.HEAP == where)
-			return (Collection<Card>) g.getRunner().getDiscard();
-		else if (Where.GRIP == where)
-			return (Collection<Card>) g.getRunner().getHand();
-		else if (Where.STACK == where)
-			return (Collection<Card>) g.getRunner().getStack();
-		else if (Where.RESOURCES == where)
-			return (Collection<Card>) g.getRunner().getResources();
-		else if (Where.HARDWARES == where)
-			return (Collection<Card>) g.getRunner().getHardwares();		
-		
-		return null;
+	private final Primary primary;
+
+	private final Integer primaryIndex;
+
+	private final Secondary secondary;
+
+	private final Integer secondaryIndex;
+
+	public static CardLocation ices(int server, int ice) {
+		return new CardLocation(Primary.SERVER, server, Secondary.ICES, ice);
 	}
 
-	public Where getWhere() {
-		return where;
+	public static CardLocation assetOrUpgrades(int server, int aou) {
+		return new CardLocation(Primary.SERVER, server,
+				Secondary.ASSET_OR_UPGRADES, aou);
 	}
 
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("CardLocation [");
-		if (where != null) {
-			builder.append("where=");
-			builder.append(where);
-		}
-		builder.append("]");
-		return builder.toString();
+	public static CardLocation upgrades(int server, int u) {
+		return new CardLocation(Primary.SERVER, server, Secondary.UPGRADES, u);
+	}
+
+	public static CardLocation stack(int server, int s) {
+		return new CardLocation(Primary.SERVER, server, Secondary.STACK, s);
+	}
+
+	public static CardLocation hosted(int host, int index) {
+		return new CardLocation(Primary.HOSTED, host, null, index);
+	}
+
+	public static CardLocation programs(int index) {
+		return new CardLocation(Primary.PROGRAMS, index, null, null);
+	}
+
+	public static CardLocation hardwares(int index) {
+		return new CardLocation(Primary.HARDWARES, index, null, null);
+	}
+
+	public static CardLocation resources(int index) {
+		return new CardLocation(Primary.RESOURCES, index, null, null);
+	}
+
+	public static CardLocation heap(int index) {
+		return new CardLocation(Primary.HEAP, index, null, null);
+	}
+
+	public static CardLocation grip(int index) {
+		return new CardLocation(Primary.GRIP, index, null, null);
+	}
+
+	public static CardLocation stack(int index) {
+		return new CardLocation(Primary.STACK, index, null, null);
+	}
+
+	private CardLocation(Primary primary, Integer primaryIndex,
+			Secondary secondary, Integer secondaryIndex) {
+		super();
+		this.primary = primary;
+		this.primaryIndex = primaryIndex;
+		this.secondary = secondary;
+		this.secondaryIndex = secondaryIndex;
+	}
+
+	public Primary getPrimary() {
+		return primary;
+	}
+
+	public Integer getPrimaryIndex() {
+		return primaryIndex;
+	}
+
+	public Secondary getSecondary() {
+		return secondary;
+	}
+
+	public Integer getSecondaryIndex() {
+		return secondaryIndex;
 	}
 }
