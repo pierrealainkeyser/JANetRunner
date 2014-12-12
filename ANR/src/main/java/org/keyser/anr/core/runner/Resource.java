@@ -1,21 +1,10 @@
 package org.keyser.anr.core.runner;
 
-import java.util.Collection;
-import java.util.Collections;
+import org.keyser.anr.core.AbstractCardRunner;
+import org.keyser.anr.core.MetaCard;
 
-import org.keyser.anr.core.CardLocation;
-import org.keyser.anr.core.Cost;
-import org.keyser.anr.core.Influence;
-
-public abstract class Resource extends InstallableRunnerCard {
-
-	public Resource(Influence influence, Cost cost) {
-		super(influence, cost);
+public abstract class Resource extends AbstractCardRunner {
+	protected Resource(int id, MetaCard meta) {
+		super(id, meta);
 	}
-	
-	@Override
-	public Collection<CardLocation> possibleInstallPlaces() {
-		return Collections.singletonList(CardLocation.RESOURCES);
-	}
-
 }

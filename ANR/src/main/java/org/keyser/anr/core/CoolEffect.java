@@ -6,20 +6,19 @@ package org.keyser.anr.core;
  * @author PAF
  * 
  */
-public abstract class CoolEffect extends ConfigurableInstallable {
+public abstract class CoolEffect {
 
-	private ConfigurableEventListener parent;
+	private final EventMatchers matchers = new EventMatchers();
 
-	public CoolEffect(Class<? extends Event> unbindOn) {
-		add(EventMatcher.match(unbindOn).core().call(() -> {
-			unbind(parent);
-		}));
+	public CoolEffect(AbstractCard source, Class<?> unbindOn) {
+		matchers.add(EventMatcherBuilder.match(unbindOn, source).run(this::uninstall));
+		accept(matchers);
+		source.getGame().bind(matchers);
 	}
 
-	@Override
-	public void bind(ConfigurableEventListener conf) {
-		this.parent = conf;
-		super.bind(conf);
-	}
+	protected abstract void accept(EventMatchers matchers);
 
+	public void uninstall() {
+		matchers.uninstall();
+	}
 }

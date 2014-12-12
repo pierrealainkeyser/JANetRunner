@@ -2,13 +2,13 @@ package org.keyser.anr.core.corp.routines;
 
 import org.keyser.anr.core.Run;
 import org.keyser.anr.core.WalletActions;
-import org.keyser.anr.core.runner.Runner;
+import org.keyser.anr.core.runner.RunnerOld;
 
 public class LooseAction extends SyncRoutine {
 
 	@Override
 	protected void trigger(Run run) {
-		Runner r = run.getGame().getRunner();
+		RunnerOld r = run.getGame().getRunner();
 		WalletActions wa = r.getWallet().wallet(WalletActions.class).get();
 
 		int cur = wa.getAmount();

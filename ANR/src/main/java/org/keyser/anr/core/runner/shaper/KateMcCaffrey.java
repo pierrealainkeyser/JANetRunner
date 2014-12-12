@@ -1,56 +1,57 @@
 package org.keyser.anr.core.runner.shaper;
 
-import static org.keyser.anr.core.Cost.credit;
-import static org.keyser.anr.core.EventMatcher.match;
+import static java.util.Collections.emptyList;
+import static org.keyser.anr.core.Cost.free;
+import static org.keyser.anr.core.Faction.SHAPER;
 
-import org.keyser.anr.core.CardDef;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.CostCredit;
 import org.keyser.anr.core.CostDeterminationEvent;
-import org.keyser.anr.core.Faction;
-import org.keyser.anr.core.Game;
+import org.keyser.anr.core.EventMatcherBuilder;
+import org.keyser.anr.core.MetaCard;
+import org.keyser.anr.core.Runner;
+import org.keyser.anr.core.StartOfTurn;
+import org.keyser.anr.core.TokenType;
 import org.keyser.anr.core.runner.HardwareInstallationCostDeterminationEvent;
 import org.keyser.anr.core.runner.ProgramInstallationCostDeterminationEvent;
-import org.keyser.anr.core.runner.Runner;
-import org.keyser.anr.core.runner.RunnerInstalledHardware;
-import org.keyser.anr.core.runner.RunnerInstalledProgram;
+import org.keyser.anr.core.runner.RunnerInstalledCleanup;
+import org.keyser.anr.core.runner.RunnerInstalledCleanup.InstallType;
 
-@CardDef(name = "Kate \"Mac\" McCaffrey: Digital Tinker", oid = "01033")
 public class KateMcCaffrey extends Runner {
 
-	private boolean firstInstall = false;
+	public final static MetaCard INSTANCE = new MetaCard("Kate \"Mac\" McCaffrey: Digital Tinker", SHAPER.infl(15), free(), true, "01033", emptyList(), KateMcCaffrey::new);
 
-	public KateMcCaffrey() {
-		super(Faction.SHAPER);
-		add(match(Game.RunnerStartOfTurnEvent.class).name("KateMcCaffrey setup").core().auto().call(this::setFirstInstall));
-		add(match(Game.CorpStartOfTurnEvent.class).name("KateMcCaffrey setup").core().auto().call(this::setFirstInstall));
+	public KateMcCaffrey(int id, MetaCard meta) {
+		super(id, meta);
 
-		add(match(RunnerInstalledHardware.class).name("KateMcCaffrey discount").core().auto().call(this::resetFirstInstall));
-		add(match(RunnerInstalledProgram.class).name("KateMcCaffrey discount").core().auto().call(this::resetFirstInstall));
+		match(StartOfTurn.class, em -> em.run(this::resetToken));
+		match(RunnerInstalledCleanup.class, em -> em.run(this::consumeToken).test(ric -> InstallType.PROGRAM == ric.getType() || InstallType.HARDWARE == ric.getType()));
 
-		add(match(HardwareInstallationCostDeterminationEvent.class).name("discount on hardware").core().pred(p -> firstInstall).auto().sync(this::reduceCostOnFirstInstall));
-		add(match(ProgramInstallationCostDeterminationEvent.class).name("discount on program").core().pred(p -> firstInstall).auto().sync(this::reduceCostOnFirstInstall));
-		
-		setLink(1);
+		match(HardwareInstallationCostDeterminationEvent.class, em -> withToken(em.call(KateMcCaffrey.this::computeCostReduction)));
+		match(ProgramInstallationCostDeterminationEvent.class, em -> withToken(em.call(KateMcCaffrey.this::computeCostReduction)));
+
 	}
 
-	private void resetFirstInstall() {
-		firstInstall = false;
+	private void withToken(EventMatcherBuilder<?> em) {
+		em.test(this.hasToken(TokenType.POWER));
+	}
+
+	private void computeCostReduction(CostDeterminationEvent cde) {
+		Cost effective = cde.getEffective();
+		if (effective.sumFor(CostCredit.class) > 0)
+			effective.add(Cost.credit(-1));
 	}
 
 	/**
-	 * Baisse le cout de la premiere install
+	 * Remise à zero du token
 	 * 
-	 * @param cde
+	 * @param start
 	 */
-	private void reduceCostOnFirstInstall(CostDeterminationEvent cde) {
-		Cost effective = cde.getEffective();
-		if (effective.sumFor(CostCredit.class) > 0)
-			effective.add(credit(-1));
+	private void resetToken() {
+		setToken(TokenType.POWER, 1);
 	}
 
-	private void setFirstInstall() {
-		firstInstall = true;
+	private void consumeToken() {
+		setToken(TokenType.POWER, 0);
 	}
-
 }

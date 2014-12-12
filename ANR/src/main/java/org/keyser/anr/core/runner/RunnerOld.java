@@ -26,7 +26,7 @@ import org.keyser.anr.core.WinCondition;
 import org.keyser.anr.core.corp.CorpServer;
 import org.keyser.anr.core.corp.Routine;
 
-public class Runner extends PlayableUnit {
+public class RunnerOld extends PlayableUnit {
 
 	/**
 	 * Le click de base
@@ -121,7 +121,7 @@ public class Runner extends PlayableUnit {
 			game.notification(NotificationEvent.RUNNER_INSTALLED.apply().m(prog));
 
 			// on envoi l'evenement
-			game.apply(new RunnerInstalledProgram(prog), next);
+			game.apply(new RunnerInstalledProgramCleanup(prog), next);
 		}
 
 	}
@@ -166,7 +166,7 @@ public class Runner extends PlayableUnit {
 
 		@Override
 		Event getEvent(InstallableRunnerCard card) {
-			return new RunnerInstalledResource(card);
+			return new RunnerInstalledResourceCleanup(card);
 		}
 	}
 
@@ -177,7 +177,7 @@ public class Runner extends PlayableUnit {
 
 		@Override
 		Event getEvent(InstallableRunnerCard card) {
-			return new RunnerInstalledHardware(card);
+			return new RunnerInstalledCleanup(card);
 		}
 	}
 
@@ -260,7 +260,7 @@ public class Runner extends PlayableUnit {
 
 	private int link;
 
-	public Runner(Faction faction) {
+	public RunnerOld(Faction faction) {
 		super(faction);
 		getWallet().add(new WalletBadPub());
 		coreSpace.setMemory(4);

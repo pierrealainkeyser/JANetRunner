@@ -3,7 +3,7 @@ package org.keyser.anr.core;
 import java.util.function.BiConsumer;
 
 import org.keyser.anr.core.corp.Corp;
-import org.keyser.anr.core.runner.Runner;
+import org.keyser.anr.core.runner.RunnerOld;
 
 /**
  * L'action de tracer
@@ -87,7 +87,7 @@ public class TraceAction {
 	}
 
 	private void increaseCorp(Game g, Flow next, int boost) {
-		Runner r = g.getRunner();
+		RunnerOld r = g.getRunner();
 		int runnerMax = affordable(r.getWallet());
 		corpBoost = boost;
 		

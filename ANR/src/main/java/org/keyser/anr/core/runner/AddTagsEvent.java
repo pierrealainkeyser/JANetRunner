@@ -1,8 +1,9 @@
 package org.keyser.anr.core.runner;
 
-import org.keyser.anr.core.Event;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.Game;
+import org.keyser.anr.core.Runner;
+import org.keyser.anr.core.TokenType;
 
 /**
  * Permet de gerer le nombre de tags
@@ -10,7 +11,7 @@ import org.keyser.anr.core.Game;
  * @author PAF
  * 
  */
-public class AddTagsEvent extends Event {
+public class AddTagsEvent {
 	private int tags;
 
 	public AddTagsEvent(int tags) {
@@ -36,7 +37,7 @@ public class AddTagsEvent extends Event {
 
 			if (tags > 0) {
 				Runner r = g.getRunner();
-				r.setTags(r.getTags() + tags);
+				r.addToken(TokenType.TAG, tags);
 			}
 			next.apply();
 

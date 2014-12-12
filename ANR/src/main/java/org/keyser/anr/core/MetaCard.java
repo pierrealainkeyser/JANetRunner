@@ -12,16 +12,31 @@ public class MetaCard {
 
 	private final String graphic;
 
+	private final String name;
+
 	private final List<CardSubType> subTypes;
 
-	public MetaCard(Influence influence, Cost cost, boolean unique,
-			String graphic, List<CardSubType> subTypes) {
-		super();
+	private final AbstractCardFactory factory;
+
+	public MetaCard(String name, Influence influence, Cost cost, boolean unique, String graphic, List<CardSubType> subTypes, AbstractCardFactory factory) {
+		this.name = name;
 		this.influence = influence;
 		this.cost = cost;
 		this.unique = unique;
 		this.graphic = graphic;
 		this.subTypes = Collections.unmodifiableList(subTypes);
+		this.factory = factory;
+	}
+
+	/**
+	 * Permet de créer une carte
+	 * 
+	 * @param game
+	 * @param id
+	 * @return
+	 */
+	public AbstractCard create(int id) {
+		return factory.create(id, this);
 	}
 
 	public Cost getCost() {
@@ -42,5 +57,9 @@ public class MetaCard {
 
 	public List<CardSubType> getSubTypes() {
 		return subTypes;
+	}
+
+	public String getName() {
+		return name;
 	}
 }

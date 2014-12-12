@@ -21,13 +21,13 @@ public class EventMatchers {
 		matchers.add(builder.build());
 	}
 
-	public void install(EventMatcherListener listener){
-		this.listener=listener;
-		matchers.forEach(listener::bind);
+	public void install(EventMatcherListener listener) {
+		this.listener = listener;
+		matchers.forEach(e -> listener.bind(e));
 	}
 
-	public void uninstall(){
+	public void uninstall() {
 		matchers.forEach(listener::unbind);
-		this.listener=null;
+		this.listener = null;
 	}
 }

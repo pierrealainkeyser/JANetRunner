@@ -1,6 +1,6 @@
 package org.keyser.anr.core;
 
-public abstract class CostDeterminationEvent extends Event {
+public abstract class CostDeterminationEvent implements SequentialEvent {
 
 	private final Cost original;
 

@@ -24,7 +24,7 @@ import org.keyser.anr.core.runner.Hardware;
 import org.keyser.anr.core.runner.HardwareInstallationCostDeterminationEvent;
 import org.keyser.anr.core.runner.Program;
 import org.keyser.anr.core.runner.ProgramInstallationCostDeterminationEvent;
-import org.keyser.anr.core.runner.Runner;
+import org.keyser.anr.core.runner.RunnerOld;
 
 @CardDef(name = "Modded", oid = "01035")
 public class Modded extends EventCard {
@@ -48,7 +48,7 @@ public class Modded extends EventCard {
 		di.add(match(HardwareInstallationCostDeterminationEvent.class).auto().sync(this::reduceCost));
 		di.bind(g);
 
-		Runner runner = g.getRunner();
+		RunnerOld runner = g.getRunner();
 		List<AbstractAbility> a = new ArrayList<>();
 		runner.getHand().forEach(c -> {
 			if (c instanceof Program)

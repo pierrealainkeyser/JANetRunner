@@ -20,11 +20,11 @@ public class CardSet {
 		this.cards = cards;
 	}
 
-	public void add(Card c) {
+	public void add(AbstractCard c) {
 		cards.add(c.getId());
 	}
 
-	public boolean contains(Card c) {
+	public boolean contains(AbstractCard c) {
 		return cards.contains(c.getId());
 	}
 }

@@ -31,7 +31,7 @@ import org.keyser.anr.core.corp.CorpHQServer;
 import org.keyser.anr.core.corp.CorpRDServer;
 import org.keyser.anr.core.corp.CorpRemoteServer;
 import org.keyser.anr.core.corp.CorpServer;
-import org.keyser.anr.core.runner.Runner;
+import org.keyser.anr.core.runner.RunnerOld;
 import org.keyser.anr.core.runner.RunnerCard;
 import org.keyser.anr.web.dto.QuestionDTO.PossibleResponseDTO;
 
@@ -242,7 +242,7 @@ public class GameDTOBuilder {
 		g.setStep(game.getStep());
 
 		Corp corp = game.getCorp();
-		Runner runner = game.getRunner();
+		RunnerOld runner = game.getRunner();
 
 		// rajout le DTO de la corp
 		g.addCard(new CardDTO().setDef(new CardDefDTO(CORP, getName(corp), getURL(corp), CORP)).setLocation(LocationDTO.hq_id).setVisible(true));
@@ -286,7 +286,7 @@ public class GameDTOBuilder {
 		return p;
 	}
 
-	private PlayerDTO runnerDTO(GameDTO g, Runner runner) {
+	private PlayerDTO runnerDTO(GameDTO g, RunnerOld runner) {
 		PlayerDTO p = new PlayerDTO();
 
 		Wallet w = runner.getWallet();

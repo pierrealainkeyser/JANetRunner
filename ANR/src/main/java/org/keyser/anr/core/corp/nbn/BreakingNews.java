@@ -11,7 +11,7 @@ import org.keyser.anr.core.Game.CorpTurnEndedEvent;
 import org.keyser.anr.core.corp.Agenda;
 import org.keyser.anr.core.corp.CorpScoreAgenda;
 import org.keyser.anr.core.runner.AddTagsEvent;
-import org.keyser.anr.core.runner.Runner;
+import org.keyser.anr.core.runner.RunnerOld;
 
 @CardDef(name = "Breaking News", oid = "01082")
 public class BreakingNews extends Agenda {
@@ -31,7 +31,7 @@ public class BreakingNews extends Agenda {
 		@Override
 		public void unbind(ConfigurableEventListener conf) {
 
-			Runner r = getGame().getRunner();
+			RunnerOld r = getGame().getRunner();
 			int tags = r.getTags();
 			if (tags > 0) {
 				int remove = Math.max(0, tags - 2);

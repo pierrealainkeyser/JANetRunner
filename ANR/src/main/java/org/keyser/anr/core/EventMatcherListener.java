@@ -3,7 +3,10 @@ package org.keyser.anr.core;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class EventMatcherListener implements EventConsumer<Object> {
 
@@ -61,11 +64,29 @@ public class EventMatcherListener implements EventConsumer<Object> {
 
 	private Map<Class<?>, Handlers<?>> handlers = new HashMap<>();
 
-	private final HandlersFlowConsumer consumer;
+	private List<EventMatchersFlowConsumer> consumers = new ArrayList<>();
 
-	public EventMatcherListener(HandlersFlowConsumer consumer) {
-		super();
-		this.consumer = consumer;
+	private static class EventMatchersFlowConsumer {
+		private final Predicate<EventMatchersFlow<?>> predicate;
+
+		private final Consumer<EventMatchersFlow<?>> consumer;
+
+		private EventMatchersFlowConsumer(Predicate<EventMatchersFlow<?>> predicate, Consumer<EventMatchersFlow<?>> consumer) {
+			this.predicate = predicate;
+			this.consumer = consumer;
+		}
+
+		public boolean test(EventMatchersFlow<?> flow) {
+			return predicate.test(flow);
+		}
+
+		public void accept(EventMatchersFlow<?> flow) {
+			consumer.accept(flow);
+		}
+	}
+
+	public void add(Predicate<EventMatchersFlow<?>> predicate, Consumer<EventMatchersFlow<?>> consumer) {
+		consumers.add(new EventMatchersFlowConsumer(predicate, consumer));
 	}
 
 	public <T> void bind(EventMatcher<T> matcher) {
@@ -75,8 +96,12 @@ public class EventMatcherListener implements EventConsumer<Object> {
 	}
 
 	public void unbind(EventMatcher<?> matcher) {
-		Handlers<?> h = getHandlers(matcher.getType());
-		h.remove((HandlerKey) matcher.getBindKey());
+		Object bindKey = matcher.getBindKey();
+		if (bindKey != null) {
+			Handlers<?> h = getHandlers(matcher.getType());
+			h.remove((HandlerKey) bindKey);
+			matcher.setBindKey(null);
+		}
 
 	}
 
@@ -94,8 +119,12 @@ public class EventMatcherListener implements EventConsumer<Object> {
 		Handlers<Object> h = (Handlers<Object>) getHandlers(event.getClass());
 		EventMatchersFlow<Object> matchers = h.createFlow(event, flow);
 
-		//application de la strategy
-		consumer.apply(matchers);
-	}
+		for (EventMatchersFlowConsumer consumer : consumers) {
 
+			if (consumer.test(matchers)) {
+				consumer.accept(matchers);
+				return;
+			}
+		}
+	}
 }

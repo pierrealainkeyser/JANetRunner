@@ -6,7 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.keyser.anr.core.corp.Corp;
 import org.keyser.anr.core.corp.neutral.WallOfStatic;
-import org.keyser.anr.core.runner.Runner;
+import org.keyser.anr.core.runner.RunnerOld;
 
 public class TestGame {
 
@@ -19,7 +19,7 @@ public class TestGame {
 		Corp corp = new Corp(Faction.CORP_NEUTRAL);
 
 		TestNotifier tn = new TestNotifier();
-		Game g = new Game(new Runner(Faction.RUNNER_NEUTRAL), corp, () -> end[0] = true);
+		Game g = new Game(new RunnerOld(Faction.RUNNER_NEUTRAL), corp, () -> end[0] = true);
 		corp.addToRD(new WallOfStatic());
 		corp.addToRD(new WallOfStatic());
 		g.setup();

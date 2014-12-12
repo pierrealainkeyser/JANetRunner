@@ -1,6 +1,5 @@
 package org.keyser.anr.core;
 
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
@@ -10,8 +9,7 @@ import java.util.function.Predicate;
  * 
  * @param <T>
  */
-public final class EventMatcher<T> implements EventConsumer<Object>,
-		Predicate<Object> {
+public final class EventMatcher<T> implements EventConsumer<Object>, Predicate<Object> {
 
 	private final Class<T> type;
 
@@ -19,14 +17,13 @@ public final class EventMatcher<T> implements EventConsumer<Object>,
 
 	private final EventConsumer<T> consumer;
 
-	private final Card source;
+	private final AbstractCard source;
 
 	private final String name;
 
 	private Object bindKey;
 
-	public EventMatcher(Class<T> type, Predicate<T> predicate,
-			EventConsumer<T> consumer, Card source, String name) {
+	public EventMatcher(Class<T> type, Predicate<T> predicate, EventConsumer<T> consumer, AbstractCard source, String name) {
 		super();
 		this.type = type;
 		this.predicate = predicate;
@@ -41,7 +38,7 @@ public final class EventMatcher<T> implements EventConsumer<Object>,
 	}
 
 	private T cast(Object event) {
-		return getMatchedType().cast(event);
+		return getType().cast(event);
 	}
 
 	public Class<T> getType() {
@@ -50,9 +47,8 @@ public final class EventMatcher<T> implements EventConsumer<Object>,
 
 	@Override
 	public boolean test(Object o) {
-		Class<T> mt = getMatchedType();
-		return mt.equals(o.getClass())
-				&& (predicate == null || predicate.test(cast(o)));
+		Class<T> mt = getType();
+		return mt.equals(o.getClass()) && (predicate == null || predicate.test(cast(o)));
 	}
 
 	@Override
@@ -63,7 +59,7 @@ public final class EventMatcher<T> implements EventConsumer<Object>,
 			return name;
 	}
 
-	public Card getSource() {
+	public AbstractCard getSource() {
 		return source;
 	}
 

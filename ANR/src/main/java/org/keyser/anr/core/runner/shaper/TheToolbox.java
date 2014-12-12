@@ -9,8 +9,8 @@ import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.Game.RunnerStartOfTurnEvent;
 import org.keyser.anr.core.WalletRecuringCredits;
 import org.keyser.anr.core.runner.Hardware;
-import org.keyser.anr.core.runner.Runner;
-import org.keyser.anr.core.runner.RunnerInstalledHardware;
+import org.keyser.anr.core.runner.RunnerOld;
+import org.keyser.anr.core.runner.RunnerInstalledCleanup;
 import org.keyser.anr.core.runner.UseIceBreaker;
 
 @CardDef(name = "The Toolbox", oid = "01041")
@@ -21,19 +21,19 @@ public class TheToolbox extends Hardware {
 	public TheToolbox() {
 		super(Faction.SHAPER.infl(2), Cost.credit(9));
 
-		add(match(RunnerInstalledHardware.class).pred(this::equals).call(this::install));
+		add(match(RunnerInstalledCleanup.class).pred(this::equals).call(this::install));
 		add(match(CardTrashedEvent.class).pred(this::equals).call(this::uninstall));
 	}
 
 	private void install() {
-		Runner runner = getGame().getRunner();
+		RunnerOld runner = getGame().getRunner();
 		runner.alterMemory(2);
 		runner.getWallet().add(wrc);
 		runner.alterLink(-2);
 	}
 
 	private void uninstall() {
-		Runner runner = getGame().getRunner();
+		RunnerOld runner = getGame().getRunner();
 		runner.alterMemory(-2);
 		runner.getWallet().remove(wrc);
 		runner.alterLink(-2);

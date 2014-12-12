@@ -13,7 +13,7 @@ import org.keyser.anr.core.Player;
 import org.keyser.anr.core.Question;
 import org.keyser.anr.core.WalletCredits;
 import org.keyser.anr.core.runner.Resource;
-import org.keyser.anr.core.runner.Runner;
+import org.keyser.anr.core.runner.RunnerOld;
 
 @CardDef(name = "Aesop's Pawnshop", oid = "01047")
 public class AesopsPawnshop extends Resource {
@@ -27,7 +27,7 @@ public class AesopsPawnshop extends Resource {
 	private void newTurn(RunnerStartOfTurnEvent rsote, Flow next) {
 
 		Game g = getGame();
-		Runner r = g.getRunner();
+		RunnerOld r = g.getRunner();
 		if (r.hasInstalledCard()) {
 
 			Question q = g.ask(Player.RUNNER, NotificationEvent.CUSTOM_QUESTION);

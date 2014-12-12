@@ -1,15 +1,17 @@
 package org.keyser.anr.core.runner;
 
-import org.keyser.anr.core.Event;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.Game;
+import org.keyser.anr.core.Runner;
+import org.keyser.anr.core.TokenType;
 
 /**
  * Rajoute des dommages au runner
+ * 
  * @author PAF
  *
  */
-public class AddDamageEvent extends Event {
+public class AddDamageEvent {
 
 	public static enum DamageType {
 		BRAIN, MEAT, NET;
@@ -22,6 +24,10 @@ public class AddDamageEvent extends Event {
 	public AddDamageEvent(int damage, DamageType type) {
 		this.damage = damage;
 		this.type = type;
+	}
+
+	public boolean isNetDamage() {
+		return getType() == DamageType.NET;
 	}
 
 	/**
@@ -38,9 +44,8 @@ public class AddDamageEvent extends Event {
 
 				// rajoute les brains au besoin
 				if (DamageType.BRAIN == getType())
-					r.setBrainDamages(r.getBrainDamages() + damage);
+					r.addToken(TokenType.BRAIN, damage);
 				r.doDamage(damage, next);
-
 			} else
 				next.apply();
 

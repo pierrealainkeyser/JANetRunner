@@ -7,8 +7,8 @@ import org.keyser.anr.core.EventMatcher;
 import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.Game;
 import org.keyser.anr.core.runner.Hardware;
-import org.keyser.anr.core.runner.Runner;
-import org.keyser.anr.core.runner.RunnerInstalledHardware;
+import org.keyser.anr.core.runner.RunnerOld;
+import org.keyser.anr.core.runner.RunnerInstalledCleanup;
 
 @CardDef(name = "Rabbit Hole", oid = "01039")
 public class RabbitHole extends Hardware {
@@ -16,13 +16,13 @@ public class RabbitHole extends Hardware {
 	public RabbitHole() {
 		super(Faction.SHAPER.infl(1), Cost.credit(2));
 
-		add(EventMatcher.match(RunnerInstalledHardware.class).pred(this::equals).call(this::install));
+		add(EventMatcher.match(RunnerInstalledCleanup.class).pred(this::equals).call(this::install));
 		add(EventMatcher.match(CardTrashedEvent.class).pred(this::equals).call(this::uninstall));
 	}
 
 	private void install() {
 		Game game = getGame();
-		Runner runner = game.getRunner();
+		RunnerOld runner = game.getRunner();
 		runner.alterLink(1);
 
 		// FIXME recherche et installation d'un autre RabbitHole

@@ -12,7 +12,7 @@ import org.keyser.anr.core.OCTGNParser;
 import org.keyser.anr.core.Wallet;
 import org.keyser.anr.core.WalletCredits;
 import org.keyser.anr.core.corp.Corp;
-import org.keyser.anr.core.runner.Runner;
+import org.keyser.anr.core.runner.RunnerOld;
 import org.keyser.anr.web.ConnectedGameEndpoint;
 import org.keyser.anr.web.GameAccess;
 import org.keyser.anr.web.GameDef;
@@ -67,7 +67,7 @@ public class GameDTOFactory implements GameFactory {
 			return null;
 		}
 
-		Runner r = null;
+		RunnerOld r = null;
 		try (InputStream fis = def.getDeckRunner().openStream()) {
 			r = parser.parseRunner(fis);
 		} catch (IOException e) {

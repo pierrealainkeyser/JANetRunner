@@ -4,11 +4,18 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.sql.rowset.Predicate;
+import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import org.keyser.anr.core.HostedCard.HostType;
 
+/**
+ * Une carte abstraite
+ * 
+ * @author PAF
+ *
+ */
 public abstract class AbstractCard {
 
 	private final EventMatchers events = new EventMatchers();
@@ -29,21 +36,23 @@ public abstract class AbstractCard {
 
 	private Map<TokenType, Integer> tokens = new EnumMap<>(TokenType.class);
 
+	protected Game game;
+
+	private final List<CardSubType> subTypes;
+
 	protected AbstractCard(int id, MetaCard meta) {
-		super();
 		this.meta = meta;
 		this.id = id;
+
+		this.subTypes = new ArrayList<>(meta.getSubTypes());
 	}
 
 	/**
-	 * Rajoute un evenement
+	 * Modification du delta
 	 * 
-	 * @param builder
+	 * @param type
+	 * @param delta
 	 */
-	void add(EventMatcherBuilder<?> builder) {
-		events.add(builder);
-	}
-
 	public void addToken(TokenType type, int delta) {
 		int value = getToken(type);
 		setToken(type, value + delta);
@@ -87,6 +96,10 @@ public abstract class AbstractCard {
 		return location;
 	}
 
+	public List<CardSubType> getSubTypes() {
+		return subTypes;
+	}
+
 	public int getToken(TokenType type) {
 		Integer i = tokens.get(type);
 		return i != null ? i : 0;
@@ -100,24 +113,24 @@ public abstract class AbstractCard {
 		return result;
 	}
 
-	protected <T> Predicate<T> hasToken(TokenType type){
-		return (t)->getToken(type)>0;
+	protected <T> Predicate<T> hasToken(TokenType type) {
+		return (t) -> getToken(type) > 0;
 	}
 
-	protected <T> Predicate<T> hosted(){
-		return (t)->host!=null;
+	protected <T> Predicate<T> hosted() {
+		return (t) -> host != null;
 	}
 
-	protected <T> Predicate<T> hostedAs(HostType type){
-		return (t)->host!=null && host.getType==type;
+	protected <T> Predicate<T> hostedAs(HostType type) {
+		return (t) -> host != null && host.getType() == type;
 	}
 
-	protected <T> Predicate<T> hostingCards(){
-		return (t)->!hosteds.isEmpty();
+	protected <T> Predicate<T> hostingCards() {
+		return (t) -> !hosteds.isEmpty();
 	}
 
-	protected <T> Predicate<T> installed(){
-		return (t)->installed;
+	protected <T> Predicate<T> installed() {
+		return (t) -> installed;
 	}
 
 	public boolean isInstalled() {
@@ -129,6 +142,18 @@ public abstract class AbstractCard {
 	}
 
 	/**
+	 * Rajoute un eveneement pour la carte
+	 * 
+	 * @param type
+	 * @param consumer
+	 */
+	protected <T> void match(Class<T> type, Consumer<EventMatcherBuilder<T>> consumer) {
+		EventMatcherBuilder<T> builder = EventMatcherBuilder.match(type, this);
+		consumer.accept(builder);
+		events.add(builder);
+	}
+
+	/**
 	 * Mise à jour des locations des cartes
 	 */
 	public void refreshHostedLocation() {
@@ -137,8 +162,13 @@ public abstract class AbstractCard {
 			hc.getHosted().setLocation(CardLocation.hosted(getId(), index++));
 	}
 
-	protected <T> Predicate<T> rezzed(){
-		return (t)->rezzed;
+	protected <T> Predicate<T> rezzed() {
+		return (t) -> rezzed;
+	}
+
+	public void bindGame(Game game, EventMatcherListener listener) {
+		this.game = game;
+		events.install(listener);
 	}
 
 	/**
@@ -174,15 +204,53 @@ public abstract class AbstractCard {
 		this.installed = installed;
 	}
 
+	/**
+	 * Mise à jour dans la location
+	 * 
+	 * @param location
+	 */
 	public void setLocation(CardLocation location) {
+		CardLocation old = this.location;
 		this.location = location;
+		if (Objects.equals(old, location))
+			game.fire(new AbstractCardLocationEvent(this));
 	}
 
 	public void setRezzed(boolean rezzed) {
+		boolean old = this.rezzed;
 		this.rezzed = rezzed;
+		if (old != rezzed)
+			game.fire(new AbstractCardRezzEvent(this));
 	}
 
+	/**
+	 * Changement dans les tokens
+	 * 
+	 * @param type
+	 * @param value
+	 */
 	public void setToken(TokenType type, int value) {
+
+		int old = getToken(type);
+
 		tokens.put(type, value);
+
+		if (old != value)
+			game.fire(new AbstractCardTokenEvent(this, type));
+
+	}
+
+
+
+	public Game getGame() {
+		return game;
+	}
+
+	protected MetaCard getMeta() {
+		return meta;
+	}
+
+	public Runner getRunner() {
+		return game.getRunner();
 	}
 }

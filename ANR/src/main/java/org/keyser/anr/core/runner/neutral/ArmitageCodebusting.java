@@ -8,7 +8,7 @@ import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.WalletCredits;
 import org.keyser.anr.core.runner.Resource;
-import org.keyser.anr.core.runner.RunnerInstalledResource;
+import org.keyser.anr.core.runner.RunnerInstalledResourceCleanup;
 
 @CardDef(name = "Armitage Codebusting", oid = "01053")
 public class ArmitageCodebusting extends Resource {
@@ -16,7 +16,7 @@ public class ArmitageCodebusting extends Resource {
 	public ArmitageCodebusting() {
 		super(Faction.RUNNER_NEUTRAL.infl(0), Cost.credit(1));
 
-		add(match(RunnerInstalledResource.class).pred(this::equals).call(this::addCreditOnInstall));
+		add(match(RunnerInstalledResourceCleanup.class).pred(this::equals).call(this::addCreditOnInstall));
 
 		addAction(new CardAbility(this, "Take 2{credits} from Armitage Codebusting", Cost.action(1)) {
 
