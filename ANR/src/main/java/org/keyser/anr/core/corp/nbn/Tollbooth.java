@@ -20,7 +20,7 @@ public class Tollbooth extends Ice {
 		super(NBN.infl(2), credit(8), 5, CardSubType.CODEGATE);
 		addRoutine(new EndTheRun());
 
-		add(match(IceIsEncounterEvent.class).pred(this::equals).name("Tollbooth").async(this::applyEffect));
+		register(match(IceIsEncounterEvent.class).pred(this::equals).name("Tollbooth").wrap(this::applyEffect));
 	}
 
 	private void applyEffect(IceIsEncounterEvent e, Flow next) {

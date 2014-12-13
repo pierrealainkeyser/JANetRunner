@@ -14,12 +14,12 @@ public class PADCampaign extends Asset {
 	public PADCampaign() {
 		super(Faction.CORP_NEUTRAL.infl(0), Cost.credit(2), Cost.credit(4));
 
-		add(match(CorpStartOfTurnEvent.class).name("PADCampaign").first().call(this::gainOne));
+		register(match(CorpStartOfTurnEvent.class).name("PADCampaign").first().invoke(this::gainOne));
 	}
 
 	private void gainOne() {
 
-		getGame().getCorp().getWallet().wallet(WalletCredits.class, WalletCredits::add);
+		getGame().getCorp().getWallet().wallet(WalletCredits.class, WalletCredits::register);
 		
 		//TODO notification de l'effet ?
 

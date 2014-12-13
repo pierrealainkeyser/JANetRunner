@@ -7,7 +7,7 @@ public class InstallIceCost extends InstallOn {
 	private final Cost cost;
 
 	public InstallIceCost(Integer server, Integer card, int cost) {
-		this.cost = Cost.credit(cost).add(Cost.action(1));
+		this.cost = Cost.credit(cost).register(Cost.action(1));
 		setServer(server);
 		setCard(card);
 	}

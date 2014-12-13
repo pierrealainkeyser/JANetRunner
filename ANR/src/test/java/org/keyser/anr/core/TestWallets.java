@@ -17,7 +17,7 @@ public class TestWallets {
 		Assert.assertTrue(w.isAffordable(credit(2), null));
 		Assert.assertFalse(w.isAffordable(credit(4), null));
 
-		Cost credit2action1 = credit(2).add(action(1));
+		Cost credit2action1 = credit(2).register(action(1));
 		Assert.assertFalse(w.isAffordable(credit2action1, null));
 
 		w.wallet(WalletActions.class, wa -> wa.setAmount(3));
@@ -31,7 +31,7 @@ public class TestWallets {
 		w.wallet(WalletCredits.class, wc -> wc.setAmount(6));
 		w.wallet(WalletActions.class, wc -> wc.setAmount(2));
 
-		Cost credit2action1 = credit(2).add(action(1));
+		Cost credit2action1 = credit(2).register(action(1));
 		Assert.assertEquals(2, w.timesAffordable(credit2action1, null));
 
 		Assert.assertEquals(0, w.timesAffordable(credit(7), null));

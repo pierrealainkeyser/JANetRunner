@@ -27,8 +27,8 @@ public abstract class CorpCard extends Card {
 		super(influence, cost, subtypes);
 	}
 
-	protected CorpCard add(EventMatcher.Builder<?> em) {
-		di.add(em);
+	protected CorpCard register(EventMatcher.Builder<?> em) {
+		di.register(em);
 		return this;
 	}
 

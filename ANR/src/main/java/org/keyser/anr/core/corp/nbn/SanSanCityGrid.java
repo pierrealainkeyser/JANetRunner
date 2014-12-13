@@ -16,7 +16,7 @@ public class SanSanCityGrid extends Upgrade {
 	public SanSanCityGrid() {
 		super(Faction.NBN.infl(3), Cost.credit(6), Cost.credit(5));
 
-		add(match(DetermineAgendaRequirement.class).auto().sync(this::updateRequirement));
+		register(match(DetermineAgendaRequirement.class).auto().sync(this::updateRequirement));
 	}
 
 	/**

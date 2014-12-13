@@ -8,8 +8,8 @@ public class AbstractCardRunner extends AbstractCard {
 		super(id, meta);
 	}
 
-	protected <T> Predicate<T> affordable(Cost cost, Object action) {
-		return getGame().getRunner().affordable(cost, action);
+	protected <T> Predicate<T> affordable(CostForAction cost) {
+		return getGame().getRunner().affordable(cost);
 	}
 
 }

@@ -1,18 +1,25 @@
 package org.keyser.anr.core.corp.jinteki;
 
-import org.keyser.anr.core.CardDef;
-import org.keyser.anr.core.Cost;
-import org.keyser.anr.core.Faction;
-import org.keyser.anr.core.Flow;
-import org.keyser.anr.core.corp.Operation;
+import static java.util.Collections.emptyList;
+import static org.keyser.anr.core.Cost.credit;
+import static org.keyser.anr.core.Faction.JINTEKI;
 
-@CardDef(name = "Neural EMP", oid = "01072")
+import org.keyser.anr.core.Flow;
+import org.keyser.anr.core.MetaCard;
+import org.keyser.anr.core.corp.Operation;
+import org.keyser.anr.core.runner.DoDamageEvent;
+import org.keyser.anr.core.runner.DoDamageEvent.DamageType;
+
 public class NeuralEMP extends Operation {
-	public NeuralEMP() {
-		super(Faction.JINTEKI.infl(2), Cost.credit(2));
+
+	public final static MetaCard INSTANCE = new MetaCard("Neural EMP", JINTEKI.infl(2), credit(2), false, "01072", emptyList(), NeuralEMP::new);
+
+	protected NeuralEMP(int id, MetaCard meta) {
+		super(id, meta);
 	}
 
 	@Override
-	public void apply(Flow next) {
+	protected Flow invoke(Flow next) {
+		return next.wrap(new DoDamageEvent(this, "Neural EMP", 1, DamageType.NET)::fire);
 	}
 }

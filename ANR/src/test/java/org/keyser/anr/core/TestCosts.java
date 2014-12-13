@@ -20,7 +20,7 @@ public class TestCosts {
 
 	@Test
 	public void testSum() {
-		Cost c = free().add(credit(2).add(credit(3)).add(action(4)));
+		Cost c = free().register(credit(2).register(credit(3)).register(action(4)));
 
 		Assert.assertEquals(5, c.sumFor(CostCredit.class));
 		Assert.assertEquals(4, c.sumFor(CostAction.class));
@@ -28,7 +28,7 @@ public class TestCosts {
 
 	@Test
 	public void testAggregate() {
-		Cost c = credit(2).add(credit(3)).aggregate();
+		Cost c = credit(2).register(credit(3)).aggregate();
 
 		List<CostUnit> cu = c.getCosts();
 		Assert.assertEquals(1, cu.size());

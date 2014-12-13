@@ -12,6 +12,6 @@ public class MakingNews extends Corp {
 
 	public MakingNews() {
 		super(Faction.NBN);
-		getWallet().add(new WalletRecuringCredits("corp", null, o -> o instanceof TraceAction, 2, CorpStartOfTurnEvent.class));
+		getWallet().register(new WalletRecuringCredits("corp", null, o -> o instanceof TraceAction, 2, CorpStartOfTurnEvent.class));
 	}
 }

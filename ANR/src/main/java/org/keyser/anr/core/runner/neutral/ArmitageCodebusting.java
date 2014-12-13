@@ -16,7 +16,7 @@ public class ArmitageCodebusting extends Resource {
 	public ArmitageCodebusting() {
 		super(Faction.RUNNER_NEUTRAL.infl(0), Cost.credit(1));
 
-		add(match(RunnerInstalledResourceCleanup.class).pred(this::equals).call(this::addCreditOnInstall));
+		register(match(RunnerInstalledResourceCleanup.class).pred(this::equals).invoke(this::addCreditOnInstall));
 
 		addAction(new CardAbility(this, "Take 2{credits} from Armitage Codebusting", Cost.action(1)) {
 

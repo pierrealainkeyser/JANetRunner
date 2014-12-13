@@ -21,7 +21,7 @@ public class DataRaven extends Ice {
 	public DataRaven() {
 		super(NBN.infl(2), credit(4), 4, CardSubType.SENTRY);
 
-		add(match(IceIsEncounterEvent.class).pred(this::equals).name("DataRaven").async(this::applyEffect));
+		register(match(IceIsEncounterEvent.class).pred(this::equals).name("DataRaven").wrap(this::applyEffect));
 	}
 
 	private void applyEffect(IceIsEncounterEvent e, Flow next) {

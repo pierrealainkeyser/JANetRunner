@@ -1,6 +1,5 @@
 package org.keyser.anr.core;
 
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,8 +11,18 @@ public abstract class AbstractCardEvent {
 
 	private AbstractCard secondary;
 
-	protected void updateInputs(Map<String, Object> inputs) {
-		// NO-OP
+	protected AbstractCardEvent(AbstractCard primary, String description, AbstractCard secondary) {
+		this.primary = primary;
+		this.description = description;
+		this.secondary = secondary;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public Game getGame() {
+		return primary.getGame();
 	}
 
 	/**
@@ -30,5 +39,17 @@ public abstract class AbstractCardEvent {
 
 		updateInputs(strs);
 		return strs;
+	}
+
+	public AbstractCard getPrimary() {
+		return primary;
+	}
+
+	public AbstractCard getSecondary() {
+		return secondary;
+	}
+
+	protected void updateInputs(Map<String, Object> inputs) {
+		// NO-OP
 	}
 }

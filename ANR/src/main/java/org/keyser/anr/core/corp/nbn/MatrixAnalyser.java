@@ -29,7 +29,7 @@ public class MatrixAnalyser extends Ice {
 		AddTagsEvent t = new AddTagsEvent(1);
 		addRoutine(new TraceRoutine("If successful, give the Runner 1 tag.", 2, next -> t.fire(getGame(), next)));
 
-		add(match(IceIsEncounterEvent.class).name("MatrixAnalyzer").async(this::applyEffect));
+		register(match(IceIsEncounterEvent.class).name("MatrixAnalyzer").wrap(this::applyEffect));
 	}
 
 	/**

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import org.keyser.anr.core.HostedCard.HostType;
 
@@ -129,6 +130,10 @@ public abstract class AbstractCard {
 		return (t) -> !hosteds.isEmpty();
 	}
 
+	protected <T> Predicate<T> location(Predicate<CardLocation> pred) {
+		return (t) -> pred.test(location);
+	}
+
 	protected <T> Predicate<T> installed() {
 		return (t) -> installed;
 	}
@@ -139,6 +144,14 @@ public abstract class AbstractCard {
 
 	public boolean isRezzed() {
 		return rezzed;
+	}
+
+	public Supplier<AbstractId> runner() {
+		return () -> getGame().getRunner();
+	}
+
+	public Supplier<AbstractId> corp() {
+		return () -> getGame().getCorp();
 	}
 
 	/**
@@ -240,8 +253,6 @@ public abstract class AbstractCard {
 
 	}
 
-
-
 	public Game getGame() {
 		return game;
 	}
@@ -250,7 +261,7 @@ public abstract class AbstractCard {
 		return meta;
 	}
 
-	public Runner getRunner() {
+	public AbstractId getRunner() {
 		return game.getRunner();
 	}
 }

@@ -65,7 +65,7 @@ public class AstroScriptPilotProgram extends Agenda {
 		super(Faction.NBN, 2, 3);
 
 		// rajoute un token lorsque qu'on le score
-		add(match(CorpScoreAgenda.class).auto().pred(this::equals).call(() -> setPowerCounter(1)));
+		register(match(CorpScoreAgenda.class).auto().pred(this::equals).invoke(() -> setPowerCounter(1)));
 		addAction(new AstroTokenAbility(this));
 	}
 

@@ -17,7 +17,7 @@ import org.keyser.anr.core.runner.RunnerOld;
 public class BreakingNews extends Agenda {
 	public BreakingNews() {
 		super(Faction.NBN, 1, 2);
-		add(match(CorpScoreAgenda.class).auto().pred(this::equals).async(this::sendTags));
+		register(match(CorpScoreAgenda.class).auto().pred(this::equals).wrap(this::sendTags));
 	}
 
 	private class TagNews extends CoolEffect {

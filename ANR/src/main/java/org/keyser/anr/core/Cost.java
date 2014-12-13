@@ -1,103 +1,81 @@
 package org.keyser.anr.core;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.reducing;
-
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.BinaryOperator;
+import java.util.Map;
 
-public final class Cost {
+/**
+ * L'ensemble des couts
+ * 
+ * @author pakeyser
+ *
+ */
+public class Cost {
 
-	private final List<CostUnit> costs = new ArrayList<CostUnit>();
+	private List<CostElement> basics = new ArrayList<CostElement>();
 
-	public static Cost credit(int value) {
-		return new Cost(new CostCredit(value));
-	}
-
-	public static Cost action(int value) {
-		return new Cost(new CostAction(value));
-	}
+	private List<CostElement> additionnal = new ArrayList<CostElement>();
 
 	public static Cost free() {
 		return new Cost();
 	}
 
-	@Override
-	public String toString() {
-		return costs.toString();
+	public static Cost credit(int value) {
+		return new Cost().with(new CostElement(value, CostType.CREDIT));
 	}
 
-	private Cost() {
+	public Cost with(CostElement c) {
+		basics.add(c);
+		return this;
 	}
 
-	private Cost(CostUnit cost) {
-		costs.add(cost);
+	public Cost withAction(int action) {
+		basics.add(new CostElement(action, CostType.ACTION));
+		return this;
 	}
 
-	public Cost(Collection<Optional<CostUnit>> cos) {
-		cos.forEach(this::add);
+	public Cost withAdditionnal(CostElement c) {
+		additionnal.add(c);
+		return this;
 	}
 
-	public int sumFor(Class<? extends CostUnit> type) {
-		int sum = costs.stream().filter(sc -> type.equals(sc.getClass())).mapToInt(CostUnit::getValue).sum();
-		return sum;
+	public Cost withoutAdditionnal() {
+		Cost costs = new Cost();
+		costs.basics.addAll(basics);
+		return costs;
 	}
 
-	public boolean isZero() {
-		int value = costs.stream().mapToInt(CostUnit::getValue).sum();
-		return value == 0;
-	}
-
-	public boolean contains(Class<? extends CostUnit> type) {
-		return costs.stream().filter(sc -> type.equals(sc.getClass())).findFirst().isPresent();
-	}
-
-	public Cost times(int nb) {
-		Cost c = new Cost();
-		costs.stream().forEach(cu -> c.add(cu.times(nb)));
-		return c;
-	}
-
-	@Override
 	public Cost clone() {
-		Cost c = new Cost();
-		c.costs.addAll(costs);
-		return c;
+		Cost costs = new Cost();
+		costs.basics.addAll(basics);
+		costs.additionnal.addAll(additionnal);
+		return costs;
 	}
 
-	/**
-	 * Permet d'avoir tous les couts simplifi�s
-	 * 
-	 * @return
-	 */
-	public Cost aggregate() {
-		Collection<Optional<CostUnit>> c = costs.stream().collect(groupingBy(CostUnit::getClass, reducing((BinaryOperator<CostUnit>) CostUnit::merge))).values();
-		return new Cost(c);
+	public NormalizedCost normalize() {
+		return new NormalizedCost(normalize(basics), normalize(additionnal));
 	}
 
-	public Cost add(Optional<CostUnit> cost) {
-		cost.ifPresent(this::add);
-		return this;
-	}
-
-	public Cost add(CostUnit cost) {
-		this.costs.add(cost);
-		return this;
-	}
-
-	public Cost add(Cost cost) {
-		if (cost != null) {
-			this.costs.addAll(cost.costs);
+	private Map<CostType, Integer> normalize(List<CostElement> costs) {
+		Map<CostType, Integer> m = new HashMap<>(costs.size());
+		for (CostElement c : costs) {
+			CostType type = c.getType();
+			Integer ori = m.get(type);
+			if (ori == null)
+				ori = 0;
+			m.put(type, ori + c.getValue());
 		}
-		return this;
-	}
 
-	public List<CostUnit> getCosts() {
-		return Collections.unmodifiableList(costs);
-	}
+		// suppresion des O
+		Iterator<Integer> it = m.values().iterator();
+		while (it.hasNext()) {
+			Integer next = it.next();
+			if (next == 0)
+				it.remove();
+		}
 
+		return m;
+	}
 }

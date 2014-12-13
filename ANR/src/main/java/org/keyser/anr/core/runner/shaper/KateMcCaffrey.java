@@ -1,12 +1,12 @@
 package org.keyser.anr.core.runner.shaper;
 
 import static java.util.Collections.emptyList;
-import static org.keyser.anr.core.Cost.free;
 import static org.keyser.anr.core.Faction.SHAPER;
 
 import org.keyser.anr.core.Cost;
-import org.keyser.anr.core.CostCredit;
 import org.keyser.anr.core.CostDeterminationEvent;
+import org.keyser.anr.core.CostElement;
+import org.keyser.anr.core.CostType;
 import org.keyser.anr.core.EventMatcherBuilder;
 import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.Runner;
@@ -19,7 +19,7 @@ import org.keyser.anr.core.runner.RunnerInstalledCleanup.InstallType;
 
 public class KateMcCaffrey extends Runner {
 
-	public final static MetaCard INSTANCE = new MetaCard("Kate \"Mac\" McCaffrey: Digital Tinker", SHAPER.infl(15), free(), true, "01033", emptyList(), KateMcCaffrey::new);
+	public final static MetaCard INSTANCE = new MetaCard("Kate \"Mac\" McCaffrey: Digital Tinker", SHAPER.infl(15), Cost.free(), true, "01033", emptyList(), KateMcCaffrey::new);
 
 	public KateMcCaffrey(int id, MetaCard meta) {
 		super(id, meta);
@@ -38,8 +38,9 @@ public class KateMcCaffrey extends Runner {
 
 	private void computeCostReduction(CostDeterminationEvent cde) {
 		Cost effective = cde.getEffective();
-		if (effective.sumFor(CostCredit.class) > 0)
-			effective.add(Cost.credit(-1));
+		int cost = effective.normalize().getValue(CostType.CREDIT);
+		if (cost > 0)
+			effective.with(new CostElement(-1, CostType.CREDIT));
 	}
 
 	/**

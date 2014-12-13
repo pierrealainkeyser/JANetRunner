@@ -1,9 +1,5 @@
 package org.keyser.anr.core.runner;
 
-import org.keyser.anr.core.Card;
-import org.keyser.anr.core.CardAccess;
-import org.keyser.anr.core.Event;
-
 /**
  * L'action d'utiliser un briseglace. La carte n'est pas forcement un
  * {@link IceBreaker}
@@ -11,31 +7,20 @@ import org.keyser.anr.core.Event;
  * @author PAF
  * 
  */
-public class UseIceBreaker extends Event implements CardAccess {
-
-	private final Card iceBreaker;
+public class UseIceBreaker extends UseProgramAction {
 
 	private final int boost;
 
 	private final int subBrokens;
 
-	public UseIceBreaker(Card iceBreaker, int boost, int subBrokens) {
-		this.iceBreaker = iceBreaker;
+	public UseIceBreaker(IceBreaker iceBreaker, int boost, int subBrokens) {
+		super(iceBreaker);
 		this.boost = boost;
 		this.subBrokens = subBrokens;
 	}
 
-	public UseIceBreaker(Card iceBreaker) {
+	public UseIceBreaker(IceBreaker iceBreaker) {
 		this(iceBreaker, 0, 0);
-	}
-	
-	@Override
-	public Card getCard() {
-		return getIceBreaker();
-	}
-
-	public Card getIceBreaker() {
-		return iceBreaker;
 	}
 
 	public int getBoost() {

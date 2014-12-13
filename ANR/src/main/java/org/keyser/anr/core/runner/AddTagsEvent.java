@@ -1,8 +1,8 @@
 package org.keyser.anr.core.runner;
 
+import org.keyser.anr.core.AbstractCard;
+import org.keyser.anr.core.AbstractId;
 import org.keyser.anr.core.Flow;
-import org.keyser.anr.core.Game;
-import org.keyser.anr.core.Runner;
 import org.keyser.anr.core.TokenType;
 
 /**
@@ -11,41 +11,16 @@ import org.keyser.anr.core.TokenType;
  * @author PAF
  * 
  */
-public class AddTagsEvent {
-	private int tags;
+public class AddTagsEvent extends RunnerPreventibleEffect {
 
-	public AddTagsEvent(int tags) {
-		this.tags = tags;
-	}
-
-	public int getTags() {
-		return tags;
-	}
-
-	public void setTags(int tags) {
-		this.tags = tags;
-	}
-
-	/**
-	 * On envoi l'evenement
-	 * 
-	 * @param g
-	 * @param next
-	 */
-	public void fire(Game g, Flow next) {
-		g.apply(this, () -> {
-
-			if (tags > 0) {
-				Runner r = g.getRunner();
-				r.addToken(TokenType.TAG, tags);
-			}
-			next.apply();
-
-		});
+	public AddTagsEvent(AbstractCard primary, String description, int tags) {
+		super(primary, description, "Take tags", tags);
 	}
 
 	@Override
-	public String toString() {
-		return "AddTagsEvent [tags=" + tags + "]";
+	protected void commitAmmount(int amount, Flow next) {
+		AbstractId runner = getGame().getRunner();
+		runner.addToken(TokenType.TAG, amount);
+		next.apply();
 	}
 }

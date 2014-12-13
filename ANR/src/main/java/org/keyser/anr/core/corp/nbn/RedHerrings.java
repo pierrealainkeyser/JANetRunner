@@ -20,13 +20,13 @@ public class RedHerrings extends Upgrade {
 		RedHerringsEffect() {
 			super(CleanTheRunEvent.class);
 
-			add(match(CardAccededEvent.class).auto().pred(RedHerrings.this::isSameServer).sync(this::increaseStealCost));
+			register(match(CardAccededEvent.class).auto().pred(RedHerrings.this::isSameServer).sync(this::increaseStealCost));
 		}
 
 		private void increaseStealCost(CardAccededEvent cae) {
 			Cost steal = cae.getStealCost();
 			if (steal != null) {
-				cae.setStealCost(steal.clone().add(Cost.credit(5)));
+				cae.setStealCost(steal.clone().register(Cost.credit(5)));
 			}
 
 		}
@@ -35,7 +35,7 @@ public class RedHerrings extends Upgrade {
 	public RedHerrings() {
 		super(Faction.NBN.infl(2), Cost.credit(1), Cost.credit(1));
 
-		add(match(RunIsSuccessfulEvent.class).auto().pred(this::isSameServer).call(this::installEffect));
+		register(match(RunIsSuccessfulEvent.class).auto().pred(this::isSameServer).invoke(this::installEffect));
 	}
 
 	@Override

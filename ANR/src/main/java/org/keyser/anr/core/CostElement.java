@@ -2,15 +2,11 @@ package org.keyser.anr.core;
 
 public final class CostElement {
 
-	public enum Type {
-		CREDIT, ACTION, TRASH_SELF
-	}
-
 	private final int value;
 
-	private final Type type;
+	private final CostType type;
 
-	public CostElement(int value, Type type) {
+	public CostElement(int value, CostType type) {
 		this.value = value;
 		this.type = type;
 	}
@@ -19,7 +15,7 @@ public final class CostElement {
 		return value;
 	}
 
-	public Type getType() {
+	public CostType getType() {
 		return type;
 	}
 }

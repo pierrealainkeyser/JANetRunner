@@ -2,9 +2,8 @@ package org.keyser.anr.core;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
-public class Runner extends AbstractCardRunner {
+public class Runner extends AbstractId {
 
 	private List<AbstractCardRunner> resources = new ArrayList<>();
 
@@ -28,15 +27,5 @@ public class Runner extends AbstractCardRunner {
 
 	public void doDamage(int damage, Flow next) {
 
-	}
-	
-	public <T> Predicate<T> affordable(Cost cost, Object action){
-		return t->mayAfford(cost,action);
-	}
-
-	public boolean mayAfford(Cost cost, Object action) {
-
-		// TODO implementation
-		return true;
 	}
 }

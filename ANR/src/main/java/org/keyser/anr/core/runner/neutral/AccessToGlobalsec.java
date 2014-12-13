@@ -14,7 +14,7 @@ public class AccessToGlobalsec extends Resource {
 	public AccessToGlobalsec() {
 		super(Faction.RUNNER_NEUTRAL.infl(0), Cost.credit(1));
 
-		add(EventMatcher.match(RunnerInstalledResourceCleanup.class).pred(this::equals).call(() -> getGame().getRunner().alterLink(1)));
-		add(EventMatcher.match(CardTrashedEvent.class).pred(this::equals).call(() -> getGame().getRunner().alterLink(-1)));
+		register(EventMatcher.match(RunnerInstalledResourceCleanup.class).pred(this::equals).invoke(() -> getGame().getRunner().alterLink(1)));
+		register(EventMatcher.match(CardTrashedEvent.class).pred(this::equals).invoke(() -> getGame().getRunner().alterLink(-1)));
 	}
 }

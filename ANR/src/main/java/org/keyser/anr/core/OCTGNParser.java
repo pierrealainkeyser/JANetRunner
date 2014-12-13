@@ -9,12 +9,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.keyser.anr.core.corp.AllCorp;
-import org.keyser.anr.core.corp.Corp;
-import org.keyser.anr.core.corp.CorpCard;
-import org.keyser.anr.core.runner.AllRunner;
-import org.keyser.anr.core.runner.RunnerOld;
-import org.keyser.anr.core.runner.RunnerCard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -30,9 +24,9 @@ import org.xml.sax.SAXException;
  */
 public class OCTGNParser {
 
-	private AllCorp corps = new AllCorp();
+	//private AllCorp corps = new AllCorp();
 
-	private AllRunner runners = new AllRunner();
+//	private AllRunner runners = new AllRunner();
 
 	private final static Logger logger = LoggerFactory.getLogger(OCTGNParser.class);
 
@@ -80,24 +74,24 @@ public class OCTGNParser {
 		}
 	}
 
-	/**
-	 * Permet de parser une corporation
-	 * 
-	 * @param is
-	 * @return
-	 */
-	public Corp parseCorp(InputStream is) {
-		return parse(is, corps::newCorp, (Function<String, CorpCard>) corps::newCard, Corp::addToRD);
-	}
-
-	/**
-	 * Permet de parser un runner
-	 * 
-	 * @param is
-	 * @return
-	 */
-	public RunnerOld parseRunner(InputStream is) {
-		return parse(is, runners::newRunner, (Function<String, RunnerCard>) runners::newCard, RunnerOld::addToStack);
-	}
+//	/**
+//	 * Permet de parser une corporation
+//	 * 
+//	 * @param is
+//	 * @return
+//	 */
+//	public Corp parseCorp(InputStream is) {
+//		return parse(is, corps::newCorp, (Function<String, CorpCard>) corps::newCard, Corp::addToRD);
+//	}
+//
+//	/**
+//	 * Permet de parser un runner
+//	 * 
+//	 * @param is
+//	 * @return
+//	 */
+//	public RunnerOld parseRunner(InputStream is) {
+//		return parse(is, runners::newRunner, (Function<String, RunnerCard>) runners::newCard, RunnerOld::addToStack);
+//	}
 
 }

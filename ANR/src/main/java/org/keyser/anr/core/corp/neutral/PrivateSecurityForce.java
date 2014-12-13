@@ -5,8 +5,9 @@ import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.corp.Agenda;
 import org.keyser.anr.core.corp.AgendaAbility;
-import org.keyser.anr.core.runner.AddDamageEvent;
-import org.keyser.anr.core.runner.AddDamageEvent.DamageType;
+import org.keyser.anr.core.runner.DoDamageEvent;
+import org.keyser.anr.core.runner.DoDamageEvent.DamageType;
+import org.keyser.anr.core.runner.RunnerPreventibleEffect;
 
 @CardDef(name = "Private Security Force", oid = "01107")
 public class PrivateSecurityForce extends Agenda {
@@ -26,7 +27,7 @@ public class PrivateSecurityForce extends Agenda {
 
 		@Override
 		public void apply() {
-			AddDamageEvent event = new AddDamageEvent(1, DamageType.MEAT);
+			RunnerPreventibleEffect event = new DoDamageEvent(1, DamageType.MEAT);
 			event.fire(getGame(), next);
 		}
 
