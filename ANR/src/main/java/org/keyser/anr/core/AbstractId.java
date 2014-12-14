@@ -1,11 +1,12 @@
 package org.keyser.anr.core;
 
-import java.util.function.Predicate;
-
 public abstract class AbstractId extends AbstractCard {
 
-	public AbstractId(int id, MetaCard meta) {
-		super(id, meta);
+	private final PlayerType playerType;
+
+	public AbstractId(int id, MetaCard meta, PlayerType playerType) {
+		super(id, meta, null, null);
+		this.playerType = playerType;
 	}
 
 	/**
@@ -19,8 +20,8 @@ public abstract class AbstractId extends AbstractCard {
 
 	}
 
-	public <T> Predicate<T> affordable(CostForAction cost) {
-		return t -> mayAfford(cost);
+	public PlayerType getPlayerType() {
+		return playerType;
 	}
 
 	public boolean mayAfford(CostForAction cost) {

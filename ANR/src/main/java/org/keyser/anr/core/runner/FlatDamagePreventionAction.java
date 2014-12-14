@@ -17,7 +17,7 @@ public class FlatDamagePreventionAction extends UserAction {
 	private final int amount;
 
 	public FlatDamagePreventionAction(AbstractCard source, CostForAction cost, String description, int amount) {
-		super(source, cost, description);
+		super(source.getRunner(), source, cost, description);
 		this.amount = amount;
 	}
 

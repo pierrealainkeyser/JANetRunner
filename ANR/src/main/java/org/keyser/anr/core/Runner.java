@@ -1,27 +1,56 @@
 package org.keyser.anr.core;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.keyser.anr.core.runner.Hardware;
+import org.keyser.anr.core.runner.Program;
+import org.keyser.anr.core.runner.Resource;
 
 public class Runner extends AbstractId {
 
-	private List<AbstractCardRunner> resources = new ArrayList<>();
+	private final AbstractCardContainer<Resource> resources = new AbstractCardContainer<>(CardLocation::resources);
 
-	private List<AbstractCardRunner> programs = new ArrayList<>();
+	private final AbstractCardContainer<Program> programs = new AbstractCardContainer<>(CardLocation::programs);
 
-	private List<AbstractCardRunner> hardwares = new ArrayList<>();
+	private final AbstractCardContainer<Hardware> hardwares = new AbstractCardContainer<>(CardLocation::hardwares);
 
-	private List<AbstractCardRunner> stack = new ArrayList<>();
+	private final AbstractCardContainer<AbstractCardRunner> stack = new AbstractCardContainer<>(CardLocation::stack);
 
-	private List<AbstractCardRunner> grip = new ArrayList<>();
+	private final AbstractCardContainer<AbstractCardRunner> grip = new AbstractCardContainer<>(CardLocation::grip);
 
-	private List<AbstractCardRunner> heap = new ArrayList<>();
+	private final AbstractCardContainer<AbstractCardRunner> heap = new AbstractCardContainer<>(CardLocation::heap);
 
 	protected Runner(int id, MetaCard meta) {
-		super(id, meta);
+		super(id, meta, PlayerType.RUNNER);
 	}
 
 	public void doDraw(int nb, Flow next) {
+
+	}
+
+	public AbstractCardContainer<Resource> getResources() {
+		return resources;
+	}
+
+	public AbstractCardContainer<Program> getPrograms() {
+		return programs;
+	}
+
+	public AbstractCardContainer<Hardware> getHardwares() {
+		return hardwares;
+	}
+
+	public AbstractCardContainer<AbstractCardRunner> getStack() {
+		return stack;
+	}
+
+	public AbstractCardContainer<AbstractCardRunner> getGrip() {
+		return grip;
+	}
+
+	public AbstractCardContainer<AbstractCardRunner> getHeap() {
+		return heap;
+	}
+
+	public void alterMemory(int delta, Flow next) {
 
 	}
 

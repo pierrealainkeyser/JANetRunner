@@ -59,14 +59,16 @@ public abstract class RunnerPreventibleEffect extends AbstractCardEvent implemen
 
 			// TODO placer le contexte
 			AbstractCard source = getPrimary();
-
+		
 			for (Function<RunnerPreventibleEffect, Feedback<?, ?>> action : preventions) {
 				Feedback<?, ?> feedback = action.apply(this);
-				g.user(feedback, fire);
+
+				if (feedback.checkCost())
+					g.user(feedback, fire);
 			}
 
 			// on enregistre le fait de ne rien faire
-			g.user(noop(source, null, noPrevention), commit);
+			g.user(noop(g.getRunner(), source, null, noPrevention), commit);
 		}
 	}
 

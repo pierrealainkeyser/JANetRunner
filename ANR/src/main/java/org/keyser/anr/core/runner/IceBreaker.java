@@ -29,4 +29,8 @@ public abstract class IceBreaker extends Program {
 		this.bonusStrength = bonusStrength;
 	}
 
+	public void alterBonus(int delta) {
+		setBonusStrength(getBonusStrength() + delta);
+	}
+
 }

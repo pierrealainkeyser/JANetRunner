@@ -21,11 +21,6 @@ public class NetShield extends Program {
 
 	public final static ProgramMetaCard INSTANCE = new ProgramMetaCard("Net Shield", SHAPER.infl(1), credit(2), false, "01033", 1, emptyList(), NetShield::new);
 
-	/**
-	 * Le cout et l'action associé
-	 */
-	private CostForAction cost = new CostForAction(credit(1), new UseProgramAction(this));
-
 	protected NetShield(int id, MetaCard meta) {
 		super(id, (ProgramMetaCard) meta);
 
@@ -39,14 +34,13 @@ public class NetShield extends Program {
 
 		Predicate<DoDamageEvent> pred = installed();
 		pred = pred.and(ade -> ade.isNetDamage() && ade.getAmount() > 0);
-		pred = pred.and(affordable(cost));
 		emb.test(pred);
 
 		emb.call(evt -> evt.register(this::createFeedback));
 	}
 
 	private Feedback<?, ?> createFeedback(RunnerPreventibleEffect event) {
-		FlatDamagePreventionAction prevent = new FlatDamagePreventionAction(this, cost, "Prevent 1 Net", 1);
+		FlatDamagePreventionAction prevent = new FlatDamagePreventionAction(this, new CostForAction(credit(1), new UseProgramAction(this)), "Prevent 1 Net", 1);
 		return prevent.feedback(event);
 	}
 }

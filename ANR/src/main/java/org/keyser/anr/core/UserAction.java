@@ -8,14 +8,37 @@ public class UserAction {
 
 	private final AbstractCard source;
 
-	private final CostForAction cost;
+	private CostForAction cost;
 
 	private final String description;
 
-	public UserAction(AbstractCard source, CostForAction cost, String description) {
+	private final PlayerType to;
+
+	public UserAction(AbstractId user, AbstractCard source, CostForAction cost, String description) {
+		this.to = user.getPlayerType();
 		this.source = source;
 		this.cost = cost;
 		this.description = description;
+	}
+
+	/**
+	 * Mise à jour du cout et renvoi vrai si le joueur peut payer le cout
+	 * 
+	 * @return
+	 */
+	public boolean checkCost() {
+		CostDeterminationEvent evt = new CostDeterminationEvent(cost);
+		Game game = source.getGame();
+		game.fire(evt);
+
+		// permet de savoir si le cout est disponible
+		this.cost = cost.merge(evt.getEffective());
+
+		return game.mayAfford(to, this.cost);
+	}
+
+	public PlayerType getTo() {
+		return to;
 	}
 
 	public int getActionId() {
@@ -47,9 +70,9 @@ public class UserAction {
 
 	/**
 	 * Appel la méthode {@link AbstractId#spend(CostForAction, Flow)} pour le
-	 * cout de l'action en appelant {@link Flow#wrap(FlowArg)} sur les
-	 * parametre call. Cela permet de controller quand retourne au flux de
-	 * control principal
+	 * cout de l'action en appelant {@link Flow#wrap(FlowArg)} sur les parametre
+	 * call. Cela permet de controller quand retourne au flux de control
+	 * principal
 	 * 
 	 * @param abstractId
 	 * @param call

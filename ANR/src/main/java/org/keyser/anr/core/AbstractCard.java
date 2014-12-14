@@ -19,7 +19,11 @@ import org.keyser.anr.core.HostedCard.HostType;
  */
 public abstract class AbstractCard {
 
+	private AbstractCardContainer<AbstractCard> container;
+
 	private final EventMatchers events = new EventMatchers();
+
+	protected Game game;
 
 	private HostedCard host;
 
@@ -35,17 +39,18 @@ public abstract class AbstractCard {
 
 	private boolean rezzed;
 
-	private Map<TokenType, Integer> tokens = new EnumMap<>(TokenType.class);
-
-	protected Game game;
-
 	private final List<CardSubType> subTypes;
 
-	protected AbstractCard(int id, MetaCard meta) {
+	private Map<TokenType, Integer> tokens = new EnumMap<>(TokenType.class);
+
+	protected AbstractCard(int id, MetaCard meta, Predicate<CollectHabilities> playPredicate, Predicate<CardLocation> playLocation) {
 		this.meta = meta;
 		this.id = id;
 
 		this.subTypes = new ArrayList<>(meta.getSubTypes());
+
+		if (playPredicate != null && playLocation != null)
+			match(CollectHabilities.class, em -> playAction(em, playPredicate.and(location(playLocation))));
 	}
 
 	/**
@@ -57,6 +62,32 @@ public abstract class AbstractCard {
 	public void addToken(TokenType type, int delta) {
 		int value = getToken(type);
 		setToken(type, value + delta);
+	}
+
+	public void bindGame(Game game, EventMatcherListener listener) {
+		this.game = game;
+		events.install(listener);
+	}
+
+	public Supplier<AbstractId> corp() {
+		return () -> getCorp();
+	}
+
+	protected <T> Predicate<T> corp(Predicate<Corp> p) {
+		return (t) -> {
+			Corp r = getCorp();
+			return r != null && p.test(r);
+		};
+	}
+
+	/**
+	 * Permet de rajouter des predicat pour la condition
+	 * 
+	 * @param pred
+	 * @return
+	 */
+	protected Predicate<CollectHabilities> customizePlayPredicate(Predicate<CollectHabilities> pred) {
+		return pred;
 	}
 
 	@Override
@@ -73,8 +104,20 @@ public abstract class AbstractCard {
 		return true;
 	}
 
+	public Corp getCorp() {
+		return game.getCorp();
+	}
+
 	public Cost getCost() {
 		return meta.getCost();
+	}
+
+	protected Cost getCostWithAction() {
+		return getCost().clone().withAction(1);
+	}
+
+	public Game getGame() {
+		return game;
 	}
 
 	public String getGraphic() {
@@ -95,6 +138,14 @@ public abstract class AbstractCard {
 
 	public CardLocation getLocation() {
 		return location;
+	}
+
+	protected MetaCard getMeta() {
+		return meta;
+	}
+
+	public Runner getRunner() {
+		return game.getRunner();
 	}
 
 	public List<CardSubType> getSubTypes() {
@@ -122,6 +173,10 @@ public abstract class AbstractCard {
 		return (t) -> host != null;
 	}
 
+	protected <T> Predicate<T> myself() {
+		return (o) -> o instanceof AbstractCard && ((AbstractCard) o).getId() == getId();
+	}
+
 	protected <T> Predicate<T> hostedAs(HostType type) {
 		return (t) -> host != null && host.getType() == type;
 	}
@@ -130,12 +185,18 @@ public abstract class AbstractCard {
 		return (t) -> !hosteds.isEmpty();
 	}
 
-	protected <T> Predicate<T> location(Predicate<CardLocation> pred) {
-		return (t) -> pred.test(location);
-	}
-
 	protected <T> Predicate<T> installed() {
 		return (t) -> installed;
+	}
+
+	public static Predicate<AbstractCard> hasSubtypes(CardSubType... subtypes) {
+		return (a) -> {
+			for (CardSubType s : subtypes) {
+				if (a.getSubTypes().contains(s))
+					return true;
+			}
+			return false;
+		};
 	}
 
 	public boolean isInstalled() {
@@ -146,12 +207,8 @@ public abstract class AbstractCard {
 		return rezzed;
 	}
 
-	public Supplier<AbstractId> runner() {
-		return () -> getGame().getRunner();
-	}
-
-	public Supplier<AbstractId> corp() {
-		return () -> getGame().getCorp();
+	protected <T> Predicate<T> location(Predicate<CardLocation> pred) {
+		return (t) -> pred.test(location);
 	}
 
 	/**
@@ -164,6 +221,21 @@ public abstract class AbstractCard {
 		EventMatcherBuilder<T> builder = EventMatcherBuilder.match(type, this);
 		consumer.accept(builder);
 		events.add(builder);
+	}
+
+	protected void playAction(EventMatcherBuilder<CollectHabilities> em, Predicate<CollectHabilities> playPredicate) {
+		em.test(customizePlayPredicate(playPredicate));
+		em.call(this::playFeedback);
+	}
+
+	/**
+	 * Méthode à implementer pour jouer la carte. Uniquemenet public pour les
+	 * tests
+	 * 
+	 * @param hab
+	 */
+	public void playFeedback(CollectHabilities hab) {
+
 	}
 
 	/**
@@ -179,9 +251,22 @@ public abstract class AbstractCard {
 		return (t) -> rezzed;
 	}
 
-	public void bindGame(Game game, EventMatcherListener listener) {
-		this.game = game;
-		events.install(listener);
+	public Supplier<AbstractId> runner() {
+		return () -> getRunner();
+	}
+
+	protected <T> Predicate<T> runner(Predicate<Runner> p) {
+		return (t) -> {
+			Runner r = getRunner();
+			return r != null && p.test(r);
+		};
+	}
+
+	public void setContainer(AbstractCardContainer<AbstractCard> container) {
+		if (this.container != null)
+			this.container.remove(this);
+
+		this.container = container;
 	}
 
 	/**
@@ -206,6 +291,10 @@ public abstract class AbstractCard {
 
 		if (card != null) {
 			HostedCard h = new HostedCard(this, type, card);
+			
+			this.setLocation(CardLocation.hosted(card.getId(), getId()));
+			this.setContainer(null);
+						
 			card.hosteds.add(h);
 			host = h;
 		} else {
@@ -251,17 +340,5 @@ public abstract class AbstractCard {
 		if (old != value)
 			game.fire(new AbstractCardTokenEvent(this, type));
 
-	}
-
-	public Game getGame() {
-		return game;
-	}
-
-	protected MetaCard getMeta() {
-		return meta;
-	}
-
-	public AbstractId getRunner() {
-		return game.getRunner();
 	}
 }

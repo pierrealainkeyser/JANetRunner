@@ -1,10 +1,13 @@
 package org.keyser.anr.core;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * L'ensemble des couts
@@ -54,11 +57,49 @@ public class Cost {
 		return costs;
 	}
 
-	public NormalizedCost normalize() {
-		return new NormalizedCost(normalize(basics), normalize(additionnal));
+	public Cost normalize() {
+
+		Cost costs = new Cost();
+		costs.basics.addAll(normalize(basics));
+		costs.additionnal.addAll(normalize(additionnal));
+		return costs;
 	}
 
-	private Map<CostType, Integer> normalize(List<CostElement> costs) {
+	/**
+	 * Renvoi les types d'elements
+	 * 
+	 * @return
+	 */
+	public Set<CostType> getTypes() {
+		Set<CostType> types = EnumSet.noneOf(CostType.class);
+
+		extractTypes(basics, types);
+		extractTypes(additionnal, types);
+
+		return types;
+	}
+
+	private void extractTypes(List<CostElement> m, Set<CostType> types) {
+		m.stream().map(CostElement::getType).forEach(types::add);
+	}
+
+	/**
+	 * Renvoi la valeur pour le type
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public int getValue(CostType type) {
+		int value = getValue(basics, type);
+		value += getValue(additionnal, type);
+		return value;
+	}
+
+	private int getValue(List<CostElement> elements, CostType type) {
+		return elements.stream().filter(ce -> ce.getType() == type).mapToInt(CostElement::getValue).sum();
+	}
+
+	private List<CostElement> normalize(List<CostElement> costs) {
 		Map<CostType, Integer> m = new HashMap<>(costs.size());
 		for (CostElement c : costs) {
 			CostType type = c.getType();
@@ -76,6 +117,6 @@ public class Cost {
 				it.remove();
 		}
 
-		return m;
+		return m.entrySet().stream().map(e -> new CostElement(e.getValue(), e.getKey())).collect(Collectors.toList());
 	}
 }

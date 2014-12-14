@@ -147,4 +147,8 @@ public class Game {
 		userAction.setActionId(id);
 		actionsContext.actions.put(id, new FeedbackHandler<T>(userAction, feedback.getInputType(), feedback.wrap(next)));
 	}
+
+	public boolean mayAfford(PlayerType to, CostForAction cost) {
+		return (to == PlayerType.RUNNER ? runner : corp).mayAfford(cost);
+	}
 }

@@ -1,21 +1,23 @@
 package org.keyser.anr.core.runner;
 
+import java.util.function.Predicate;
+
 import org.keyser.anr.core.SequentialEvent;
 
 public class RunnerInstalledCleanup implements SequentialEvent {
 
-	public enum InstallType {
-		HARDWARE, RESOURCE, PROGRAM
+	private final Object action;
+
+	public RunnerInstalledCleanup(Object action) {
+		this.action = action;
 	}
 
-	private final InstallType type;
-
-	public RunnerInstalledCleanup(InstallType type) {
-		super();
-		this.type = type;
+	public Object getAction() {
+		return action;
 	}
-
-	public InstallType getType() {
-		return type;
+	
+	public static Predicate<RunnerInstalledCleanup> with(Predicate<Object> pred) {
+		return (c) -> pred.test(c.action);
 	}
+	
 }

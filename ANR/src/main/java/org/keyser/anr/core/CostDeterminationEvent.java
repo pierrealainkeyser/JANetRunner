@@ -1,17 +1,27 @@
 package org.keyser.anr.core;
 
-public abstract class CostDeterminationEvent implements SequentialEvent {
+import java.util.function.Predicate;
 
-	private final Cost original;
+public class CostDeterminationEvent implements SequentialEvent {
+
+	private final CostForAction original;
 
 	private Cost effective;
 
-	protected CostDeterminationEvent(Cost original) {
+	public CostDeterminationEvent(CostForAction original) {
 		this.original = original;
-		this.effective = original.clone();
+		this.effective = original.getCost().clone();
+	}	
+
+	public static Predicate<CostDeterminationEvent> with(Predicate<Object> pred) {
+		return (c) -> pred.test(c.original.getAction());
 	}
 
-	public Cost getOriginal() {
+	public CostForAction merged() {
+		return original.merge(effective);
+	}
+
+	public CostForAction getOriginal() {
 		return original;
 	}
 

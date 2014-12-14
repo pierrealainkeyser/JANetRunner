@@ -17,4 +17,8 @@ public interface Feedback<UA extends UserAction, T> {
 	public Class<T> getInputType();
 
 	public FlowArg<T> wrap(Flow next);
+	
+	public default boolean checkCost(){
+		return getUserAction().checkCost();
+	}
 }
