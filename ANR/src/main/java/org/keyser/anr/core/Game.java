@@ -51,8 +51,6 @@ public class Game {
 
 	private GameStep step;
 
-	private int turn = 0;
-
 	private Runner runner;
 
 	private Corp corp;

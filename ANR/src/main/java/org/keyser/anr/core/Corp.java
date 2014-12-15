@@ -6,4 +6,5 @@ public class Corp extends AbstractId {
 		super(id, meta, PlayerType.CORP);
 	}
 
+	
 }

@@ -19,6 +19,11 @@ public class UserAction {
 		this.cost = cost;
 		this.description = description;
 	}
+	
+	public boolean isAnAction(){
+		//TODO
+		return false;
+	}
 
 	/**
 	 * Mise à jour du cout et renvoi vrai si le joueur peut payer le cout

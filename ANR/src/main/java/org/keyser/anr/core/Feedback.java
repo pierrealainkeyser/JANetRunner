@@ -21,4 +21,9 @@ public interface Feedback<UA extends UserAction, T> {
 	public default boolean checkCost(){
 		return getUserAction().checkCost();
 	}
+	
+	public default boolean wasAnAction(){
+		return getUserAction().isAnAction();
+	}
+
 }
