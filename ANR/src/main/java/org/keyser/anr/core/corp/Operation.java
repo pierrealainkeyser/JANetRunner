@@ -31,5 +31,5 @@ public abstract class Operation extends AbstractCardCorp {
 	 * @param next
 	 * @return
 	 */
-	protected abstract Flow invoke(Flow next);
+	protected abstract void invoke(Flow next);
 }

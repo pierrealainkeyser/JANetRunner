@@ -19,7 +19,7 @@ public class NeuralEMP extends Operation {
 	}
 
 	@Override
-	protected Flow invoke(Flow next) {
-		return next.wrap(new DoDamageEvent(this, "Neural EMP", 1, DamageType.NET)::fire);
+	protected void invoke(Flow next) {
+		new DoDamageEvent(this, "Neural EMP", 1, DamageType.NET).fire(next);
 	}
 }
