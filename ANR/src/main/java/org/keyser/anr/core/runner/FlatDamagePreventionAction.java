@@ -16,7 +16,8 @@ public class FlatDamagePreventionAction extends UserAction {
 
 	private final int amount;
 
-	public FlatDamagePreventionAction(AbstractCard source, CostForAction cost, String description, int amount) {
+	public FlatDamagePreventionAction(AbstractCard source, CostForAction cost,
+			String description, int amount) {
 		super(source.getRunner(), source, cost, description);
 		this.amount = amount;
 	}
@@ -43,6 +44,6 @@ public class FlatDamagePreventionAction extends UserAction {
 	 * @return
 	 */
 	public SimpleFeedback<UserAction> feedback(RunnerPreventibleEffect evt) {
-		return spendAndApply(evt.getPrimary().runner(), reduce(evt));
+		return spendAndApply(reduce(evt));
 	}
 }

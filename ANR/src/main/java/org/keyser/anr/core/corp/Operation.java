@@ -22,7 +22,7 @@ public abstract class Operation extends AbstractCardCorp {
 	@Override
 	public void playFeedback(CollectHabilities hab) {
 		UserAction playOperation = new UserAction(getCorp(), this, new CostForAction(getCostWithAction(), new PlayOperation(this)), "Play");
-		hab.add(playOperation.spendAndApply(corp(), this::invoke));
+		hab.add(playOperation.spendAndApply(this::invoke));
 	}
 
 	/**

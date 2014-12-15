@@ -16,7 +16,7 @@ public abstract class Hardware extends AbstractCardRunner {
 	@Override
 	public void playFeedback(CollectHabilities hab) {
 		UserAction playOperation = new UserAction(getRunner(), this, new CostForAction(getCostWithAction(), new InstallHardwareAction(this)), "Install");
-		hab.add(playOperation.spendAndApply(runner(), this::install));
+		hab.add(playOperation.spendAndApply(this::install));
 	}
 
 	protected void install(Flow next) {

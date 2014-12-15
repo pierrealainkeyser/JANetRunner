@@ -1,6 +1,5 @@
 package org.keyser.anr.core;
 
-import java.util.function.Supplier;
 
 public class UserAction {
 
@@ -62,9 +61,9 @@ public class UserAction {
 	 * @param call
 	 * @return
 	 */
-	public SimpleFeedback<UserAction> spendAndApply(Supplier<AbstractId> abstractId, Flow call) {
+	public SimpleFeedback<UserAction> spendAndApply(Flow call) {
 		return new SimpleFeedback<UserAction>(this, (ua, next) -> {
-			abstractId.get().spend(getCost(), call.then(next));
+			source.getGame().getId(to).spend(getCost(), call.then(next));
 		});
 	}
 
@@ -74,13 +73,13 @@ public class UserAction {
 	 * call. Cela permet de controller quand retourne au flux de control
 	 * principal
 	 * 
-	 * @param abstractId
+
 	 * @param call
 	 * @return
 	 */
-	public SimpleFeedback<UserAction> spendAndApply(Supplier<AbstractId> abstractId, FlowArg<Flow> call) {
+	public SimpleFeedback<UserAction> spendAndApply(FlowArg<Flow> call) {
 		return new SimpleFeedback<UserAction>(this, (ua, next) -> {
-			abstractId.get().spend(getCost(), next.wrap(call));
+			source.getGame().getId(to).spend(getCost(), next.wrap(call));
 		});
 	}
 

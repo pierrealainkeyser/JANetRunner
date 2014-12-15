@@ -69,10 +69,6 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 		events.install(listener);
 	}
 
-	public Supplier<AbstractId> corp() {
-		return () -> getCorp();
-	}
-
 	protected <T> Predicate<T> corp(Predicate<Corp> p) {
 		return (t) -> {
 			Corp r = getCorp();
@@ -224,10 +220,6 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 
 	protected <T> Predicate<T> rezzed() {
 		return (t) -> rezzed;
-	}
-
-	public Supplier<AbstractId> runner() {
-		return () -> getRunner();
 	}
 
 	protected <T> Predicate<T> runner(Predicate<Runner> p) {

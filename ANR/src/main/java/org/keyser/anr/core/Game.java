@@ -155,6 +155,10 @@ public class Game {
 	}
 
 	public boolean mayAfford(PlayerType to, CostForAction cost) {
-		return (to == PlayerType.RUNNER ? runner : corp).mayAfford(cost);
+		return getId(to).mayAfford(cost);
+	}
+
+	public AbstractId getId(PlayerType to) {
+		return to == PlayerType.RUNNER ? runner : corp;
 	}
 }
