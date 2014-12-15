@@ -2,9 +2,8 @@ package org.keyser.anr.core;
 
 import static org.keyser.anr.core.SimpleFeedback.noop;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.function.Predicate;
 
 public class Turn {
 	private final PlayerType active;
@@ -15,9 +14,10 @@ public class Turn {
 
 	private Phase phase;
 
-	public enum Phase {
-		UNSTARTED, DRAW, ACTION, DISCARD
+	private final static Predicate<? super AbstractCard> UNREZZED_INSTALL_CORP_CARDS = ac -> ac instanceof AbstractCardCorp && ac.isInstalled() && !ac.isRezzed();
 
+	public enum Phase {
+		STARTING, DRAW, ACTION, DISCARD
 	}
 
 	public Turn(PlayerType active, Game game, int turn) {
@@ -27,80 +27,131 @@ public class Turn {
 	}
 
 	public Turn start() {
-		setPhase(Phase.UNSTARTED);
 
-		// TODO remise en place des actions pour le jour
-		Flow to = active == PlayerType.CORP ? this::drawPhase
-				: this::actionPhase;
-
-		game.apply(new StartOfTurn(), to);
+		if (active == PlayerType.CORP) {
+			drawPhase();
+		} else {
+			startTurn();
+		}
 
 		return this;
 	}
 
-	private void drawPhase() {
-		setPhase(Phase.DRAW);
-		game.getCorp().draw(1, this::actionPhase);
+	private void startTurn() {
+
+		setPhase(Phase.STARTING);
+		game.apply(new StartOfTurn(), this::actionPhase);
 	}
 
-	private void actionPhase() {
-		setPhase(Phase.ACTION);
+	public void drawPhase() {
+		setPhase(Phase.DRAW);
+		game.getCorp().draw(1, this::startTurn);
+	}
+
+	public void actionPhase() {
+
+		//
+		AbstractId id = game.getId(active);
+		if (id.hasAction()) {
+
+			setPhase(Phase.ACTION);
+
+			// on comme par l'utilisateur
+			new PingPong(active).ask(this::actionPhase);
+		} else {
+			discardPhase();
+
+		}
 	}
 
 	private class PingPong {
 
 		private PlayerType active;
 
-		private boolean requireNoop;
+		public PingPong(PlayerType active) {
+			this.active = active;
+		}
 
-		private boolean allowNoop;
-		
-		
+		private boolean isActivePlayer() {
+			return Turn.this.active == active;
+		}
+
+		private boolean isCorp() {
+			return active == PlayerType.CORP;
+		}
 
 		public void ask(Flow next) {
 
 			CollectHabilities collect = new CollectHabilities(active);
 			game.fire(collect);
 
-			//TODO gestion du titre
-			
+			// TODO gestion du contexte
+
+			boolean hasFeedback = false;
 			Collection<Feedback<?, ?>> feedbacks = collect.getFeedbacks();
-			List<Feedback<?, ?>> possibles = new ArrayList<>();
 			for (Feedback<?, ?> feedback : feedbacks) {
 				if (feedback.checkCost()) {
 					game.user(feedback, () -> fired(feedback, next));
-					possibles.add(feedback);
+					hasFeedback = true;
 				}
 			}
-			
+
+			boolean requireNoop = false;
+			if (!isActivePlayer()) {
+				// si il y a des options on propose de les zaper
+				if (hasFeedback)
+					requireNoop = true;
+				else if (isCorp()) {
+					// pas d'option mais des cartes cachés, donc des options
+					requireNoop = game.getCards().stream().anyMatch(UNREZZED_INSTALL_CORP_CARDS);
+				}
+			}
+
 			if (requireNoop) {
 				AbstractId me = game.getId(active);
-				game.user(noop(me, me, null, "Nothing"),
-						next.wrap(this::doNoOp));
-			} else {
-				if (possibles.isEmpty())
-					next.apply();
-			}
+				game.user(noop(me, me, "Nothing"), next.wrap(this::doNoOp));
+			} else
+				end(next);
 		}
 
 		private void doNoOp(Flow next) {
+			if (isActivePlayer())
+				nextPlayer(next);
+			else
+				end(next);
+		}
 
+		private void nextPlayer(Flow next) {
+			// passage au joueur suivant
+			active = active.next();
+			ask(next);
+		}
+
+		private void end(Flow next) {
+			next.apply();
 		}
 
 		private void fired(Feedback<?, ?> fired, Flow next) {
 			if (fired.wasAnAction()) {
-
 				// on swappe et on recommence
+				nextPlayer(next);
 			} else {
-				// on peut continuer
+				// on recommence
 				ask(next);
 			}
 
 		}
 	}
 
-	private void discardPhase() {
+	public void discardPhase() {
 		setPhase(Phase.DISCARD);
+
+		// on comme par l'utilisateur
+		new PingPong(active).ask(this::terminate);
+	}
+
+	private void terminate() {
+
 	}
 
 	public Phase getPhase() {

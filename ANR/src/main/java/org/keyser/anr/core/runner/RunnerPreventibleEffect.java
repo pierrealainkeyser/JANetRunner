@@ -68,7 +68,7 @@ public abstract class RunnerPreventibleEffect extends AbstractCardEvent implemen
 			}
 
 			// on enregistre le fait de ne rien faire
-			g.user(noop(g.getRunner(), source, null, noPrevention), commit);
+			g.user(noop(g.getRunner(), source, noPrevention), commit);
 		}
 	}
 
