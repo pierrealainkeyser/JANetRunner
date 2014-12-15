@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import org.keyser.anr.core.HostedCard.HostType;
 
@@ -199,7 +200,7 @@ public abstract class AbstractCard {
 		};
 	}
 	
-	protected Stream<AbstractCards> cards(){
+	protected Stream<AbstractCard> cards(){
 		return  getGame().getCards().stream();
 	}
 
