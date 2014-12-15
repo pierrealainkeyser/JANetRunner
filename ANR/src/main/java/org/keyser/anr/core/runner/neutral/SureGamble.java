@@ -1,24 +1,29 @@
 package org.keyser.anr.core.runner.neutral;
 
-import org.keyser.anr.core.CardDef;
-import org.keyser.anr.core.Cost;
+import static java.util.Collections.emptyList;
+import static org.keyser.anr.core.Cost.credit;
+
 import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.Flow;
-import org.keyser.anr.core.Wallet;
-import org.keyser.anr.core.WalletCredits;
-import org.keyser.anr.core.runner.EventCard;
+import org.keyser.anr.core.MetaCard;
+import org.keyser.anr.core.TokenType;
+import org.keyser.anr.core.runner.Event;
 
-@CardDef(name = "Sure Gamble", oid = "01050")
-public class SureGamble extends EventCard {
+public class SureGamble extends Event {
 
-	public SureGamble() {
-		super(Faction.RUNNER_NEUTRAL.infl(0), Cost.credit(4));
+	public final static MetaCard INSTANCE = new MetaCard("Sure Gamble",
+			Faction.RUNNER_NEUTRAL.infl(0), credit(4), false, "01050",
+			emptyList(), SureGamble::new);
+
+	protected SureGamble(int id, MetaCard meta) {
+		super(id, meta);
 	}
 
 	@Override
-	public void apply(Flow next) {
-		Wallet w = getGame().getRunner().getWallet();
-		w.wallet(WalletCredits.class, wc -> wc.setAmount(wc.getAmount() + 9));
+	protected void invoke(Flow next) {
+		getRunner().addToken(TokenType.CREDIT, 9);
+		
+		//TODO gestion de l'evenement
 		next.apply();
 	}
 
