@@ -6,7 +6,7 @@ import org.keyser.anr.core.CostForAction;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.UserAction;
-import org.keyser.anr.core.corp.PlayOperation;
+import org.keyser.anr.core.corp.PlayOperationAction;
 
 public abstract class Event extends AbstractCardRunner {
 	protected Event(int id, MetaCard meta) {
@@ -21,7 +21,7 @@ public abstract class Event extends AbstractCardRunner {
 	 */
 	@Override
 	public void playFeedback(CollectHabilities hab) {
-		UserAction playOperation = new UserAction(getRunner(), this, new CostForAction(getCostWithAction(), new PlayEvent(this)), "Play");
+		UserAction playOperation = new UserAction(getRunner(), this, new CostForAction(getCostWithAction(), new PlayEventAction(this)), "Play");
 		hab.add(playOperation.spendAndApply(this::invoke));
 	}
 

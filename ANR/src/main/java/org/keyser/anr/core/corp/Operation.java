@@ -21,7 +21,7 @@ public abstract class Operation extends AbstractCardCorp {
 	 */
 	@Override
 	public void playFeedback(CollectHabilities hab) {
-		UserAction playOperation = new UserAction(getCorp(), this, new CostForAction(getCostWithAction(), new PlayOperation(this)), "Play");
+		UserAction playOperation = new UserAction(getCorp(), this, new CostForAction(getCostWithAction(), new PlayOperationAction(this)), "Play");
 		hab.add(playOperation.spendAndApply(this::invoke));
 	}
 

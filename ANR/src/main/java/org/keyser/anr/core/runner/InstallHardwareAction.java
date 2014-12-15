@@ -1,15 +1,11 @@
 package org.keyser.anr.core.runner;
 
+import org.keyser.anr.core.PlayAbstractCardAction;
 
-public class InstallHardwareAction {
-
-	private final Hardware hardware;
+public class InstallHardwareAction extends PlayAbstractCardAction<Hardware> {
 
 	public InstallHardwareAction(Hardware hardware) {
-		this.hardware = hardware;
+		super(hardware);
 	}
 
-	public Hardware getHardware() {
-		return hardware;
-	}
 }

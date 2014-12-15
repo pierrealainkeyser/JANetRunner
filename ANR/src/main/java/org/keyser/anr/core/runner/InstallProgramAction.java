@@ -1,16 +1,9 @@
 package org.keyser.anr.core.runner;
 
+import org.keyser.anr.core.PlayAbstractCardAction;
 
-public class InstallProgramAction {
-
-	private final Program program;
-
+public class InstallProgramAction extends PlayAbstractCardAction<Program> {
 	public InstallProgramAction(Program program) {
-		this.program = program;
+		super(program);
 	}
-
-	public Program getProgram() {
-		return program;
-	}
-
 }
