@@ -1,5 +1,7 @@
 package org.keyser.anr.core;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -69,6 +71,10 @@ public class Game {
 
 		// TODO implémentation spécifique ANR à prévoir
 		listener.add(e -> true, f -> new SequentialEventMatcher(f).apply());
+	}
+	
+	public Collection<AbstractCard> getCards(){
+		return Collections.unmodifiableCollection(cards.values());
 	}
 
 	public void apply(Object event, Flow flow) {

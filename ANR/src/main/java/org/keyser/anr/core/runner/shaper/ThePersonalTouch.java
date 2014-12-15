@@ -27,6 +27,8 @@ public class ThePersonalTouch extends Hardware {
 
 	public final static MetaCard INSTANCE = new MetaCard("The Personal Touch", SHAPER.infl(2), Cost.credit(2), false, "01040", emptyList(), ThePersonalTouch::new);
 
+	private final static Predicate<AbstractCard> IS_AN_INSTALLED_ICEBREAKER=IS_ICEBREAKER.and(AbstractCard::isInstalled); 
+	
 	protected ThePersonalTouch(int id, MetaCard meta) {
 		super(id, meta);
 
@@ -46,7 +48,7 @@ public class ThePersonalTouch extends Hardware {
 
 	@Override
 	protected Predicate<CollectHabilities> customizePlayPredicate(Predicate<CollectHabilities> pred) {
-		pred = pred.and(runner(r -> r.getPrograms().stream().anyMatch(IS_ICEBREAKER)));
+		pred = pred.and(p-> cards().anyMatch(IS_AN_INSTALLED_ICEBREAKER)));
 		return pred;
 
 	}
@@ -55,7 +57,7 @@ public class ThePersonalTouch extends Hardware {
 	protected void install(Flow next) {
 
 		Game g = getGame();
-		List<Program> iceBreakers = getRunner().getPrograms().stream().filter(IS_ICEBREAKER).collect(Collectors.toList());
+		List<Program> iceBreakers = cards().filter(IS_AN_INSTALLED_ICEBREAKER).collect(Collectors.toList());
 		CostForAction cost = new CostForAction(Cost.free(), new InstallHardwareAction(this));
 
 		// TODO placer le contexte

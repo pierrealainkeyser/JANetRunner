@@ -198,6 +198,10 @@ public abstract class AbstractCard {
 			return false;
 		};
 	}
+	
+	protected Stream<AbstractCards> cards(){
+		return  getGame().getCards().stream();
+	}
 
 	public boolean isInstalled() {
 		return installed;
