@@ -15,7 +15,7 @@ import org.keyser.anr.core.CostForAction;
 import org.keyser.anr.core.EventMatcherBuilder;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.Game;
-import org.keyser.anr.core.HostedCard;
+import org.keyser.anr.core.HostType;
 import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.SimpleFeedback;
 import org.keyser.anr.core.UserAction;
@@ -38,9 +38,9 @@ public class ThePersonalTouch extends Hardware {
 	private void onTrashed(EventMatcherBuilder<AbstractCardTrashed> actc) {
 		actc.test(AbstractCardTrashed.with(myself()));
 		actc.run(() -> {
-			HostedCard host = getHost();
+			AbstractCard host = getHost();
 			if (host != null) {
-				IceBreaker parent = (IceBreaker) host.getHost();
+				IceBreaker parent = (IceBreaker) host;
 				parent.alterBonus(-1);
 			}
 		});
@@ -71,7 +71,7 @@ public class ThePersonalTouch extends Hardware {
 	private void installed(UserAction ua, Flow next) {
 
 		IceBreaker p = (IceBreaker) ua.getSource();
-		setHost(p);
+		p.hostCard(this, HostType.CARD);
 		p.alterBonus(1);
 
 		doCleanUp(next);

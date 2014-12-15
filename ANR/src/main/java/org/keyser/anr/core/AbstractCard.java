@@ -10,25 +10,21 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import org.keyser.anr.core.HostedCard.HostType;
-
 /**
  * Une carte abstraite
  * 
  * @author PAF
  *
  */
-public abstract class AbstractCard {
-
-	private AbstractCardContainer<AbstractCard> container;
+public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 
 	private final EventMatchers events = new EventMatchers();
 
 	protected Game game;
 
-	private HostedCard host;
+	private AbstractCardContainer<AbstractCard> parent;
 
-	private final List<HostedCard> hosteds = new ArrayList<>();
+	private HostType hostedAs;
 
 	private final int id;
 
@@ -45,6 +41,9 @@ public abstract class AbstractCard {
 	private Map<TokenType, Integer> tokens = new EnumMap<>(TokenType.class);
 
 	protected AbstractCard(int id, MetaCard meta, Predicate<CollectHabilities> playPredicate, Predicate<CardLocation> playLocation) {
+
+		super(i -> CardLocation.hosted(id, i));
+
 		this.meta = meta;
 		this.id = id;
 
@@ -125,14 +124,6 @@ public abstract class AbstractCard {
 		return meta.getGraphic();
 	}
 
-	public HostedCard getHost() {
-		return host;
-	}
-
-	public List<HostedCard> getHosteds() {
-		return hosteds;
-	}
-
 	public int getId() {
 		return id;
 	}
@@ -170,20 +161,8 @@ public abstract class AbstractCard {
 		return (t) -> getToken(type) > 0;
 	}
 
-	protected <T> Predicate<T> hosted() {
-		return (t) -> host != null;
-	}
-
 	protected <T> Predicate<T> myself() {
 		return (o) -> o instanceof AbstractCard && ((AbstractCard) o).getId() == getId();
-	}
-
-	protected <T> Predicate<T> hostedAs(HostType type) {
-		return (t) -> host != null && host.getType() == type;
-	}
-
-	protected <T> Predicate<T> hostingCards() {
-		return (t) -> !hosteds.isEmpty();
 	}
 
 	protected <T> Predicate<T> installed() {
@@ -199,9 +178,9 @@ public abstract class AbstractCard {
 			return false;
 		};
 	}
-	
-	protected Stream<AbstractCard> cards(){
-		return  getGame().getCards().stream();
+
+	protected Stream<AbstractCard> cards() {
+		return getGame().getCards().stream();
 	}
 
 	public boolean isInstalled() {
@@ -243,15 +222,6 @@ public abstract class AbstractCard {
 
 	}
 
-	/**
-	 * Mise à jour des locations des cartes
-	 */
-	public void refreshHostedLocation() {
-		int index = 0;
-		for (HostedCard hc : hosteds)
-			hc.getHosted().setLocation(CardLocation.hosted(getId(), index++));
-	}
-
 	protected <T> Predicate<T> rezzed() {
 		return (t) -> rezzed;
 	}
@@ -268,43 +238,32 @@ public abstract class AbstractCard {
 	}
 
 	public void setContainer(AbstractCardContainer<AbstractCard> container) {
-		if (this.container != null)
-			this.container.remove(this);
+		if (this.parent != null) {
+			if (this.parent instanceof AbstractCard) {
+				this.hostedAs = null;
+			}
 
-		this.container = container;
+			this.parent.remove(this);
+		}
+
+		this.parent = container;
 	}
 
 	/**
-	 * Place la carte this sur la carte card. Card est l'hote de this
+	 * Renvoi l'hote ou null
 	 * 
-	 * @param card
+	 * @return
 	 */
-	public void setHost(AbstractCard card) {
-		setHost(card, HostType.CARD);
+	public AbstractCard getHost() {
+		if (parent instanceof AbstractCard) {
+			return (AbstractCard) parent;
+		}
+		return null;
 	}
 
-	/**
-	 * Place la carte this sur la carte card. Card est l'hote de this
-	 * 
-	 * @param card
-	 * @param type
-	 */
-	public void setHost(AbstractCard card, HostedCard.HostType type) {
-		if (host != null) {
-			host.getHost().hosteds.remove(host);
-		}
-
-		if (card != null) {
-			HostedCard h = new HostedCard(this, type, card);
-			
-			this.setLocation(CardLocation.hosted(card.getId(), getId()));
-			this.setContainer(null);
-						
-			card.hosteds.add(h);
-			host = h;
-		} else {
-			host = null;
-		}
+	public void hostCard(AbstractCard card, HostType type) {
+		add(card);
+		card.hostedAs = type;
 	}
 
 	public void setInstalled(boolean installed) {
