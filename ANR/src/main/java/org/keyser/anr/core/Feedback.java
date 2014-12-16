@@ -25,5 +25,4 @@ public interface Feedback<UA extends UserAction, T> {
 	public default boolean wasAnAction(){
 		return getUserAction().isAnAction();
 	}
-
 }

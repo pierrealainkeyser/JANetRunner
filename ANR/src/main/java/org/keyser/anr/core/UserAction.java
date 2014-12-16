@@ -1,6 +1,5 @@
 package org.keyser.anr.core;
 
-
 public class UserAction {
 
 	private int actionId;
@@ -19,10 +18,9 @@ public class UserAction {
 		this.cost = cost;
 		this.description = description;
 	}
-	
-	public boolean isAnAction(){
-		//TODO
-		return false;
+
+	public boolean isAnAction() {
+		return cost.getAction() instanceof PlayAbstractCardAction;
 	}
 
 	/**
@@ -78,7 +76,7 @@ public class UserAction {
 	 * call. Cela permet de controller quand retourne au flux de control
 	 * principal
 	 * 
-
+	 * 
 	 * @param call
 	 * @return
 	 */

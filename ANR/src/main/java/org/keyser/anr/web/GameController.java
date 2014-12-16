@@ -16,29 +16,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class GameController {
 
-	private final GameRepository repository;
-
-	@Autowired
-	public GameController(GameRepository repository) {
-		this.repository = repository;
-	}
+	
 	
 	@RequestMapping(value = "gsap")
 	public String play(){
 		return "gsap";
 	}
 
-	@RequestMapping(value = "play/{gameId}")
-	public String play(@PathVariable String gameId, Model model) {
-		model.addAttribute("gameId", gameId);
-
-		GameAccess ga = repository.get(gameId);
-		if (ga != null) {
-			MetaGame meta = ga.getGateway().getMetaGame();
-			model.addAttribute("corp", meta.getCorp().name().toLowerCase());
-			model.addAttribute("runner", meta.getRunner().name().toLowerCase());
-		}
-
-		return "play";
-	}
 }

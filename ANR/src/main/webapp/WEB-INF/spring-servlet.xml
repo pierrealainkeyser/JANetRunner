@@ -20,14 +20,10 @@
 		location="classpath:/WEB-INF/resources/img/" />
 	<mvc:resources mapping="/js/**" location="classpath:/WEB-INF/resources/js/" />
 
-	<ws:handlers>
-		<ws:mapping path="ws/play" handler="anrWebSocket" />
-	</ws:handlers>
+
 
 	<context:component-scan base-package="org.keyser.anr.web" />
 
-	<bean id="anrWebSocket" class="org.keyser.anr.web.AnrWebSocketHandler"
-		p:repository-ref="gameRepository" p:mapper-ref="jacksonMapper" />
 
 	<task:executor id="remoteLoaderPool" pool-size="5" />
 	<bean class="org.keyser.anr.web.RemoteCardLoader" p:executor-ref="remoteLoaderPool" />

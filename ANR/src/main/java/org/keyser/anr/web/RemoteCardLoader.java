@@ -50,7 +50,8 @@ public class RemoteCardLoader implements InitializingBean {
 	 * @param to
 	 * @param path
 	 */
-	public void load(DeferredResult<ResponseEntity<Resource>> to, String path, HttpHeaders ifModifiedSince) {
+	public void load(DeferredResult<ResponseEntity<Resource>> to, String path,
+			HttpHeaders ifModifiedSince) {
 		File inCache = fileInCache(path);
 		if (inCache.exists())
 			result(to, inCache, ifModifiedSince);
@@ -65,10 +66,11 @@ public class RemoteCardLoader implements InitializingBean {
 	 * @param to
 	 * @param inCache
 	 */
-	private void result(DeferredResult<ResponseEntity<Resource>> to, File inCache, HttpHeaders requestHeader) {
+	private void result(DeferredResult<ResponseEntity<Resource>> to,
+			File inCache, HttpHeaders requestHeader) {
 
 		long lastModified = inCache.lastModified();
-		HttpHeaders headers = new HttpHeaders();		
+		HttpHeaders headers = new HttpHeaders();
 		long millis = TimeUnit.DAYS.toMillis(180);
 
 		headers.setExpires(System.currentTimeMillis() + millis);
@@ -78,13 +80,15 @@ public class RemoteCardLoader implements InitializingBean {
 		if (requestHeader != null) {
 			long date = requestHeader.getIfModifiedSince();
 			if (date <= lastModified)
-				to.setResult(new ResponseEntity<Resource>(headers, HttpStatus.NOT_MODIFIED));
+				to.setResult(new ResponseEntity<Resource>(headers,
+						HttpStatus.NOT_MODIFIED));
 			return;
 		}
-		
+
 		headers.setContentType(mediaType);
 
-		to.setResult(new ResponseEntity<Resource>(new FileSystemResource(inCache), headers, HttpStatus.OK));
+		to.setResult(new ResponseEntity<Resource>(new FileSystemResource(
+				inCache), headers, HttpStatus.OK));
 	}
 
 	private File fileInCache(String path) {
@@ -95,19 +99,22 @@ public class RemoteCardLoader implements InitializingBean {
 		return File.createTempFile("download", ".tmp", downloadDir);
 	}
 
-	private Runnable fetch(DeferredResult<ResponseEntity<Resource>> to, String path, File fileInCache) {
-		return () -> {
-			String url = format(urlFormat, path);
+	private Runnable fetch(final DeferredResult<ResponseEntity<Resource>> to,
+			final String path, final File fileInCache) {
+		return new Runnable() {
+			public void run() {
+				String url = format(urlFormat, path);
 
-			File tmp = null;
-			try {
-				tmp = loadURL(url);
-			} catch (IOException e) {
-				// TODO gestion de l'erreur
-			}
-			tmp.renameTo(fileInCache);
+				File tmp = null;
+				try {
+					tmp = loadURL(url);
+				} catch (IOException e) {
+					// TODO gestion de l'erreur
+				}
+				tmp.renameTo(fileInCache);
 
-			result(to, fileInCache, null);
+				result(to, fileInCache, null);
+			};
 		};
 	}
 

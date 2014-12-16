@@ -4,28 +4,5 @@
 	xsi:schemaLocation="
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
 
-	<bean id="jacksonMapper" class="org.keyser.anr.web.ObjectMapperFactoryBean" />
-
-
-	<!-- la fabrique de jeu à partir de GameDef -->
-	<bean id="gameFactory" class="org.keyser.anr.web.dto.GameDTOFactory"
-		p:mapper-ref="jacksonMapper" />
-
-	<bean id="gameRepository" class="org.keyser.anr.web.GameRepository" />
-
-	<bean class="org.keyser.anr.web.GameBoot" p:allGames-ref="gameRepository"
-		p:factory-ref="gameFactory">
-		<property name="basic">
-			<bean class="org.keyser.anr.web.GameDef">
-				<constructor-arg value="" />
-				<property name="deckCorp">
-					<bean class="org.keyser.anr.web.DeckResource" p:resource="classpath:/core-nbn.o8d" />
-				</property>
-				<property name="deckRunner">
-					<bean class="org.keyser.anr.web.DeckResource" p:resource="classpath:/core-shapper.o8d" />
-				</property>
-			</bean>
-		</property>
-	</bean>
-
+	
 </beans>	

@@ -23,6 +23,10 @@ public abstract class AbstractId extends AbstractCard {
 	public void draw(int i, Flow next) {
 
 	}
+	
+	public boolean hasAction(){
+		return true;
+	}
 
 	public PlayerType getPlayerType() {
 		return playerType;

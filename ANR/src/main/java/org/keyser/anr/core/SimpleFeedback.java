@@ -18,12 +18,11 @@ public class SimpleFeedback<UA extends UserAction> implements Feedback<UA, Void>
 	 * l'action consiste à ne rien faire. Sans parametre aditionnel
 	 * 
 	 * @param source
-	 * @param cost
 	 * @param description
 	 * @return
 	 */
-	public static SimpleFeedback<UserAction> noop(AbstractId to, AbstractCard source, CostForAction cost, String description) {
-		return new SimpleFeedback<UserAction>(new UserAction(to, source, cost, description), (ua, next) -> next.apply());
+	public static SimpleFeedback<UserAction> noop(AbstractId to, AbstractCard source, String description) {
+		return new SimpleFeedback<UserAction>(new NoopUserAction(to, source, description), (ua, next) -> next.apply());
 	}
 
 	public SimpleFeedback(UA userAction, EventConsumer<UA> consumer) {
