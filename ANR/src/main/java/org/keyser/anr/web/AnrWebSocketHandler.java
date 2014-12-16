@@ -53,8 +53,7 @@ public class AnrWebSocketHandler extends TextWebSocketHandler {
 			log.debug("onMessage {} : ", type, data);
 
 			if (RemoteVerbs.VERB_READY.equals(type)) {
-				GameLookupDTO gl = mapper.convertValue(data,
-						GameLookupDTO.class);
+				GameLookupDTO gl = mapper.convertValue(data, GameLookupDTO.class);
 
 				String gid = gl.getGame();
 				EndpointAccess access = repository.get(gid);
@@ -71,8 +70,7 @@ public class AnrWebSocketHandler extends TextWebSocketHandler {
 				ResponseDTO res = mapper.convertValue(data, ResponseDTO.class);
 				Endpoint endpoint = this.endpoint;
 				if (endpoint != null)
-					endpoint.push(new InputMessageReceiveResponse(suscriber,
-							res));
+					endpoint.push(new InputMessageReceiveResponse(suscriber, res));
 			}
 
 		}
@@ -80,8 +78,7 @@ public class AnrWebSocketHandler extends TextWebSocketHandler {
 		private void send(TypedMessage content) {
 			try {
 				log.debug("send({}) : {}", content);
-				session.sendMessage(new TextMessage(mapper
-						.writeValueAsString(content)));
+				session.sendMessage(new TextMessage(mapper.writeValueAsString(content)));
 			} catch (Throwable e) {
 				// il ne faut pas bloquer l'erreur.
 				log.debug("erreur à l'émission", e);
@@ -90,8 +87,7 @@ public class AnrWebSocketHandler extends TextWebSocketHandler {
 		}
 	}
 
-	private final static Logger log = LoggerFactory
-			.getLogger(AnrWebSocketHandler.class);
+	private final static Logger log = LoggerFactory.getLogger(AnrWebSocketHandler.class);
 
 	private ObjectMapper mapper;
 
@@ -100,14 +96,12 @@ public class AnrWebSocketHandler extends TextWebSocketHandler {
 	private final ConcurrentMap<String, AnrSuscriber> suscribers = new ConcurrentHashMap<>();
 
 	@Override
-	public void afterConnectionClosed(WebSocketSession session,
-			CloseStatus status) throws Exception {
+	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
 		removeSuscriber(session);
 	}
 
 	@Override
-	public void handleTransportError(WebSocketSession session,
-			Throwable exception) throws Exception {
+	public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
 		removeSuscriber(session);
 	}
 
@@ -118,14 +112,12 @@ public class AnrWebSocketHandler extends TextWebSocketHandler {
 	}
 
 	@Override
-	public void afterConnectionEstablished(WebSocketSession session)
-			throws Exception {
+	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 		suscribers.put(session.getId(), new AnrSuscriber(session));
 	}
 
 	@Override
-	protected void handleTextMessage(WebSocketSession session,
-			TextMessage message) throws Exception {
+	protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 		String id = session.getId();
 		String payload = message.getPayload();
 		log.debug("onWebSocketText {}:{}", id, payload);

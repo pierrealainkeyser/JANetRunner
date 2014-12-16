@@ -6,8 +6,7 @@ public class InputMessageReceiveResponse extends InputMessage {
 
 	private final ResponseDTO message;
 
-	public InputMessageReceiveResponse(RemoteSuscriber suscriber,
-			ResponseDTO message) {
+	public InputMessageReceiveResponse(RemoteSuscriber suscriber, ResponseDTO message) {
 		super(suscriber);
 		this.message = message;
 	}
@@ -19,8 +18,7 @@ public class InputMessageReceiveResponse extends InputMessage {
 
 	@Override
 	public String toString() {
-		return "ReceiveResponse [suscriber=" + getSuscriber().getKey()
-				+ ", message=" + message + "]";
+		return "ReceiveResponse [suscriber=" + getSuscriber().getKey() + ", message=" + message + "]";
 	}
 
 }

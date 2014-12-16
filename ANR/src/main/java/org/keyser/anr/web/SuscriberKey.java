@@ -2,10 +2,17 @@ package org.keyser.anr.web;
 
 import org.keyser.anr.core.PlayerType;
 
+/**
+ * Permet d'associer un code unique à un joueur. Ainsi pour connaitre la faction
+ * il faut connaitre le numéro unique
+ * 
+ * @author PAF
+ *
+ */
 public class SuscriberKey {
-	
+
 	private final String key;
-	
+
 	private final PlayerType type;
 
 	public SuscriberKey(String key, PlayerType type) {

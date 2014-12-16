@@ -1,7 +1,7 @@
 package org.keyser.anr.web;
 
 /**
- * L'access à une passerele {@link Endpoint	} pour une faction donnèe
+ * L'access à un {@link Endpoint} pour une faction donnée
  * 
  * @author PAF
  * 
