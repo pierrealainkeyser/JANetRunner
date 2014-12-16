@@ -27,7 +27,9 @@ public class EventMatchers {
 	}
 
 	public void uninstall() {
-		matchers.forEach(listener::unbind);
-		this.listener = null;
+		if (this.listener != null) {
+			matchers.forEach(listener::unbind);
+			this.listener = null;
+		}
 	}
 }
