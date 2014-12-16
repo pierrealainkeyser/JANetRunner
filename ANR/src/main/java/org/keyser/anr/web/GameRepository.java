@@ -4,22 +4,27 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Permet d'indexer les {@link GameAccess}
+ * Permet d'indexer les {@link EndpointAccess}
  * 
  * @author PAF
  * 
  */
 public class GameRepository {
 
-	private ConcurrentMap<String, GameAccess> gateways = new ConcurrentHashMap<>();
+	private ConcurrentMap<String, EndpointAccess> gateways = new ConcurrentHashMap<>();
 
-	public GameAccess get(String key) {
+	public EndpointAccess get(String key) {
 		return gateways.get(key);
 	}
 
-	public void add(GameAccessWrapper g) {
-		gateways.put(g.getCorp().getId(), g.getCorp());
-		gateways.put(g.getRunner().getId(), g.getRunner());
+	public void register(Endpoint e) {
+		for (SuscriberKey allowed : e.getAlloweds())
+			gateways.put(allowed.getKey(), new EndpointAccess(allowed, e));
+	}
+	
+	public void unregister(Endpoint e){
+		for (SuscriberKey allowed : e.getAlloweds())
+			gateways.remove(allowed.getKey());
 	}
 
 }

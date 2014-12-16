@@ -14,43 +14,18 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 /**
- * Interfaçage avec WEB-SOCKET
+ * Interfacage avec WEB-SOCKET
  * 
  * @author PAF
  * 
  */
 public class AnrWebSocketHandler extends TextWebSocketHandler {
 
-	public static class MessageDTO {
+	private class AnrSuscriber {
 
-		private Object data;
+		private volatile RemoteSuscriber suscriber;
 
-		private String type;
-
-		public MessageDTO() {
-		}
-
-		public MessageDTO(String type, Object data) {
-			this.type = type;
-			this.data = data;
-		}
-
-		public Object getData() {
-			return data;
-		}
-
-		public String getType() {
-			return type;
-		}
-
-		@Override
-		public String toString() {
-			return "MessageDTO [data=" + data + ", type=" + type + "]";
-		}
-	}
-
-	private class AnrSuscriber implements GameOutput {
-		private GameAccess access;
+		private volatile Endpoint endpoint;
 
 		private final WebSocketSession session;
 
@@ -59,58 +34,64 @@ public class AnrWebSocketHandler extends TextWebSocketHandler {
 		}
 
 		public void remove() {
-			if (access != null) {
-				GameGateway gw = access.getGateway();
-				gw.remove(this);
+			if (endpoint != null && suscriber != null) {
+
+				Endpoint endpoint = this.endpoint;
+				RemoteSuscriber suscriber = this.suscriber;
+
+				this.endpoint = null;
+				this.suscriber = null;
+
+				endpoint.push(new InputMessageRemove(suscriber));
 			}
 		}
 
-		private void onMessage(MessageDTO dto) {
+		private void onMessage(TypedMessage dto) {
 
 			String type = dto.getType();
 			Object data = dto.getData();
 			log.debug("onMessage {} : ", type, data);
 
-			if (GameGateway.READY.equals(type)) {
-				GameLookupDTO gl = mapper.convertValue(data, GameLookupDTO.class);
+			if (RemoteVerbs.VERB_READY.equals(type)) {
+				GameLookupDTO gl = mapper.convertValue(data,
+						GameLookupDTO.class);
 
 				String gid = gl.getGame();
-				access = repository.get(gid);
+				EndpointAccess access = repository.get(gid);
 				if (access != null) {
+					SuscriberKey key = access.getKey();
+					endpoint = access.getEndpoint();
+					suscriber = new RemoteSuscriber(key, this::send);
+					endpoint.push(new InputMessageRegister(suscriber));
 
-					// O il faudrait s'enregistré dans la passerelle
-					GameGateway gw = access.getGateway();
-					gw.register(this);
-
-					// on indique la faction au client
-					send("connected", access.getFaction());
-
-					gw.accept(this, GameGateway.READY);
 				} else {
-					send("no-game-found", gid);
+					send(new TypedMessage(RemoteVerbs.VERB_NO_GAME_FOUND, gid));
 				}
-			} else if (GameGateway.RESPONSE.equals(type)) {
-
+			} else if (RemoteVerbs.VERB_RESPONSE.equals(type)) {
 				ResponseDTO res = mapper.convertValue(data, ResponseDTO.class);
-				access.getGateway().accept(this, res);
+				Endpoint endpoint = this.endpoint;
+				if (endpoint != null)
+					endpoint.push(new InputMessageReceiveResponse(suscriber,
+							res));
 			}
 
 		}
 
-		@Override
-		public void send(String type, Object content) {
+		private void send(TypedMessage content) {
 			try {
-				log.debug("send({}) : {}", type, content);
-				session.sendMessage(new TextMessage(mapper.writeValueAsString(new MessageDTO(type, content))));
-			} catch (Exception e) {
+				log.debug("send({}) : {}", content);
+				session.sendMessage(new TextMessage(mapper
+						.writeValueAsString(content)));
+			} catch (Throwable e) {
 				// il ne faut pas bloquer l'erreur.
-				log.debug("erreur à l'émission", e);
+				log.debug("erreur � l'�mission", e);
 				removeSuscriber(session);
 			}
 		}
 	}
 
-	private final static Logger log = LoggerFactory.getLogger(AnrWebSocketHandler.class);
+	private final static Logger log = LoggerFactory
+			.getLogger(AnrWebSocketHandler.class);
 
 	private ObjectMapper mapper;
 
@@ -119,12 +100,14 @@ public class AnrWebSocketHandler extends TextWebSocketHandler {
 	private final ConcurrentMap<String, AnrSuscriber> suscribers = new ConcurrentHashMap<>();
 
 	@Override
-	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+	public void afterConnectionClosed(WebSocketSession session,
+			CloseStatus status) throws Exception {
 		removeSuscriber(session);
 	}
 
 	@Override
-	public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+	public void handleTransportError(WebSocketSession session,
+			Throwable exception) throws Exception {
 		removeSuscriber(session);
 	}
 
@@ -135,20 +118,22 @@ public class AnrWebSocketHandler extends TextWebSocketHandler {
 	}
 
 	@Override
-	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+	public void afterConnectionEstablished(WebSocketSession session)
+			throws Exception {
 		suscribers.put(session.getId(), new AnrSuscriber(session));
 	}
 
 	@Override
-	protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+	protected void handleTextMessage(WebSocketSession session,
+			TextMessage message) throws Exception {
 		String id = session.getId();
 		String payload = message.getPayload();
 		log.debug("onWebSocketText {}:{}", id, payload);
 		AnrSuscriber as = suscribers.get(id);
 
-		MessageDTO dto = mapper.reader(MessageDTO.class).readValue(payload);
-		if (dto != null)
-			as.onMessage(dto);
+		TypedMessage msg = mapper.reader(TypedMessage.class).readValue(payload);
+		if (msg != null)
+			as.onMessage(msg);
 	}
 
 	public void setMapper(ObjectMapper mapper) {
