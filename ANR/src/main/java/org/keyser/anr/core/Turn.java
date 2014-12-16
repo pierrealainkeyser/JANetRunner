@@ -40,7 +40,13 @@ public class Turn {
 	private void startTurn() {
 
 		setPhase(Phase.STARTING);
-		game.apply(new StartOfTurn(), this::actionPhase);
+		game.apply(new StartOfTurn(), this::readyAction);
+	}
+	
+	private void readyAction(){
+		
+		//TODO initiation des actions
+		actionPhase();
 	}
 
 	public void drawPhase() {
