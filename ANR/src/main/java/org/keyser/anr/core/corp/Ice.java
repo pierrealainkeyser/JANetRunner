@@ -7,12 +7,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collector;
 
+import org.keyser.anr.core.AbstractCardCorp;
 import org.keyser.anr.core.CardSubType;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Influence;
 import org.keyser.anr.core.runner.IceBreaker;
 
-public abstract class Ice extends InstallableCorpCard {
+public abstract class Ice extends AbstractCardCorp {
 
 	private final int strength;
 

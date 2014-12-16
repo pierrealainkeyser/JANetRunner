@@ -14,7 +14,7 @@ public class Turn {
 
 	private Phase phase;
 
-	private final static Predicate<? super AbstractCard> UNREZZED_INSTALL_CORP_CARDS = ac -> ac instanceof AbstractCardCorp && ac.isInstalled() && !ac.isRezzed();
+	private final static Predicate<? super AbstractCard> UNREZZED_INSTALL_CORP_CARDS = ac -> ac instanceof AbstractCardCorp && !ac instanceof Ice && ac.isInstalled() && !ac.isRezzed();
 
 	public enum Phase {
 		STARTING, DRAW, ACTION, DISCARD
@@ -110,8 +110,10 @@ public class Turn {
 			if (requireNoop) {
 				AbstractId me = game.getId(active);
 				game.user(noop(me, me, "Nothing"), next.wrap(this::doNoOp));
-			} else
-				end(next);
+			} else {
+				if(!hasFeedback)
+					end(next);
+			}
 		}
 
 		private void doNoOp(Flow next) {
