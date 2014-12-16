@@ -97,7 +97,7 @@ public class Turn {
 		private void secondPlayer(Flow next) {
 			collectFeedbacks(to(this::secondPlayer), next);
 
-		}		
+		}
 	}
 
 	private class EventPingPong extends AbstractPingPong {
@@ -185,7 +185,9 @@ public class Turn {
 	public void discardPhase() {
 		setPhase(Phase.DISCARD);
 
-		// on comme par l'utilisateur
+		// TODO gestion du seuil puis fin
+
+		// on commence par l'utilisateur
 		new EventPingPong(active).firstPlayer(this::terminate);
 	}
 
@@ -219,7 +221,16 @@ public class Turn {
 	}
 
 	private void startingPhase() {
-		new EventPingPong(active).firstPlayer(this::actionPhase);
+		pingpong(this::actionPhase);
+	}
+
+	/**
+	 * Réalise des échanges uniquement des evenements, pas d'action
+	 * 
+	 * @param next
+	 */
+	public void pingpong(Flow next) {
+		new EventPingPong(active).firstPlayer(next);
 	}
 
 	private void startTurn() {
@@ -232,7 +243,7 @@ public class Turn {
 	}
 
 	private void terminate() {
-
+		// TODO fin de la phase
 	}
 
 }
