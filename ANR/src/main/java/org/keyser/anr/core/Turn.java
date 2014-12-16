@@ -14,7 +14,8 @@ public class Turn {
 
 	private Phase phase;
 
-	private final static Predicate<? super AbstractCard> UNREZZED_INSTALL_CORP_CARDS = ac -> ac instanceof AbstractCardCorp && !ac instanceof Ice && ac.isInstalled() && !ac.isRezzed();
+	private final static Predicate<? super AbstractCard> UNREZZED_INSTALL_CORP_CARDS = ac -> ac instanceof AbstractCardCorp
+			&& !ac instanceof Ice && ac.isInstalled() && !ac.isRezzed();
 
 	public enum Phase {
 		STARTING, DRAW, ACTION, DISCARD
@@ -42,10 +43,10 @@ public class Turn {
 		setPhase(Phase.STARTING);
 		game.apply(new StartOfTurn(), this::readyAction);
 	}
-	
-	private void readyAction(){
-		
-		//TODO initiation des actions
+
+	private void readyAction() {
+
+		// TODO initiation des actions
 		actionPhase();
 	}
 
@@ -68,6 +69,64 @@ public class Turn {
 			discardPhase();
 
 		}
+	}
+
+	private static interface Function<T, X> {
+		X apply(T t);
+	}
+
+	private class ActionPingPong {
+
+		private PlayerType active;
+
+		public void firstPlayer(Flow next) {
+			loop(this::fired, next);
+		}
+
+		private boolean loop(EventConsumer<Feedback<?, ?>> e, Flow next) {
+			CollectHabilities collect = new CollectHabilities(active);
+			game.fire(collect);
+
+			Collection<Feedback<?, ?>> feedbacks = collect.getFeedbacks();
+			boolean feeds = false;
+			for (Feedback<?, ?> feedback : feedbacks) {
+				if (feedback.checkCost()) {
+					game.user(feedback, next.wrap(e.wrap(feedback)));
+					feeds = true;
+				}
+			}
+			return feeds;
+		}
+
+		/**
+		 * Tant que le joueur ne joue pas d'action il a la priorité
+		 * @param fired
+		 * @param next
+		 */
+		private void fired(Feedback<?, ?> fired, Flow next) {
+			if (fired.wasAnAction()) {
+				// on swappe de joueur
+				active = active.next();
+				secondPlayer(next);
+			} else {
+				// on recommence l'action
+				firstPlayer(next);
+			}
+		}
+
+		private void secondPlayer(Flow next) {
+			boolean hasFeeds = loop(
+					(f, continuation) -> secondPlayer(continuation), next);
+
+			// si il y a des feeds ou si corp avec des trucs qui ne sont pas des
+			// glaces installés, pas rezzé (il y a l'opportunite de rezze)
+			if (hasFeeds) {
+				AbstractId me = game.getId(active);
+				game.user(noop(me, me, "Done"), next);
+			} else
+				next.apply();
+		}
+
 	}
 
 	private class PingPong {
@@ -109,7 +168,8 @@ public class Turn {
 					requireNoop = true;
 				else if (isCorp()) {
 					// pas d'option mais des cartes cachés, donc des options
-					requireNoop = game.getCards().stream().anyMatch(UNREZZED_INSTALL_CORP_CARDS);
+					requireNoop = game.getCards().stream()
+							.anyMatch(UNREZZED_INSTALL_CORP_CARDS);
 				}
 			}
 
@@ -117,7 +177,7 @@ public class Turn {
 				AbstractId me = game.getId(active);
 				game.user(noop(me, me, "Nothing"), next.wrap(this::doNoOp));
 			} else {
-				if(!hasFeedback)
+				if (!hasFeedback)
 					end(next);
 			}
 		}
@@ -147,7 +207,6 @@ public class Turn {
 				// on recommence
 				ask(next);
 			}
-
 		}
 	}
 
