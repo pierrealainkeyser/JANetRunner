@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
@@ -204,6 +203,10 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	}
 
 	protected void playAction(EventMatcherBuilder<CollectHabilities> em, Predicate<CollectHabilities> playPredicate) {
+
+		// il faut nécessaire avoir le droit de faire une action
+		playPredicate = playPredicate.and(CollectHabilities::isAllowAction);
+
 		em.test(customizePlayPredicate(playPredicate));
 		em.call(this::playFeedback);
 	}
