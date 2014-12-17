@@ -42,7 +42,7 @@ public class Game {
 		}
 	}
 
-	private class ANREventsMatcher {
+	private class PerPlayerEvents {
 
 		private final PlayerType active;
 
@@ -50,7 +50,7 @@ public class Game {
 
 		private final List<EventMatcher<?>> matchers = new ArrayList<EventMatcher<?>>();
 
-		public ANREventsMatcher(PlayerType active, EventMatchersFlow<?> flow) {
+		public PerPlayerEvents(PlayerType active, EventMatchersFlow<?> flow) {
 			this.active = active;
 			this.event = flow.getEvent();
 		}
@@ -59,8 +59,8 @@ public class Game {
 			matchers.add(em);
 		}
 
-		public boolean isEmpty() {
-			return matchers.isEmpty();
+		public boolean hasElement() {
+			return !matchers.isEmpty();
 		}
 
 		private void fire(Flow next) {
@@ -76,9 +76,10 @@ public class Game {
 
 			int size = matchers.size();
 			if (size == 0) {
+				// aucun element
 				next.apply();
 			} else if (size == 1) {
-				// pas d'ordre
+				// pas d'ordre s'il n'y a qu'un unique element
 				matchers.get(0).apply(event, next);
 			} else {
 				// il faut demander l'ordre au joueur actif
@@ -107,13 +108,13 @@ public class Game {
 		private void orderSelected(AskEventOrderUserAction ask,
 				AbstractCardList ordered, Flow next) {
 
-			// réalise une recursion sur les cartes
+			// réalise une recursion sur les cartes recuperes
 			RecursiveIterator.recurse(ordered.iterator(), this::applyEffect,
 					next);
 		}
 
 		/**
-		 * Recherche le matcher
+		 * Recherche le matcher le test et applique l'effet si disponible
 		 * 
 		 * @param src
 		 * @param next
@@ -124,7 +125,7 @@ public class Game {
 			if (em.test(event))
 				em.apply(event, next);
 			else {
-				// l'evenement n'est plus disponile
+				// l'evenement n'est plus disponible
 				next.apply();
 			}
 		}
@@ -133,7 +134,7 @@ public class Game {
 
 	private class ANREventMatcher implements Flow {
 
-		private final Iterator<ANREventsMatcher> it;
+		private final Iterator<PerPlayerEvents> it;
 
 		private final Flow next;
 
@@ -142,8 +143,8 @@ public class Game {
 			PlayerType active = getActivePlayer();
 
 			this.next = next;
-			ANREventsMatcher activeMatch = new ANREventsMatcher(active, flow);
-			ANREventsMatcher passiveMatch = new ANREventsMatcher(active.next(),
+			PerPlayerEvents activeMatch = new PerPlayerEvents(active, flow);
+			PerPlayerEvents passiveMatch = new PerPlayerEvents(active.next(),
 					flow);
 
 			// repartition en 2 groupe
@@ -155,24 +156,19 @@ public class Game {
 					else
 						passiveMatch.add(em);
 				} else {
-					// TODO c'est pas bon ca... il faut un warning
+					// TODO c'est pas bon ca... il faut un warning, il ne
+					// devrait que des matchers avec une source
 				}
 			}
 
-			List<ANREventsMatcher> matchers = new ArrayList<>(2);
-			if (!activeMatch.isEmpty())
-				matchers.add(activeMatch);
-
-			if (passiveMatch.isEmpty())
-				matchers.add(passiveMatch);
-
-			it = matchers.iterator();
+			it = Stream.of(activeMatch, passiveMatch)
+					.filter(PerPlayerEvents::hasElements).iterator();
 		}
 
 		@Override
 		public void apply() {
 			if (it.hasNext()) {
-				ANREventsMatcher m = it.next();
+				PerPlayerEvents m = it.next();
 				m.fire(this);
 			} else
 				next.apply();
@@ -203,6 +199,8 @@ public class Game {
 	private ActionsContext actionsContext;
 
 	private int nextAction;
+	
+	private Turn turn;
 
 	public Game() {
 		listener = new EventMatcherListener();
@@ -216,8 +214,7 @@ public class Game {
 	}
 
 	public PlayerType getActivePlayer() {
-		// TODO prendre le joueur actif..
-		return PlayerType.RUNNER;
+		return turn.getActive();
 	}
 
 	public Collection<AbstractCard> getCards() {
