@@ -89,11 +89,16 @@ public class AnrWebSocketHandler extends TextWebSocketHandler {
 
 	private final static Logger log = LoggerFactory.getLogger(AnrWebSocketHandler.class);
 
-	private ObjectMapper mapper;
+	private final ObjectMapper mapper;
 
-	private GameRepository repository;
+	private final GameRepository repository;
 
 	private final ConcurrentMap<String, AnrSuscriber> suscribers = new ConcurrentHashMap<>();
+	
+	public AnrWebSocketHandler(ObjectMapper mapper, GameRepository repository) {
+		this.mapper = mapper;
+		this.repository = repository;
+	}
 
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
@@ -128,12 +133,5 @@ public class AnrWebSocketHandler extends TextWebSocketHandler {
 			as.onMessage(msg);
 	}
 
-	public void setMapper(ObjectMapper mapper) {
-		this.mapper = mapper;
-	}
-
-	public void setRepository(GameRepository repository) {
-		this.repository = repository;
-	}
 
 }
