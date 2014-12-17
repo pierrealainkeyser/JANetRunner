@@ -276,6 +276,11 @@ public class Game {
 		invoke(actionId, null);
 	}
 
+	/**
+	 * Invocation d'une reponse
+	 * @param actionId
+	 * @param response
+	 */
 	public void invoke(int actionId, Object response) {
 		FeedbackHandler<?> uah = actionsContext.actions.get(actionId);
 

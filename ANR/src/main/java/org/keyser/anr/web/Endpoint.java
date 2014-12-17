@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.keyser.anr.core.EventMatchers;
+import org.keyser.anr.core.Game;
+import org.keyser.anr.web.dto.EventsBasedGameDtoBuilder;
 import org.keyser.anr.web.dto.ResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +19,13 @@ public class Endpoint {
 
 	private final EndpointProcessor processor;
 
+	private final Game game;
+
 	private final List<SuscriberKey> alloweds;
 
-	public Endpoint(EndpointProcessor processor, List<SuscriberKey> alloweds) {
+	public Endpoint(EndpointProcessor processor, Game game, List<SuscriberKey> alloweds) {
 		this.processor = processor;
+		this.game=game;
 		this.alloweds = alloweds;
 	}
 
@@ -49,10 +55,15 @@ public class Endpoint {
 	}
 
 	public void receive(ResponseDTO message) {
-		// prépartion collecte
-		// TODO
+		
+		// preparation de la création asynchrone en écoutant les evt
+		EventsBasedGameDtoBuilder builder = new EventsBasedGameDtoBuilder(game);
+
+		// invocation de la reponse
+		game.invoke(message.getRid(), message.getContent());
+
 		// broadcast du resultat
-		broadcast(new TypedMessage(RemoteVerbs.VERB_BROADCAST, "TODO"));
+		broadcast(new TypedMessage(RemoteVerbs.VERB_BROADCAST, builder.build()));
 	}
 
 	private void broadcast(TypedMessage message) {
