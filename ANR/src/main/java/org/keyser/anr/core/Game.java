@@ -136,13 +136,13 @@ public class Game {
 
 		private final Iterator<PerPlayerEvents> it;
 
-		private final Flow next;
+		private final EventMatchersFlow<?> next;
 
-		private ANREventMatcher(EventMatchersFlow<?> flow, Flow next) {
+		private ANREventMatcher(EventMatchersFlow<?> flow) {
 
 			PlayerType active = getActivePlayer();
 
-			this.next = next;
+			this.next = flow;
 			PerPlayerEvents activeMatch = new PerPlayerEvents(active, flow);
 			PerPlayerEvents passiveMatch = new PerPlayerEvents(active.next(),
 					flow);
