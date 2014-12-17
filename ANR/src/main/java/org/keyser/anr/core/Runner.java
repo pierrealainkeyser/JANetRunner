@@ -21,6 +21,11 @@ public class Runner extends AbstractId {
 	protected Runner(int id, MetaCard meta) {
 		super(id, meta, PlayerType.RUNNER);
 	}
+	
+	@Override
+	public PlayerType getOwner() {
+		return PlayerType.RUNNER;
+	}
 
 	public void doDraw(int nb, Flow next) {
 

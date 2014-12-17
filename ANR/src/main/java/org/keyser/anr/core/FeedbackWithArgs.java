@@ -9,11 +9,11 @@ package org.keyser.anr.core;
  */
 public class FeedbackWithArgs<UA extends UserActionWithArgs<T>, T> implements Feedback<UA, T> {
 
-	private final UserActionWithArgs<T> userAction;
+	private final UA userAction;
 
-	private final BiEventConsumer<UserActionWithArgs<T>, T> consumer;
+	private final BiEventConsumer<UA, T> consumer;
 
-	public FeedbackWithArgs(UserActionWithArgs<T> userAction, BiEventConsumer<UserActionWithArgs<T>, T> consumer) {
+	public FeedbackWithArgs(UA userAction, BiEventConsumer<UA, T> consumer) {
 		this.userAction = userAction;
 		this.consumer = consumer;
 	}
@@ -28,9 +28,8 @@ public class FeedbackWithArgs<UA extends UserActionWithArgs<T>, T> implements Fe
 		return (t) -> consumer.apply(userAction, t, next);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public UserActionWithArgs<T> getUserAction() {
+	public UA getUserAction() {
 		return userAction;
 	}
 

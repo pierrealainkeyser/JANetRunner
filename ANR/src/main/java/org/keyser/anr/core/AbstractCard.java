@@ -51,6 +51,8 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 		if (playPredicate != null && playLocation != null)
 			match(CollectHabilities.class, em -> playAction(em, playPredicate.and(location(playLocation))));
 	}
+	
+	public abstract PlayerType getOwner();
 
 	/**
 	 * Modification du delta

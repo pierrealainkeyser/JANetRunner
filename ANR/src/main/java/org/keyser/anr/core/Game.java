@@ -1,8 +1,11 @@
 package org.keyser.anr.core;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class Game {
@@ -22,7 +25,8 @@ public class Game {
 
 		private final UserAction userAction;
 
-		private FeedbackHandler(UserAction userAction, Class<T> type, FlowArg<T> consumer) {
+		private FeedbackHandler(UserAction userAction, Class<T> type,
+				FlowArg<T> consumer) {
 			this.type = type;
 			this.consumer = consumer;
 			this.userAction = userAction;
@@ -36,6 +40,145 @@ public class Game {
 		public UserAction getUserAction() {
 			return userAction;
 		}
+	}
+
+	private class ANREventsMatcher {
+
+		private final PlayerType active;
+
+		private final Object event;
+
+		private final List<EventMatcher<?>> matchers = new ArrayList<EventMatcher<?>>();
+
+		public ANREventsMatcher(PlayerType active, EventMatchersFlow<?> flow) {
+			this.active = active;
+			this.event = flow.getEvent();
+		}
+
+		public void add(EventMatcher<?> em) {
+			matchers.add(em);
+		}
+
+		public boolean isEmpty() {
+			return matchers.isEmpty();
+		}
+
+		private void fire(Flow next) {
+
+			// permet de nettoyer les evenements plus bon
+			Iterator<EventMatcher<?>> it = matchers.iterator();
+			while (it.hasNext()) {
+				EventMatcher<?> em = it.next();
+				if (!em.test(event)) {
+					it.remove();
+				}
+			}
+
+			int size = matchers.size();
+			if (size == 0) {
+				next.apply();
+			} else if (size == 1) {
+				// pas d'ordre
+				matchers.get(0).apply(event, next);
+			} else {
+				// il faut demander l'ordre au joueur actif
+				List<AbstractCard> sources = matchers.stream()
+						.map(EventMatcher::getSource)
+						.collect(Collectors.toList());
+
+				AbstractId to = getId(active);
+
+				// TODO il faut préciser le contexte quelque part...
+				AskEventOrderUserAction ask = new AskEventOrderUserAction(to,
+						"Select order", new AbstractCardList(sources));
+
+				user(new FeedbackWithArgs<AskEventOrderUserAction, AbstractCardList>(
+						ask, this::orderSelected), next);
+			}
+		}
+
+		/**
+		 * L'ordre est sélectionné par l'utilisateur
+		 * 
+		 * @param ask
+		 * @param ordered
+		 * @param next
+		 */
+		private void orderSelected(AskEventOrderUserAction ask,
+				AbstractCardList ordered, Flow next) {
+
+			// réalise une recursion sur les cartes
+			RecursiveIterator.recurse(ordered.iterator(), this::applyEffect,
+					next);
+		}
+
+		/**
+		 * Recherche le matcher
+		 * 
+		 * @param src
+		 * @param next
+		 */
+		private void applyEffect(AbstractCard src, Flow next) {
+			EventMatcher<?> em = matchers.stream()
+					.filter(em -> em.getSource().equals(src)).findFirst().get();
+			if (em.test(event))
+				em.apply(event, next);
+			else {
+				// l'evenement n'est plus disponile
+				next.apply();
+			}
+		}
+
+	}
+
+	private class ANREventMatcher implements Flow {
+
+		private final Iterator<ANREventsMatcher> it;
+
+		private final Flow next;
+
+		private ANREventMatcher(EventMatchersFlow<?> flow, Flow next) {
+
+			PlayerType active = getActivePlayer();
+
+			this.next = next;
+			ANREventsMatcher activeMatch = new ANREventsMatcher(active, flow);
+			ANREventsMatcher passiveMatch = new ANREventsMatcher(active.next(),
+					flow);
+
+			// repartition en 2 groupe
+			for (EventMatcher<?> em : flow.getMatchers()) {
+				AbstractCard source = em.getSource();
+				if (source != null) {
+					if (source.getOwner() == active)
+						activeMatch.add(em);
+					else
+						passiveMatch.add(em);
+				} else {
+					// TODO c'est pas bon ca... il faut un warning
+				}
+			}
+
+			List<ANREventsMatcher> matchers = new ArrayList<>(2);
+			if (!activeMatch.isEmpty())
+				matchers.add(activeMatch);
+
+			if (passiveMatch.isEmpty())
+				matchers.add(passiveMatch);
+
+			it = matchers.iterator();
+		}
+
+		@Override
+		public void apply() {
+			if (it.hasNext()) {
+				ANREventsMatcher m = it.next();
+				m.fire(this);
+			} else
+				next.apply();
+
+		}
+
 	}
 
 	private final EventMatcherListener listener;
@@ -65,13 +208,19 @@ public class Game {
 		listener = new EventMatcherListener();
 
 		// gestion des evenements sequential
-		listener.add(e -> e.getEvent() instanceof SequentialEvent, f -> new SequentialEventMatcher(f).apply());
+		listener.add(e -> e.getEvent() instanceof SequentialEvent,
+				f -> new SequentialEventMatcher(f).apply());
 
-		// TODO implémentation spécifique ANR à prévoir
-		listener.add(e -> true, f -> new SequentialEventMatcher(f).apply());
+		// implémentation spécifique ANR à prévoir
+		listener.add(e -> true, f -> new ANREventMatcher(f).apply());
 	}
-	
-	public Collection<AbstractCard> getCards(){
+
+	public PlayerType getActivePlayer() {
+		// TODO prendre le joueur actif..
+		return PlayerType.RUNNER;
+	}
+
+	public Collection<AbstractCard> getCards() {
 		return Collections.unmodifiableCollection(cards.values());
 	}
 
@@ -145,11 +294,13 @@ public class Game {
 	 * @param next
 	 * @param consumer
 	 */
-	public <UA extends UserAction, T> void user(Feedback<UA, T> feedback, Flow next) {
+	public <UA extends UserAction, T> void user(Feedback<UA, T> feedback,
+			Flow next) {
 		int id = nextAction++;
 		UA userAction = feedback.getUserAction();
 		userAction.setActionId(id);
-		actionsContext.actions.put(id, new FeedbackHandler<T>(userAction, feedback.getInputType(), feedback.wrap(next)));
+		actionsContext.actions.put(id, new FeedbackHandler<T>(userAction,
+				feedback.getInputType(), feedback.wrap(next)));
 	}
 
 	public boolean mayAfford(PlayerType to, CostForAction cost) {

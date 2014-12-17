@@ -9,4 +9,9 @@ public class AbstractCardRunner extends AbstractCard {
 	protected AbstractCardRunner(int id, MetaCard meta) {
 		super(id, meta, CollectHabilities.RUNNER, CardLocation::isInRunnerHand);
 	}
+	
+	@Override
+	public PlayerType getOwner() {
+		return PlayerType.RUNNER;
+	}
 }

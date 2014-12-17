@@ -1,6 +1,6 @@
 package org.keyser.anr.core;
 
-public class DiscardSet extends CardSet {
+public class DiscardSet extends AbstractCardList {
 
 	private int nb;
 

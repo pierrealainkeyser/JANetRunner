@@ -18,7 +18,7 @@ class SequentialEventMatcher implements Flow {
 	public void apply() {
 		if (it.hasNext()) {
 			@SuppressWarnings("unchecked")
-			EventConsumer<Object> ec = (EventConsumer<Object>) it.next();
+			EventMatcher<Object> ec = (EventMatcher<Object>) it.next();
 			ec.apply(flow.getEvent(), this);
 		} else {
 			this.flow.apply();

@@ -12,13 +12,13 @@ import java.util.function.BiConsumer;
  */
 public class RecursiveIterator<T> implements Flow {
 
-	private final BiConsumer<T, Flow> action;
+	private final EventConsumer<T> action;
 
 	private final Flow end;
 
 	private final Iterator<T> it;
 
-	public RecursiveIterator(Iterator<T> it, BiConsumer<T, Flow> action, Flow end) {
+	public RecursiveIterator(Iterator<T> it, EventConsumer<T> action, Flow end) {
 		super();
 		this.it = it;
 		this.action = action;
@@ -31,14 +31,14 @@ public class RecursiveIterator<T> implements Flow {
 	 * @param action
 	 * @param end
 	 */
-	public static <T> void recurse(Iterator< T> it, BiConsumer<T, Flow> action, Flow end) {
+	public static <T> void recurse(Iterator< T> it, EventConsumer<T> action, Flow end) {
 		new RecursiveIterator<>((Iterator<T>) it, action, end).apply();
 	}
 
 	@Override
 	public void apply() {
 		if (it.hasNext()) {
-			action.accept(it.next(), this);
+			action.apply(it.next(), this);
 		} else
 			end.apply();
 	}
