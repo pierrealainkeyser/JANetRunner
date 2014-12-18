@@ -33,7 +33,13 @@ public class Game {
 		}
 
 		private void apply(Object o) {
-			T t = convert(type, o);
+
+			T t = null;
+
+			// on se contente de caster s'il y a un type
+			if (type != null && o != null)
+				t = type.cast(o);
+
 			consumer.apply(t);
 		}
 
@@ -199,7 +205,7 @@ public class Game {
 	private ActionsContext actionsContext;
 
 	private int nextAction;
-	
+
 	private Turn turn;
 
 	public Game() {
@@ -238,14 +244,6 @@ public class Game {
 		matchers.install(listener);
 	}
 
-	private <T> T convert(Class<T> type, Object response) {
-		if (type == null || response == null)
-			return null;
-
-		// TODO gestion de la conversion
-		return type.cast(response);
-	}
-
 	/**
 	 * Création d'une carte attachée au jeu
 	 * 
@@ -272,17 +270,37 @@ public class Game {
 		return runner;
 	}
 
-	public void invoke(int actionId) {
-		invoke(actionId, null);
-	}
-
 	/**
-	 * Invocation d'une reponse
+	 * Pour les tests uniquements
+	 * @param actionId
+	 */
+	public void invoke(int actionId) {
+		invoke(actionId, null, null);
+	}
+	
+	/**
+	 * Pour les tests uniquements
 	 * @param actionId
 	 * @param response
 	 */
 	public void invoke(int actionId, Object response) {
+		invoke(actionId, null, response);
+	}
+
+	/**
+	 * Invocation d'une reponse
+	 * 
+	 * @param actionId
+	 * @param response
+	 */
+	public void invoke(int actionId, UserInputConverter converter,
+			Object response) {
 		FeedbackHandler<?> uah = actionsContext.actions.get(actionId);
+
+		// réalisation de la conversion
+		if (uah.type != null && response != null && converter != null) {
+			response = converter.convert(uah.type, this, response);
+		}
 
 		// nouveau conteneur d'action
 		actionsContext = new ActionsContext();

@@ -1,11 +1,11 @@
 package org.keyser.anr.core;
 
-public class AbstractCardTokenEvent extends AbstractCardEvent {
+public class AbstractCardTokenEvent extends AbstractCardMonitoringEvent {
 
 	private final TokenType type;
 
 	public AbstractCardTokenEvent(AbstractCard card, TokenType type) {
-		super(card, null, null);
+		super(card);
 		this.type = type;
 	}
 

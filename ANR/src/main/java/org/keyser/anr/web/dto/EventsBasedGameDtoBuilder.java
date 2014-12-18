@@ -22,12 +22,16 @@ public class EventsBasedGameDtoBuilder {
 	private final Game game;
 
 	public EventsBasedGameDtoBuilder(Game game) {
+		this.game = game;
+	}
+
+	public EventsBasedGameDtoBuilder listen() {
 		match(AbstractCardLocationEvent.class, this::location);
 		match(AbstractCardRezzEvent.class, this::rezzed);
 		match(AbstractCardTokenEvent.class, this::tokens);
-
-		this.game = game;
 		this.game.bind(matchers);
+
+		return this;
 	}
 
 	private void location(AbstractCardLocationEvent evt) {
@@ -67,6 +71,12 @@ public class EventsBasedGameDtoBuilder {
 				"@EventsBasedGameDtoBuilder");
 		match.call(builder);
 		matchers.add(match);
+	}
+
+	public GameDto create() {
+		GameDto dto = new GameDto();
+
+		return dto;
 	}
 
 	public GameDto build() {

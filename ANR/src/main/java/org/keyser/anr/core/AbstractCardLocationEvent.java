@@ -1,9 +1,9 @@
 package org.keyser.anr.core;
 
-public class AbstractCardLocationEvent extends AbstractCardEvent {
+public class AbstractCardLocationEvent extends AbstractCardMonitoringEvent {
 
 	public AbstractCardLocationEvent(AbstractCard card) {
-		super(card, null, null);
+		super(card);
 	}
 
 }

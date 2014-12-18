@@ -2,6 +2,7 @@ package org.keyser.anr.web;
 
 public class InputMessageRegister extends InputMessage {
 
+
 	public InputMessageRegister(RemoteSuscriber suscriber) {
 		super(suscriber);
 	}
