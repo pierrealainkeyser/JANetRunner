@@ -1,5 +1,12 @@
 package org.keyser.anr.core;
 
-public class StartOfTurn implements SequentialEvent {
+/**
+ * Evenement pour marquer les réel debut du tour
+ * @author pakeyser
+ *
+ */
+public class StartOfTurn {
+
+	
 
 }

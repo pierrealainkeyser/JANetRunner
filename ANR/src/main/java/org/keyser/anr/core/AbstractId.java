@@ -1,10 +1,18 @@
 package org.keyser.anr.core;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public abstract class AbstractId extends AbstractCard {
 
 	private final PlayerType playerType;
 
 	private int actions;
+
+	/**
+	 * Les sources de credits
+	 */
+	private Set<TokenCreditsSource> creditsSources = new HashSet<>();
 
 	public AbstractId(int id, MetaCard meta, PlayerType playerType) {
 		super(id, meta, null, null);
@@ -16,6 +24,14 @@ public abstract class AbstractId extends AbstractCard {
 		this.actions = actions;
 		if (changed)
 			game.fire(new AbstractCardActionChangedEvent(this));
+	}
+
+	public void addCreditsSource(TokenCreditsSource source) {
+		creditsSources.add(source);
+	}
+
+	public void removeCreditSource(TokenCreditsSource source) {
+		creditsSources.remove(source);
 	}
 
 	/**
@@ -77,6 +93,28 @@ public abstract class AbstractId extends AbstractCard {
 
 	private void spendCredits(CostForAction costForAction, Flow next) {
 		int credits = costForAction.getCost().getValue(CostType.CREDIT);
+
+		if (credits > 0) {
+			// consommation en premier dans les sources de crédits. TODO a
+			// changer pour les sources optionnels ou stealth (genre GhostRunner ou Cloak)
+			for (TokenCreditsSource source : creditsSources) {
+				if (source.test(costForAction)) {
+					int nb = source.getAvailable();
+					int consume = Math.min(credits, nb);
+					if (consume > 0) {
+						source.consume(consume);
+						credits -= consume;
+					}
+				}
+
+				if (credits == 0)
+					break;
+			}
+		}
+
+		if (credits > 0) {
+			addToken(TokenType.CREDIT, -credits);
+		}
 
 		// TODO gestion de la consommation des credits
 

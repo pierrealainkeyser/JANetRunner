@@ -159,7 +159,7 @@ public class Turn {
 	}
 
 	public enum Phase {
-		ACTION, DISCARD, DRAW, STARTING
+		ACTION, DISCARD, DRAW, INITING, STARTING
 	}
 
 	private final static Predicate<? super AbstractCard> UNREZZED_INSTALL_CORP_CARDS = ac -> ac instanceof AbstractCardCorp
@@ -218,6 +218,10 @@ public class Turn {
 		return false;
 	}
 
+	public boolean mayPlayAction() {
+		return phase == Phase.ACTION;
+	}
+
 	private void setPhase(Phase phase) {
 		this.phase = phase;
 	}
@@ -233,10 +237,6 @@ public class Turn {
 		return this;
 	}
 
-	private void startingPhase() {
-		pingpong(this::actionPhase);
-	}
-
 	/**
 	 * Réalise des échanges uniquement des evenements, pas d'action
 	 * 
@@ -245,14 +245,28 @@ public class Turn {
 	public void pingpong(Flow next) {
 		new EventPingPong(active).firstPlayer(next);
 	}
+	
+	private void initPhase(){
+		setPhase(Phase.INITING);
+
+		// démarrage technique, mise en place des actions
+		game.fire(new InitTurn());
+		AbstractId id = game.getId(active);
+		
+		if (active == PlayerType.CORP) {
+			id.setActions(3);
+			drawPhase();
+		} else {
+			id.setActions(4);
+			startTurn();
+		}
+	}
 
 	private void startTurn() {
-
 		setPhase(Phase.STARTING);
 
-		// TODO mise en place des actions
-
-		game.apply(new StartOfTurn(), this::startingPhase);
+		// envoi l'evenement de debut de tour
+		game.apply(new StartOfTurn(), () -> pingpong(this::actionPhase));
 	}
 
 	private void terminate() {

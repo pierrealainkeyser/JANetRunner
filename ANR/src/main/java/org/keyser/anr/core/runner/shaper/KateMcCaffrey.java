@@ -12,7 +12,7 @@ import org.keyser.anr.core.CostType;
 import org.keyser.anr.core.EventMatcherBuilder;
 import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.Runner;
-import org.keyser.anr.core.StartOfTurn;
+import org.keyser.anr.core.InitTurn;
 import org.keyser.anr.core.TokenType;
 import org.keyser.anr.core.runner.InstallHardwareAction;
 import org.keyser.anr.core.runner.InstallProgramAction;
@@ -25,7 +25,7 @@ public class KateMcCaffrey extends Runner {
 	public KateMcCaffrey(int id, MetaCard meta) {
 		super(id, meta);
 
-		match(StartOfTurn.class, em -> em.run(this::resetToken));
+		match(InitTurn.class, em -> em.run(this::resetToken));
 		match(AbstractCardInstalledCleanup.class, em -> em.run(this::consumeToken).test(AbstractCardInstalledCleanup.with( o -> o instanceof Hardware || o instanceof Program)));
 		match(CostDeterminationEvent.class, em -> updateCost(em));
 	}

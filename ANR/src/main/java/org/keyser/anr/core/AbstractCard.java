@@ -52,6 +52,14 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 			match(CollectHabilities.class, em -> playAction(em, playPredicate.and(location(playLocation))));
 	}
 	
+	/**
+	 * A appeler dans le constructeur de la carte
+	 * @param value
+	 */
+	protected void addRecuringCredit(int value){
+		match(InitTurn.class,em->em.run(()->setToken(TokenType.RECURRING,value)));
+	}
+	
 	public abstract PlayerType getOwner();
 
 	/**
