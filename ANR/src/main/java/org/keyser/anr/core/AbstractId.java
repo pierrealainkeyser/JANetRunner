@@ -113,11 +113,8 @@ public abstract class AbstractId extends AbstractCard {
 			}
 		}
 
-		if (credits > 0) {
+		if (credits > 0)
 			addToken(TokenType.CREDIT, -credits);
-		}
-
-		// TODO gestion de la consommation des credits
 
 		next.apply();
 	}
@@ -127,7 +124,7 @@ public abstract class AbstractId extends AbstractCard {
 	}
 
 	public boolean hasAction() {
-		return true;
+		return actions > 0;
 	}
 
 	@Override
@@ -136,6 +133,12 @@ public abstract class AbstractId extends AbstractCard {
 	}
 
 	public boolean mayAfford(CostForAction cost) {
+
+		int action = cost.getCost().getValue(CostType.ACTION);
+		if (action > 0) {
+			if (!(actions >= action && game.getTurn().mayPlayAction()))
+				return false;
+		}
 
 		// TODO implementation
 		return true;

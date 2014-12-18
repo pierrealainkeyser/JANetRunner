@@ -167,10 +167,16 @@ public class Turn {
 
 	private final int turn;
 
+	private Flow next;
+
 	public Turn(PlayerType active, Game game, int turn) {
 		this.active = active;
 		this.game = game;
 		this.turn = turn;
+	}
+
+	public int getTurn() {
+		return turn;
 	}
 
 	public void actionPhase() {
@@ -185,7 +191,6 @@ public class Turn {
 			new ActionPingPong(active).firstPlayer(this::actionPhase);
 		} else {
 			discardPhase();
-
 		}
 	}
 
@@ -220,8 +225,8 @@ public class Turn {
 		this.phase = phase;
 	}
 
-	public Turn start() {
-
+	public Turn start(Flow next) {
+		this.next = next;
 		initPhase();
 		return this;
 	}
@@ -259,7 +264,10 @@ public class Turn {
 	}
 
 	private void terminate() {
-		// TODO fin de la phase
+		
+		//TODO phase de cleanup
+		
+		next.apply();
 	}
 
 	public PlayerType getActive() {

@@ -181,20 +181,13 @@ public class Game {
 
 	private WinCondition result;
 
-	/**
-	 * Le run
-	 */
-	private Run run;
-
-	private GameStep step;
-
 	private Runner runner;
 
 	private Corp corp;
 
 	private Map<Integer, AbstractCard> cards = new HashMap<>();
 
-	private ActionsContext actionsContext;
+	private ActionsContext actionsContext = new ActionsContext();
 
 	private int nextAction;
 
@@ -261,6 +254,16 @@ public class Game {
 		return runner;
 	}
 
+	public void start() {
+		turn = new Turn(PlayerType.CORP, this, 0);
+		turn.start(this::nextTurn);
+	}
+
+	private void nextTurn() {
+		turn = new Turn(turn.getActive().next(), this, turn.getTurn() + 1);
+		turn.start(this::nextTurn);
+	}
+
 	/**
 	 * Pour les tests uniquements
 	 * 
@@ -278,6 +281,10 @@ public class Game {
 	 */
 	public void invoke(int actionId, Object response) {
 		invoke(actionId, null, response);
+	}
+
+	public Turn getTurn() {
+		return turn;
 	}
 
 	/**
