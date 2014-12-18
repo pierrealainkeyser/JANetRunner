@@ -34,13 +34,13 @@ public class CardDto {
 	public CardDto(int id) {
 		this.id = id;
 	}
-	
-	public void addToken(TokenType type, int value){
-		if(tokens==null)
-			tokens=new LinkedHashMap<String, Integer>();
-		
+
+	public void addToken(TokenType type, int value) {
+		if (tokens == null)
+			tokens = new LinkedHashMap<String, Integer>();
+
 		tokens.put(type.name().toLowerCase(), value);
-		
+
 	}
 
 	public List<ActionDto> getActions() {

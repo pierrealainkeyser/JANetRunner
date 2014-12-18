@@ -54,14 +54,12 @@ public class EventsBasedGameDtoBuilder {
 
 	private void rezzed(AbstractCardRezzEvent evt) {
 		AbstractCard card = evt.getPrimary();
-		with(card, dto -> dto.setFace(card.isRezzed() ? CardDto.Face.up
-				: CardDto.Face.down));
+		with(card, dto -> dto.setFace(card.isRezzed() ? CardDto.Face.up : CardDto.Face.down));
 	}
 
 	private void tokens(AbstractCardTokenEvent evt) {
 		AbstractCard card = evt.getPrimary();
-		with(card, dto -> dto.addToken(evt.getType(),
-				card.getToken(evt.getType())));
+		with(card, dto -> dto.addToken(evt.getType(), card.getToken(evt.getType())));
 	}
 
 	private void actions(AbstractCardActionChangedEvent evt) {
@@ -79,8 +77,7 @@ public class EventsBasedGameDtoBuilder {
 	}
 
 	private <T> void match(Class<T> type, FlowArg<T> builder) {
-		EventMatcherBuilder<T> match = EventMatcherBuilder.match(type,
-				"@EventsBasedGameDtoBuilder");
+		EventMatcherBuilder<T> match = EventMatcherBuilder.match(type, "@EventsBasedGameDtoBuilder");
 		match.call(builder);
 		matchers.add(match);
 	}

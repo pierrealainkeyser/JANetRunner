@@ -13,7 +13,7 @@ public class UserAction {
 	private final PlayerType to;
 
 	public UserAction(AbstractId user, AbstractCard source, CostForAction cost, String description) {
-		this.to = user.getPlayerType();
+		this.to = user.getOwner();
 		this.source = source;
 		this.cost = cost;
 		this.description = description;

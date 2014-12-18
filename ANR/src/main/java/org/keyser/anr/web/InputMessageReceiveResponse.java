@@ -9,8 +9,7 @@ public class InputMessageReceiveResponse extends InputMessage {
 
 	private final UserInputConverter converter;
 
-	public InputMessageReceiveResponse(RemoteSuscriber suscriber,
-			UserInputConverter converter, ResponseDTO message) {
+	public InputMessageReceiveResponse(RemoteSuscriber suscriber, UserInputConverter converter, ResponseDTO message) {
 		super(suscriber);
 		this.message = message;
 		this.converter = converter;
@@ -18,13 +17,12 @@ public class InputMessageReceiveResponse extends InputMessage {
 
 	@Override
 	public void apply(Endpoint e) {
-		e.receive(message);
+		e.receive(message, converter);
 	}
 
 	@Override
 	public String toString() {
-		return "ReceiveResponse [suscriber=" + getSuscriber().getKey()
-				+ ", message=" + message + "]";
+		return "ReceiveResponse [suscriber=" + getSuscriber().getKey() + ", message=" + message + "]";
 	}
 
 }
