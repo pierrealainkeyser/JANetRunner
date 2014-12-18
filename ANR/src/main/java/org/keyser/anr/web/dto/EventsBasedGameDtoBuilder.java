@@ -2,9 +2,12 @@ package org.keyser.anr.web.dto;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.keyser.anr.core.AbstractCard;
+import org.keyser.anr.core.AbstractCardActionChangedEvent;
 import org.keyser.anr.core.AbstractCardLocationEvent;
 import org.keyser.anr.core.AbstractCardRezzEvent;
 import org.keyser.anr.core.AbstractCardTokenEvent;
@@ -12,12 +15,15 @@ import org.keyser.anr.core.EventMatcherBuilder;
 import org.keyser.anr.core.EventMatchers;
 import org.keyser.anr.core.FlowArg;
 import org.keyser.anr.core.Game;
+import org.keyser.anr.core.PlayerType;
 
 public class EventsBasedGameDtoBuilder {
 
 	private final EventMatchers matchers = new EventMatchers();
 
 	private Map<AbstractCard, CardDto> cards = new HashMap<>();
+
+	private Set<PlayerType> actionsChanged = new HashSet<>();
 
 	private final Game game;
 
@@ -29,6 +35,7 @@ public class EventsBasedGameDtoBuilder {
 		match(AbstractCardLocationEvent.class, this::location);
 		match(AbstractCardRezzEvent.class, this::rezzed);
 		match(AbstractCardTokenEvent.class, this::tokens);
+		match(AbstractCardActionChangedEvent.class, this::actions);
 		this.game.bind(matchers);
 
 		return this;
@@ -57,6 +64,11 @@ public class EventsBasedGameDtoBuilder {
 				card.getToken(evt.getType())));
 	}
 
+	private void actions(AbstractCardActionChangedEvent evt) {
+		actionsChanged.add(evt.getPrimary().getOwner());
+
+	}
+
 	private CardDto getOrCreate(AbstractCard card) {
 		CardDto dto = cards.get(card);
 		if (dto == null) {
@@ -75,14 +87,25 @@ public class EventsBasedGameDtoBuilder {
 
 	public GameDto create() {
 		GameDto dto = new GameDto();
-
+		updateCommon(game, dto);
 		return dto;
+	}
+
+	private void updateCommon(Game game, GameDto dto) {
+		dto.setActive(game.getActivePlayer());
 	}
 
 	public GameDto build() {
 
 		matchers.uninstall();
 		GameDto dto = new GameDto();
+		updateCommon(game, dto);
+
+		// maj jour des actions
+		PlayerType activePlayer = game.getActivePlayer();
+		if (actionsChanged.contains(activePlayer)) {
+			dto.setActions(game.getId(activePlayer).getActions());
+		}
 
 		// TODO recopie des actions
 
@@ -92,5 +115,4 @@ public class EventsBasedGameDtoBuilder {
 
 		return dto;
 	}
-
 }

@@ -20,7 +20,7 @@ public class UserAction {
 	}
 
 	public boolean isAnAction() {
-		return cost.getAction() instanceof PlayAbstractCardAction;
+		return cost.getAction() instanceof PlayCardAction;
 	}
 
 	/**

@@ -212,6 +212,16 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 		em.test(customizePlayPredicate(playPredicate));
 		em.call(this::playFeedback);
 	}
+	
+	/**
+	 * Permet de trasher la card avec le contexte
+	 * @param ctx
+	 * @param next
+	 */
+	public void trash(Object ctx, Flow next ){
+		//TODO 
+		next.apply();
+	}
 
 	/**
 	 * Méthode à implementer pour jouer la carte. Uniquemenet public pour les

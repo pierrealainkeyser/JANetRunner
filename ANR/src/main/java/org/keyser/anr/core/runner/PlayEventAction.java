@@ -1,8 +1,8 @@
 package org.keyser.anr.core.runner;
 
-import org.keyser.anr.core.PlayAbstractCardAction;
+import org.keyser.anr.core.PlayCardAction;
 
-public class PlayEventAction extends PlayAbstractCardAction<Event> {
+public class PlayEventAction extends PlayCardAction<Event> {
 
 	public PlayEventAction(Event card) {
 		super(card);

@@ -2,11 +2,17 @@ package org.keyser.anr.web.dto;
 
 import java.util.List;
 
+import org.keyser.anr.core.PlayerType;
+
 public class GameDto {
 
 	private List<ServerDto> servers;
-	
+
 	private List<CardDto> cards;
+
+	private PlayerType active;
+
+	private Integer actions;
 
 	public List<ServerDto> getServers() {
 		return servers;
@@ -22,6 +28,22 @@ public class GameDto {
 
 	public void setCards(List<CardDto> cards) {
 		this.cards = cards;
+	}
+
+	public PlayerType getActive() {
+		return active;
+	}
+
+	public void setActive(PlayerType active) {
+		this.active = active;
+	}
+
+	public Integer getActions() {
+		return actions;
+	}
+
+	public void setActions(Integer actions) {
+		this.actions = actions;
 	}
 
 }
