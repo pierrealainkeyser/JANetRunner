@@ -49,12 +49,30 @@ public abstract class AbstractId extends AbstractCard {
 				@SuppressWarnings("unchecked")
 				AbstractCardAction<AbstractCard> aca = (AbstractCardAction<AbstractCard>) action;
 				AbstractCard card = aca.getCard();
-				card.trash(null, () -> spendCredits(costForAction, next));
+
+				// TODO gestion du contexte de trash...
+				card.trash(null, () -> trashAgenda(costForAction, next));
 				return;
 			}
 		}
 
 		spendCredits(costForAction, next);
+	}
+
+	/**
+	 * Gestion du cout pour trasher les agendas
+	 * 
+	 * @param costForAction
+	 * @param next
+	 */
+	private void trashAgenda(CostForAction costForAction, Flow next) {
+
+		int agenda = costForAction.getCost().getValue(CostType.TRASH_AGENDA);
+		if (agenda > 0) {
+			// TODO Il faut demander à l'utilisateur quel agenda
+
+		} else
+			spendCredits(costForAction, next);
 	}
 
 	private void spendCredits(CostForAction costForAction, Flow next) {
