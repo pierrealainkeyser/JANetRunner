@@ -26,7 +26,7 @@ public abstract class Hardware extends AbstractCardRunner {
 	}
 
 	protected void doCleanUp(Flow next) {
-		getGame().apply(new RunnerInstalledCleanup(this), next);
+		getGame().apply(new AbstractCardInstalledCleanup(this), next);
 	}
 
 }

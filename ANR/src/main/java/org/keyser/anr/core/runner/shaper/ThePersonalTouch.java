@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.keyser.anr.core.AbstractCard;
-import org.keyser.anr.core.AbstractCardTrashed;
+import org.keyser.anr.core.AbstractCardUnistalledCleanup;
 import org.keyser.anr.core.CollectHabilities;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.CostForAction;
@@ -32,11 +32,11 @@ public class ThePersonalTouch extends Hardware {
 	protected ThePersonalTouch(int id, MetaCard meta) {
 		super(id, meta);
 
-		match(AbstractCardTrashed.class, actc -> onTrashed(actc));
+		match(AbstractCardUnistalledCleanup.class, actc -> onTrashed(actc));
 	}
 
-	private void onTrashed(EventMatcherBuilder<AbstractCardTrashed> actc) {
-		actc.test(AbstractCardTrashed.with(myself()));
+	private void onTrashed(EventMatcherBuilder<AbstractCardUnistalledCleanup> actc) {
+		actc.test(AbstractCardCleanup.with(myself()));
 		actc.run(() -> {
 			AbstractCard host = getHost();
 			if (host != null) {

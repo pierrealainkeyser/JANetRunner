@@ -22,18 +22,16 @@ public class KateMcCaffrey extends Runner {
 
 	public final static MetaCard INSTANCE = new MetaCard("Kate \"Mac\" McCaffrey: Digital Tinker", SHAPER.infl(15), Cost.free(), true, "01033", emptyList(), KateMcCaffrey::new);
 
-	private final static Predicate<Object> programOrHardware = o -> o instanceof InstallHardwareAction || o instanceof InstallProgramAction;
-
 	public KateMcCaffrey(int id, MetaCard meta) {
 		super(id, meta);
 
 		match(StartOfTurn.class, em -> em.run(this::resetToken));
-		match(RunnerInstalledCleanup.class, em -> em.run(this::consumeToken).test(RunnerInstalledCleanup.with(programOrHardware)));
+		match(AbstractCardInstalledCleanup.class, em -> em.run(this::consumeToken).test(AbstractCardInstalledCleanup.with( o -> o instanceof Hardware || o instanceof Program)));
 		match(CostDeterminationEvent.class, em -> updateCost(em));
 	}
 
 	private void updateCost(EventMatcherBuilder<CostDeterminationEvent> em) {
-		Predicate<CostDeterminationEvent> with = CostDeterminationEvent.with(programOrHardware);
+		Predicate<CostDeterminationEvent> with = CostDeterminationEvent.with( o -> o instanceof InstallHardwareAction || o instanceof InstallProgramAction);
 		em.test(with.and(hasToken(TokenType.SPECIAL_EFFECT)));
 		em.call(this::computeCostReduction);
 	}
