@@ -51,15 +51,16 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 		if (playPredicate != null && playLocation != null)
 			match(CollectHabilities.class, em -> playAction(em, playPredicate.and(location(playLocation))));
 	}
-	
+
 	/**
 	 * A appeler dans le constructeur de la carte
+	 * 
 	 * @param value
 	 */
-	protected void addRecuringCredit(int value){
-		match(InitTurn.class,em->em.run(()->setToken(TokenType.RECURRING,value)));
+	protected void addRecuringCredit(int value) {
+		match(InitTurn.class, em -> em.run(() -> setToken(TokenType.RECURRING, value)));
 	}
-	
+
 	public abstract PlayerType getOwner();
 
 	/**
@@ -220,14 +221,15 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 		em.test(customizePlayPredicate(playPredicate));
 		em.call(this::playFeedback);
 	}
-	
+
 	/**
 	 * Permet de trasher la card avec le contexte
+	 * 
 	 * @param ctx
 	 * @param next
 	 */
-	public void trash(Object ctx, Flow next ){
-		//TODO 
+	public void trash(Object ctx, Flow next) {
+		// TODO
 		next.apply();
 	}
 

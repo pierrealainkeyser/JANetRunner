@@ -16,8 +16,7 @@ public class Turn {
 			this.active = active;
 		}
 
-		protected void collectFeedbacks(boolean action,
-				EventConsumer<Feedback<?, ?>> feedbackConsumer, Flow next) {
+		protected void collectFeedbacks(boolean action, EventConsumer<Feedback<?, ?>> feedbackConsumer, Flow next) {
 			CollectHabilities collect = new CollectHabilities(active, action);
 			game.fire(collect);
 
@@ -25,8 +24,7 @@ public class Turn {
 			boolean hasFeedbacks = false;
 			for (Feedback<?, ?> feedback : feedbacks) {
 				if (feedback.checkCost()) {
-					game.user(feedback,
-							next.wrap(feedbackConsumer.wrap(feedback)));
+					game.user(feedback, next.wrap(feedbackConsumer.wrap(feedback)));
 					hasFeedbacks = true;
 				}
 			}
@@ -45,8 +43,7 @@ public class Turn {
 			}
 		}
 
-		protected void collectFeedbacks(EventConsumer<Feedback<?, ?>> e,
-				Flow next) {
+		protected void collectFeedbacks(EventConsumer<Feedback<?, ?>> e, Flow next) {
 			collectFeedbacks(false, e, next);
 		}
 
@@ -60,8 +57,7 @@ public class Turn {
 		private boolean requireQuestion() {
 
 			if (active == PlayerType.CORP) {
-				boolean unrezzedCorpCard = game.getCards().stream()
-						.anyMatch(UNREZZED_INSTALL_CORP_CARDS);
+				boolean unrezzedCorpCard = game.getCards().stream().anyMatch(UNREZZED_INSTALL_CORP_CARDS);
 				return unrezzedCorpCard || mayRezzIce();
 			}
 			return false;
@@ -152,8 +148,7 @@ public class Turn {
 		 * @param next
 		 */
 		private void secondPlayer(Flow next) {
-			collectFeedbacks(to(this::secondPlayer),
-					next.wrap(this::secondDone));
+			collectFeedbacks(to(this::secondPlayer), next.wrap(this::secondDone));
 		}
 
 	}
@@ -162,8 +157,7 @@ public class Turn {
 		ACTION, DISCARD, DRAW, INITING, STARTING
 	}
 
-	private final static Predicate<? super AbstractCard> UNREZZED_INSTALL_CORP_CARDS = ac -> ac instanceof AbstractCardCorp
-			&& !(ac instanceof Ice) && ac.isInstalled() && !ac.isRezzed();
+	private final static Predicate<? super AbstractCard> UNREZZED_INSTALL_CORP_CARDS = ac -> ac instanceof AbstractCardCorp && !(ac instanceof Ice) && ac.isInstalled() && !ac.isRezzed();
 
 	private final PlayerType active;
 
@@ -228,12 +222,7 @@ public class Turn {
 
 	public Turn start() {
 
-		if (active == PlayerType.CORP) {
-			drawPhase();
-		} else {
-			startTurn();
-		}
-
+		initPhase();
 		return this;
 	}
 
@@ -245,14 +234,14 @@ public class Turn {
 	public void pingpong(Flow next) {
 		new EventPingPong(active).firstPlayer(next);
 	}
-	
-	private void initPhase(){
+
+	private void initPhase() {
 		setPhase(Phase.INITING);
 
 		// démarrage technique, mise en place des actions
 		game.fire(new InitTurn());
 		AbstractId id = game.getId(active);
-		
+
 		if (active == PlayerType.CORP) {
 			id.setActions(3);
 			drawPhase();

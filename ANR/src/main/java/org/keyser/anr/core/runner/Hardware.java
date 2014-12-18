@@ -1,5 +1,6 @@
 package org.keyser.anr.core.runner;
 
+import org.keyser.anr.core.AbstractCardInstalledCleanup;
 import org.keyser.anr.core.AbstractCardRunner;
 import org.keyser.anr.core.CollectHabilities;
 import org.keyser.anr.core.CostForAction;

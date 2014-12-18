@@ -8,6 +8,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.keyser.anr.core.AbstractCard;
+import org.keyser.anr.core.AbstractCardCleanup;
 import org.keyser.anr.core.AbstractCardUnistalledCleanup;
 import org.keyser.anr.core.CollectHabilities;
 import org.keyser.anr.core.Cost;

@@ -5,18 +5,20 @@ import static org.keyser.anr.core.Faction.SHAPER;
 
 import java.util.function.Predicate;
 
+import org.keyser.anr.core.AbstractCardInstalledCleanup;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.CostDeterminationEvent;
 import org.keyser.anr.core.CostElement;
 import org.keyser.anr.core.CostType;
 import org.keyser.anr.core.EventMatcherBuilder;
+import org.keyser.anr.core.InitTurn;
 import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.Runner;
-import org.keyser.anr.core.InitTurn;
 import org.keyser.anr.core.TokenType;
+import org.keyser.anr.core.runner.Hardware;
 import org.keyser.anr.core.runner.InstallHardwareAction;
 import org.keyser.anr.core.runner.InstallProgramAction;
-import org.keyser.anr.core.runner.RunnerInstalledCleanup;
+import org.keyser.anr.core.runner.Program;
 
 public class KateMcCaffrey extends Runner {
 
@@ -26,12 +28,17 @@ public class KateMcCaffrey extends Runner {
 		super(id, meta);
 
 		match(InitTurn.class, em -> em.run(this::resetToken));
-		match(AbstractCardInstalledCleanup.class, em -> em.run(this::consumeToken).test(AbstractCardInstalledCleanup.with( o -> o instanceof Hardware || o instanceof Program)));
+		match(AbstractCardInstalledCleanup.class, em -> consumeTokenOnInstall(em));
 		match(CostDeterminationEvent.class, em -> updateCost(em));
 	}
 
+	private void consumeTokenOnInstall(EventMatcherBuilder<AbstractCardInstalledCleanup> em) {
+		em.test(AbstractCardInstalledCleanup.with(o -> o instanceof Hardware || o instanceof Program));
+		em.run(this::consumeToken);
+	}
+
 	private void updateCost(EventMatcherBuilder<CostDeterminationEvent> em) {
-		Predicate<CostDeterminationEvent> with = CostDeterminationEvent.with( o -> o instanceof InstallHardwareAction || o instanceof InstallProgramAction);
+		Predicate<CostDeterminationEvent> with = CostDeterminationEvent.with(o -> o instanceof InstallHardwareAction || o instanceof InstallProgramAction);
 		em.test(with.and(hasToken(TokenType.SPECIAL_EFFECT)));
 		em.call(this::computeCostReduction);
 	}

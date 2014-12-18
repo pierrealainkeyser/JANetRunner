@@ -1,9 +1,10 @@
 package org.keyser.anr.core;
 
-import javax.sql.rowset.Predicate;
+import java.util.function.Predicate;
 
 /**
  * Une source de credits qui utilise des tokens d'un objets
+ * 
  * @author pakeyser
  *
  */
@@ -12,24 +13,24 @@ public class TokenCreditsSource {
 	private final AbstractCard card;
 
 	private final TokenType type;
-	
+
 	private final Predicate<Object> predicate;
 
 	public TokenCreditsSource(AbstractCard card, TokenType type, Predicate<Object> predicate) {
 		this.card = card;
 		this.type = type;
-		this.predicate=predicate;
+		this.predicate = predicate;
 	}
-	
-	public boolean test(CostForAction cost){
+
+	public boolean test(CostForAction cost) {
 		return predicate.test(cost.getAction());
 	}
-	
-	public int getAvailable(){
+
+	public int getAvailable() {
 		return card.getToken(type);
 	}
-	
-	public void consume(int value){
+
+	public void consume(int value) {
 		card.addToken(type, -value);
 	}
 

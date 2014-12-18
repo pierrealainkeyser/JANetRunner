@@ -96,7 +96,8 @@ public abstract class AbstractId extends AbstractCard {
 
 		if (credits > 0) {
 			// consommation en premier dans les sources de crédits. TODO a
-			// changer pour les sources optionnels ou stealth (genre GhostRunner ou Cloak)
+			// changer pour les sources optionnels ou stealth (genre GhostRunner
+			// ou Cloak)
 			for (TokenCreditsSource source : creditsSources) {
 				if (source.test(costForAction)) {
 					int nb = source.getAvailable();
