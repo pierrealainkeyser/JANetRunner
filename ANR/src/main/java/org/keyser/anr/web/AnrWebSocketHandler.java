@@ -3,7 +3,6 @@ package org.keyser.anr.web;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.keyser.anr.core.UserInputConverter;
 import org.keyser.anr.web.dto.GameLookupDTO;
 import org.keyser.anr.web.dto.ResponseDTO;
@@ -13,6 +12,8 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Interfacage avec WEB-SOCKET

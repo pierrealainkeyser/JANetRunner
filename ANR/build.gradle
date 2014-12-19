@@ -1,68 +1,41 @@
+buildscript {
+    repositories { jcenter() }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.0.RELEASE")
+    }
+}
+
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
 
-version = '1.0'
+[ compileJava, compileTestJava ]*.options*.encoding = 'UTF-8'
 
-repositories {
-    mavenCentral()
-    maven {
-    	url 'http://repo.springsource.org/release'
-    }
- }
- 
-configurations.all {
-        exclude group: 'commons-logging'
-        exclude group: 'log4j'
+jar {
+    baseName = 'anrnetrunner'
+    version =  '0.1.0'
 }
 
-sourceSets.main.resources {
- 	srcDir "src/main/webapp"
-}
+repositories { jcenter() }
 
- dependencies {
- 	compile 'org.slf4j:jcl-over-slf4j:1.7.5'
- 	compile 'ch.qos.logback:logback-classic:1.0.13'
- 	compile 'org.eclipse.jetty.websocket:websocket-server:9.1.1.v20140108'
- 	compile 'org.eclipse.jetty:jetty-webapp:9.1.1.v20140108'
- 	compile 'org.springframework:spring-webmvc:4.0.0.RELEASE'
- 	compile 'org.springframework:spring-websocket:4.0.0.RELEASE'
- 	compile 'org.thymeleaf:thymeleaf-spring3:2.1.1.RELEASE'
- 	compile 'org.codehaus.jackson:jackson-mapper-lgpl:1.9.13'
- 	compile 'commons-io:commons-io:2.4'
- 	                                   
-    testCompile 'junit:junit:4.8.2'
- }
- 
- jar {
- 	def manifestClasspath = configurations.compile.collect { "lib/"+it.getName() }.join(' ') 
-    manifest {
-        attributes("Implementation-Title": "JANetRunner"
-        	 ,"Main-Class":"org.keyser.anr.AnrMain"
-        	 ,"Class-Path": ". $manifestClasspath"
-        )
-    }
-}
-
-task copyFiles {
-	inputs.file jar 
-    outputs.dir 'app'
-    doLast{
-		copy{
-	    	from configurations.runtime
-	    	into 'build/app/lib'
-	    	include '*.jar' 
-	    }
-	    
-	    copy{
-	    	from 'build/libs'
-	    	into 'build/app'
-	    	include '*.jar'
-	    }
-	    
-	    copy{
-	    	from 'src/main/java'
-	    	into 'build/app'
-	    	include 'logback.xml'
-	    }
-    }
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+    compile("org.springframework.boot:spring-boot-starter-websocket")
+    compile ("commons-io:commons-io:2.4")    
+    
+    compile("org.webjars:gsap-js:1.13.1")
+    compile("org.webjars:bootstrap:3.3.1")    
+    compile("org.webjars:less:2.1.0")
+    compile("org.webjars:animate.css:3.2.0")
+    compile("org.webjars:lodash:2.4.1-6")
+    compile("org.webjars:mousetrap:1.4.6")
+    compile("org.webjars:jquery-ui:1.11.2");
+    
+    
+    
+    
+    testCompile("org.springframework.boot:spring-boot-starter-test")
 }

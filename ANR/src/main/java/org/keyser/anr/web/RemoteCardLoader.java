@@ -30,7 +30,7 @@ public class RemoteCardLoader implements InitializingBean {
 
 	private File cacheDir = new File("cache");
 
-	private Executor executor;
+	private final Executor executor;
 
 	private String urlFormat = "http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/{0}.png";
 
@@ -38,10 +38,41 @@ public class RemoteCardLoader implements InitializingBean {
 
 	private MediaType mediaType = MediaType.IMAGE_PNG;
 
+	public RemoteCardLoader(Executor executor) {
+		this.executor = executor;
+	}
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		downloadDir.mkdirs();
 		cacheDir.mkdirs();
+	}
+
+	private Runnable fetch(final DeferredResult<ResponseEntity<Resource>> to,
+			final String path, final File fileInCache) {
+		return new Runnable() {
+			public void run() {
+				String url = format(urlFormat, path);
+
+				File tmp = null;
+				try {
+					tmp = loadURL(url);
+				} catch (IOException e) {
+					// TODO gestion de l'erreur
+				}
+				tmp.renameTo(fileInCache);
+
+				result(to, fileInCache, null);
+			};
+		};
+	}
+
+	private File fileInCache(String path) {
+		return new File(cacheDir, format(cacheFormat, path));
+	}
+
+	private File getTmpFile() throws IOException {
+		return File.createTempFile("download", ".tmp", downloadDir);
 	}
 
 	/**
@@ -58,6 +89,15 @@ public class RemoteCardLoader implements InitializingBean {
 		else {
 			executor.execute(fetch(to, path, inCache));
 		}
+	}
+
+	private File loadURL(String url) throws IOException {
+		URL u = new URL(url);
+		File tmp = getTmpFile();
+		FileUtils.copyURLToFile(u, tmp);
+
+		return tmp;
+
 	}
 
 	/**
@@ -91,52 +131,12 @@ public class RemoteCardLoader implements InitializingBean {
 				inCache), headers, HttpStatus.OK));
 	}
 
-	private File fileInCache(String path) {
-		return new File(cacheDir, format(cacheFormat, path));
-	}
-
-	private File getTmpFile() throws IOException {
-		return File.createTempFile("download", ".tmp", downloadDir);
-	}
-
-	private Runnable fetch(final DeferredResult<ResponseEntity<Resource>> to,
-			final String path, final File fileInCache) {
-		return new Runnable() {
-			public void run() {
-				String url = format(urlFormat, path);
-
-				File tmp = null;
-				try {
-					tmp = loadURL(url);
-				} catch (IOException e) {
-					// TODO gestion de l'erreur
-				}
-				tmp.renameTo(fileInCache);
-
-				result(to, fileInCache, null);
-			};
-		};
-	}
-
-	private File loadURL(String url) throws IOException {
-		URL u = new URL(url);
-		File tmp = getTmpFile();
-		FileUtils.copyURLToFile(u, tmp);
-
-		return tmp;
-
-	}
-
-	public void setDownloadDir(File downloadDir) {
-		this.downloadDir = downloadDir;
-	}
-
 	public void setCacheDir(File cacheDir) {
 		this.cacheDir = cacheDir;
 	}
 
-	public void setExecutor(Executor executor) {
-		this.executor = executor;
+	public void setDownloadDir(File downloadDir) {
+		this.downloadDir = downloadDir;
 	}
 
 	public void setUrlFormat(String urlFormat) {

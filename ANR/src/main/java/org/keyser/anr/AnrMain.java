@@ -1,26 +1,33 @@
 package org.keyser.anr;
 
-import java.net.URL;
-import java.security.ProtectionDomain;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.keyser.anr.web.GameController;
+import org.keyser.anr.web.RemoteCardLoader;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
+@ComponentScan(basePackageClasses = { GameController.class })
+@EnableAutoConfiguration
 public class AnrMain {
-	public static void main(String[] args) throws Exception {
-		Server s = new Server(2319);
 
-		ProtectionDomain domain = AnrMain.class.getProtectionDomain();
-		URL location = domain.getCodeSource().getLocation();
+	public static void main(String[] args) {
+		SpringApplication.run(AnrMain.class, args);
+	}
 
-		WebAppContext context = new WebAppContext();
-		context.setWar(location.toExternalForm());
-		context.setContextPath("/");
+	@Bean
+	public Executor executor() {
+		return Executors.newCachedThreadPool();
+	}
 
-		s.setHandler(context);
-
-		s.start();
-		s.join();
+	@Bean
+	public RemoteCardLoader remoteCardLoader() {
+		return new RemoteCardLoader(executor());
 	}
 
 }
