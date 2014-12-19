@@ -33,18 +33,16 @@ public class ThePersonalTouch extends Hardware {
 	protected ThePersonalTouch(int id, MetaCard meta) {
 		super(id, meta);
 
-		match(AbstractCardUnistalledCleanup.class, actc -> onTrashed(actc));
+		whileInstalled(null, this::uninstalled);
 	}
-
-	private void onTrashed(EventMatcherBuilder<AbstractCardUnistalledCleanup> actc) {
-		actc.test(AbstractCardCleanup.with(myself()));
-		actc.run(() -> {
-			AbstractCard host = getHost();
-			if (host != null) {
-				IceBreaker parent = (IceBreaker) host;
-				parent.alterBonus(-1);
-			}
-		});
+	
+	private void uninstalled(Flow next){
+		AbstractCard host = getHost();
+		if (host != null) {
+			IceBreaker parent = (IceBreaker) host;
+			parent.alterBonus(-1);
+		}
+		next.apply();
 	}
 
 	@Override
@@ -74,8 +72,7 @@ public class ThePersonalTouch extends Hardware {
 		IceBreaker p = (IceBreaker) ua.getSource();
 		p.hostCard(this, HostType.CARD);
 		p.alterBonus(1);
-
-		doCleanUp(next);
+		cleanupInstall(next);
 
 	}
 }

@@ -1,6 +1,5 @@
 package org.keyser.anr.core.runner;
 
-import org.keyser.anr.core.AbstractCardInstalledCleanup;
 import org.keyser.anr.core.AbstractCardRunner;
 import org.keyser.anr.core.CollectHabilities;
 import org.keyser.anr.core.CostForAction;
@@ -23,11 +22,6 @@ public abstract class Hardware extends AbstractCardRunner {
 	protected void install(Flow next) {
 		Runner runner = getRunner();
 		runner.getHardwares().add(this);
-		doCleanUp(next);
+		cleanupInstall(next);
 	}
-
-	protected void doCleanUp(Flow next) {
-		getGame().apply(new AbstractCardInstalledCleanup(this), next);
-	}
-
 }

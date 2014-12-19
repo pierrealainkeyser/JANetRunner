@@ -52,15 +52,30 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 			match(CollectHabilities.class, em -> playAction(em, playPredicate.and(location(playLocation))));
 	}
 	
-	protected void whileInstalled(FlowArg<Flow> onInstall, FlowArg<Flow> onRemove) {
-		match(AbstractCardInstalledCleanup.class, actc -> bindCleanup(ric, onInstall));
-		match(AbstractCardUnistalledCleanup.class, actc -> bindCleanup(actc, onRemove));
+	protected void whileInstalled(FlowArg<Flow> onInstall,
+			FlowArg<Flow> onRemove) {
+		if (onInstall != null)
+			match(AbstractCardInstalledCleanup.class,
+					actc -> bindCleanup(ric, onInstall));
+		if (onRemove != null)
+			match(AbstractCardUnistalledCleanup.class,
+					actc -> bindCleanup(actc, onRemove));
 	}
 
-	private void bindCleanup(EventMatcherBuilder<? extends AbstractCardCleanup> ric,
+	private void bindCleanup(
+			EventMatcherBuilder<? extends AbstractCardCleanup> ric,
 			FlowArg<Flow> call) {
 		ric.test(AbstractCardCleanup.with(myself()));
 		ric.apply((evt, next) -> call.apply(next));
+	}
+
+	/**
+	 * Permet d'envoyer l'evenement technique de nettoyage
+	 * 
+	 * @param next
+	 */
+	protected void cleanupInstall(Flow next) {
+		getGame().apply(new AbstractCardInstalledCleanup(this), next);
 	}
 
 	/**
@@ -69,7 +84,8 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	 * @param value
 	 */
 	protected void addRecuringCredit(int value) {
-		match(InitTurn.class, em -> em.run(() -> setToken(TokenType.RECURRING, value)));
+		match(InitTurn.class,
+				em -> em.run(() -> setToken(TokenType.RECURRING, value)));
 	}
 
 	public abstract PlayerType getOwner();
@@ -103,7 +119,8 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	 * @param pred
 	 * @return
 	 */
-	protected Predicate<CollectHabilities> customizePlayPredicate(Predicate<CollectHabilities> pred) {
+	protected Predicate<CollectHabilities> customizePlayPredicate(
+			Predicate<CollectHabilities> pred) {
 		return pred;
 	}
 
@@ -179,7 +196,8 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	}
 
 	protected <T> Predicate<T> myself() {
-		return (o) -> o instanceof AbstractCard && ((AbstractCard) o).getId() == getId();
+		return (o) -> o instanceof AbstractCard
+				&& ((AbstractCard) o).getId() == getId();
 	}
 
 	protected <T> Predicate<T> installed() {
@@ -218,13 +236,15 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	 * @param type
 	 * @param consumer
 	 */
-	protected <T> void match(Class<T> type, Consumer<EventMatcherBuilder<T>> consumer) {
+	protected <T> void match(Class<T> type,
+			Consumer<EventMatcherBuilder<T>> consumer) {
 		EventMatcherBuilder<T> builder = EventMatcherBuilder.match(type, this);
 		consumer.accept(builder);
 		events.add(builder);
 	}
 
-	protected void playAction(EventMatcherBuilder<CollectHabilities> em, Predicate<CollectHabilities> playPredicate) {
+	protected void playAction(EventMatcherBuilder<CollectHabilities> em,
+			Predicate<CollectHabilities> playPredicate) {
 
 		// il faut nécessaire avoir le droit de faire une action
 		playPredicate = playPredicate.and(CollectHabilities::isAllowAction);
