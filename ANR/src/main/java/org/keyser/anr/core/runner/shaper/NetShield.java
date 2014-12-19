@@ -11,6 +11,7 @@ import org.keyser.anr.core.EventMatcherBuilder;
 import org.keyser.anr.core.Feedback;
 import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.runner.DoDamageEvent;
+import org.keyser.anr.core.runner.DoDamageEvent.DamageType;
 import org.keyser.anr.core.runner.FlatDamagePreventionAction;
 import org.keyser.anr.core.runner.Program;
 import org.keyser.anr.core.runner.ProgramMetaCard;
@@ -32,7 +33,7 @@ public class NetShield extends Program {
 	private void doDamageEvent(EventMatcherBuilder<DoDamageEvent> emb) {
 		Predicate<DoDamageEvent> pred = installed();
 		pred = pred.and(ade -> ade.isNetDamage() && ade.getAmount() > 0);
-		pred = pred.and(turn(t -> !hasSuffered(DamageType.NET)));
+		pred = pred.and(turn(t -> !t.hasSuffered(DamageType.NET)));
 		emb.test(pred);
 		emb.call(evt -> evt.register(this::createFeedback));
 	}

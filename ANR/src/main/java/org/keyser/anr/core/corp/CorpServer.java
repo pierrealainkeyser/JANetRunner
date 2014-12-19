@@ -1,5 +1,7 @@
 package org.keyser.anr.core.corp;
 
+import java.util.function.BiConsumer;
+
 import org.keyser.anr.core.AbstractCardContainer;
 import org.keyser.anr.core.AbstractCardCorp;
 import org.keyser.anr.core.CardLocation;
@@ -9,21 +11,16 @@ public class CorpServer {
 
 	private final Game game;
 
-	private final AbstractCardContainer<InServerCorpCard> assetOrUpgrades = new AbstractCardContainer<>(
-			this::assetOrUpgradesLocation);
+	private final AbstractCardContainer<InServerCorpCard> assetOrUpgrades = new AbstractCardContainer<>(this::assetOrUpgradesLocation);
 
-	private final AbstractCardContainer<Upgrade> upgrades = new AbstractCardContainer<>(
-			this::upgradesLocation);
+	private final AbstractCardContainer<Upgrade> upgrades = new AbstractCardContainer<>(this::upgradesLocation);
 
-	private final AbstractCardContainer<Ice> ices = new AbstractCardContainer<>(
-			this::icesLocation);
-	
-	private final AbstractCardContainer<AbstractCardCorp> stack = new AbstractCardContainer<>(
-			this::stackLocation);
+	private final AbstractCardContainer<Ice> ices = new AbstractCardContainer<>(this::icesLocation);
 
+	private final AbstractCardContainer<AbstractCardCorp> stack = new AbstractCardContainer<>(this::stackLocation);
 
 	private final int id;
-	
+
 	private CardLocation stackLocation(Integer i) {
 		return CardLocation.stack(id, i);
 	}
@@ -47,8 +44,7 @@ public class CorpServer {
 	}
 
 	public boolean isEmpty() {
-		return upgrades.isEmpty() && ices.isEmpty()
-				&& assetOrUpgrades.isEmpty();
+		return upgrades.isEmpty() && ices.isEmpty() && assetOrUpgrades.isEmpty();
 	}
 
 	/**
@@ -57,8 +53,7 @@ public class CorpServer {
 	 * @return
 	 */
 	public boolean hasInstalledCard() {
-		return !upgrades.isEmpty() || !ices.isEmpty()
-				|| !assetOrUpgrades.isEmpty();
+		return !upgrades.isEmpty() || !ices.isEmpty() || !assetOrUpgrades.isEmpty();
 	}
 
 	/**
@@ -67,7 +62,7 @@ public class CorpServer {
 	 * @param bi
 	 */
 	public void forEachIce(BiConsumer<CorpServer, Ice> bi) {
-		ices.forEach(i -> bi.accept(this, i));
+		ices.stream().forEach(i -> bi.accept(this, i));
 	}
 
 	public void addIce(Ice ice, int at) {

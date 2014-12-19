@@ -8,6 +8,7 @@ import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.TokenCreditsSource;
 import org.keyser.anr.core.TokenType;
+import org.keyser.anr.core.corp.TraceAction;
 
 public class MakingNews extends Corp {
 
@@ -16,8 +17,8 @@ public class MakingNews extends Corp {
 	public MakingNews(int id, MetaCard meta) {
 		super(id, meta);
 
-		// TODO predicat uniquement pour les traces
+		//predicat uniquement pour les traces
 		addRecuringCredit(2);
-		addCreditsSource(new TokenCreditsSource(this, TokenType.RECURRING, o -> true));
+		addCreditsSource(new TokenCreditsSource(this, TokenType.RECURRING, o -> o instanceof TraceAction));
 	}
 }
