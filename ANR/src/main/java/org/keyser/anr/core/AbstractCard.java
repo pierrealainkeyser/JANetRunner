@@ -106,13 +106,6 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 		events.install(listener);
 	}
 
-	protected <T> Predicate<T> corp(Predicate<Corp> p) {
-		return (t) -> {
-			Corp r = getCorp();
-			return r != null && p.test(r);
-		};
-	}
-
 	/**
 	 * Permet de rajouter des predicat pour la condition
 	 * 
@@ -282,6 +275,19 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 		return (t) -> {
 			Runner r = getRunner();
 			return r != null && p.test(r);
+		};
+	}
+	
+	protected <T> Predicate<T> corp(Predicate<Corp> p) {
+		return (t) -> {
+			Corp c = getCorp();
+			return c != null && p.test(c);
+		};
+	}
+	
+	protected <T> Predicate<T> turn(Predicate<Turn> p) {
+		return (t) -> {
+			return r != null && p.test(	game.getTurn());
 		};
 	}
 

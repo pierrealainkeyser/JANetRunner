@@ -2,10 +2,14 @@ package org.keyser.anr.core;
 
 import static org.keyser.anr.core.SimpleFeedback.noop;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Predicate;
 
 import org.keyser.anr.core.corp.Ice;
+import org.keyser.anr.core.runner.DoDamageEvent;
+import org.keyser.anr.core.runner.DoDamageEvent.DamageType;
 
 public class Turn {
 	private abstract class AbstractPingPong {
@@ -168,6 +172,8 @@ public class Turn {
 	private final int turn;
 
 	private Flow next;
+	
+	private final List<DoDamageEvent> damagesEvents=new ArrayList<>();
 
 	public Turn(PlayerType active, Game game, int turn) {
 		this.active = active;
@@ -177,6 +183,19 @@ public class Turn {
 
 	public int getTurn() {
 		return turn;
+	}
+	
+	/**
+	 * Renvoi vrai s'il y a dejà eu un dommage de se type
+	 * @param type
+	 * @return
+	 */
+	public boolean hasSuffered(DamageType type){
+		return damagesEvents.stream().anyMatch(d->d.getType()==type);
+	}
+	
+	public void addDamageEvent(DoDamageEvent evt){
+		damagesEvents.add(evt);
 	}
 
 	public void actionPhase() {

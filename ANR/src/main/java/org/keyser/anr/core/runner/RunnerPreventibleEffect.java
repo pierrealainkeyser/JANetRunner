@@ -21,19 +21,22 @@ import org.keyser.anr.core.SequentialEvent;
  */
 public abstract class RunnerPreventibleEffect extends AbstractCardEvent implements SequentialEvent {
 
+	private final int initialAmount;
+	
 	private int amount;
 
-	private final String noPrevention;
+	private final String noPreventionText;
 
 	/**
 	 * Les evenements de préventions
 	 */
 	private List<Function<RunnerPreventibleEffect, Feedback<?, ?>>> preventions = new ArrayList<>();
 
-	public RunnerPreventibleEffect(AbstractCard primary, String description, String noPrevention, int amount) {
+	public RunnerPreventibleEffect(AbstractCard primary, String description, String noPreventionText, int amount) {
 		super(primary, description, null);
 		this.amount = amount;
-		this.noPrevention = noPrevention;
+		this.initialAmount = amount;
+		this.noPreventionText = noPreventionText;
 	}
 
 	public void alterAmount(int delta) {
@@ -68,7 +71,7 @@ public abstract class RunnerPreventibleEffect extends AbstractCardEvent implemen
 			}
 
 			// on enregistre le fait de ne rien faire
-			g.user(noop(g.getRunner(), source, noPrevention), commit);
+			g.user(noop(g.getRunner(), source, noPreventionText), commit);
 		}
 	}
 
@@ -114,6 +117,10 @@ public abstract class RunnerPreventibleEffect extends AbstractCardEvent implemen
 	 */
 	public void register(Function<RunnerPreventibleEffect, Feedback<?, ?>> action) {
 		preventions.add(action);
+	}
+
+	public int getInitialAmount() {
+		return initialAmount;
 	}
 
 }

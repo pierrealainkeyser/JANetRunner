@@ -39,7 +39,7 @@ public abstract class AbstractId extends AbstractCard {
 	 * 
 	 * @param delta
 	 */
-	public void deltaAction(int delta) {
+	public void alterAction(int delta) {
 		setActions(getActions() + delta);
 	}
 
@@ -56,7 +56,7 @@ public abstract class AbstractId extends AbstractCard {
 		// consommation des actions
 		int nbActions = cost.getValue(CostType.ACTION);
 		if (nbActions > 0)
-			deltaAction(-nbActions);
+			alterAction(-nbActions);
 
 		// gestion du cout de trash
 		if (cost.getValue(CostType.TRASH_SELF) > 0) {
@@ -69,6 +69,9 @@ public abstract class AbstractId extends AbstractCard {
 				// TODO gestion du contexte de trash...
 				card.trash(null, () -> trashAgenda(costForAction, next));
 				return;
+			}
+			else{
+				//il faut prevoir un warning, cela ne devrait pas arriver, il n'agit d'une erreur de programation
 			}
 		}
 
