@@ -7,19 +7,19 @@ package org.keyser.anr.core.runner;
  * @author PAF
  * 
  */
-public class UseIceBreaker extends UseProgramAction {
+public class UseIceBreakerAction extends UseProgramAction {
 
 	private final int boost;
 
 	private final int subBrokens;
 
-	public UseIceBreaker(IceBreaker iceBreaker, int boost, int subBrokens) {
+	public UseIceBreakerAction(IceBreaker iceBreaker, int boost, int subBrokens) {
 		super(iceBreaker);
 		this.boost = boost;
 		this.subBrokens = subBrokens;
 	}
 
-	public UseIceBreaker(IceBreaker iceBreaker) {
+	public UseIceBreakerAction(IceBreaker iceBreaker) {
 		this(iceBreaker, 0, 0);
 	}
 

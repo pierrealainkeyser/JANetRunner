@@ -1,15 +1,13 @@
 package org.keyser.anr.core.runner;
 
-public class UseProgramAction {
+import org.keyser.anr.core.AbstractCardAction;
 
-	private final Program program;
+public class UseProgramAction extends AbstractCardAction<Program>{
 
-	public UseProgramAction(Program program) {
-		this.program = program;
+	public UseProgramAction(Program card) {
+		super(card);
 	}
 
-	protected Program getProgram() {
-		return program;
-	}
+	
 
 }

@@ -72,7 +72,7 @@ public abstract class AbstractId extends AbstractCard {
 			}
 		}
 
-		spendCredits(costForAction, next);
+		trashAgenda(costForAction, next);
 	}
 
 	/**

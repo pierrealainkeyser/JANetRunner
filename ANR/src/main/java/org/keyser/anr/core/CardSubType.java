@@ -9,6 +9,9 @@ public enum CardSubType {
 	BARRIER, SENTRY, CODEGATE, TRAP, ICE,
 
 	// pour des pieges
-	AMBUSH;
+	AMBUSH,
+	
+	// 
+	CONSOLE,
 
 }

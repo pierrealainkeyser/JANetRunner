@@ -51,6 +51,17 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 		if (playPredicate != null && playLocation != null)
 			match(CollectHabilities.class, em -> playAction(em, playPredicate.and(location(playLocation))));
 	}
+	
+	protected void whileInstalled(FlowArg<Flow> onInstall, FlowArg<Flow> onRemove) {
+		match(AbstractCardInstalledCleanup.class, actc -> bindCleanup(ric, onInstall));
+		match(AbstractCardUnistalledCleanup.class, actc -> bindCleanup(actc, onRemove));
+	}
+
+	private void bindCleanup(EventMatcherBuilder<? extends AbstractCardCleanup> ric,
+			FlowArg<Flow> call) {
+		ric.test(AbstractCardCleanup.with(myself()));
+		ric.apply((evt, next) -> call.apply(next));
+	}
 
 	/**
 	 * A appeler dans le constructeur de la carte
