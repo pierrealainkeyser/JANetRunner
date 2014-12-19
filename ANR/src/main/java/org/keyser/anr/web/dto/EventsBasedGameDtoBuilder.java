@@ -37,6 +37,8 @@ public class EventsBasedGameDtoBuilder {
 		match(AbstractCardLocationEvent.class, this::location);
 		match(AbstractCardRezzEvent.class, this::rezzed);
 		match(AbstractCardTokenEvent.class, this::tokens);
+		
+		//notification des changements d'actions
 		match(AbstractCardActionChangedEvent.class, this::actions);
 		this.game.bind(matchers);
 
@@ -102,8 +104,7 @@ public class EventsBasedGameDtoBuilder {
 			CardDto cdto = getOrCreate(ac);
 			updateFace(ac, cdto);
 			updateLocation(ac, cdto);
-
-			// TODO tokens
+			ac.eachToken(cdto::addToken);
 		}
 
 		updateCommon(game, dto);

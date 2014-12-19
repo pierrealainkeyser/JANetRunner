@@ -170,6 +170,10 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	public List<CardSubType> getSubTypes() {
 		return subTypes;
 	}
+	
+	public void eachToken(BiConsumer<TokenType,Integer> consumer){
+		tokens.entrySet().forEach(consumer);
+	}
 
 	public int getToken(TokenType type) {
 		Integer i = tokens.get(type);
