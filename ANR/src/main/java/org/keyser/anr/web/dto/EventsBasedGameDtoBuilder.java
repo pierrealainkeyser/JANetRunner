@@ -15,7 +15,9 @@ import org.keyser.anr.core.EventMatcherBuilder;
 import org.keyser.anr.core.EventMatchers;
 import org.keyser.anr.core.FlowArg;
 import org.keyser.anr.core.Game;
+import org.keyser.anr.core.Game.ActionsContext;
 import org.keyser.anr.core.PlayerType;
+import org.keyser.anr.core.UserAction;
 
 public class EventsBasedGameDtoBuilder {
 
@@ -43,8 +45,11 @@ public class EventsBasedGameDtoBuilder {
 
 	private void location(AbstractCardLocationEvent evt) {
 		AbstractCard card = evt.getPrimary();
-		with(card, dto -> dto.setLocation(card.getLocation()));
+		with(card, dto -> updateLocation(card, dto));
+	}
 
+	private void updateLocation(AbstractCard card, CardDto dto) {
+		dto.setLocation(card.getLocation());
 	}
 
 	private void with(AbstractCard card, FlowArg<CardDto> act) {
@@ -54,12 +59,17 @@ public class EventsBasedGameDtoBuilder {
 
 	private void rezzed(AbstractCardRezzEvent evt) {
 		AbstractCard card = evt.getPrimary();
-		with(card, dto -> dto.setFace(card.isRezzed() ? CardDto.Face.up : CardDto.Face.down));
+		with(card, dto -> updateFace(card, dto));
+	}
+
+	private void updateFace(AbstractCard card, CardDto dto) {
+		dto.setFace(card.isRezzed() ? CardDto.Face.up : CardDto.Face.down);
 	}
 
 	private void tokens(AbstractCardTokenEvent evt) {
 		AbstractCard card = evt.getPrimary();
-		with(card, dto -> dto.addToken(evt.getType(), card.getToken(evt.getType())));
+		with(card, dto -> dto.addToken(evt.getType(),
+				card.getToken(evt.getType())));
 	}
 
 	private void actions(AbstractCardActionChangedEvent evt) {
@@ -77,39 +87,69 @@ public class EventsBasedGameDtoBuilder {
 	}
 
 	private <T> void match(Class<T> type, FlowArg<T> builder) {
-		EventMatcherBuilder<T> match = EventMatcherBuilder.match(type, "@EventsBasedGameDtoBuilder");
+		EventMatcherBuilder<T> match = EventMatcherBuilder.match(type,
+				"@EventsBasedGameDtoBuilder");
 		match.call(builder);
 		matchers.add(match);
 	}
 
 	public GameDto create() {
 		GameDto dto = new GameDto();
+		dto.setActions(game.getId(game.getActivePlayer()).getActions());
+
+		// TODO liste des servers
+		for (AbstractCard ac : game.getCards()) {
+			CardDto cdto = getOrCreate(ac);
+			updateFace(ac, cdto);
+			updateLocation(ac, cdto);
+
+			// TODO tokens
+		}
+
 		updateCommon(game, dto);
 		return dto;
 	}
 
 	private void updateCommon(Game game, GameDto dto) {
 		dto.setActive(game.getActivePlayer());
+
+		ActionsContext actionsContext = game.getActionsContext();
+		dto.setContext(actionsContext.getContext());
+
+		// les actions sont à mapper sur les cartes...
+		if (!cards.isEmpty()) {
+
+			for (UserAction ua : actionsContext.getUserActions()) {
+				CardDto cdto = getOrCreate(ua.getSource());
+				cdto.addAction(convert(ua));
+			}
+
+			dto.setCards(new ArrayList<>(cards.values()));
+		}
+	}
+	
+	/**
+	 * TODO gestion de la conversion
+	 * @param ua
+	 * @return
+	 */
+	private ActionDto convert(UserAction ua){
+		return null;
 	}
 
 	public GameDto build() {
 
 		matchers.uninstall();
 		GameDto dto = new GameDto();
-		updateCommon(game, dto);
+		//TODO liste des nouveaux serveurs
+		
 
 		// maj jour des actions
 		PlayerType activePlayer = game.getActivePlayer();
 		if (actionsChanged.contains(activePlayer)) {
 			dto.setActions(game.getId(activePlayer).getActions());
 		}
-
-		// TODO recopie des actions
-
-		if (!cards.isEmpty()) {
-			dto.setCards(new ArrayList<>(cards.values()));
-		}
-
+		updateCommon(game, dto);
 		return dto;
 	}
 }

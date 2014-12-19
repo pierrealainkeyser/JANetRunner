@@ -14,7 +14,7 @@ import org.keyser.anr.core.TokenType;
 public class AddTagsEvent extends RunnerPreventibleEffect {
 
 	public AddTagsEvent(AbstractCard primary, String description, int tags) {
-		super(primary, description, "Take tags", tags);
+		super(primary, description,"Avoid receiving tag", "Take tags", tags);
 	}
 
 	@Override

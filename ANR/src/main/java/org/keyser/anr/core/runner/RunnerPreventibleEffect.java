@@ -26,17 +26,20 @@ public abstract class RunnerPreventibleEffect extends AbstractCardEvent implemen
 	private int amount;
 
 	private final String noPreventionText;
+	
+	private final String preventionText;
 
 	/**
 	 * Les evenements de préventions
 	 */
 	private List<Function<RunnerPreventibleEffect, Feedback<?, ?>>> preventions = new ArrayList<>();
 
-	public RunnerPreventibleEffect(AbstractCard primary, String description, String noPreventionText, int amount) {
+	public RunnerPreventibleEffect(AbstractCard primary, String description,  String preventionText, String noPreventionText, int amount) {
 		super(primary, description, null);
 		this.amount = amount;
 		this.initialAmount = amount;
 		this.noPreventionText = noPreventionText;
+		this.preventionText=preventionText;
 	}
 
 	public void alterAmount(int delta) {
@@ -63,6 +66,7 @@ public abstract class RunnerPreventibleEffect extends AbstractCardEvent implemen
 			// TODO placer le contexte
 			AbstractCard source = getPrimary();
 		
+			g.userContext(source, preventionText);
 			for (Function<RunnerPreventibleEffect, Feedback<?, ?>> action : preventions) {
 				Feedback<?, ?> feedback = action.apply(this);
 

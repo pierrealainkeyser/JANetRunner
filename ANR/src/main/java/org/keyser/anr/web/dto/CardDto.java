@@ -1,5 +1,6 @@
 package org.keyser.anr.web.dto;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,12 @@ public class CardDto {
 
 	public List<ActionDto> getActions() {
 		return actions;
+	}
+
+	public void addAction(ActionDto dto) {
+		if (actions == null)
+			actions = new ArrayList<>();
+		actions.add(dto);
 	}
 
 	public void setActions(List<ActionDto> actions) {

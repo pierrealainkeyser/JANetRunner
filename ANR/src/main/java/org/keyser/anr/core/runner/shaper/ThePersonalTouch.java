@@ -59,8 +59,8 @@ public class ThePersonalTouch extends Hardware {
 		List<AbstractCard> iceBreakers = cards().filter(IS_AN_INSTALLED_ICEBREAKER).collect(Collectors.toList());
 		CostForAction cost = new CostForAction(Cost.free(), new InstallHardwareAction(this));
 
-		// TODO placer le contexte
-
+		// placer le contexte
+		g.userContext(this, "Choose an host");
 		for (AbstractCard p : iceBreakers) {
 			UserAction ua = new UserAction(getRunner(), p, cost, "Host on this");
 			g.user(new SimpleFeedback<>(ua, this::installed), next);

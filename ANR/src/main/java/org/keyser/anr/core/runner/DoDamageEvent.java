@@ -22,7 +22,7 @@ public class DoDamageEvent extends RunnerPreventibleEffect {
 
 	public DoDamageEvent(AbstractCard primary, String description, int damage,
 			DamageType type) {
-		super(primary, description, "Take damage", damage);
+		super(primary, description,"Prevent damage", "Take damage", damage);
 		this.type = type;
 	}
 

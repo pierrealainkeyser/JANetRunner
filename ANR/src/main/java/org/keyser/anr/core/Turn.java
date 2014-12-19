@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
+import org.keyser.anr.core.UserActionContext.Type;
 import org.keyser.anr.core.corp.Ice;
 import org.keyser.anr.core.runner.DoDamageEvent;
 import org.keyser.anr.core.runner.DoDamageEvent.DamageType;
@@ -26,6 +27,12 @@ public class Turn {
 
 			Collection<Feedback<?, ?>> feedbacks = collect.getFeedbacks();
 			boolean hasFeedbacks = false;
+
+			String text = "Play events";
+			if (action)
+				text = "Play action";
+			
+			game.userContext(null, text);
 			for (Feedback<?, ?> feedback : feedbacks) {
 				if (feedback.checkCost()) {
 					game.user(feedback, next.wrap(feedbackConsumer.wrap(feedback)));

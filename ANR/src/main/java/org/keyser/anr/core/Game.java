@@ -7,16 +7,26 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+import org.keyser.anr.core.UserActionContext.Type;
 
 public class Game {
 
-	private class ActionsContext {
+	public static class ActionsContext {
 
 		private Map<Integer, FeedbackHandler<?>> actions = new HashMap<>();
 
 		private UserActionContext context;
+
+		public UserActionContext getContext() {
+			return context;
+		}
+
+		public List<UserAction> getUserActions() {
+			return actions.values().stream()
+					.map(FeedbackHandler::getUserAction)
+					.collect(Collectors.toList());
+		}
 	}
 
 	public class FeedbackHandler<T> {
@@ -27,7 +37,8 @@ public class Game {
 
 		private final UserAction userAction;
 
-		private FeedbackHandler(UserAction userAction, Class<T> type, FlowArg<T> consumer) {
+		private FeedbackHandler(UserAction userAction, Class<T> type,
+				FlowArg<T> consumer) {
 			this.type = type;
 			this.consumer = consumer;
 			this.userAction = userAction;
@@ -90,14 +101,19 @@ public class Game {
 				matchers.get(0).apply(event, next);
 			} else {
 				// il faut demander l'ordre au joueur actif
-				List<AbstractCard> sources = matchers.stream().map(EventMatcher::getSource).collect(Collectors.toList());
+				List<AbstractCard> sources = matchers.stream()
+						.map(EventMatcher::getSource)
+						.collect(Collectors.toList());
 
 				AbstractId to = getId(active);
 
 				// TODO il faut préciser le contexte quelque part...
-				AskEventOrderUserAction ask = new AskEventOrderUserAction(to, "Select order", new AbstractCardList(sources));
+				AskEventOrderUserAction ask = new AskEventOrderUserAction(to,
+						"Select order", new AbstractCardList(sources));
 
-				user(new FeedbackWithArgs<AskEventOrderUserAction, AbstractCardList>(ask, this::orderSelected), next);
+				userContext(null, "Select matching order", Type.SELECT_MATCH_ORDER);
+				user(new FeedbackWithArgs<AskEventOrderUserAction, AbstractCardList>(
+						ask, this::orderSelected), next);
 			}
 		}
 
@@ -108,10 +124,12 @@ public class Game {
 		 * @param ordered
 		 * @param next
 		 */
-		private void orderSelected(AskEventOrderUserAction ask, AbstractCardList ordered, Flow next) {
+		private void orderSelected(AskEventOrderUserAction ask,
+				AbstractCardList ordered, Flow next) {
 
 			// réalise une recursion sur les cartes recuperes
-			RecursiveIterator.recurse(ordered.iterator(), this::applyEffect, next);
+			RecursiveIterator.recurse(ordered.iterator(), this::applyEffect,
+					next);
 		}
 
 		/**
@@ -121,7 +139,8 @@ public class Game {
 		 * @param next
 		 */
 		private void applyEffect(AbstractCard src, Flow next) {
-			EventMatcher<?> em = matchers.stream().filter(e -> e.getSource().equals(src)).findFirst().get();
+			EventMatcher<?> em = matchers.stream()
+					.filter(e -> e.getSource().equals(src)).findFirst().get();
 			if (em.test(event))
 				em.apply(event, next);
 			else {
@@ -144,7 +163,8 @@ public class Game {
 
 			this.next = flow;
 			PerPlayerEvents activeMatch = new PerPlayerEvents(active, flow);
-			PerPlayerEvents passiveMatch = new PerPlayerEvents(active.next(), flow);
+			PerPlayerEvents passiveMatch = new PerPlayerEvents(active.next(),
+					flow);
 
 			// repartition en 2 groupe
 			for (EventMatcher<?> em : flow.getMatchers()) {
@@ -160,7 +180,8 @@ public class Game {
 				}
 			}
 
-			it = Stream.of(activeMatch, passiveMatch).filter(PerPlayerEvents::hasElements).iterator();
+			it = Stream.of(activeMatch, passiveMatch)
+					.filter(PerPlayerEvents::hasElements).iterator();
 		}
 
 		@Override
@@ -197,10 +218,21 @@ public class Game {
 		listener = new EventMatcherListener();
 
 		// gestion des evenements sequential
-		listener.add(e -> e.getEvent() instanceof SequentialEvent, f -> new SequentialEventMatcher(f).apply());
+		listener.add(e -> e.getEvent() instanceof SequentialEvent,
+				f -> new SequentialEventMatcher(f).apply());
 
 		// implémentation spécifique ANR à prévoir
 		listener.add(e -> true, f -> new ANREventMatcher(f).apply());
+	}
+	
+	public Game userContext(AbstractCard primary, String customText ) {
+		return userContext(primary, customText, UserActionContext.Type.BASIC);
+	}
+
+	public Game userContext(AbstractCard primary, String customText, Type type) {
+		actionsContext.context = new UserActionContext(primary, customText,
+				type);
+		return this;
 	}
 
 	public PlayerType getActivePlayer() {
@@ -293,7 +325,8 @@ public class Game {
 	 * @param actionId
 	 * @param response
 	 */
-	public void invoke(int actionId, UserInputConverter converter, Object response) {
+	public void invoke(int actionId, UserInputConverter converter,
+			Object response) {
 		FeedbackHandler<?> uah = actionsContext.actions.get(actionId);
 
 		// réalisation de la conversion
@@ -313,11 +346,13 @@ public class Game {
 	 * @param next
 	 * @param consumer
 	 */
-	public <UA extends UserAction, T> void user(Feedback<UA, T> feedback, Flow next) {
+	public <UA extends UserAction, T> void user(Feedback<UA, T> feedback,
+			Flow next) {
 		int id = nextAction++;
 		UA userAction = feedback.getUserAction();
 		userAction.setActionId(id);
-		actionsContext.actions.put(id, new FeedbackHandler<T>(userAction, feedback.getInputType(), feedback.wrap(next)));
+		actionsContext.actions.put(id, new FeedbackHandler<T>(userAction,
+				feedback.getInputType(), feedback.wrap(next)));
 	}
 
 	public boolean mayAfford(PlayerType to, CostForAction cost) {
@@ -326,5 +361,9 @@ public class Game {
 
 	public AbstractId getId(PlayerType to) {
 		return to == PlayerType.RUNNER ? runner : corp;
+	}
+
+	public ActionsContext getActionsContext() {
+		return actionsContext;
 	}
 }

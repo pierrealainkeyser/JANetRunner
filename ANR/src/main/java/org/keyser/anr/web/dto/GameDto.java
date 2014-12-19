@@ -3,6 +3,8 @@ package org.keyser.anr.web.dto;
 import java.util.List;
 
 import org.keyser.anr.core.PlayerType;
+import org.keyser.anr.core.UserAction;
+import org.keyser.anr.core.UserActionContext;
 
 public class GameDto {
 
@@ -13,6 +15,8 @@ public class GameDto {
 	private PlayerType active;
 
 	private Integer actions;
+
+	private UserActionContext context;
 
 	public List<ServerDto> getServers() {
 		return servers;
@@ -44,6 +48,14 @@ public class GameDto {
 
 	public void setActions(Integer actions) {
 		this.actions = actions;
+	}
+
+	public UserActionContext getContext() {
+		return context;
+	}
+
+	public void setContext(UserActionContext context) {
+		this.context = context;
 	}
 
 }
