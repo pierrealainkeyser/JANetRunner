@@ -13,27 +13,28 @@ function bootANR(gameId) {
 		{ id : -1, name : "Archives" },//
 		{ id : -2, name : "R&D" }, //
 		{ id : -3, name : "HQ" } //
+
 		],
 		cards : [ // 
-				{ id : 1, faction : 'corp', url : '01088', location : { path : [ "server", { id : -1 }, "stack" ], index : 0 } }, //
-				{ id : 2, faction : 'corp', url : '01082', face : "down", location : { path : [ "server", { id : -2 }, "stack" ], index : 0 } }, //
-				{ id : 21, faction : 'corp', url : '01083', face : "down", location : { path : [ "server", { id : -2 }, "stack" ], index : 1 } }, //
-				{ id : 22, faction : 'corp', url : '01091', face : "down", location : { path : [ "server", { id : -2 }, "stack" ], index : 2 } }, //				
+				{ id : 1, faction : 'corp', url : '01088', location : { primary : "server", serverIndex : -1, secondary : "stack", index : 0 } }, //
+				{ id : 2, faction : 'corp', url : '01082', face : "down", location : { primary : "server", serverIndex : -2, secondary : "stack", index : 0 } }, //				
+				{ id : 21, faction : 'corp', url : '01083', face : "down", location : { primary : "server", serverIndex : -2, secondary : "stack", index : 1 } }, //
+				{ id : 22, faction : 'corp', url : '01091', face : "down", location : { primary : "server", serverIndex : -2, secondary : "stack", index : 2 } }, //				
 				{ id : 3, faction : 'corp', url : '01080', tokens : { credit : 5, recurring : 2 },
-					location : { path : [ "server", { id : -3 }, "assetOrUpgrades" ], index : 0 } }, //
-				{ id : 4, faction : 'corp', url : '01089', face : "down", location : { path : [ "server", { id : -3 }, "ices" ], index : 0 } }, //
-				{ id : 5, faction : 'runner', url : '01033', location : { path : [ "grip" ], index : 0 } },//
-				{ id : 6, faction : 'runner', url : '01034', face : "down", location : { path : [ "stack" ], index : 0 } },//
-				{ id : 7, faction : 'runner', url : '01035', face : "down", location : { path : [ "stack" ], index : 1 } },//
-				{ id : 8, faction : 'runner', url : '01036', face : "down", location : { path : [ "stack" ], index : 2 } },//
-				{ id : 9, faction : 'runner', url : '01037', face : "down", location : { path : [ "stack" ], index : 3 } },//
-				{ id : 10, faction : 'runner', url : '01038', face : "down", location : { path : [ "stack" ], index : 4 } },//
-				{ id : 11, faction : 'runner', url : '01039', location : { path : [ "hardware" ], index : 0 } },//
-				{ id : 12, faction : 'runner', url : '01041', tokens : { recurring : 2 }, location : { path : [ "hardware" ], index : 1 } },//
-				{ id : 13, faction : 'runner', url : '01042', location : { path : [ "program" ], index : 0 } },//
-				{ id : 14, faction : 'runner', url : '01043', face : "down", location : { path : [ "stack" ], index : 5 } },//
-				{ id : 15, faction : 'runner', url : '01052', face : "down", location : { path : [ "stack" ], index : 6 } },//
-				{ id : 16, faction : 'runner', url : '01053', face : "down", location : { path : [ "stack" ], index : 7 } },//
+					location : { primary : "server", serverIndex : -3, secondary : "assetOrUpgrades", index : 0 } }, //
+				{ id : 4, faction : 'corp', url : '01089', face : "down", location : { primary : "server", serverIndex : -3, secondary : "ices", index : 0 } }, //
+				{ id : 5, faction : 'runner', url : '01033', location : { primary : "grip", index : 0 } },//
+				{ id : 6, faction : 'runner', url : '01034', face : "down", location : { primary : "stack", index : 0 } },//
+				{ id : 7, faction : 'runner', url : '01035', face : "down", location : { primary : "stack", index : 1 } },//
+				{ id : 8, faction : 'runner', url : '01036', face : "down", location : { primary : "stack", index : 2 } },//
+				{ id : 9, faction : 'runner', url : '01037', face : "down", location : { primary : "stack", index : 3 } },//
+				{ id : 10, faction : 'runner', url : '01038', face : "down", location : { primary : "stack", index : 4 } },//
+				{ id : 11, faction : 'runner', url : '01039', location : { primary : "hardware", index : 0 } },//
+				{ id : 12, faction : 'runner', url : '01041', tokens : { recurring : 2 }, location : { primary : "hardware", index : 1 } },//
+				{ id : 13, faction : 'runner', url : '01042', location : { primary : "program", index : 0 } },//
+				{ id : 14, faction : 'runner', url : '01043', face : "down", location : { primary : "stack", index : 5 } },//
+				{ id : 15, faction : 'runner', url : '01052', face : "down", location : { primary : "stack", index : 6 } },//
+				{ id : 16, faction : 'runner', url : '01053', face : "down", location : { primary : "stack", index : 7 } },//
 		] };
 
 	cardManager.within(function() {
@@ -45,13 +46,13 @@ function bootANR(gameId) {
 				{ id : 5, tokens : { credit : 5, power : 1 } },//
 				{ id : 1, face : "down",
 					subs : [ { id : 1, text : "<strong>Trace<sup>3</sup></strong> - If successful, place 1 power counter on Data Raven" } ],
-					location : { path : [ "server", { id : -3 }, "ices" ], index : 1 } },// 
-				{ id : 14, face : "up", location : { path : [ "program" ], index : 1 } },//
-				{ id : 15, face : "up", location : { path : [ "resource" ], index : 1 } },// 
-				{ id : 16, face : "up", tokens : { credit : 12 }, location : { path : [ "resource" ], index : 2 } },//
-				{ id : 11, location : { path : [ "heap" ], index : 1 } },//
+					location : { primary : "server", serverIndex : -3, secondary : "ices", index : 1 } },// 
+				{ id : 14, face : "up", location : { primary : "program", index : 1 } },//
+				{ id : 15, face : "up", location : { primary : "resource", index : 1 } },// 
+				{ id : 16, face : "up", tokens : { credit : 12 }, location : { primary : "resource", index : 2 } },//
+				{ id : 11, location : { primary : "heap", index : 1 } },//
 				{ id : 12, tokens : { recurring : 0 } },//
-				{ id : 22, face : "down", location : { path : [ "server", { id : -3 }, "upgrades" ], index : 0 } },//
+				{ id : 22, face : "down", location : { primary : "server", serverIndex : -3, secondary : "upgrades", index : 0 } },//
 		] });
 	}), 250)
 
@@ -274,13 +275,13 @@ function CardManager(cardContainer) {
 				}
 			}
 		}
-	}
-
+	}	
+	
 	var findContainer = function(path) {
-		var first = path[0];
+		var first = path.primary;
 		if ("server" === first) {
-			var server = me.getServer(path[1]);
-			return server.findContainer(path[2]);
+			var server = me.getServer({id:path.serverIndex});
+			return server.findContainer(path.secondary);
 		} else if ("resource" === first)
 			return me.runnerResources;
 		else if ("hardware" === first)
@@ -300,7 +301,7 @@ function CardManager(cardContainer) {
 			var def = elements.cards[c];
 			var card = me.getCard(def);
 			if (def.location) {
-				var container = findContainer(def.location.path);
+				var container = findContainer(def.location);
 				if (container)
 					card.setParent(container, def.location.index);
 			}
@@ -902,7 +903,7 @@ function BoxAllSubroutine(extbox, text) {
 
 	this.checkbox.change(function() {
 		var value = me.checkbox.prop("checked");
-		//TODO restriction des checkbox dans la carte
+		// TODO restriction des checkbox dans la carte
 		$('input:checkbox:enabled').prop('checked', this.checked);
 		extbox.updateBreakActions();
 	});

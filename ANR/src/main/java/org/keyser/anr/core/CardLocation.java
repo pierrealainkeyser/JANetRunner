@@ -1,7 +1,7 @@
 package org.keyser.anr.core;
 
 /**
- * La position d'une carte. Utilisé pour la partie client
+ * La position d'une carte. Utilisï¿½ pour la partie client
  * 
  * @author pakeyser
  *
@@ -21,15 +21,15 @@ public class CardLocation {
 	}
 
 	public static CardLocation grip(int index) {
-		return new CardLocation(Primary.GRIP, index, null, null);
+		return new CardLocation(Primary.GRIP, null, null, index);
 	}
 
 	public static CardLocation hardwares(int index) {
-		return new CardLocation(Primary.HARDWARES, index, null, null);
+		return new CardLocation(Primary.HARDWARES, null, null, index);
 	}
 
 	public static CardLocation heap(int index) {
-		return new CardLocation(Primary.HEAP, index, null, null);
+		return new CardLocation(Primary.HEAP, null, null, index);
 	}
 
 	public static CardLocation hosted(int host, int index) {
@@ -41,15 +41,15 @@ public class CardLocation {
 	}
 
 	public static CardLocation programs(int index) {
-		return new CardLocation(Primary.PROGRAMS, index, null, null);
+		return new CardLocation(Primary.PROGRAMS, null, null, index);
 	}
 
 	public static CardLocation resources(int index) {
-		return new CardLocation(Primary.RESOURCES, index, null, null);
+		return new CardLocation(Primary.RESOURCES, null, null, index);
 	}
 
 	public static CardLocation stack(int index) {
-		return new CardLocation(Primary.STACK, index, null, null);
+		return new CardLocation(Primary.STACK, null, null, index);
 	}
 
 	public static CardLocation stack(int server, int s) {
@@ -62,43 +62,43 @@ public class CardLocation {
 
 	private final Primary primary;
 
-	private final Integer primaryIndex;
+	private final Integer serverIndex;
 
 	private final Secondary secondary;
 
-	private final Integer secondaryIndex;
+	private final Integer index;
 
 	public final static int HQ_INDEX = 0;
 
-	private CardLocation(Primary primary, Integer primaryIndex, Secondary secondary, Integer secondaryIndex) {
+	private CardLocation(Primary primary, Integer serverIndex, Secondary secondary, Integer index) {
 		super();
 		this.primary = primary;
-		this.primaryIndex = primaryIndex;
+		this.serverIndex = serverIndex;
 		this.secondary = secondary;
-		this.secondaryIndex = secondaryIndex;
+		this.index = index;
 	}
 
 	public Primary getPrimary() {
 		return primary;
 	}
 
-	public Integer getPrimaryIndex() {
-		return primaryIndex;
-	}
-
 	public Secondary getSecondary() {
 		return secondary;
 	}
 
-	public Integer getSecondaryIndex() {
-		return secondaryIndex;
+	public Integer getServerIndex() {
+		return serverIndex;
+	}
+
+	public Integer getIndex() {
+		return index;
 	}
 
 	public boolean isInCorpHand() {
-		return primary == Primary.SERVER && primaryIndex == HQ_INDEX && secondary == Secondary.STACK && secondaryIndex >= 0;
+		return primary == Primary.SERVER && serverIndex == HQ_INDEX && secondary == Secondary.STACK && index >= 0;
 	}
 
 	public boolean isInRunnerHand() {
-		return primary == Primary.GRIP && primaryIndex >= 0;
+		return primary == Primary.GRIP && index >= 0;
 	}
 }
