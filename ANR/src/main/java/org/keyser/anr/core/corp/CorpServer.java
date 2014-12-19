@@ -1,62 +1,64 @@
 package org.keyser.anr.core.corp;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Stack;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
+import org.keyser.anr.core.AbstractCardContainer;
+import org.keyser.anr.core.AbstractCardCorp;
+import org.keyser.anr.core.CardLocation;
+import org.keyser.anr.core.Game;
 
-import org.keyser.anr.core.Card;
+public class CorpServer {
 
-public abstract class CorpServer {
+	private final Game game;
 
-	private final Corp corp;
+	private final AbstractCardContainer<InServerCorpCard> assetOrUpgrades = new AbstractCardContainer<>(
+			this::assetOrUpgradesLocation);
 
-	private final List<Upgrade> upgrades = new ArrayList<>();
+	private final AbstractCardContainer<Upgrade> upgrades = new AbstractCardContainer<>(
+			this::upgradesLocation);
 
-	private final Stack<Ice> ices = new Stack<>();
+	private final AbstractCardContainer<Ice> ices = new AbstractCardContainer<>(
+			this::icesLocation);
+	
+	private final AbstractCardContainer<AbstractCardCorp> stack = new AbstractCardContainer<>(
+			this::stackLocation);
 
-	public CorpServer(Corp corpo) {
-		this.corp = corpo;
+
+	private final int id;
+	
+	private CardLocation stackLocation(Integer i) {
+		return CardLocation.stack(id, i);
 	}
 
-	public int getIndex() {
-		return corp.getIndex(this);
+	private CardLocation assetOrUpgradesLocation(Integer i) {
+		return CardLocation.assetOrUpgrades(id, i);
 	}
 
-	public boolean isNotEmpty() {
-		return !(upgrades.isEmpty() && ices.isEmpty());
+	private CardLocation upgradesLocation(Integer i) {
+		return CardLocation.upgrades(id, i);
+	}
+
+	private CardLocation icesLocation(Integer i) {
+		return CardLocation.ices(id, i);
+	}
+
+	public CorpServer(Game game, int id) {
+		this.game = game;
+		this.id = id;
+
+	}
+
+	public boolean isEmpty() {
+		return upgrades.isEmpty() && ices.isEmpty()
+				&& assetOrUpgrades.isEmpty();
 	}
 
 	/**
-	 * Permet de trouver une card sur le server
+	 * Renvoi vrai s'il y a des cartes installée
 	 * 
-	 * @param cardId
-	 * @return
-	 */
-	public CardOnServer find(int cardId) {
-		Optional<Upgrade> upds = upgrades.stream().filter(u -> u.getId() == cardId).findFirst();
-		if (upds.isPresent())
-			return new CardOnServer(upds.get(), this);
-
-		Optional<Ice> ices = this.ices.stream().filter(u -> u.getId() == cardId).findFirst();
-		if (ices.isPresent())
-			return new CardOnServer(ices.get(), this);
-		return null;
-	}
-
-	public void forEach(Consumer<Card> c) {
-		upgrades.forEach(c);
-		ices.forEach(c);
-	}
-
-	/**
-	 * Renvoi vrai s'il y a des cartes installÃ©
 	 * @return
 	 */
 	public boolean hasInstalledCard() {
-		return !upgrades.isEmpty() || ices.isEmpty();
+		return !upgrades.isEmpty() || !ices.isEmpty()
+				|| !assetOrUpgrades.isEmpty();
 	}
 
 	/**
@@ -68,49 +70,16 @@ public abstract class CorpServer {
 		ices.forEach(i -> bi.accept(this, i));
 	}
 
-	public void removeIce(int at) {
-		ices.remove(at);
-	}
-
 	public void addIce(Ice ice, int at) {
-		ices.insertElementAt(ice, at);
-	}
-
-	public abstract List<CorpCard> getCards();
-
-	public void addUpgrade(Upgrade upgrade) {
-		upgrades.add(upgrade);
-	}
-
-	public void removeUpgrade(Upgrade upgrade) {
-		upgrades.remove(upgrade);
+		ices.addAt(ice, at);
 	}
 
 	public int icesCount() {
-		return ices.size();
-	}
-
-	public Corp getCorp() {
-		return corp;
+		return ices.getContents().size();
 	}
 
 	public Ice getIceAtHeight(int h) {
-		return ices.elementAt(h - 1);
-	}
-
-	public Stack<Ice> getIces() {
-		return ices;
-	}
-
-	public List<Upgrade> getUpgrades() {
-		return upgrades;
-	}
-
-	public CardAccessGroup getAccessedCards(CorpAccessSettings setting) {
-
-		CardAccessGroup grp = new CardAccessGroup();
-		upgrades.forEach(c -> grp.add(c));
-		return grp;
+		return ices.getContents().get(h - 1);
 	}
 
 }

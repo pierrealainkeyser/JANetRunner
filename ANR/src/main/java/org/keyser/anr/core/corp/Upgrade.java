@@ -1,12 +1,11 @@
 package org.keyser.anr.core.corp;
 
-import org.keyser.anr.core.Cost;
-import org.keyser.anr.core.Influence;
+import org.keyser.anr.core.MetaCard;
 
-public abstract class Upgrade extends TrashableCard {
+public abstract class Upgrade extends InServerCorpCard {
 
-	public Upgrade(Influence influence, Cost rezCost, Cost trashCost) {
-		super(influence, rezCost, trashCost);
+	protected Upgrade(int id, MetaCard meta) {
+		super(id, meta);
 	}
 
 }

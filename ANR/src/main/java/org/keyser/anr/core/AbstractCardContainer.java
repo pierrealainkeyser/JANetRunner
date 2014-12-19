@@ -26,6 +26,18 @@ public class AbstractCardContainer<A extends AbstractCard> {
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
+	public AbstractCardContainer<A> addAt(A a, int index) {
+		contents.add(index, a);
+		a.setContainer((AbstractCardContainer<AbstractCard>) this);
+		refresh();
+		return this;
+	}
+
+	public boolean isEmpty() {
+		return contents.isEmpty();
+	}
+
 	public Stream<A> stream() {
 		return getContents().stream();
 	}

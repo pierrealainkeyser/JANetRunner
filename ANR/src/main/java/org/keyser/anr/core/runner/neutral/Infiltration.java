@@ -10,7 +10,7 @@ import org.keyser.anr.core.NotificationEvent;
 import org.keyser.anr.core.Player;
 import org.keyser.anr.core.Question;
 import org.keyser.anr.core.WalletCredits;
-import org.keyser.anr.core.corp.InstallableCorpCard;
+import org.keyser.anr.core.corp.InServerCorpCard;
 import org.keyser.anr.core.runner.EventCard;
 
 @CardDef(name = "Infiltration", oid = "01049")
@@ -37,17 +37,17 @@ public class Infiltration extends EventCard {
 
 	}
 
-	private void expose(InstallableCorpCard iic, Flow next) {
+	private void expose(InServerCorpCard iic, Flow next) {
 		Question q = getGame().ask(Player.RUNNER, NotificationEvent.EXPOSE_CARD);
 		q.ask("expose", iic).to(next);
 		q.fire();
 
 	}
 
-	private void forEach(Consumer<InstallableCorpCard> cons) {
+	private void forEach(Consumer<InServerCorpCard> cons) {
 		getGame().getCorp().forEachCardInServer(c -> {
-			if (c instanceof InstallableCorpCard) {
-				InstallableCorpCard i = (InstallableCorpCard) c;
+			if (c instanceof InServerCorpCard) {
+				InServerCorpCard i = (InServerCorpCard) c;
 				if (!i.isRezzed())
 					cons.accept(i);
 
