@@ -1,6 +1,6 @@
 package org.keyser.anr.core.corp;
 
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import org.keyser.anr.core.AbstractCardContainer;
 import org.keyser.anr.core.AbstractCardCorp;
@@ -9,21 +9,15 @@ import org.keyser.anr.core.Game;
 
 public class CorpServer {
 
-	private final Game game;
+	protected final Game game;
 
-	private final AbstractCardContainer<InServerCorpCard> assetOrUpgrades = new AbstractCardContainer<>(this::assetOrUpgradesLocation);
+	protected final AbstractCardContainer<InServerCorpCard> assetOrUpgrades = new AbstractCardContainer<>(this::assetOrUpgradesLocation);
 
-	private final AbstractCardContainer<Upgrade> upgrades = new AbstractCardContainer<>(this::upgradesLocation);
+	protected final AbstractCardContainer<Upgrade> upgrades = new AbstractCardContainer<>(this::upgradesLocation);
 
-	private final AbstractCardContainer<Ice> ices = new AbstractCardContainer<>(this::icesLocation);
+	protected final AbstractCardContainer<Ice> ices = new AbstractCardContainer<>(this::icesLocation);
 
-	private final AbstractCardContainer<AbstractCardCorp> stack = new AbstractCardContainer<>(this::stackLocation);
-
-	private final int id;
-
-	private CardLocation stackLocation(Integer i) {
-		return CardLocation.stack(id, i);
-	}
+	protected final int id;
 
 	private CardLocation assetOrUpgradesLocation(Integer i) {
 		return CardLocation.assetOrUpgrades(id, i);
@@ -40,7 +34,6 @@ public class CorpServer {
 	public CorpServer(Game game, int id) {
 		this.game = game;
 		this.id = id;
-
 	}
 
 	public boolean isEmpty() {
@@ -48,21 +41,31 @@ public class CorpServer {
 	}
 
 	/**
-	 * Renvoi vrai s'il y a des cartes installée
+	 * Renvoi vrai s'il y a un agenda ou un asset rezz
 	 * 
 	 * @return
 	 */
-	public boolean hasInstalledCard() {
-		return !upgrades.isEmpty() || !ices.isEmpty() || !assetOrUpgrades.isEmpty();
+	public boolean isAgendaOrAssetRezzed() {
+		return assetOrUpgrades.stream().anyMatch(c -> (c instanceof Agenda || c instanceof Asset) && c.isRezzed());
+	}
+
+	/**
+	 * Pour tous les assets
+	 * 
+	 * @param bi
+	 */
+	public void forEachAssetOrUpgrades(Consumer<AbstractCardCorp> consumer) {
+		assetOrUpgrades.stream().forEach(consumer);
+		upgrades.stream().forEach(consumer);
 	}
 
 	/**
 	 * Pour toutes les glaces
 	 * 
-	 * @param bi
+	 * @param consumer
 	 */
-	public void forEachIce(BiConsumer<CorpServer, Ice> bi) {
-		ices.stream().forEach(i -> bi.accept(this, i));
+	public void forEachIce(Consumer<Ice> consumer) {
+		ices.stream().forEach(consumer);
 	}
 
 	public void addIce(Ice ice, int at) {
@@ -75,6 +78,14 @@ public class CorpServer {
 
 	public Ice getIceAtHeight(int h) {
 		return ices.getContents().get(h - 1);
+	}
+
+	public void addUpgrade(Upgrade upgrade) {
+		upgrade.add(upgrade);
+	}
+
+	public void addAssetOrUpgrade(InServerCorpCard card) {
+		assetOrUpgrades.add(card);
 	}
 
 }

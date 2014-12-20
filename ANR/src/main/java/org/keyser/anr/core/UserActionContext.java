@@ -3,16 +3,16 @@ package org.keyser.anr.core;
 public class UserActionContext {
 
 	public enum Type {
-		BASIC, SELECT_MATCH_ORDER
+		BASIC, SELECT_MATCH_ORDER, INSTALL_IN_SERVER, INSTALL_ICE
 	}
 
 	/**
-	 * Le text associé
+	 * Le text associï¿½
 	 */
 	private String customText;
 
 	/**
-	 * La carte primaire, peut être null
+	 * La carte primaire, peut ï¿½tre null
 	 */
 	private AbstractCard primary;
 

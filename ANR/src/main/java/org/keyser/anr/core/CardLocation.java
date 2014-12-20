@@ -95,10 +95,10 @@ public class CardLocation {
 	}
 
 	public boolean isInCorpHand() {
-		return primary == Primary.SERVER && serverIndex == HQ_INDEX && secondary == Secondary.STACK && index >= 0;
+		return primary == Primary.SERVER && serverIndex == HQ_INDEX && secondary == Secondary.STACK;
 	}
 
 	public boolean isInRunnerHand() {
-		return primary == Primary.GRIP && index >= 0;
+		return primary == Primary.GRIP;
 	}
 }
