@@ -7,12 +7,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.keyser.anr.core.UserActionContext.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Game {
+
+	private final static Logger logger = LoggerFactory.getLogger(Game.class);
 
 	public static class ActionsContext {
 
@@ -26,6 +31,10 @@ public class Game {
 
 		public List<UserAction> getUserActions() {
 			return actions.values().stream().map(FeedbackHandler::getUserAction).collect(Collectors.toList());
+		}
+
+		public Optional<UserAction> find(String description) {
+			return getUserActions().stream().filter(ua -> description.equals(ua.getDescription())).findFirst();
 		}
 	}
 
@@ -104,7 +113,7 @@ public class Game {
 
 				AbstractId to = getId(active);
 
-				// TODO il faut préciser le contexte quelque part...
+				// TODO il faut prï¿½ciser le contexte quelque part...
 				AskEventOrderUserAction ask = new AskEventOrderUserAction(to, "Select order", new AbstractCardList(sources));
 
 				userContext(null, "Select matching order", Type.SELECT_MATCH_ORDER);
@@ -113,7 +122,7 @@ public class Game {
 		}
 
 		/**
-		 * L'ordre est sélectionné par l'utilisateur
+		 * L'ordre est sï¿½lectionnï¿½ par l'utilisateur
 		 * 
 		 * @param ask
 		 * @param ordered
@@ -121,7 +130,7 @@ public class Game {
 		 */
 		private void orderSelected(AskEventOrderUserAction ask, AbstractCardList ordered, Flow next) {
 
-			// réalise une recursion sur les cartes recuperes
+			// rï¿½alise une recursion sur les cartes recuperes
 			RecursiveIterator.recurse(ordered.iterator(), this::applyEffect, next);
 		}
 
@@ -210,7 +219,7 @@ public class Game {
 		// gestion des evenements sequential
 		listener.add(e -> e.getEvent() instanceof SequentialEvent, f -> new SequentialEventMatcher(f).apply());
 
-		// implémentation spécifique ANR à prévoir
+		// implÃ©mentation spÃ©cifique
 		listener.add(e -> true, f -> new ANREventMatcher(f).apply());
 	}
 
@@ -219,6 +228,7 @@ public class Game {
 	}
 
 	public Game userContext(AbstractCard primary, String customText, Type type) {
+		logger.debug("Create user context - {} {} {}", primary, customText, type);
 		actionsContext.context = new UserActionContext(primary, customText, type);
 		return this;
 	}
@@ -249,16 +259,23 @@ public class Game {
 	}
 
 	/**
-	 * Création d'une carte attachée au jeu
+	 * CrÃ©ation d'une carte attachÃ©e au jeu
 	 * 
 	 * @param card
 	 */
-	public void create(MetaCard card) {
+	public AbstractCard create(MetaCard card) {
 
 		int id = cards.size();
 		AbstractCard ac = card.create(id);
 		cards.put(id, ac);
 		ac.bindGame(this, listener);
+
+		if (ac instanceof Corp)
+			corp = (Corp) ac;
+		else if (ac instanceof Runner)
+			runner = (Runner) ac;
+
+		return ac;
 	}
 
 	public void fire(Object event) {
@@ -316,7 +333,7 @@ public class Game {
 	public void invoke(int actionId, UserInputConverter converter, Object response) {
 		FeedbackHandler<?> uah = actionsContext.actions.get(actionId);
 
-		// réalisation de la conversion
+		// rÃ©alisation de la conversion
 		if (uah.type != null && response != null && converter != null) {
 			response = converter.convert(uah.type, this, response);
 		}
@@ -337,6 +354,9 @@ public class Game {
 		int id = nextAction++;
 		UA userAction = feedback.getUserAction();
 		userAction.setActionId(id);
+
+		logger.debug("User - {}", userAction);
+
 		actionsContext.actions.put(id, new FeedbackHandler<T>(userAction, feedback.getInputType(), feedback.wrap(next)));
 	}
 

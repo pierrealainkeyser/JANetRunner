@@ -11,6 +11,11 @@ public final class CostElement {
 		this.type = type;
 	}
 
+	@Override
+	public String toString() {
+		return value + "-" + type;
+	}
+
 	public int getValue() {
 		return value;
 	}

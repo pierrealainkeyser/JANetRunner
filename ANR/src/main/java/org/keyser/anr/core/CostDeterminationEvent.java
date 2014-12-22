@@ -28,4 +28,9 @@ public class CostDeterminationEvent implements SequentialEvent {
 	public Cost getEffective() {
 		return effective;
 	}
+
+	@Override
+	public String toString() {
+		return "CostDeterminationEvent [original=" + original + ", effective=" + effective + "]";
+	}
 }

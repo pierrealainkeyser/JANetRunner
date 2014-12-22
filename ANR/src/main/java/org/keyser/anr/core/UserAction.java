@@ -20,11 +20,11 @@ public class UserAction {
 	}
 
 	public boolean isAnAction() {
-		return cost.getAction() instanceof PlayCardAction;
+		return cost.getAction() instanceof AbstractCardAction;
 	}
 
 	/**
-	 * Mise à jour du cout et renvoi vrai si le joueur peut payer le cout
+	 * Mise Ã  jour du cout et renvoi vrai si le joueur peut payer le cout
 	 * 
 	 * @return
 	 */
@@ -56,9 +56,9 @@ public class UserAction {
 	}
 
 	/**
-	 * Appel la méthode {@link AbstractId#spend(CostForAction, Flow)} pour le
+	 * Appel la mÃ©thode {@link AbstractId#spend(CostForAction, Flow)} pour le
 	 * cout de l'action en appelant {@link Flow#apply()} de call puis la suite.
-	 * L'idée est de consommer le cout puis d'appeler la méthode
+	 * L'idÃ©e est de consommer le cout puis d'appeler la mÃ©thode
 	 * 
 	 * @param abstractId
 	 * @param call
@@ -70,8 +70,13 @@ public class UserAction {
 		});
 	}
 
+	@Override
+	public String toString() {
+		return "UserAction [actionId=" + actionId + ", source=" + source + ", cost=" + cost + ", description=" + description + ", to=" + to + "]";
+	}
+
 	/**
-	 * Appel la méthode {@link AbstractId#spend(CostForAction, Flow)} pour le
+	 * Appel la mÃ©thode {@link AbstractId#spend(CostForAction, Flow)} pour le
 	 * cout de l'action en appelant {@link Flow#wrap(FlowArg)} sur les parametre
 	 * call. Cela permet de controller quand retourne au flux de control
 	 * principal

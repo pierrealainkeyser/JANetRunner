@@ -11,7 +11,7 @@ public class InstallInServerUserAction extends UserActionWithArgs<AbstractCardLi
 	private final CorpServer server;
 
 	public InstallInServerUserAction(AbstractId to, String description, CorpServer server, AbstractCardList cards) {
-		super(to, to, null, description, AbstractCardList.class);
+		super(to, null, null, description, AbstractCardList.class);
 		this.cards = cards;
 		this.server = server;
 	}

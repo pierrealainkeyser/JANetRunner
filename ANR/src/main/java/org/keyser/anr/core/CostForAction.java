@@ -12,6 +12,11 @@ public class CostForAction {
 		this.action = action;
 	}
 
+	@Override
+	public String toString() {
+		return "CostForAction [" + cost + ", " + action + "]";
+	}
+
 	public Cost getCost() {
 		return cost;
 	}

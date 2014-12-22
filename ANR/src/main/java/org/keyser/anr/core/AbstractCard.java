@@ -10,6 +10,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import org.springframework.util.ClassUtils;
+
 /**
  * Une carte abstraite
  * 
@@ -51,6 +53,11 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 
 		if (playPredicate != null && playLocation != null)
 			match(CollectHabilities.class, em -> playAction(em, playPredicate.and(location(playLocation))));
+	}
+
+	@Override
+	public String toString() {
+		return ClassUtils.getShortName(getClass()) + "[id=" + id + "]";
 	}
 
 	protected void whileInstalled(FlowArg<Flow> onInstall, FlowArg<Flow> onRemove) {
@@ -234,7 +241,7 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 
 	protected void playAction(EventMatcherBuilder<CollectHabilities> em, Predicate<CollectHabilities> playPredicate) {
 
-		// il faut nécessaire avoir le droit de faire une action
+		// il faut nÃ©cessaire avoir le droit de faire une action
 		playPredicate = playPredicate.and(CollectHabilities::isAllowAction);
 
 		em.test(customizePlayPredicate(playPredicate));
@@ -253,7 +260,7 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	}
 
 	/**
-	 * Méthode à implementer pour jouer la carte. Uniquemenet public pour les
+	 * MÃ©thode Ã  implementer pour jouer la carte. Uniquemenet public pour les
 	 * tests
 	 * 
 	 * @param hab
@@ -320,7 +327,7 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	}
 
 	/**
-	 * Mise à jour dans la location
+	 * Mise Ã  jour dans la location
 	 * 
 	 * @param location
 	 */

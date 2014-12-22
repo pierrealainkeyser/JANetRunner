@@ -35,8 +35,17 @@ public class CollectHabilities implements SequentialEvent {
 		return Collections.unmodifiableList(feedbacks);
 	}
 
+	@Override
+	public String toString() {
+		return "CollectHabilities [type=" + type + ", allowAction=" + allowAction + "]";
+	}
+
 	public boolean isAllowAction() {
 		return allowAction;
+	}
+
+	public PlayerType getType() {
+		return type;
 	}
 
 }

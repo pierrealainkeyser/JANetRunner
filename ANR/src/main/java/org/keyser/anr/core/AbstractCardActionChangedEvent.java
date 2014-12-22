@@ -6,4 +6,9 @@ public class AbstractCardActionChangedEvent extends AbstractCardMonitoringEvent 
 		super(card);
 	}
 
+	@Override
+	public String toString() {
+		return "AbstractCardActionChangedEvent [" + getPrimary() + "]";
+	}
+
 }

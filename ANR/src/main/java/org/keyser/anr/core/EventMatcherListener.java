@@ -8,7 +8,12 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class EventMatcherListener implements EventConsumer<Object> {
+
+	private final static Logger logger = LoggerFactory.getLogger(EventMatcherListener.class);
 
 	private static class HandlerKey {
 		final Class<?> first;
@@ -118,6 +123,8 @@ public class EventMatcherListener implements EventConsumer<Object> {
 		@SuppressWarnings("unchecked")
 		Handlers<Object> h = (Handlers<Object>) getHandlers(event.getClass());
 		EventMatchersFlow<Object> matchers = h.createFlow(event, flow);
+
+		logger.debug("Event fired : {}", event);
 
 		for (EventMatchersFlowConsumer consumer : consumers) {
 

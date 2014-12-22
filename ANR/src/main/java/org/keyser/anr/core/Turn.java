@@ -32,7 +32,8 @@ public class Turn {
 			if (action)
 				text = "Play action";
 			
-			game.userContext(null, text);
+			AbstractId id = game.getId(active);			
+			game.userContext(id, text);
 			for (Feedback<?, ?> feedback : feedbacks) {
 				if (feedback.checkCost()) {
 					game.user(feedback, next.wrap(feedbackConsumer.wrap(feedback)));
@@ -44,10 +45,10 @@ public class Turn {
 			// la continuation
 			if (!action) {
 				if (hasFeedbacks || requireQuestion()) {
-					// TODO gestion de la carte primaire pour le done. Par
-					// défautsur l'ID, mais c'est pas bon pour l'approche ou la
+					// TODO  gestion de la carte primaire pour le done. Par
+					// dÃ©faut sur l'ID, mais c'est pas bon pour l'approche ou la
 					// rencontre d'une glace
-					AbstractId me = game.getId(active);
+					AbstractId me = id;
 					game.user(noop(me, me, "Done"), next);
 				} else
 					next.apply();
@@ -59,14 +60,13 @@ public class Turn {
 		}
 
 		/**
-		 * Si c'est à la corporation de jouer et qu'il y a des cartes face
-		 * cachées on peut les rezzers, en tout cas le runner ne doit pas savoir
+		 * Si c'est Ã  la corporation de jouer et qu'il y a des cartes face
+		 * cachÃ©es on peut les rezzers, en tout cas le runner ne doit pas savoir
 		 * que la corpo n'a pas le budget
 		 * 
 		 * @return
 		 */
 		private boolean requireQuestion() {
-
 			if (active == PlayerType.CORP) {
 				boolean unrezzedCorpCard = game.getCards().stream().anyMatch(UNREZZED_INSTALL_CORP_CARDS);
 				return unrezzedCorpCard || mayRezzIce();
@@ -88,11 +88,10 @@ public class Turn {
 
 		protected ActionPingPong(PlayerType active) {
 			super(active);
-			// TODO Auto-generated constructor stub
 		}
 
 		/**
-		 * Tant que le joueur ne joue pas d'action il a la priorité
+		 * Tant que le joueur ne joue pas d'action il a la prioritÃ©
 		 * 
 		 * @param fired
 		 * @param next
@@ -135,7 +134,7 @@ public class Turn {
 		}
 
 		/**
-		 * boucle sur le premier joueur ou passe à first done si pas d'action
+		 * boucle sur le premier joueur ou passe ï¿½ first done si pas d'action
 		 * 
 		 * @param next
 		 */
@@ -154,7 +153,7 @@ public class Turn {
 		}
 
 		/**
-		 * boucle sur le second joueur ou passeà secondDone si pas d'action
+		 * boucle sur le second joueur ou passeï¿½ secondDone si pas d'action
 		 * 
 		 * @param next
 		 */
@@ -193,7 +192,7 @@ public class Turn {
 	}
 	
 	/**
-	 * Renvoi vrai s'il y a dejà eu un dommage de se type
+	 * Renvoi vrai s'il y a dejï¿½ eu un dommage de se type
 	 * @param type
 	 * @return
 	 */
@@ -258,7 +257,7 @@ public class Turn {
 	}
 
 	/**
-	 * Réalise des échanges uniquement des evenements, pas d'action
+	 * Rï¿½alise des ï¿½changes uniquement des evenements, pas d'action
 	 * 
 	 * @param next
 	 */
@@ -269,7 +268,7 @@ public class Turn {
 	private void initPhase() {
 		setPhase(Phase.INITING);
 
-		// démarrage technique, mise en place des actions
+		// dï¿½marrage technique, mise en place des actions
 		game.fire(new InitTurn());
 		AbstractId id = game.getId(active);
 

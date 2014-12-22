@@ -17,38 +17,17 @@ import java.util.stream.Collectors;
  */
 public class Cost {
 
-	private List<CostElement> basics = new ArrayList<CostElement>();
-
-	private List<CostElement> additionnal = new ArrayList<CostElement>();
+	public static Cost credit(int value) {
+		return new Cost().with(new CostElement(value, CostType.CREDIT));
+	}
 
 	public static Cost free() {
 		return new Cost();
 	}
 
-	public static Cost credit(int value) {
-		return new Cost().with(new CostElement(value, CostType.CREDIT));
-	}
+	private List<CostElement> basics = new ArrayList<CostElement>();
 
-	public Cost with(CostElement c) {
-		basics.add(c);
-		return this;
-	}
-
-	public Cost withAction(int action) {
-		basics.add(new CostElement(action, CostType.ACTION));
-		return this;
-	}
-
-	public Cost withAdditionnal(CostElement c) {
-		additionnal.add(c);
-		return this;
-	}
-
-	public Cost withoutAdditionnal() {
-		Cost costs = new Cost();
-		costs.basics.addAll(basics);
-		return costs;
-	}
+	private List<CostElement> additionnal = new ArrayList<CostElement>();
 
 	public Cost clone() {
 		Cost costs = new Cost();
@@ -57,12 +36,8 @@ public class Cost {
 		return costs;
 	}
 
-	public Cost normalize() {
-
-		Cost costs = new Cost();
-		costs.basics.addAll(normalize(basics));
-		costs.additionnal.addAll(normalize(additionnal));
-		return costs;
+	private void extractTypes(List<CostElement> m, Set<CostType> types) {
+		m.stream().map(CostElement::getType).forEach(types::add);
 	}
 
 	/**
@@ -79,10 +54,6 @@ public class Cost {
 		return types;
 	}
 
-	private void extractTypes(List<CostElement> m, Set<CostType> types) {
-		m.stream().map(CostElement::getType).forEach(types::add);
-	}
-
 	/**
 	 * Renvoi la valeur pour le type
 	 * 
@@ -97,6 +68,14 @@ public class Cost {
 
 	private int getValue(List<CostElement> elements, CostType type) {
 		return elements.stream().filter(ce -> ce.getType() == type).mapToInt(CostElement::getValue).sum();
+	}
+
+	public Cost normalize() {
+
+		Cost costs = new Cost();
+		costs.basics.addAll(normalize(basics));
+		costs.additionnal.addAll(normalize(additionnal));
+		return costs;
 	}
 
 	private List<CostElement> normalize(List<CostElement> costs) {
@@ -118,5 +97,33 @@ public class Cost {
 		}
 
 		return m.entrySet().stream().map(e -> new CostElement(e.getValue(), e.getKey())).collect(Collectors.toList());
+	}
+
+	@Override
+	public String toString() {
+		Cost c = normalize();
+		c.basics.addAll(c.additionnal);
+		return c.basics.toString();
+	}
+
+	public Cost with(CostElement c) {
+		basics.add(c);
+		return this;
+	}
+
+	public Cost withAction(int action) {
+		basics.add(new CostElement(action, CostType.ACTION));
+		return this;
+	}
+
+	public Cost withAdditionnal(CostElement c) {
+		additionnal.add(c);
+		return this;
+	}
+
+	public Cost withoutAdditionnal() {
+		Cost costs = new Cost();
+		costs.basics.addAll(basics);
+		return costs;
 	}
 }
