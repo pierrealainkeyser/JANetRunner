@@ -12,6 +12,10 @@ function Point(x, y) {
 	this.max = function(point) {
 		return new Point(Math.max(point.x, this.x), Math.max(point.y, this.y));
 	}
+
+	this.distance = function(point) {
+		return Math.sqrt(Math.pow(this.x - point.x, 2) + Math.pow(this.y - point.y, 2));
+	}
 }
 
 /**
@@ -315,6 +319,46 @@ function VerticalLayoutFunction(innerCfg, baseConfig) {
 	};
 }
 
+function HandLayoutFunction(innerCfg, baseCfg) {
+	var me = this;
+	LayoutFunction.call(this);
+	this.left = innerCfg.left || -160;
+	this.right = innerCfg.right || -this.left;
+	this.height = innerCfg.height || 0;
+	this.direction = innerCfg.direction || 1;
+	this.flatness = innerCfg.flatness || 3.0;
+	this.zIndex = baseCfg.zIndex || 0;
+
+	var bl = new Point(this.left, 0);
+	var tr = new Point(this.right, this.height);
+
+	var deltaWith = tr.x - bl.x;
+	var deltaHeight = tr.y - bl.y;
+	var middle = new Point(tr.x - deltaWith / 2, tr.y - deltaHeight / 2);
+
+	this.centerOfCircle = new Point(middle.x + (this.direction * deltaHeight * this.flatness), middle.y + this.direction * deltaWith * this.flatness);
+	var ray = bl.distance(this.centerOfCircle);
+
+	this.startAngle = -(Math.acos(middle.distance(this.centerOfCircle) / ray));
+	this.maxAngle = -this.startAngle;
+
+	this.applyLayout = function(boxContainer, index, box) {
+
+		var size = boxContainer.size();
+		var percent = index / (size - 1.0);
+		var angle = this.startAngle + (this.maxAngle - this.startAngle) * percent;
+		var cos = Math.cos(angle);
+		var sin = Math.sin(angle);
+
+		var x = me.centerOfCircle.x - me.centerOfCircle.x * cos + me.centerOfCircle.y * sin;
+		var y = me.centerOfCircle.y - me.centerOfCircle.x * sin - me.centerOfCircle.y * cos;
+
+		var angleDeg = angle * 180 / Math.PI;
+		var lc = new LayoutCoords(x, y, { angle : angleDeg, zIndex : index + this.zIndex });
+		return lc;
+	}
+}
+
 /**
  * Un layout en forme de grille. Le nombre de colonnes (columns) est défini
  */
@@ -348,7 +392,7 @@ function GridLayoutFunction(innerCfg, baseConfig) {
 		var x = col * this.maxBox.width + (this.padding * (col + 1));
 		var y = row * this.maxBox.height + (this.padding * (row + 1));
 
-		var lc = new LayoutCoords(x, y, this.baseConfig);		
+		var lc = new LayoutCoords(x, y, this.baseConfig);
 		return lc;
 	}
 }

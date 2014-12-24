@@ -28,10 +28,10 @@ function bootANR(gameId) {
 				{ id : 7, faction : 'runner', url : '01035', face : "down", location : { primary : "stack", index : 1 } },//
 				{ id : 8, faction : 'runner', url : '01036', face : "down", location : { primary : "stack", index : 2 } },//
 				{ id : 9, faction : 'runner', url : '01037', face : "down", location : { primary : "stack", index : 3 } },//
-				{ id : 10, faction : 'runner', url : '01038', face : "down", location : { primary : "stack", index : 4 } },//
+				{ id : 10, faction : 'runner', url : '01038', face : "up", location : { primary : "hand", index : 0 } },//
 				{ id : 11, faction : 'runner', url : '01039', location : { primary : "hardware", index : 0 } },//
 				{ id : 12, faction : 'runner', url : '01041', tokens : { recurring : 2 }, location : { primary : "hardware", index : 1 } },//
-				{ id : 13, faction : 'runner', url : '01042', location : { primary : "program", index : 0 } },//
+				{ id : 13, faction : 'runner', url : '01042', location : { primary : "hand", index : 1 } },//
 				{ id : 14, faction : 'runner', url : '01043', face : "down", location : { primary : "stack", index : 5 } },//
 				{ id : 15, faction : 'runner', url : '01052', face : "down", location : { primary : "stack", index : 6 } },//
 				{ id : 16, faction : 'runner', url : '01053', face : "down", location : { primary : "stack", index : 7 } },//
@@ -47,7 +47,8 @@ function bootANR(gameId) {
 				{ id : 1, face : "down",
 					subs : [ { id : 1, text : "<strong>Trace<sup>3</sup></strong> - If successful, place 1 power counter on Data Raven" } ],
 					location : { primary : "server", serverIndex : -3, secondary : "ices", index : 1 } },// 
-				{ id : 14, face : "up", location : { primary : "program", index : 1 } },//
+				{ id : 14, face : "up", location : { primary : "hand", index : 2 } },//
+				{ id : 9, face : "up", location : { primary : "hand", index : 3 } },//
 				{ id : 15, face : "up", location : { primary : "resource", index : 1 } },// 
 				{ id : 16, face : "up", tokens : { credit : 12 }, location : { primary : "resource", index : 2 } },//
 				{ id : 11, location : { primary : "heap", index : 1 } },//
@@ -190,6 +191,8 @@ function CardManager(cardContainer) {
 		this.serverRows = new BoxContainer(this, new HorizontalLayoutFunction({ spacing : 12 }, {}));
 		this.runnerColums = new BoxContainer(this, new VerticalLayoutFunction({ spacing : 5 }, {}));
 
+		this.handContainer = new BoxContainer(this, new HandLayoutFunction({}, { zIndex : 0 }));
+
 		var runnerRow = new BoxContainer(this, new HorizontalLayoutFunction({ spacing : 12, direction : -1 }, {}));
 
 		var horizontalRunnerLayout = new HorizontalLayoutFunction({ spacing : 8, direction : -1 }, {});
@@ -211,6 +214,7 @@ function CardManager(cardContainer) {
 
 		this.absoluteContainer.addChild(this.serverRows);
 		this.absoluteContainer.addChild(this.runnerColums);
+		this.absoluteContainer.addChild(this.handContainer);
 
 		this.refresh();
 		this.runCycle();
@@ -223,6 +227,8 @@ function CardManager(cardContainer) {
 		var padding = 25;
 		this.serverRows.absolutePosition = new LayoutCoords(padding, this.area.main.height - this.area.card.height * 2 - padding);
 		this.runnerColums.absolutePosition = new LayoutCoords(this.area.main.width - this.area.card.width - padding, padding);
+		this.handContainer.absolutePosition = new LayoutCoords(this.area.main.width - padding / 2 - 300, this.area.main.height - this.area.card.height
+				- padding / 2 - 50);
 
 		this.absoluteContainer.requireLayout();
 	};
@@ -275,12 +281,12 @@ function CardManager(cardContainer) {
 				}
 			}
 		}
-	}	
-	
+	}
+
 	var findContainer = function(path) {
 		var first = path.primary;
 		if ("server" === first) {
-			var server = me.getServer({id:path.serverIndex});
+			var server = me.getServer({ id : path.serverIndex });
 			return server.findContainer(path.secondary);
 		} else if ("resource" === first)
 			return me.runnerResources;
@@ -294,6 +300,9 @@ function CardManager(cardContainer) {
 			return me.runnerStack;
 		else if ("heap" === first)
 			return me.runnerHeap;
+		else if ("hand" === first)
+			return me.handContainer;
+
 	};
 
 	var updateAllCards = function(elements) {
