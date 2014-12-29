@@ -3,6 +3,14 @@ var ANIM_DURATION = 0.3;
 var cardManager = null;
 var hbox2 = null;
 
+$.fn.sandbox = function(fn) {
+    var element = $(this).clone(), result;
+    element.css({visibility: 'hidden', display: 'block',position:'absolute'}).insertAfter($("#main")); 
+    result = fn.apply(element);
+    element.remove();
+    return result;
+};
+
 function bootANR(gameId) {
 	cardManager = new CardManager($("#main"));
 	cardManager.prepare();
@@ -886,7 +894,7 @@ function BoxSubroutine(extbox, sub) {
 	$("<span class='icon icon-subroutine'></span>").appendTo(this.element);
 	this.element.append(interpolateString(sub.text));
 	Box.call(this, extbox.cardManager);
-	ElementBox.call(this, this.element);
+	ElementBox.call(this, this.element,true);
 	AnimatedBox.call(this);
 
 	this.checkbox.change(function() {
@@ -932,7 +940,7 @@ function BoxAllSubroutine(extbox, text) {
 	this.checkbox = checkbox.appendTo(this.element);
 	this.element.append(text);
 	Box.call(this, extbox.cardManager);
-	ElementBox.call(this, this.element);
+	ElementBox.call(this, this.element,true);
 	AnimatedBox.call(this);
 
 	this.checkbox.change(function() {
@@ -1423,20 +1431,28 @@ function ExtBox(cardManager, absoluteContainer) {
 /**
  * Une boite associe à un element Jquery
  */
-function ElementBox(element) {
+function ElementBox(element, sandboxed) {
 	var me = this;
 	this.element = element;
 	this.firstTimeShow = true;
 
 	/**
+	 * Permet de recuperer la taille interner
+	 */
+	var innerSize = function() {
+		return new Dimension(this.outerWidth(true), this.outerHeight(true))
+	};
+
+	/**
 	 * Utilise l'élément
 	 */
 	this.getBaseBox = function() {
-		var base = new Dimension(me.element.outerWidth(true), me.element.outerHeight(true));
-		if(me.type==='sub'){
-			console.log(me.element)
-			console.log(base)
+		if (sandboxed) {
+			var h = me.element.sandbox(innerSize)
+			return h;
 		}
+
+		var base = new Dimension(me.element.outerWidth(true), me.element.outerHeight(true));
 		return base;
 	}
 
