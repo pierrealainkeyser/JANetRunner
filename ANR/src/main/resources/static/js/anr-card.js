@@ -959,7 +959,7 @@ function BoxHeader(layoutManager, text) {
 	me.type = 'header';
 	this.element = $("<span class='header'>" + text + "</span>");
 	Box.call(this, layoutManager);
-	ElementBox.call(this, this.element);
+	ElementBox.call(this, this.element, true);
 	AnimatedBox.call(this);
 
 	/**
@@ -1059,10 +1059,6 @@ function ExtBox(cardManager, absoluteContainer) {
 		return cardManager.area.cardBig;
 	}
 
-	this.closeButton = $('<button class="btn btn-danger"><i class="glyphicon glyphicon-off"></i></button>');
-	Box.call(this.closeButton, cardManager);
-	ElementBox.call(this.closeButton, this.closeButton);
-
 	var coreLayout = new VerticalLayoutFunction({ spacing : 3 }, {});
 	// coreLayout.afterLayout=
 	BoxContainer.call(this, cardManager, coreLayout);
@@ -1076,7 +1072,8 @@ function ExtBox(cardManager, absoluteContainer) {
 			return { width : 0, height : 0 };
 	}
 
-	this.header = new BoxHeader(cardManager, "Header");
+	this.header = new BoxHeader(cardManager, "View card");
+	this.header.element.append(" <small>(click to close)</small>")
 	this.header.addClass("title");
 
 	this.innerContainer = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 5 }, {}));
@@ -1089,11 +1086,11 @@ function ExtBox(cardManager, absoluteContainer) {
 	// les sous-routines
 	this.subs = [];
 
+	this.addChild(this.header);
 	this.addChild(this.innerContainer);
 	this.innerContainer.addChild(innerBox);
 	this.innerContainer.addChild(this.tokensContainer);
 	this.innerContainer.addChild(this.blankBox);
-	this.innerContainer.addChild(this.closeButton);
 	this.addChild(this.actionsContainer);
 
 	/**
@@ -1116,7 +1113,6 @@ function ExtBox(cardManager, absoluteContainer) {
 
 		if (lastMatch === undefined) {
 			var header = new BoxHeader(cardManager, box.type + "s");
-
 			me.tokensContainer.addChild(header);
 			header.element.appendTo(me.displayedCard.ext);
 			header.entrance();
@@ -1171,7 +1167,7 @@ function ExtBox(cardManager, absoluteContainer) {
 		this.displayedCard.applyGhost(absoluteContainer);
 
 		this.tokensContainer.removeAllChilds();
-		this.tokensContainer.addChild(this.header);
+		//this.tokensContainer.addChild(this.header);
 
 		this.displayedCard.ext.empty();
 
@@ -1196,16 +1192,6 @@ function ExtBox(cardManager, absoluteContainer) {
 		actions.appendTo(this.displayedCard.ext);
 
 		this.header.element.appendTo(card.ext);
-		this.closeButton.appendTo(card.ext);
-
-		this.closeButton.click(function(event) {
-			event.stopPropagation();
-			var closure = cardManager.within(function() {
-				me.closeCard();
-			});
-			closure();
-		});
-
 		this.updateLayouts();
 	}
 
