@@ -45,7 +45,7 @@ function bootANR(gameId) {
 		cardManager.update({ cards : [ //
 				{ id : 5, tokens : { credit : 5, power : 1 } },//
 				{ id : 1, face : "down",
-					subs : [ { id : 1, text : "<strong>Trace<sup>3</sup></strong> - If successful, place 1 power counter on Data Raven" } ],
+					subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on Data Raven" } ],
 					location : { primary : "server", serverIndex : -3, secondary : "ices", index : 1 } },// 
 				{ id : 14, face : "up", location : { primary : "hand", index : 2 } },//
 				{ id : 9, face : "up", location : { primary : "hand", index : 3 } },//
@@ -59,13 +59,13 @@ function bootANR(gameId) {
 
 	setTimeout(cardManager.within(function() {
 		cardManager
-				.update({ cards : [ //
+				.update({primary:1, cards : [ //
 						{ id : 5, tokens : { credit : 10 } },//
-						{ id : 1, is : "primary", actions : [ { id : 1, text : "Continue", cls : "warning" } ] },//
+						{ id : 1, actions : [ { id : 1, text : "Continue", cls : "warning" } ] },//
 						{
 							id : 16,
-							actions : [ { text : "Take 2<span class='icon icon-credit'></span> from Armitage Codebusting",
-								cost : "<span class='icon icon-click'>" } ] },//
+							actions : [ { text : "Take {2:credit} from Armitage Codebusting",
+								cost : "{1:click}" } ] },//
 
 				] });
 	}), 500)
@@ -73,7 +73,7 @@ function bootANR(gameId) {
 	setTimeout(cardManager.within(function() {
 		cardManager.update({ cards : [ //
 				{ id : 1, tokens : { power : 1 }, actions : [ { id : 2, text : "Continue", cls : "success" } ],
-					subs : [ { id : 1, text : "<strong>Trace<sup>3</sup></strong> - If successful, place 1 power counter on Data Raven", broken : true } ] },//						
+					subs : [ { id : 1, text :  "{3:trace} If successful, place 1 power counter on Data Raven", broken : true } ] },//						
 		] });
 	}), 1000)
 
@@ -330,16 +330,17 @@ function CardManager(cardContainer) {
 
 			if (def.subs)
 				card.setSubs(def.subs);
-
-			if (def.is === "primary") {
-				me.primaryCardId = def.id;
+			
+			if (me.isDisplayed(card)) {
 				// affichage de la carte primaire
-				me.extbox.displayPrimary(card);
-			} else {
-				if (me.isDisplayed(card)) {
-					me.extbox.updatePrimary(card);
-				}
+				me.extbox.updatePrimary(card);
 			}
+		}
+		
+		if (elements.primary) {
+			me.primaryCardId = elements.primary;
+			var card = me.getCard({id:elements.primary});
+			me.extbox.displayPrimary(card);
 		}
 	};
 
@@ -494,6 +495,30 @@ function animateCss(element, classx, onEnd) {
 			onEnd();
 	});
 	return element;
+}
+
+/**
+ * Interpolation des caracteres ANR
+ * @param string
+ * @returns
+ */
+function interpolateString(string) {
+	return string.replace(/\{(\d+):(\w+)\}/g, function() {
+		var nb = arguments[1];
+		var str = arguments[2];
+		if ('trace' === str)
+			return "<strong>Trace<sup>" + nb + "</sup></strong> -";
+		else if ('credit' === str)
+			return nb + "<span class='icon icon-credit'></span>";
+		else if ('click' === str) {
+			var a = [];
+			for (i = 0; i < nb; i++)
+				a.push("<span class='icon icon-click'>");
+			return a.join(", ");
+		}
+
+		return "";
+	});
 }
 
 /**
@@ -859,7 +884,7 @@ function BoxSubroutine(extbox, sub) {
 	this.checkbox = $("<input type='checkbox' />");
 	this.checkbox.appendTo(this.element);
 	$("<span class='icon icon-subroutine'></span>").appendTo(this.element);
-	this.element.append(sub.text);
+	this.element.append(interpolateString(sub.text));
 	Box.call(this, extbox.cardManager);
 	ElementBox.call(this, this.element);
 	AnimatedBox.call(this);
@@ -955,7 +980,7 @@ function BoxAction(extbox, def) {
 	this.element = $('<button class="btn btn-default"/>');
 
 	this.cost = $("<span class='cost'/>").appendTo(this.element);
-	this.element.append(def.text);
+	this.element.append(interpolateString(def.text));
 
 	if (def.cls)
 		this.element.addClass("btn-" + def.cls);
@@ -989,7 +1014,7 @@ function BoxAction(extbox, def) {
 	 */
 	this.setCost = function(cost) {
 		if (cost) {
-			this.cost.html(cost);
+			this.cost.html(interpolateString(cost));
 			this.cost.show();
 		} else {
 			this.cost.hide();
@@ -1407,7 +1432,11 @@ function ElementBox(element) {
 	 * Utilise l'élément
 	 */
 	this.getBaseBox = function() {
-		var base = new Dimension(this.element.outerWidth(true), this.element.outerHeight(true));
+		var base = new Dimension(me.element.outerWidth(true), me.element.outerHeight(true));
+		if(me.type==='sub'){
+			console.log(me.element)
+			console.log(base)
+		}
 		return base;
 	}
 
