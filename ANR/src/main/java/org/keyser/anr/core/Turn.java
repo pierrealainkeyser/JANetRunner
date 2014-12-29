@@ -186,6 +186,14 @@ public class Turn {
 		this.game = game;
 		this.turn = turn;
 	}
+	
+	public boolean corpTurn(){
+		return active==PlayerType.CORP;
+	}
+	
+	public boolean runnerTurn(){
+		return active==PlayerType.RUNNER;
+	}
 
 	public int getTurn() {
 		return turn;
