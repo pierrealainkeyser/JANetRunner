@@ -24,8 +24,9 @@ public abstract class AbstractId extends AbstractCard {
 		this.playerType = playerType;
 
 		// on recherche les actions jouables par défaut
-		match(CollectHabilities.class, em -> em.test(ch -> ch.isAllowAction() && ch.getType() == playerType).call(this::playFeedback));
-
+		addAction(this::playFeedback);
+		setInstalled(true);
+		setRezzed(true);
 	}
 
 	@Override

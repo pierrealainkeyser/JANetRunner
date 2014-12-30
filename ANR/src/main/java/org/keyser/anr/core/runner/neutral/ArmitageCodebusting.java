@@ -1,52 +1,46 @@
 package org.keyser.anr.core.runner.neutral;
 
-import static org.keyser.anr.core.EventMatcher.match;
+import static java.util.Collections.emptyList;
 
-import org.keyser.anr.core.CardAbility;
-import org.keyser.anr.core.CardDef;
+import org.keyser.anr.core.CollectHabilities;
 import org.keyser.anr.core.Cost;
+import org.keyser.anr.core.CostForAction;
 import org.keyser.anr.core.Faction;
-import org.keyser.anr.core.WalletCredits;
+import org.keyser.anr.core.Flow;
+import org.keyser.anr.core.MetaCard;
+import org.keyser.anr.core.SimpleFeedback;
+import org.keyser.anr.core.TokenType;
+import org.keyser.anr.core.UserAction;
 import org.keyser.anr.core.runner.Resource;
-import org.keyser.anr.core.runner.RunnerInstalledResourceCleanup;
 
-@CardDef(name = "Armitage Codebusting", oid = "01053")
 public class ArmitageCodebusting extends Resource {
 
-	public ArmitageCodebusting() {
-		super(Faction.RUNNER_NEUTRAL.infl(0), Cost.credit(1));
+	public final static MetaCard INSTANCE = new MetaCard(
+			"Armitage Codebusting", Faction.RUNNER_NEUTRAL.infl(0),
+			Cost.credit(1), false, "01053", emptyList(),
+			ArmitageCodebusting::new);
 
-		register(match(RunnerInstalledResourceCleanup.class).pred(this::equals).invoke(this::addCreditOnInstall));
+	protected ArmitageCodebusting(int id, MetaCard meta) {
+		super(id, meta);
 
-		addAction(new CardAbility(this, "Take 2{credits} from Armitage Codebusting", Cost.action(1)) {
-
-			@Override
-			public void apply() {
-				getGame().getRunner().getWallet().wallet(WalletCredits.class, wc -> wc.setAmount(wc.getAmount() + 2));
-
-				int amt = getCredits() - 2;
-				if (amt > 0) {
-					setCredits(amt);
-					next.apply();
-				} else {
-
-					// plus de credits on trashe la carte
-					setCredits(0);
-					trash(next);
-				}
-			}
-
-			@Override
-			public boolean isEnabled() {
-				Integer credits = getCredits();
-				return credits != null && credits > 0;
-			};
-		});
+		addAction(this::configureAction);
 	}
 
-	private void addCreditOnInstall() {
-		setCredits(12);
+	private void configureAction(CollectHabilities hab) {
+		Cost oneAction = Cost.free().withAction(1);
+		UserAction take2credits = new UserAction(getRunner(), this,
+				new CostForAction(oneAction, new UseArmitageCodebustingAction(
+						this)), "Take {2:credit}");
+		hab.add(new SimpleFeedback<>(take2credits, this::take2CreditsAction));
+	}
 
-		unbind(getGame());
+	private void take2CreditsAction(UserAction ua, Flow next) {
+		getRunner().addToken(TokenType.CREDIT, 2);
+		addToken(TokenType.CREDIT, -2);
+		// TODO gestion du contexte de trash
+		if (0 == getToken(TokenType.CREDIT))
+			trash(null, next);
+		else
+			next.apply();
 	}
 }

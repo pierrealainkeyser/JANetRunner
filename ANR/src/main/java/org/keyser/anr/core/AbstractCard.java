@@ -54,6 +54,15 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 		if (playPredicate != null && playLocation != null)
 			match(CollectHabilities.class, em -> playAction(em, playPredicate.and(location(playLocation))));
 	}
+	
+	/**
+	 * Permet de rajouter des actions
+	 * @param registerAction
+	 */
+	protected final void addAction(FlowArg<CollectHabilities> registerAction) {
+		// on recherche les actions jouables par défaut
+		match(CollectHabilities.class, em -> em.test(ch -> ch.isAllowAction() && ch.getType() == getOwner() && rezzed).call(registerAction));
+	}
 
 	@Override
 	public String toString() {
@@ -341,7 +350,7 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	public void setRezzed(boolean rezzed) {
 		boolean old = this.rezzed;
 		this.rezzed = rezzed;
-		if (old != rezzed)
+		if (old != rezzed && game!=null)
 			game.fire(new AbstractCardRezzEvent(this));
 	}
 
