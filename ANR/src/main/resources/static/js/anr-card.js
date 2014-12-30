@@ -4,11 +4,11 @@ var cardManager = null;
 var hbox2 = null;
 
 $.fn.sandbox = function(fn) {
-    var element = $(this).clone(), result;
-    element.css({visibility: 'hidden', display: 'block',position:'absolute'}).insertAfter($("#main")); 
-    result = fn.apply(element);
-    element.remove();
-    return result;
+	var element = $(this).clone(), result;
+	element.css({ visibility : 'hidden', display : 'block', position : 'absolute' }).insertAfter($("#main"));
+	result = fn.apply(element);
+	element.remove();
+	return result;
 };
 
 function bootANR(gameId) {
@@ -52,8 +52,7 @@ function bootANR(gameId) {
 	setTimeout(cardManager.within(function() {
 		cardManager.update({ cards : [ //
 				{ id : 5, tokens : { credit : 5, power : 1 } },//
-				{ id : 1, face : "down",
-					subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on Data Raven" } ],
+				{ id : 1, face : "down", subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on Data Raven" } ],
 					location : { primary : "server", serverIndex : -3, secondary : "ices", index : 1 } },// 
 				{ id : 14, face : "up", location : { primary : "hand", index : 2 } },//
 				{ id : 9, face : "up", location : { primary : "hand", index : 3 } },//
@@ -66,22 +65,18 @@ function bootANR(gameId) {
 	}), 250)
 
 	setTimeout(cardManager.within(function() {
-		cardManager
-				.update({primary:1, cards : [ //
-						{ id : 5, tokens : { credit : 10 } },//
-						{ id : 1, actions : [ { id : 1, text : "Continue", cls : "warning" } ] },//
-						{
-							id : 16,
-							actions : [ { text : "Take {2:credit} from Armitage Codebusting",
-								cost : "{1:click}" } ] },//
+		cardManager.update({ primary : 1, cards : [ //
+		{ id : 5, tokens : { credit : 10 } },//
+		{ id : 1, actions : [ { id : 1, text : "Continue", cls : "warning" } ] },//
+		{ id : 16, actions : [ { text : "Take {2:credit} from Armitage Codebusting", cost : "{1:click}" } ] },//
 
-				] });
+		] });
 	}), 500)
 
 	setTimeout(cardManager.within(function() {
 		cardManager.update({ cards : [ //
 				{ id : 1, tokens : { power : 1 }, actions : [ { id : 2, text : "Continue", cls : "success" } ],
-					subs : [ { id : 1, text :  "{3:trace} If successful, place 1 power counter on Data Raven", broken : true } ] },//						
+					subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on Data Raven", broken : true } ] },//						
 		] });
 	}), 1000)
 
@@ -258,6 +253,26 @@ function CardManager(cardContainer) {
 	};
 
 	/**
+	 * Création d'un server
+	 */
+	this.createServer = function(def) {
+		var serv = new Server(def, me);
+		serv.setParent(me.serverRows);
+		me.servers[def.id] = serv;
+
+		var callback = function(event) {
+			var closure = me.within(function() {
+				me.toggleServer(serv);
+			});
+			closure();
+		};
+
+		serv.primary.on('click', callback);
+
+		return serv;
+	}
+
+	/**
 	 * Création des cartes qui n'existent pas
 	 */
 	var createAllCards = function(elements) {
@@ -283,9 +298,7 @@ function CardManager(cardContainer) {
 				var def = elements.servers[c];
 				var serv = me.getServer(def);
 				if (!serv) {
-					serv = new Server(def, me);
-					serv.setParent(me.serverRows);
-					me.servers[def.id] = serv;
+					me.createServer(def);
 				}
 			}
 		}
@@ -338,16 +351,16 @@ function CardManager(cardContainer) {
 
 			if (def.subs)
 				card.setSubs(def.subs);
-			
+
 			if (me.isDisplayed(card)) {
 				// affichage de la carte primaire
 				me.extbox.updatePrimary(card);
 			}
 		}
-		
+
 		if (elements.primary) {
 			me.primaryCardId = elements.primary;
-			var card = me.getCard({id:elements.primary});
+			var card = me.getCard({ id : elements.primary });
 			me.extbox.displayPrimary(card);
 		}
 	};
@@ -472,7 +485,16 @@ function CardManager(cardContainer) {
 			// affichage de la carte primaire
 			me.extbox.displayPrimary(card);
 		}
+	}
 
+	/**
+	 * Affichage du server
+	 */
+	this.toggleServer = function(serv) {
+		this.displayedCard = null;
+		this.secondaryCard = null;
+
+		me.extbox.displayServer(serv);
 	}
 }
 
@@ -507,6 +529,7 @@ function animateCss(element, classx, onEnd) {
 
 /**
  * Interpolation des caracteres ANR
+ * 
  * @param string
  * @returns
  */
@@ -529,19 +552,18 @@ function interpolateString(string) {
 	});
 }
 
-function AbstractGhost(cardManager){
+function AbstractGhost(cardManager) {
 	var me = this;
 	me.type = 'ghost';
 	this.firstTimeShow = true;
-	
 
 	Box.call(this, cardManager);
 	AnimatedBox.call(this, "fade");
-	
+
 	this.getBaseBox = function() {
-		return new Dimension(0,0);
+		return new Dimension(0, 0);
 	}
-	
+
 	this.draw = function() {
 		var box = this.getBaseBox();
 		var rotation = this.coords.angle;
@@ -562,7 +584,7 @@ function AbstractGhost(cardManager){
  */
 function GhostCard(card) {
 	var me = this;
-	AbstractGhost.call(this,card.cardManager)
+	AbstractGhost.call(this, card.cardManager)
 
 	var img = $("<img class='ghost' src='/card-img/" + card.def.url + "'/>");
 	this.element = img.appendTo(card.cardManager.cardContainer);
@@ -573,62 +595,70 @@ function GhostCard(card) {
 }
 
 /**
- * L'image d'un serveur
+ * L'image d'un serveur, qui sera affiche
  */
 function GhostServer(server) {
 	var me = this;
-	AbstractGhost.call(this, server.cardManager)
+	AbstractGhost.call(this, server.cardManager);
+	AbstractElement.call(this, server.def);
 
 	var img = server.primary.clone();
-	this.element = img.appendTo(card.cardManager.cardContainer);
-	this.baseBox = server.getBaseBox();
+	img.removeAttr("style");
+	this.coords = this.baseCoords = server.coords;
+
+	this.primary = $("<div class='ext server'></div>").appendTo(server.cardManager.cardContainer);
+	this.primary.append(img);
+
+	this.ext = this.element = this.primary;
+	this.innerBaseBox = server.assetOrUpgrades.getBaseBox();
 
 	this.getBaseBox = function() {
-		return this.baseBox;
+		return this.innerBaseBox;
+	}
+
+	this.unapplyGhost = function() {
+		this.primary.remove();
+	}
+
+	this.draw = function() {
+		var box = this.getBaseBox();
+		var rotation = 360;
+		var primaryCss = { width : box.width, height : box.height, top : this.coords.y, left : this.coords.x, zIndex : this.coords.zIndex || 0 };
+
+		if (this.firstTimeShow) {
+			TweenLite.set(this.element, { top : this.baseCoords.y, left : this.baseCoords.x, });
+			primaryCss.rotation = rotation;
+		}
+		TweenLite.to(this.element, ANIM_DURATION, { css : primaryCss });
+
+		this.firstTimeShow = false;
 	}
 }
 
 /**
  * Un element qui doit être un Box
  */
-function AbstractElement() {
+function AbstractElement(def) {
 	var me = this;
+	this.def = def;
 
 	// l'image fantome
 	this.ghost = null;
 	this.mode = "plain";
 
+	/**
+	 * Accède à l'ID de la carte
+	 */
+	this.getId = function() {
+		return def.id;
+	}
+
 	// les composants graphique à étendre
 	this.ext = null;
 	this.primary = null;
 
-	/**
-	 * Méthode à implémenter
-	 */
-	this.createGhost = function() {
-		return {}
-	}
-
 	this.isPlainMode = function() {
 		return this.mode === 'plain';
-	}
-
-	/**
-	 * Rajoute un ghost dans le parent
-	 */
-	this.applyGhost = function(parent) {
-		this.ghost = this.createGhost();
-		this.parent.replaceChild(this, this.ghost);
-		this.setParent(parent);
-	}
-
-	/**
-	 * Supprime le ghost et retourne à sa place
-	 */
-	this.unapplyGhost = function() {
-		this.ghost.parent.replaceChild(this.ghost, this);
-		this.ghost.remove(true);
-		this.ghost = null;
 	}
 
 	/**
@@ -638,6 +668,8 @@ function AbstractElement() {
 		this.extbox = extbox;
 		if (!_.isObject(extbox)) {
 			this.mode = "plain";
+		} else {
+			this.mode = "extended";
 		}
 		this.redraw();
 	}
@@ -649,7 +681,7 @@ function AbstractElement() {
 function Card(def, cardManager) {
 	var me = this;
 
-	AbstractElement.call(this);
+	AbstractElement.call(this, def);
 	BoxContainer.call(this, cardManager);
 
 	this.def = def;
@@ -687,17 +719,28 @@ function Card(def, cardManager) {
 	};
 
 	/**
-     * creation du ghost de la carte
-     */
-	this.createGhost = function() {
-		return new GhostCard(this);
+	 * Rajoute un ghost dans le parent
+	 */
+	this.applyGhost = function(parent) {
+		this.ghost = this.createGhost();
+		this.parent.replaceChild(this, this.ghost);
+		this.setParent(parent);
 	}
 
 	/**
-	 * Accède à l'ID de la carte
+	 * Supprime le ghost et retourne à sa place
 	 */
-	this.getId = function() {
-		return def.id;
+	this.unapplyGhost = function() {
+		this.ghost.parent.replaceChild(this.ghost, this);
+		this.ghost.remove(true);
+		this.ghost = null;
+	}
+
+	/**
+	 * creation du ghost de la carte
+	 */
+	this.createGhost = function() {
+		return new GhostCard(this);
 	}
 
 	/**
@@ -952,7 +995,7 @@ function BoxSubroutine(extbox, sub) {
 	$("<span class='icon icon-subroutine'></span>").appendTo(this.element);
 	this.element.append(interpolateString(sub.text));
 	Box.call(this, extbox.cardManager);
-	ElementBox.call(this, this.element,true);
+	ElementBox.call(this, this.element, true);
 	AnimatedBox.call(this);
 
 	this.checkbox.change(function() {
@@ -998,7 +1041,7 @@ function BoxAllSubroutine(extbox, text) {
 	this.checkbox = checkbox.appendTo(this.element);
 	this.element.append(text);
 	Box.call(this, extbox.cardManager);
-	ElementBox.call(this, this.element,true);
+	ElementBox.call(this, this.element, true);
 	AnimatedBox.call(this);
 
 	this.checkbox.change(function() {
@@ -1201,12 +1244,38 @@ function ExtBox(cardManager, absoluteContainer) {
 	}
 
 	/**
+	 * Affichage du server
+	 */
+	this.displayServer = function(serv) {
+		this.closeCard();
+		var g = serv.createGhost();
+		this.displayedCard = g;
+
+		g.primary.draggable({ drag : function(event, ui) {
+			var position = g.primary.position();
+			me.updateVirtualPosition(position.left, position.top);
+		} });
+
+		// remise à zero des routines
+		this.subs = [];
+
+		var coords = this.displayedCard.coords;
+		var big = cardManager.area.cardBig;
+		var small = cardManager.area.card;
+		this.displayedCard.absolutePosition = new LayoutCoords(coords.x - (big.width - small.width) / 2, coords.y - (big.height - small.height) / 2,
+				{ zIndex : 10 });
+		this.displayedCard.setParent(absoluteContainer);
+
+		this.updateLayouts();
+
+	}
+
+	/**
 	 * Affichage de la carte
 	 */
 	this.displayPrimary = function(card) {
 		this.closeCard();
 		this.displayedCard = card;
-		this.displayedCard.mode = "extended";
 
 		card.primary.draggable({ drag : function(event, ui) {
 			var position = card.primary.position();
@@ -1225,8 +1294,6 @@ function ExtBox(cardManager, absoluteContainer) {
 		this.displayedCard.applyGhost(absoluteContainer);
 
 		this.tokensContainer.removeAllChilds();
-		//this.tokensContainer.addChild(this.header);
-
 		this.displayedCard.ext.empty();
 
 		// rajout des routines, actions et tokens
@@ -1506,36 +1573,19 @@ function ElementBox(element, sandboxed) {
 	this.draw = function() {
 		if (this.coords) {
 			var animate = true;
-			
-			var extCss=null;
-			if(this.ext){
-				extCss={};
-				if (this.mode === "extended" && this.extbox ) {
-					_.extend(extCss, { width : this.extbox.width, height : this.extbox.height, autoAlpha : 1 });
-				} else {
-					_.extend(extCss, { width : 0, height : 0, autoAlpha : 0 });
-				}
-			}
-			
 			if (this.firstTimeShow) {
 				if (this.coords.initial) {
 					TweenLite.set(this.element, { css : { top : this.coords.initial.y, left : this.coords.initial.x, autoAlpha : 0 } });
 				} else {
 					TweenLite.set(this.element, { css : { top : this.coords.y, left : this.coords.x } });
-					if(extCss)
-						TweenLite.set(this.ext, { css : extCss});
-					
-					
 					animate = false;
 				}
 
 				this.firstTimeShow = false;
 			}
 
-			if (animate){
+			if (animate) {
 				TweenLite.to(this.element, ANIM_DURATION, { css : { top : this.coords.y, left : this.coords.x, autoAlpha : 1 } });
-				if(extCss)
-					TweenLite.to(this.ext, ANIM_DURATION,{ css : extCss});
 			}
 		}
 	}
@@ -1607,17 +1657,17 @@ var INNER_SERVER_LAYOUT = new function() {
 function Server(def, cardManager) {
 	var me = this;
 	this.def = def;
-	this.cardManager=cardManager;
+	this.cardManager = cardManager;
 
 	// conteneur
 
-	var createdDiv = $("<div class='cardstack'><div class='ext'></div></div>");
+	var createdDiv = $("<div class='cardstack'></div>");
 
 	if (def.name) {
 		createdDiv.append(def.name);
 	}
 
-	AbstractElement.call(this);
+	AbstractElement.call(this, def);
 	BoxContainer.call(this, cardManager, INNER_SERVER_LAYOUT);
 
 	this.ices = new BoxContainer(cardManager, ICE_LAYOUT);
@@ -1631,19 +1681,17 @@ function Server(def, cardManager) {
 	this.assetOrUpgrades = new BoxContainer(cardManager, ROOT_SERVER_LAYOUT);
 	this.assetOrUpgrades.serverLayoutKey = 'assetOrUpgrades';
 	this.addChild(this.assetOrUpgrades);
-	
-	//calcul des elements primaires
+
+	// calcul des elements primaires
 	this.primary = createdDiv.appendTo(cardManager.cardContainer);
-	this.ext = this.primary.find("div.ext");
 	ElementBox.call(this.assetOrUpgrades, this.primary);
 
 	this.upgrades = new BoxContainer(cardManager, ROOT_SERVER_LAYOUT);
 	this.upgrades.serverLayoutKey = 'upgrades';
 	this.addChild(this.upgrades);
 
-		
 	this.createGhost = function() {
-		return GhostServer(this);
+		return new GhostServer(this);
 	}
 
 	/**
