@@ -264,6 +264,9 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	 * @param next
 	 */
 	public void trash(Object ctx, Flow next) {
+		setRezzed(false);
+		setInstalled(false);
+		
 		// TODO
 		next.apply();
 	}

@@ -2,6 +2,7 @@ package org.keyser.anr.core.runner.neutral;
 
 import static java.util.Collections.emptyList;
 
+import org.keyser.anr.core.AbstractCardAction;
 import org.keyser.anr.core.CollectHabilities;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.CostForAction;
@@ -29,8 +30,8 @@ public class ArmitageCodebusting extends Resource {
 	private void configureAction(CollectHabilities hab) {
 		Cost oneAction = Cost.free().withAction(1);
 		UserAction take2credits = new UserAction(getRunner(), this,
-				new CostForAction(oneAction, new UseArmitageCodebustingAction(
-						this)), "Take {2:credit}");
+				new CostForAction(oneAction, new AbstractCardAction<>(this)),
+				"Take {2:credit}");
 		hab.add(new SimpleFeedback<>(take2credits, this::take2CreditsAction));
 	}
 
