@@ -529,23 +529,19 @@ function interpolateString(string) {
 	});
 }
 
-/**
- * L'image d'une carte
- */
-function GhostCard(card) {
+function AbstractGhost(cardManager){
 	var me = this;
 	me.type = 'ghost';
 	this.firstTimeShow = true;
+	
 
-	Box.call(this, card.cardManager);
+	Box.call(this, cardManager);
 	AnimatedBox.call(this, "fade");
-	var img = $("<img class='ghost' src='/card-img/" + card.def.url + "'/>");
-	this.element = img.appendTo(card.cardManager.cardContainer);
-
+	
 	this.getBaseBox = function() {
-		return card.cardManager.area.card;
+		return new Dimension(0,0);
 	}
-
+	
 	this.draw = function() {
 		var box = this.getBaseBox();
 		var rotation = this.coords.angle;
@@ -562,24 +558,108 @@ function GhostCard(card) {
 }
 
 /**
+ * L'image d'une carte
+ */
+function GhostCard(card) {
+	var me = this;
+	AbstractGhost.call(this,card.cardManager)
+
+	var img = $("<img class='ghost' src='/card-img/" + card.def.url + "'/>");
+	this.element = img.appendTo(card.cardManager.cardContainer);
+
+	this.getBaseBox = function() {
+		return card.cardManager.area.card;
+	}
+}
+
+/**
+ * L'image d'un serveur
+ */
+function GhostServer(server) {
+	var me = this;
+	AbstractGhost.call(this, server.cardManager)
+
+	var img = server.primary.clone();
+	this.element = img.appendTo(card.cardManager.cardContainer);
+	this.baseBox = server.getBaseBox();
+
+	this.getBaseBox = function() {
+		return this.baseBox;
+	}
+}
+
+/**
+ * Un element qui doit être un Box
+ */
+function AbstractElement() {
+	var me = this;
+
+	// l'image fantome
+	this.ghost = null;
+	this.mode = "plain";
+
+	// les composants graphique à étendre
+	this.ext = null;
+	this.primary = null;
+
+	/**
+	 * Méthode à implémenter
+	 */
+	this.createGhost = function() {
+		return {}
+	}
+
+	this.isPlainMode = function() {
+		return this.mode === 'plain';
+	}
+
+	/**
+	 * Rajoute un ghost dans le parent
+	 */
+	this.applyGhost = function(parent) {
+		this.ghost = this.createGhost();
+		this.parent.replaceChild(this, this.ghost);
+		this.setParent(parent);
+	}
+
+	/**
+	 * Supprime le ghost et retourne à sa place
+	 */
+	this.unapplyGhost = function() {
+		this.ghost.parent.replaceChild(this.ghost, this);
+		this.ghost.remove(true);
+		this.ghost = null;
+	}
+
+	/**
+	 * Gestion des coordonnées etendues
+	 */
+	this.setExtBox = function(extbox) {
+		this.extbox = extbox;
+		if (!_.isObject(extbox)) {
+			this.mode = "plain";
+		}
+		this.redraw();
+	}
+}
+
+/**
  * Un carte qui peut contenir d'autre carte
  */
 function Card(def, cardManager) {
 	var me = this;
 
+	AbstractElement.call(this);
 	BoxContainer.call(this, cardManager);
 
 	this.def = def;
 	this.cardManager = cardManager;
-	this.mode = "plain";
+
 	this.face = "up";
 
 	// la liste des actions et des sous-routines
 	this.actions = [];
 	this.subs = [];
-
-	// l'image fantome
-	this.ghost = null;
 
 	// gestion du layout
 
@@ -607,21 +687,10 @@ function Card(def, cardManager) {
 	};
 
 	/**
-	 * Rajoute un ghost dans le parent
-	 */
-	this.applyGhost = function(parent) {
-		this.ghost = new GhostCard(this);
-		this.parent.replaceChild(this, this.ghost);
-		this.setParent(parent);
-	}
-
-	/**
-	 * Supprime le ghost et retourne à sa place
-	 */
-	this.unapplyGhost = function() {
-		this.ghost.parent.replaceChild(this.ghost, this);
-		this.ghost.remove(true);
-		this.ghost = null;
+     * creation du ghost de la carte
+     */
+	this.createGhost = function() {
+		return new GhostCard(this);
 	}
 
 	/**
@@ -682,21 +751,10 @@ function Card(def, cardManager) {
 	 * Renvoi la taille de base
 	 */
 	this.getBaseBox = function() {
-		if (this.mode == "plain")
+		if (this.isPlainMode())
 			return this.cardManager.area.card;
 		else
 			return this.cardManager.area.cardBig;
-	}
-
-	/**
-	 * Gestion des coordonnées etendues
-	 */
-	this.setExtBox = function(extbox) {
-		this.extbox = extbox;
-		if (!_.isObject(extbox)) {
-			this.mode = "plain";
-		}
-		this.redraw();
 	}
 
 	/**
@@ -1448,19 +1506,37 @@ function ElementBox(element, sandboxed) {
 	this.draw = function() {
 		if (this.coords) {
 			var animate = true;
+			
+			var extCss=null;
+			if(this.ext){
+				extCss={};
+				if (this.mode === "extended" && this.extbox ) {
+					_.extend(extCss, { width : this.extbox.width, height : this.extbox.height, autoAlpha : 1 });
+				} else {
+					_.extend(extCss, { width : 0, height : 0, autoAlpha : 0 });
+				}
+			}
+			
 			if (this.firstTimeShow) {
 				if (this.coords.initial) {
 					TweenLite.set(this.element, { css : { top : this.coords.initial.y, left : this.coords.initial.x, autoAlpha : 0 } });
 				} else {
 					TweenLite.set(this.element, { css : { top : this.coords.y, left : this.coords.x } });
-					var animate = false;
+					if(extCss)
+						TweenLite.set(this.ext, { css : extCss});
+					
+					
+					animate = false;
 				}
 
 				this.firstTimeShow = false;
 			}
 
-			if (animate)
+			if (animate){
 				TweenLite.to(this.element, ANIM_DURATION, { css : { top : this.coords.y, left : this.coords.x, autoAlpha : 1 } });
+				if(extCss)
+					TweenLite.to(this.ext, ANIM_DURATION,{ css : extCss});
+			}
 		}
 	}
 }
@@ -1531,15 +1607,17 @@ var INNER_SERVER_LAYOUT = new function() {
 function Server(def, cardManager) {
 	var me = this;
 	this.def = def;
+	this.cardManager=cardManager;
 
 	// conteneur
 
-	var createdDiv = $("<div class='cardstack'/>");
+	var createdDiv = $("<div class='cardstack'><div class='ext'></div></div>");
 
 	if (def.name) {
 		createdDiv.append(def.name);
 	}
 
+	AbstractElement.call(this);
 	BoxContainer.call(this, cardManager, INNER_SERVER_LAYOUT);
 
 	this.ices = new BoxContainer(cardManager, ICE_LAYOUT);
@@ -1553,11 +1631,20 @@ function Server(def, cardManager) {
 	this.assetOrUpgrades = new BoxContainer(cardManager, ROOT_SERVER_LAYOUT);
 	this.assetOrUpgrades.serverLayoutKey = 'assetOrUpgrades';
 	this.addChild(this.assetOrUpgrades);
-	ElementBox.call(this.assetOrUpgrades, createdDiv.appendTo(cardManager.cardContainer));
+	
+	//calcul des elements primaires
+	this.primary = createdDiv.appendTo(cardManager.cardContainer);
+	this.ext = this.primary.find("div.ext");
+	ElementBox.call(this.assetOrUpgrades, this.primary);
 
 	this.upgrades = new BoxContainer(cardManager, ROOT_SERVER_LAYOUT);
 	this.upgrades.serverLayoutKey = 'upgrades';
 	this.addChild(this.upgrades);
+
+		
+	this.createGhost = function() {
+		return GhostServer(this);
+	}
 
 	/**
 	 * Renvoi le conteneur approprié
