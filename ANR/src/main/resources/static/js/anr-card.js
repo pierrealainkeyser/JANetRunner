@@ -609,19 +609,14 @@ function GhostServer(server) {
 	this.primary = $("<div class='ext server'></div>").appendTo(server.cardManager.cardContainer);
 	this.primary.append(img);
 
-	this.ext = this.element = this.primary;
-	this.innerBaseBox = server.assetOrUpgrades.getBaseBox();
-
-	this.getBaseBox = function() {
-		return this.innerBaseBox;
-	}
+	this.ext = this.element = this.primary;	
 
 	this.unapplyGhost = function() {
 		this.primary.remove();
 	}
 
 	this.draw = function() {
-		var box = this.getBaseBox();
+		var box = this.extbox;;
 		var rotation = 360;
 		var primaryCss = { width : box.width, height : box.height, top : this.coords.y, left : this.coords.x, zIndex : this.coords.zIndex || 0 };
 
