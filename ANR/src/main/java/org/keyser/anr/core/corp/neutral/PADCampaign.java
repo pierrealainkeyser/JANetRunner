@@ -28,7 +28,7 @@ public class PADCampaign extends Asset {
 
 	private void handle(EventMatcherBuilder<StartOfTurn> e) {
 		Predicate<StartOfTurn> rezzed = rezzed();
-		e.test(rezzed.and(turn(Turn::corpTurn)));
+		e.test(rezzed.and(myTurn()));
 		e.apply(this::gainOne);
 	}
 

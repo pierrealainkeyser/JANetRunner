@@ -96,7 +96,7 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	 * @param value
 	 */
 	protected void addRecuringCredit(int value) {
-		match(InitTurn.class, em -> em.run(() -> setToken(TokenType.RECURRING, value)));
+		match(InitTurn.class, em -> em.test(myTurn()).run(() -> setToken(TokenType.RECURRING, value)));
 	}
 
 	public abstract PlayerType getOwner();
@@ -297,6 +297,10 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 			Corp c = getCorp();
 			return c != null && p.test(c);
 		};
+	}
+	
+	protected <T> Predicate<T> myTurn() {
+		return turn(t->t.getActive()==getOwner());
 	}
 
 	protected <T> Predicate<T> turn(Predicate<Turn> p) {
