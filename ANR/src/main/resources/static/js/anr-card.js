@@ -602,17 +602,29 @@ function GhostServer(server) {
 	AbstractGhost.call(this, server.cardManager);
 	AbstractElement.call(this, server.def);
 
-	var img = server.primary.clone();
-	img.removeAttr("style");
+	this.img = server.primary.clone();
+	this.img.removeAttr("style");
 	this.coords = this.baseCoords = server.coords;
 
 	this.primary = $("<div class='ext server'></div>").appendTo(server.cardManager.cardContainer);
-	this.primary.append(img);
+	this.primary.append(this.img);
 
 	this.ext = this.element = this.primary;	
 
 	this.unapplyGhost = function() {
-		this.primary.remove();
+		var base=server.assetOrUpgrades.getBaseBox();
+		TweenLite.to(this.element, ANIM_DURATION, {
+			css : {
+				top : this.baseCoords.y,
+				left : this.baseCoords.x,
+				width:base.width,
+				height:base.height,
+				rotation:0
+			},
+			onComplete : function() {
+				me.element.remove();
+			}
+		});
 	}
 
 	this.draw = function() {
@@ -621,7 +633,7 @@ function GhostServer(server) {
 		var primaryCss = { width : box.width, height : box.height, top : this.coords.y, left : this.coords.x, zIndex : this.coords.zIndex || 0 };
 
 		if (this.firstTimeShow) {
-			TweenLite.set(this.element, { top : this.baseCoords.y, left : this.baseCoords.x, });
+			TweenLite.set(this.element, { top : this.baseCoords.y, left : this.baseCoords.x });
 			primaryCss.rotation = rotation;
 		}
 		TweenLite.to(this.element, ANIM_DURATION, { css : primaryCss });
@@ -1245,6 +1257,14 @@ function ExtBox(cardManager, absoluteContainer) {
 		this.closeCard();
 		var g = serv.createGhost();
 		this.displayedCard = g;
+		
+		//fermeture sur le click
+		g.img.on('click',function(){
+			var closure = serv.cardManager.within(function() {
+				me.closeCard();
+			});
+			closure();
+		});
 
 		g.primary.draggable({ drag : function(event, ui) {
 			var position = g.primary.position();
