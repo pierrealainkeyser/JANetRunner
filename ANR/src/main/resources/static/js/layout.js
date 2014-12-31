@@ -414,15 +414,16 @@ function AbsoluteLayoutFunction() {
 /**
  * Permet d'empiler les cartes
  */
-function StackedLayoutFunction() {
+function StackedLayoutFunction(baseConfig) {
 	LayoutFunction.call(this);
+	this.zIndex = baseConfig.zIndex || 1;
 
 	this.applyLayout = function(boxContainer, index, box) {
 
 		var size = -(boxContainer.size() - index);
 
 		var cfg = {};
-		cfg.zIndex = cfg.zIndex + size;
+		cfg.zIndex = this.zIndex + size;
 		cfg.hidden = size < -2;
 
 		return new LayoutCoords(0, 0, cfg);

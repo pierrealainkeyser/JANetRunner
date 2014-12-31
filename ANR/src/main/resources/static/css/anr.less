@@ -33,6 +33,7 @@ html , body , body > div.container {
 @token-text-color: #E8E8E8;
 @token-recurring-text-color: #FFCC33;
 @token-text-border: #383838;
+@ext-background-color: rgba(255, 255, 255, 0.8);
 .text-border (@border-color) {
 	text-shadow: 2px 0px 0 @border-color, 0px 2px 0 @border-color, 0px -1px 0 @border-color, -1px 0px 0 @border-color;
 }
@@ -52,6 +53,9 @@ html , body , body > div.container {
 .clear-padding () {
 	margin: 0px;
 	padding: 0px;
+}
+
+.ext-action () {
 }
 
 .inner-token (@token-width) {
@@ -163,11 +167,19 @@ div.cardstack {
 	font-size: 11px;
 	color: #999999;
 	z-index: 0;
+	
+	&.server{
+		.clickable;
+	}
 }
 
 label.sub {
 	font-weight: normal;
 	width: 230px;
+}
+
+.clickable{
+	cursor: pointer;
 }
 
 div#main {
@@ -186,15 +198,79 @@ div#main {
 	div.ext.server {
 		.clear-padding;
 		position: absolute;
+		@border-radius: 8px;
+		background: @ext-background-color;
+		border-radius: @border-radius;
+		box-shadow: 3px 3px 5px 0px @card-shadow-color;
 		.cardstack {
-			margin: 0 ! important;
+			margin-left: 2 ! important;
+			margin-top: 24 ! important;
+			width: @card-width * 2.75;
+			height: @card-height * 2.75;
+			line-height: @card-height * 2.75;
+			.text-border (white);
+			font-size: 2.5em;
+			border-width: 2.5px;
+			.clickable;
+		}
+
+		.action {
+			position: absolute;
+			.clear-padding;
+			text-align: center;
+			width: 100%;
+			background: @card-action-color;
+			border-top: @card-shadow-color 1px solid;
+			border-bottom-right-radius: @border-radius;
+			border-bottom-left-radius: @border-radius;
+			z-index: 0;
+		}
+
+		button {
+			position: absolute;
+			padding: 5px 4px;
+			&:disabled {
+				text-decoration: line-through;
+			}
+
+			.cost {
+				&:after {
+					content: " : ";
+				}
+			}
+
+			z-index: 1;
+		}
+
+		.header {
+			position: absolute;
+			line-height: 20px;
+			&:not(.title) {
+				font-style: italic;
+				text-transform: capitalize;
+			}
+
+			&.title {
+				font-weight: bold;
+				font-family: serif;
+				padding-left: 7px;
+				text-transform: uppercase;
+				width: 100%;
+				background: @card-action-color;
+				border-bottom: @card-shadow-color 1px solid;
+				border-top-right-radius: @border-radius;
+				border-top-left-radius: @border-radius;
+				small {
+					font-size: 75%;
+				}
+			}
 		}
 	}
 
 	div.card {
 		.clear-padding;
 		position: absolute;
-		cursor: pointer;
+		.clickable;
 		opacity: 0;
 		&.corp img.back {
 			content: url(/img/back-corp.png);
@@ -210,7 +286,7 @@ div#main {
 			top: -23px;
 			overflow: hidden;
 			cursor: default;
-			background: rgba(255, 255, 255, 0.8);
+			background: @ext-background-color;
 			border-radius: @border-radius;
 			box-shadow: 3px 3px 5px 0px @card-shadow-color;
 			.action {

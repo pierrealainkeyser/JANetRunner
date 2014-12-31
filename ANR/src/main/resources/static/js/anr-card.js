@@ -499,7 +499,7 @@ function CardManager(cardContainer) {
 }
 
 function RunnerContainer(cardManager, type) {
-	BoxContainer.call(this, cardManager, new StackedLayoutFunction());
+	BoxContainer.call(this, cardManager, new StackedLayoutFunction({}));
 	this.getBaseBox = function() {
 		return cardManager.area.card;
 	};
@@ -616,7 +616,7 @@ function GhostServer(server) {
 	}
 
 	this.draw = function() {
-		var box = this.extbox;;
+		var box = this.extbox;
 		var rotation = 360;
 		var primaryCss = { width : box.width, height : box.height, top : this.coords.y, left : this.coords.x, zIndex : this.coords.zIndex || 0 };
 
@@ -1168,8 +1168,7 @@ function ExtBox(cardManager, absoluteContainer) {
 			return { width : 0, height : 0 };
 	}
 
-	this.header = new BoxHeader(cardManager, "View card");
-	this.header.element.append(" <small>(click to close)</small>")
+	this.header = new BoxHeader(cardManager, "");
 	this.header.addClass("title");
 
 	this.innerContainer = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 5 }, {}));
@@ -1194,6 +1193,7 @@ function ExtBox(cardManager, absoluteContainer) {
 	 */
 	this.setHeader = function(text) {
 		this.header.setText(text);
+		this.header.element.append(" <small>(click to close)</small>")
 	}
 
 	var addInTokens = function(box) {
@@ -1260,6 +1260,17 @@ function ExtBox(cardManager, absoluteContainer) {
 		this.displayedCard.absolutePosition = new LayoutCoords(coords.x - (big.width - small.width) / 2, coords.y - (big.height - small.height) / 2,
 				{ zIndex : 10 });
 		this.displayedCard.setParent(absoluteContainer);
+		
+		this.tokensContainer.removeAllChilds();
+		
+		// rajout de la zone d'action et attachement à l'extension
+		var actions = $("<div class='action'></div>");
+
+		HeightBox.call(this.actionsContainer, actions);
+		actions.appendTo(this.displayedCard.primary);
+
+		this.header.element.appendTo(this.displayedCard.primary);
+		this.setHeader("View server");
 
 		this.updateLayouts();
 
@@ -1312,6 +1323,7 @@ function ExtBox(cardManager, absoluteContainer) {
 		actions.appendTo(this.displayedCard.ext);
 
 		this.header.element.appendTo(card.ext);
+		this.setHeader("View card");
 		this.updateLayouts();
 	}
 
@@ -1610,8 +1622,8 @@ function HeightBox(element) {
 // TODO gestion de tailles dans la configuration
 
 var ICE_LAYOUT = new VerticalLayoutFunction({ spacing : 5, direction : -1, align : 'center' }, { angle : 90 });
-var ROOT_SERVER_LAYOUT = new HorizontalLayoutFunction({ spacing : -40 }, { zIndex : 0 });
-var STACKED_SERVER_LAYOUT = new StackedLayoutFunction();
+var ROOT_SERVER_LAYOUT = new HorizontalLayoutFunction({ spacing : -40 }, { zIndex : 1 });
+var STACKED_SERVER_LAYOUT = new StackedLayoutFunction({zIndex:2});
 var INNER_SERVER_LAYOUT = new function() {
 	var me = this;
 	LayoutFunction.call(this);
@@ -1656,7 +1668,7 @@ function Server(def, cardManager) {
 
 	// conteneur
 
-	var createdDiv = $("<div class='cardstack'></div>");
+	var createdDiv = $("<div class='cardstack server'></div>");
 
 	if (def.name) {
 		createdDiv.append(def.name);
