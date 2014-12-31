@@ -167,8 +167,7 @@ div.cardstack {
 	font-size: 11px;
 	color: #999999;
 	z-index: 0;
-	
-	&.server{
+	&.server {
 		.clickable;
 	}
 }
@@ -178,8 +177,65 @@ label.sub {
 	width: 230px;
 }
 
-.clickable{
+.clickable {
 	cursor: pointer;
+}
+
+/**
+ * Le contenu du boite ext (avec un beau de titre, une zone d'action avec des boutons dedans)
+ */
+.ext-action-header (@border-radius) {
+	.action {
+		position: absolute;
+		.clear-padding;
+		text-align: center;
+		width: 100%;
+		background: @card-action-color;
+		border-top: @card-shadow-color 1px solid;
+		border-bottom-right-radius: @border-radius;
+		border-bottom-left-radius: @border-radius;
+		z-index: 0;
+	}
+
+	button {
+		position: absolute;
+		padding: 5px 4px;
+		&:disabled {
+			text-decoration: line-through;
+		}
+
+		.cost {
+			&:after {
+				content: " : ";
+			}
+		}
+
+		z-index: 1;
+	}
+
+	.header {
+		position: absolute;
+		line-height: 20px;
+		&:not(.title) {
+			font-style: italic;
+			text-transform: capitalize;
+		}
+
+		&.title {
+			font-weight: bold;
+			font-family: serif;
+			padding-left: 7px;
+			text-transform: uppercase;
+			width: 100%;
+			background: @card-action-color;
+			border-bottom: @card-shadow-color 1px solid;
+			border-top-right-radius: @border-radius;
+			border-top-left-radius: @border-radius;
+			small {
+				font-size: 75%;
+			}
+		}
+	}
 }
 
 div#main {
@@ -196,9 +252,9 @@ div#main {
 	}
 
 	div.ext.server {
+		@border-radius: 8px;
 		.clear-padding;
 		position: absolute;
-		@border-radius: 8px;
 		background: @ext-background-color;
 		border-radius: @border-radius;
 		box-shadow: 3px 3px 5px 0px @card-shadow-color;
@@ -214,57 +270,7 @@ div#main {
 			.clickable;
 		}
 
-		.action {
-			position: absolute;
-			.clear-padding;
-			text-align: center;
-			width: 100%;
-			background: @card-action-color;
-			border-top: @card-shadow-color 1px solid;
-			border-bottom-right-radius: @border-radius;
-			border-bottom-left-radius: @border-radius;
-			z-index: 0;
-		}
-
-		button {
-			position: absolute;
-			padding: 5px 4px;
-			&:disabled {
-				text-decoration: line-through;
-			}
-
-			.cost {
-				&:after {
-					content: " : ";
-				}
-			}
-
-			z-index: 1;
-		}
-
-		.header {
-			position: absolute;
-			line-height: 20px;
-			&:not(.title) {
-				font-style: italic;
-				text-transform: capitalize;
-			}
-
-			&.title {
-				font-weight: bold;
-				font-family: serif;
-				padding-left: 7px;
-				text-transform: uppercase;
-				width: 100%;
-				background: @card-action-color;
-				border-bottom: @card-shadow-color 1px solid;
-				border-top-right-radius: @border-radius;
-				border-top-left-radius: @border-radius;
-				small {
-					font-size: 75%;
-				}
-			}
-		}
+		.ext-action-header (@border-radius);
 	}
 
 	div.card {
@@ -289,34 +295,7 @@ div#main {
 			background: @ext-background-color;
 			border-radius: @border-radius;
 			box-shadow: 3px 3px 5px 0px @card-shadow-color;
-			.action {
-				position: absolute;
-				.clear-padding;
-				text-align: center;
-				width: 100%;
-				background: @card-action-color;
-				border-top: @card-shadow-color 1px solid;
-				border-bottom-right-radius: @border-radius;
-				border-bottom-left-radius: @border-radius;
-				z-index: 0;
-			}
-
-			button {
-				position: absolute;
-				padding: 5px 4px;
-				&:disabled {
-					text-decoration: line-through;
-				}
-
-				.cost {
-					&:after {
-						content: " : ";
-					}
-				}
-
-				z-index: 1;
-			}
-
+			.ext-action-header (@border-radius);
 			label.sub {
 				position: absolute;
 				width: 230px;
@@ -336,30 +315,6 @@ div#main {
 					font-style: italic;
 					font-weight: normal;
 					border-top: @card-action-color 1px solid;
-				}
-			}
-
-			.header {
-				position: absolute;
-				line-height: 20px;
-				&:not(.title) {
-					font-style: italic;
-					text-transform: capitalize;
-				}
-
-				&.title {
-					font-weight: bold;
-					font-family: serif;
-					padding-left: 7px;
-					text-transform: uppercase;
-					width: 100%;
-					background: @card-action-color;
-					border-bottom: @card-shadow-color 1px solid;
-					border-top-right-radius: @border-radius;
-					border-top-left-radius: @border-radius;
-					small {
-						font-size: 75%;
-					}
 				}
 			}
 

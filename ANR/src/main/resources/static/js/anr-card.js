@@ -18,7 +18,7 @@ function bootANR(gameId) {
 
 	var objs = {
 		servers : [ //
-		{ id : -1, name : "Archives" },//
+		{ id : -1, name : "Archives", actions : [ { id : -1, text : "Run", cost:"{1:click}" } ]},//
 		{ id : -2, name : "R&D" }, //
 		{ id : -3, name : "HQ" } //
 
@@ -357,11 +357,20 @@ function CardManager(cardContainer) {
 				me.extbox.updatePrimary(card);
 			}
 		}
+	};
+	
+	/**
+	 * Mise à jour des actions des servers
+	 */
+	var updateAllServers = function(elements) {
+		for ( var c in elements.servers) {
+			var def = elements.servers[c];
+			var serv = me.getServer(def);
 
-		if (elements.primary) {
-			me.primaryCardId = elements.primary;
-			var card = me.getCard({ id : elements.primary });
-			me.extbox.displayPrimary(card);
+			if (def.actions) {
+				serv.setActions(def.actions);
+				serv.fireCoordsChanged();
+			}
 		}
 	};
 
@@ -372,6 +381,13 @@ function CardManager(cardContainer) {
 		createAllCards(elements);
 		createAllServers(elements);
 		updateAllCards(elements);
+		updateAllServers(elements);
+		
+		if (elements.primary) {
+			me.primaryCardId = elements.primary;
+			var card = me.getCard({ id : elements.primary });
+			me.extbox.displayPrimary(card);
+		}
 	};
 
 	/**
@@ -426,10 +442,13 @@ function CardManager(cardContainer) {
 	 */
 	this.playAction = function(action) {
 
-		_.each(this.cards, function(card) {
-			card.resetActions();
-		});
-
+		//reset des actions 
+		var resetActions=function(e) {
+			e.resetActions();
+		}
+		_.each(this.cards, resetActions);
+		_.each(this.servers, resetActions);
+		
 		me.extbox.removeActions();
 
 		console.info("Playing action : " + JSON.stringify(action));
@@ -652,17 +671,48 @@ function AbstractElement(def) {
 	// l'image fantome
 	this.ghost = null;
 	this.mode = "plain";
+	
+	// la liste des actions
+	this.actions = [];
 
+	// les composants graphique à étendre
+	this.ext = null;
+	this.primary = null;
+	
 	/**
 	 * Accède à l'ID de la carte
 	 */
 	this.getId = function() {
 		return def.id;
 	}
+	
+	/**
+	 * Rajoute la liste des actions
+	 */
+	this.setActions = function(actions) {
+		this.actions = actions;
+	}
 
-	// les composants graphique à étendre
-	this.ext = null;
-	this.primary = null;
+	/**
+	 * Suppression des actions
+	 */
+	this.resetActions = function() {
+		if (!_.isEmpty(me.actions)) {
+			me.actions = [];
+			me.actionsReseted();
+		}
+	}
+
+	/**
+	 * Remise à zero des actions
+	 */
+	this.actionsReseted = function() {
+		me.fireCoordsChanged();
+	}
+	
+	this.hasActions=function(){
+		return !_.isEmpty(this.actions);
+	}
 
 	this.isPlainMode = function() {
 		return this.mode === 'plain';
@@ -696,8 +746,7 @@ function Card(def, cardManager) {
 
 	this.face = "up";
 
-	// la liste des actions et des sous-routines
-	this.actions = [];
+	//  et des sous-routines
 	this.subs = [];
 
 	// gestion du layout
@@ -748,23 +797,6 @@ function Card(def, cardManager) {
 	 */
 	this.createGhost = function() {
 		return new GhostCard(this);
-	}
-
-	/**
-	 * Rajoute la liste des actions
-	 */
-	this.setActions = function(actions) {
-		this.actions = actions;
-	}
-
-	/**
-	 * Suppression des actions
-	 */
-	this.resetActions = function() {
-		if (!_.isEmpty(me.actions)) {
-			me.actions = [];
-			me.fireCoordsChanged();
-		}
 	}
 
 	/**
@@ -843,8 +875,7 @@ function Card(def, cardManager) {
 				shadow = this.cardManager.area.shadow.back.vertical;
 		}
 
-		if (!_.isEmpty(this.actions)) {
-
+		if (this.hasActions()) {
 			if (this.cardManager.primaryCardId === this.def.id)
 				shadow = this.cardManager.area.shadow.withPrimaryAction;
 			else
@@ -1283,6 +1314,8 @@ function ExtBox(cardManager, absoluteContainer) {
 		
 		this.tokensContainer.removeAllChilds();
 		
+		_.each(serv.actions, me.addAction);
+		
 		// rajout de la zone d'action et attachement à l'extension
 		var actions = $("<div class='action'></div>");
 
@@ -1593,6 +1626,13 @@ function ElementBox(element, sandboxed) {
 		var base = new Dimension(me.element.outerWidth(true), me.element.outerHeight(true));
 		return base;
 	}
+	
+	/**
+	 * Permet de changer si nécessaire les arguments passés à GSAP
+	 */
+	this.customizeCss=function(css){
+		
+	};
 
 	/**
 	 * Mise à jour de l'élement graphique
@@ -1602,9 +1642,13 @@ function ElementBox(element, sandboxed) {
 			var animate = true;
 			if (this.firstTimeShow) {
 				if (this.coords.initial) {
-					TweenLite.set(this.element, { css : { top : this.coords.initial.y, left : this.coords.initial.x, autoAlpha : 0 } });
+					var css={ top : this.coords.initial.y, left : this.coords.initial.x, autoAlpha : 0 };
+					this.customizeCss(css);
+					TweenLite.set(this.element, { css :  css});
 				} else {
-					TweenLite.set(this.element, { css : { top : this.coords.y, left : this.coords.x } });
+					var css={ top : this.coords.y, left : this.coords.x };
+					this.customizeCss(css);
+					TweenLite.set(this.element, { css : css});
 					animate = false;
 				}
 
@@ -1612,7 +1656,9 @@ function ElementBox(element, sandboxed) {
 			}
 
 			if (animate) {
-				TweenLite.to(this.element, ANIM_DURATION, { css : { top : this.coords.y, left : this.coords.x, autoAlpha : 1 } });
+				var css={ top : this.coords.y, left : this.coords.x, autoAlpha : 1 };
+				this.customizeCss(css);
+				TweenLite.to(this.element, ANIM_DURATION, { css : css });
 			}
 		}
 	}
@@ -1708,10 +1754,17 @@ function Server(def, cardManager) {
 	this.assetOrUpgrades = new BoxContainer(cardManager, ROOT_SERVER_LAYOUT);
 	this.assetOrUpgrades.serverLayoutKey = 'assetOrUpgrades';
 	this.addChild(this.assetOrUpgrades);
+	
 
 	// calcul des elements primaires
 	this.primary = createdDiv.appendTo(cardManager.cardContainer);
 	ElementBox.call(this.assetOrUpgrades, this.primary);
+	this.assetOrUpgrades.customizeCss=function(css){
+		if (me.hasActions())
+			css.boxShadow = me.cardManager.area.shadow.withAction;
+		else
+			css.boxShadow = "";
+	}
 
 	this.upgrades = new BoxContainer(cardManager, ROOT_SERVER_LAYOUT);
 	this.upgrades.serverLayoutKey = 'upgrades';
@@ -1719,6 +1772,13 @@ function Server(def, cardManager) {
 
 	this.createGhost = function() {
 		return new GhostServer(this);
+	}
+	
+	/**
+	 * Remise à zero des actions
+	 */
+	this.actionsReseted = function() {
+		me.assetOrUpgrades.fireCoordsChanged();
 	}
 
 	/**
