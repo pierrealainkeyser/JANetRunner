@@ -734,7 +734,7 @@ function Card(def, cardManager) {
 		var mode = this.coords.mode;
 		if (mode === 'extended' || mode === 'secondary')
 			return this.cardManager.area.cardBig;
-		else if (mode === 'mini' || mode === 'hosteds' || mode === 'host')
+		else if (mode === 'mini')
 			return this.cardManager.area.cardMini;
 		else
 			return this.cardManager.area.card;
@@ -790,7 +790,7 @@ function Card(def, cardManager) {
 		var visible = this.coords.hidden ? 0 : 1;
 
 		var mode = this.coords.mode;
-		if (mode === "secondary" || mode === "mini" || mode === 'hosteds' || mode === 'host') {
+		if (mode === "secondary" || mode === "mini") {
 			_.extend(innerCss, { rotationY : -360 });
 			_.extend(tokenCss, { autoAlpha : 0 });
 			rotation = -360;
@@ -869,7 +869,7 @@ function AnimatedBox(animation) {
 function BoxToken(layoutManager, key, value, text) {
 	var me = this;
 	this.key = key;
-	me.type = 'token';
+	me.type = 'tokens';
 	this.element = $("<div class='token-wrapper'><span class='token " + key + "'>" + value + "</span></div>");
 
 	if (text) {
@@ -926,7 +926,7 @@ function BoxToken(layoutManager, key, value, text) {
  */
 function BoxSubroutine(extbox, sub) {
 	var me = this;
-	me.type = 'sub';
+	me.type = 'subs';
 	this.element = $("<label class='sub'/>");
 	this.sub = sub;
 
@@ -972,7 +972,7 @@ function BoxSubroutine(extbox, sub) {
  */
 function BoxAllSubroutine(extbox, text) {
 	var me = this;
-	me.type = 'sub';
+	me.type = 'subs';
 	this.element = $("<label class='sub all'/>");
 
 	var checkbox = $("<input type='checkbox' />");
@@ -1108,6 +1108,8 @@ function ExtBox(cardManager) {
 
 	var coreLayout = new VerticalLayoutFunction({ spacing : 3 }, {});
 	BoxContainer.call(this, cardManager, coreLayout);
+	
+	
 
 	// la zone vide pour la seconde carte
 	this.blankBox = new Box(cardManager);
@@ -1127,6 +1129,19 @@ function ExtBox(cardManager) {
 	// suppression du draw qui est inutile
 	this.actionsContainer.draw = function() {
 	};
+	
+	/**
+	 * Surcharge
+	 */
+	this.innerContainer.mergeChildCoord = function(box) {
+		
+		
+		return me.innerContainer.coords.merge(box.getPositionInParent());
+	}
+	
+	//pour contenir les elements
+	this.hostedsContainer = new BoxContainer(cardManager, new GridLayoutFunction({ columns : 4, padding : 3 }, { mode : "mini" }));
+	this.hostedsContainer.type = "hosteds";
 
 	// les sous-routines
 	this.subs = [];
@@ -1158,7 +1173,7 @@ function ExtBox(cardManager) {
 		}
 
 		if (lastMatch === undefined) {
-			var header = new BoxHeader(cardManager, box.type + "s");
+			var header = new BoxHeader(cardManager, box.type);
 			me.mainContainer.addChild(header);
 			header.element.appendTo(me.displayedCard.ext);
 			header.entrance();
