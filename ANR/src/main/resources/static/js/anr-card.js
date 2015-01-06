@@ -684,7 +684,9 @@ function Card(def, cardManager) {
 	 * Supprime le ghost et retourne à sa place
 	 */
 	this.unapplyGhost = function() {
-		this.coords.mode = 'plain';
+
+		// reset de la taille
+		this.coordsInParent.mode = 'plain';
 		this.ghost.parent.replaceChild(this.ghost, this);
 		this.ghost.remove(true);
 		this.ghost = null;
@@ -731,7 +733,7 @@ function Card(def, cardManager) {
 	 * Renvoi la taille de base
 	 */
 	this.getBaseBox = function() {
-		var mode = this.coords.mode;
+		var mode = this.coordsInParent.mode;
 		if (mode === 'extended' || mode === 'secondary')
 			return this.cardManager.area.cardBig;
 		else if (mode === 'mini')
@@ -1108,17 +1110,23 @@ function ExtBox(cardManager) {
 
 	var coreLayout = new VerticalLayoutFunction({ spacing : 3 }, {});
 	BoxContainer.call(this, cardManager, coreLayout);
-	
-	
 
-	// la zone vide pour la seconde carte
-	this.blankBox = new Box(cardManager);
-	this.blankBox.getBaseBox = function() {
-		if (me.secondaryCard !== null)
-			return cardManager.area.cardBig;
-		else
-			return { width : 0, height : 0 };
-	}
+	// qui réalise le merge dans l'espace de me.displayedCard
+	var mergeChildCoordFromDisplayed = function(box) {
+		var abs = box.getPositionInParent();
+		if (me.displayedCard) {
+			abs = me.displayedCard.mergeChildCoord(box);
+			abs.zIndex = 11;
+			// FIXME il faut trouver l'offset autrement (en effet extbox est
+			// décallé par css)
+			abs.y -= 23;
+		}
+		return this.coords.merge(abs);
+	};
+
+	// la conteneur  pour la seconde carte. Il peut contenir plusieurs carte mais on n'en place qu'une unique
+	this.secondaryCardContainer = new BoxContainer(cardManager, new HorizontalLayoutFunction({}, { mode : "secondary" }));
+	this.secondaryCardContainer.mergeChildCoord = mergeChildCoordFromDisplayed;
 
 	this.header = new BoxHeader(cardManager, "");
 	this.header.addClass("title");
@@ -1129,17 +1137,8 @@ function ExtBox(cardManager) {
 	// suppression du draw qui est inutile
 	this.actionsContainer.draw = function() {
 	};
-	
-	/**
-	 * Surcharge
-	 */
-	this.innerContainer.mergeChildCoord = function(box) {
-		
-		
-		return me.innerContainer.coords.merge(box.getPositionInParent());
-	}
-	
-	//pour contenir les elements
+
+	// TODO pour contenir les elements hotes (rajouté à la volée dans mainContainer)
 	this.hostedsContainer = new BoxContainer(cardManager, new GridLayoutFunction({ columns : 4, padding : 3 }, { mode : "mini" }));
 	this.hostedsContainer.type = "hosteds";
 
@@ -1150,7 +1149,7 @@ function ExtBox(cardManager) {
 	this.addChild(this.innerContainer);
 	this.innerContainer.addChild(innerBox);
 	this.innerContainer.addChild(this.mainContainer);
-	this.innerContainer.addChild(this.blankBox);
+	this.innerContainer.addChild(this.secondaryCardContainer);
 	this.addChild(this.actionsContainer);
 
 	/**
@@ -1198,7 +1197,8 @@ function ExtBox(cardManager) {
 			me.displayedCard.coords.y = y;
 
 			if (me.secondaryCard) {
-				me.updateSecondaryCard(true);
+				me.secondaryCard.redraw();
+				me.secondaryCard.update(true);
 			}
 		}
 	}
@@ -1352,7 +1352,7 @@ function ExtBox(cardManager) {
 		this.closeSecondary();
 		this.secondaryCard = card;
 
-		this.secondaryCard.applyGhost(null);
+		this.secondaryCard.applyGhost(this.secondaryCardContainer);
 		this.secondaryActions = [];
 
 		_.each(card.actions, function(act) {
@@ -1467,23 +1467,6 @@ function ExtBox(cardManager) {
 	}
 
 	/**
-	 * Mise à jour des positions
-	 */
-	this.updateSecondaryCard = function(sync) {
-		// place de la seconde carte au dessus de la premiere
-		if (this.secondaryCard !== null) {
-			var absolute = this.displayedCard.mergeChildCoord(this.blankBox);
-			absolute.zIndex = this.displayedCard.coords.zIndex + 1;
-			absolute.mode = 'secondary'
-			this.secondaryCard.setCoords(absolute);
-
-			if (sync) {
-				this.secondaryCard.update(true);
-			}
-		}
-	}
-
-	/**
 	 * Correction du layout en cas de dépassement
 	 */
 	this.checkLayoutBounds = function() {
@@ -1511,7 +1494,6 @@ function ExtBox(cardManager) {
 				this.displayedCard.fireCoordsChanged();
 			}
 
-			this.updateSecondaryCard();
 		}
 	}
 }
