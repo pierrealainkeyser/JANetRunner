@@ -167,7 +167,7 @@ function LayoutFunction() {
 	 * Applique le layout
 	 */
 	this.applyLayout = function(boxContainer, index, box) {
-		return new LayoutCoords(0, 0, false);
+		return new LayoutCoords(0, 0);
 	}
 
 	/**
@@ -442,19 +442,13 @@ function LayoutCoords(x, y, config) {
 	this.zIndex = config.zIndex || 0;
 	this.face = config.face || undefined;
 	this.hidden = config.hidden || false;
-	this.initial = config.initial || undefined;
+	this.mode = config.mode || "plain";
 
 	/**
 	 * Renvoi une nouveau coordonnées en intégration la difference du point
 	 */
 	this.merge = function(point) {
-		var lc = new LayoutCoords(this.x + point.x, this.y + point.y, point);
-		if (lc.initial) {
-			lc.initial = _.clone(lc.initial);
-			lc.initial.x += this.x;
-			lc.initial.y += this.y;
-		}
-
+		var lc = new LayoutCoords(this.x + point.x, this.y + point.y, point);		
 		return lc;
 	}
 }
