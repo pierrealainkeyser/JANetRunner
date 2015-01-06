@@ -421,6 +421,7 @@ function CardManager(cardContainer) {
 
 		var card = conf.find(".card.small");
 		var cardBig = conf.find(".card.big");
+		var cardMini = conf.find(".card.mini");
 
 		var shadow = conf.find(".shadow");
 		this.area = {// 
@@ -434,6 +435,7 @@ function CardManager(cardContainer) {
 			},//
 			card : new Dimension(card.width(), card.height()),//
 			cardBig : new Dimension(cardBig.width(), cardBig.height()),//							
+			cardMini : new Dimension(cardMini.width(), cardMini.height()),//
 			main : { width : this.cardContainer.width(), height : this.cardContainer.height() } };
 	}
 
@@ -717,6 +719,10 @@ function AbstractElement(def) {
 	this.isPlainMode = function() {
 		return this.mode === 'plain';
 	}
+	
+	this.isMiniMode = function() {
+		return this.mode === 'mini';
+	}
 
 	/**
 	 * Gestion des coordonnées etendues
@@ -835,6 +841,8 @@ function Card(def, cardManager) {
 	this.getBaseBox = function() {
 		if (this.isPlainMode())
 			return this.cardManager.area.card;
+		else if(this.isMiniMode())
+			return this.cardManager.area.cardMini;
 		else
 			return this.cardManager.area.cardBig;
 	}
@@ -888,7 +896,7 @@ function Card(def, cardManager) {
 		var tokenCss = { autoAlpha : 1 };
 		var visible = this.coords.hidden ? 0 : 1;
 
-		if (this.mode === "secondary") {
+		if (this.mode === "secondary" || this.isMiniMode()) {
 			_.extend(innerCss, { rotationY : -360 });
 			_.extend(tokenCss, { autoAlpha : 0 });
 			rotation = -360;
