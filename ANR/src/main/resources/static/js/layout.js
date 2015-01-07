@@ -278,10 +278,6 @@ function VerticalLayoutFunction(innerCfg, baseConfig) {
 
 		var boxBounds = me.getBounds(box).dimension;
 		var x = this.padding;
-
-		console.log("------"+index)
-		console.log(boxBounds)
-		
 		var more = boxBounds.height;		
 
 		if (this.align == 'center') {

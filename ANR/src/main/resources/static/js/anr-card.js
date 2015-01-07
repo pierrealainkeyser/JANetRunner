@@ -486,7 +486,6 @@ function interpolateString(string) {
 	});
 }
 
-
 /**
  * L'image d'une carte
  */
@@ -497,7 +496,6 @@ function GhostCard(card) {
 
 	Box.call(this, card.cardManager);
 	AnimatedBox.call(this, "fade");
-
 
 	var img = $("<img class='ghost' src='/card-img/" + card.def.url + "'/>");
 	this.element = img.appendTo(card.cardManager.cardContainer);
@@ -511,7 +509,7 @@ function GhostCard(card) {
 
 		return dimension;
 	}
-	
+
 	this.draw = function() {
 		var box = this.getBaseBox();
 		var rotation = this.coords.angle;
@@ -1106,11 +1104,12 @@ function ExtBox(cardManager) {
 
 	var extLayout = new LayoutFunction(this);
 	extLayout.applyLayout = function(boxContainer, index, box) {
-		var ab = box.absolutePosition;
+		var ab = me.extContainer.getPositionInParent();
 		return new LayoutCoords(ab.x, ab.y, { mode : "extended", zIndex : 10 });
 	};
 
 	var extContainer = new BoxContainer(cardManager, extLayout);
+	this.extContainer = extContainer;
 
 	var innerBox = new Box(cardManager);
 	innerBox.getBaseBox = function() {
@@ -1201,8 +1200,8 @@ function ExtBox(cardManager) {
 	this.updateVirtualPosition = function(x, y) {
 
 		if (me.displayedCard) {
-			me.displayedCard.absolutePosition.x = x;
-			me.displayedCard.absolutePosition.y = y;
+
+			me.position = new Point(x, y);
 
 			me.displayedCard.coords.x = x;
 			me.displayedCard.coords.y = y;
@@ -1241,7 +1240,7 @@ function ExtBox(cardManager) {
 		var coords = this.displayedCard.coords;
 		var big = cardManager.area.cardBig;
 		var small = cardManager.area.card;
-		this.displayedCard.absolutePosition = new LayoutCoords(coords.x - (big.width - small.width) / 2, coords.y - (big.height - small.height) / 2);
+		this.extContainer.setCoords(new LayoutCoords(coords.x - (big.width - small.width) / 2, coords.y - (big.height - small.height) / 2));
 		this.displayedCard.setParent(extContainer);
 
 		this.mainContainer.removeAllChilds();
@@ -1280,7 +1279,7 @@ function ExtBox(cardManager) {
 		var coords = this.displayedCard.coords;
 		var big = cardManager.area.cardBig;
 		var small = cardManager.area.card;
-		this.displayedCard.absolutePosition = new LayoutCoords(coords.x - (big.width - small.width) / 2, coords.y - (big.height - small.height) / 2);
+		this.extContainer.setCoords(new LayoutCoords(coords.x - (big.width - small.width) / 2, coords.y - (big.height - small.height) / 2));
 		this.displayedCard.applyGhost(extContainer);
 
 		this.mainContainer.removeAllChilds();
@@ -1489,20 +1488,16 @@ function ExtBox(cardManager) {
 			var coords = this.displayedCard.getCurrentCoord();
 			var bounds = dimension.asBounds(coords);
 			var outer = cardManager.getBounds();
-
+			
 			if (!outer.contains(bounds)) {
-
+				
 				// il faut déplacer la boite pour correspondre
 				var p = outer.getMatchingPoint(bounds);
-				this.displayedCard.absolutePosition.x = p.x
-				this.displayedCard.absolutePosition.y = p.y
+				this.extContainer.setCoords(new LayoutCoords(p.x, p.y));
+				this.displayedCard.redraw();
 
-				// pour mettre à jour la positions dans la seconde carte
-				// #updateSecondaryCard
-				this.displayedCard.coords.x = p.x
-				this.displayedCard.coords.y = p.y
-
-				this.displayedCard.fireCoordsChanged();
+				if (me.secondaryCard != null)
+					me.secondaryCard.redraw();
 			}
 
 		}
