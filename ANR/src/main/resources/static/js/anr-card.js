@@ -107,11 +107,11 @@ function CardManager(cardContainer) {
 		this.serverRows = new BoxContainer(this, new HorizontalLayoutFunction({ spacing : 12 }, {}));
 		this.runnerColums = new BoxContainer(this, new VerticalLayoutFunction({ spacing : 5 }, {}));
 
-		this.handContainer = new BoxContainer(this, new HandLayoutFunction({}, { zIndex : 0 }));
+		this.handContainer = new BoxContainer(this, new HandLayoutFunction({}, { zIndex : 0, mode : "plain" }));
 
 		var runnerRow = new BoxContainer(this, new HorizontalLayoutFunction({ spacing : 12, direction : -1 }, {}));
 
-		var horizontalRunnerLayout = new HorizontalLayoutFunction({ spacing : 8, direction : -1 }, {});
+		var horizontalRunnerLayout = new HorizontalLayoutFunction({ spacing : 8, direction : -1 }, { mode : "plain" });
 		this.runnerResources = new BoxContainer(this, horizontalRunnerLayout);
 		this.runnerHardwares = new BoxContainer(this, horizontalRunnerLayout);
 		this.runnerPrograms = new BoxContainer(this, horizontalRunnerLayout);
@@ -433,7 +433,7 @@ function CardManager(cardContainer) {
 }
 
 function RunnerContainer(cardManager, type) {
-	BoxContainer.call(this, cardManager, new StackedLayoutFunction({}));
+	BoxContainer.call(this, cardManager, new StackedLayoutFunction({ mode : "plain" }));
 	this.getBaseBox = function() {
 		return cardManager.area.card;
 	};
@@ -486,18 +486,32 @@ function interpolateString(string) {
 	});
 }
 
-function AbstractGhost(cardManager) {
+
+/**
+ * L'image d'une carte
+ */
+function GhostCard(card) {
 	var me = this;
 	me.type = 'ghost';
 	this.firstTimeShow = true;
 
-	Box.call(this, cardManager);
+	Box.call(this, card.cardManager);
 	AnimatedBox.call(this, "fade");
 
-	this.getBaseBox = function() {
-		return new Dimension(0, 0);
-	}
 
+	var img = $("<img class='ghost' src='/card-img/" + card.def.url + "'/>");
+	this.element = img.appendTo(card.cardManager.cardContainer);
+
+	this.getBaseBox = function(cfg) {
+		var dimension = card.cardManager.area.card;
+
+		// il y a un angle on doit tourner
+		if (cfg && cfg.angle === 90)
+			dimension = dimension.swap();
+
+		return dimension;
+	}
+	
 	this.draw = function() {
 		var box = this.getBaseBox();
 		var rotation = this.coords.angle;
@@ -514,26 +528,14 @@ function AbstractGhost(cardManager) {
 }
 
 /**
- * L'image d'une carte
- */
-function GhostCard(card) {
-	var me = this;
-	AbstractGhost.call(this, card.cardManager)
-
-	var img = $("<img class='ghost' src='/card-img/" + card.def.url + "'/>");
-	this.element = img.appendTo(card.cardManager.cardContainer);
-
-	this.getBaseBox = function() {
-		return card.cardManager.area.card;
-	}
-}
-
-/**
  * L'image d'un serveur, qui sera affiche
  */
-function GhostServer(server) {
+function ExtViewServer(server) {
 	var me = this;
-	AbstractGhost.call(this, server.cardManager);
+	this.firstTimeShow = true;
+	Box.call(this, server.cardManager);
+	AnimatedBox.call(this, "fade");
+
 	AbstractElement.call(this, server.def);
 
 	this.img = server.primary.clone();
@@ -733,19 +735,19 @@ function Card(def, cardManager) {
 		var mode = this.coordsInParent.mode;
 		if (cfg && cfg.mode)
 			mode = cfg.mode;
-		
+
 		var dimension;
 		if (mode === 'extended' || mode === 'secondary')
-			dimension= this.cardManager.area.cardBig;
+			dimension = this.cardManager.area.cardBig;
 		else if (mode === 'mini')
-			dimension=this.cardManager.area.cardMini;
+			dimension = this.cardManager.area.cardMini;
 		else
-			dimension= this.cardManager.area.card;
-		
-		//il y a un angle on doit tourner
-		if(cfg && cfg.angle)
-			dimension=dimension.swap();
-		
+			dimension = this.cardManager.area.card;
+
+		// il y a un angle on doit tourner
+		if (cfg && cfg.angle === 90)
+			dimension = dimension.swap();
+
 		return dimension;
 	}
 
@@ -1131,7 +1133,8 @@ function ExtBox(cardManager) {
 		return this.coords.merge(abs);
 	};
 
-	// la conteneur  pour la seconde carte. Il peut contenir plusieurs carte mais on n'en place qu'une unique
+	// la conteneur pour la seconde carte. Il peut contenir plusieurs carte mais
+	// on n'en place qu'une unique
 	this.secondaryCardContainer = new BoxContainer(cardManager, new HorizontalLayoutFunction({}, { mode : "secondary" }));
 	this.secondaryCardContainer.mergeChildCoord = mergeChildCoordFromDisplayed;
 
@@ -1145,7 +1148,8 @@ function ExtBox(cardManager) {
 	this.actionsContainer.draw = function() {
 	};
 
-	// TODO pour contenir les elements hotes (rajouté à la volée dans mainContainer)
+	// TODO pour contenir les elements hotes (rajouté à la volée dans
+	// mainContainer)
 	this.hostedsContainer = new BoxContainer(cardManager, new GridLayoutFunction({ columns : 4, padding : 3 }, { mode : "mini" }));
 	this.hostedsContainer.type = "hosteds";
 
@@ -1215,7 +1219,7 @@ function ExtBox(cardManager) {
 	 */
 	this.displayServer = function(serv) {
 		this.closeCard();
-		var g = serv.createGhost();
+		var g = serv.createView();
 		this.displayedCard = g;
 
 		// fermeture sur le click
@@ -1593,9 +1597,9 @@ function HeightBox(element) {
 
 // TODO gestion de tailles dans la configuration
 
-var ICE_LAYOUT = new VerticalLayoutFunction({ spacing : 5, direction : -1, align : 'center' }, { angle : 90 });
-var ROOT_SERVER_LAYOUT = new HorizontalLayoutFunction({ spacing : -40 }, { zIndex : 1 });
-var STACKED_SERVER_LAYOUT = new StackedLayoutFunction({ zIndex : 2 });
+var ICE_LAYOUT = new VerticalLayoutFunction({ spacing : 5, direction : -1, align : 'center' }, { angle : 90, mode : "plain" });
+var ROOT_SERVER_LAYOUT = new HorizontalLayoutFunction({ spacing : -40 }, { zIndex : 1, mode : "plain" });
+var STACKED_SERVER_LAYOUT = new StackedLayoutFunction({ zIndex : 2, mode : "plain" });
 var INNER_SERVER_LAYOUT = new function() {
 	var me = this;
 	LayoutFunction.call(this);
@@ -1675,8 +1679,8 @@ function Server(def, cardManager) {
 	this.upgrades.serverLayoutKey = 'upgrades';
 	this.addChild(this.upgrades);
 
-	this.createGhost = function() {
-		return new GhostServer(this);
+	this.createView = function() {
+		return new ExtViewServer(this);
 	}
 
 	/**
