@@ -148,7 +148,10 @@ function Bounds(point, dimension) {
 /**
  * Une fonction de layout
  */
-function LayoutFunction() {
+function LayoutFunction(baseConfig) {
+	
+	this.baseConfig = baseConfig || {};
+	
 	/**
 	 * Avant le layout
 	 */
@@ -181,7 +184,7 @@ function LayoutFunction() {
 	 * Détermination de la taille d'un element dans le layout
 	 */
 	this.getBounds = function(box) {
-		return box.getBounds();
+		return box.getBounds(this.baseConfig);
 	}
 }
 
@@ -189,10 +192,10 @@ function LayoutFunction() {
  * Un layout horizontal
  */
 function HorizontalLayoutFunction(innerCfg, baseConfig) {
-	LayoutFunction.call(this);
+	LayoutFunction.call(this, baseConfig);
 	this.spacing = innerCfg.spacing || 0;
 	this.padding = innerCfg.padding || 0;
-	this.baseConfig = baseConfig;
+
 	this.direction = innerCfg.direction || 1;
 	this.lastBoxX = 0;
 	this.currentPadding = 0;
@@ -208,7 +211,7 @@ function HorizontalLayoutFunction(innerCfg, baseConfig) {
 	};
 
 	this.applyLayout = function(boxContainer, index, box) {
-		var boxBounds = box.getBounds().dimension;
+		var boxBounds = this.getBounds(box).dimension;
 
 		var cfg = this.baseConfig;
 
@@ -242,8 +245,7 @@ function HorizontalLayoutFunction(innerCfg, baseConfig) {
 
 function VerticalLayoutFunction(innerCfg, baseConfig) {
 	var me = this;
-	LayoutFunction.call(this);
-	this.baseConfig = baseConfig
+	LayoutFunction.call(this,baseConfig);
 	this.spacing = innerCfg.spacing || 0;
 	this.align = innerCfg.align || "left";
 	this.padding = innerCfg.padding || 0;
@@ -272,20 +274,9 @@ function VerticalLayoutFunction(innerCfg, baseConfig) {
 		bounds.dimension.height += this.padding;
 	};
 
-	this.isRotatedConfig = function() {
-		if (me.baseConfig)
-			return me.baseConfig.angle === 90;
-		else
-			return false;
-	}
-
-	this.getBounds = function(box) {
-		return box.getBounds(me.isRotatedConfig());
-	}
-
 	this.applyLayout = function(boxContainer, index, box) {
 
-		var boxBounds = box.getBounds().dimension;
+		var boxBounds = me.getBounds(box).dimension;
 		var x = this.padding;
 
 		var more = boxBounds.height;
@@ -321,7 +312,7 @@ function VerticalLayoutFunction(innerCfg, baseConfig) {
 
 function HandLayoutFunction(innerCfg, baseCfg) {
 	var me = this;
-	LayoutFunction.call(this);
+	LayoutFunction.call(this, baseCfg);
 	this.left = innerCfg.left || -160;
 	this.right = innerCfg.right || -this.left;
 	this.height = innerCfg.height || 0;
@@ -364,8 +355,7 @@ function HandLayoutFunction(innerCfg, baseCfg) {
  */
 function GridLayoutFunction(innerCfg, baseConfig) {
 	var me = this;
-	LayoutFunction.call(this);
-	this.baseConfig = baseConfig
+	LayoutFunction.call(this, baseConfig);
 	this.padding = innerCfg.padding || 0;
 	this.columns = innerCfg.columns || 1;
 
@@ -385,7 +375,7 @@ function GridLayoutFunction(innerCfg, baseConfig) {
 	};
 
 	this.applyLayout = function(boxContainer, index, box) {
-		var boxBounds = box.getBounds().dimension;
+		var boxBounds = me.getBounds(box).dimension;
 
 		var col = index % this.columns;
 		var row = Math.trunc(index / this.columns);
@@ -397,8 +387,8 @@ function GridLayoutFunction(innerCfg, baseConfig) {
 	}
 }
 
-function AbsoluteLayoutFunction() {
-	LayoutFunction.call(this);
+function AbsoluteLayoutFunction(baseConfig) {
+	LayoutFunction.call(this, baseConfig);
 
 	this.applyLayout = function(boxContainer, index, box) {
 
@@ -415,7 +405,7 @@ function AbsoluteLayoutFunction() {
  * Permet d'empiler les cartes
  */
 function StackedLayoutFunction(baseConfig) {
-	LayoutFunction.call(this);
+	LayoutFunction.call(this, baseConfig);
 	this.zIndex = baseConfig.zIndex || 1;
 
 	this.applyLayout = function(boxContainer, index, box) {
@@ -609,11 +599,8 @@ function Box(layoutManager) {
 	/**
 	 * Renvoi la position courrante
 	 */
-	this.getBounds = function(swap) {
-		var basebox = this.getBaseBox();
-		if (swap) {
-			basebox = basebox.swap();
-		}
+	this.getBounds = function(cfg) {
+		var basebox = this.getBaseBox(cfg);
 		return new Bounds(this.getPositionInParent(), basebox);
 
 	}
@@ -632,7 +619,7 @@ function Box(layoutManager) {
 	/**
 	 * Renvoi la taille de base du box
 	 */
-	this.getBaseBox = function() {
+	this.getBaseBox = function(cfg) {
 		return this.baseBox;
 	}
 
@@ -802,11 +789,11 @@ function BoxContainer(layoutManager, layoutFunction) {
 	}
 
 	this.super_getBounds = this.getBounds;
-	this.getBounds = function(swap) {
+	this.getBounds = function(cfg) {
 		if (this.lastBounds) {
 			return new Bounds(this.getPositionInParent(), this.lastBounds.dimension);
 		}
-		return this.super_getBounds(swap);
+		return this.super_getBounds(cfg);
 	}
 
 	/**

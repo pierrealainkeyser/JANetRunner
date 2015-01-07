@@ -684,9 +684,6 @@ function Card(def, cardManager) {
 	 * Supprime le ghost et retourne à sa place
 	 */
 	this.unapplyGhost = function() {
-
-		// reset de la taille
-		this.coordsInParent.mode = 'plain';
 		this.ghost.parent.replaceChild(this.ghost, this);
 		this.ghost.remove(true);
 		this.ghost = null;
@@ -732,14 +729,24 @@ function Card(def, cardManager) {
 	/**
 	 * Renvoi la taille de base
 	 */
-	this.getBaseBox = function() {
+	this.getBaseBox = function(cfg) {
 		var mode = this.coordsInParent.mode;
+		if (cfg && cfg.mode)
+			mode = cfg.mode;
+		
+		var dimension;
 		if (mode === 'extended' || mode === 'secondary')
-			return this.cardManager.area.cardBig;
+			dimension= this.cardManager.area.cardBig;
 		else if (mode === 'mini')
-			return this.cardManager.area.cardMini;
+			dimension=this.cardManager.area.cardMini;
 		else
-			return this.cardManager.area.card;
+			dimension= this.cardManager.area.card;
+		
+		//il y a un angle on doit tourner
+		if(cfg && cfg.angle)
+			dimension=dimension.swap();
+		
+		return dimension;
 	}
 
 	/**
