@@ -280,7 +280,7 @@ function VerticalLayoutFunction(innerCfg, baseConfig) {
 		var x = this.padding;
 
 		var more = boxBounds.height;
-		if (this.isRotatedConfig())
+		if (this.baseConfig.angle)
 			more = boxBounds.width;
 
 		if (this.align == 'center') {
