@@ -361,7 +361,7 @@ function GridLayoutFunction(innerCfg, baseConfig) {
 	this.beforeLayout = function(boxContainer) {
 		this.maxBox = new Dimension(0, 0);
 		_.each(boxContainer.childs, function(box, index) {
-			var dimension = box.getBaseBox();
+			var dimension =me.getBounds(box).dimension;
 			me.maxBox = me.maxBox.max(dimension);
 		});
 	};
@@ -681,6 +681,13 @@ function Box(layoutManager) {
 	this.draw = function() {
 
 	}
+	
+	/**
+	 * Permet de fusionner les coordonnes du parent
+	 */
+	this.mergeChildCoord = function(box) {
+		return this.coords.merge(box.getPositionInParent());
+	}
 }
 
 /**
@@ -695,12 +702,6 @@ function BoxContainer(layoutManager, layoutFunction) {
 	// le dernier composant de layout
 	this.lastBounds = undefined;
 
-	/**
-	 * Permet de fusionner les coordonnes du parent
-	 */
-	this.mergeChildCoord = function(box) {
-		return this.coords.merge(box.getPositionInParent());
-	}
 
 	/**
 	 * Mise à jour de la profondeur

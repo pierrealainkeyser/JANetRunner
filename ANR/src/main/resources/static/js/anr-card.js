@@ -26,8 +26,8 @@ function bootANR(gameId) {
 		cards : [ // 
 				{ id : 1, faction : 'corp', url : '01088', location : { primary : "server", serverIndex : -1, secondary : "stack", index : 0 } }, //
 				{ id : 2, faction : 'corp', url : '01082', face : "down", location : { primary : "server", serverIndex : -2, secondary : "stack", index : 0 } }, //				
-				{ id : 21, faction : 'corp', url : '01083', face : "down", location : { primary : "server", serverIndex : -2, secondary : "stack", index : 1 } }, //
-				{ id : 22, faction : 'corp', url : '01091', face : "down", location : { primary : "server", serverIndex : -2, secondary : "stack", index : 2 } }, //				
+				{ id : 21, faction : 'corp', url : '01083', face : "down", location : { primary : "server", serverIndex : -1, secondary : "stack", index : 1 } }, //
+				{ id : 22, faction : 'corp', url : '01091', face : "up", location : { primary : "server", serverIndex : -1, secondary : "stack", index : 0 } }, //				
 				{ id : 3, faction : 'corp', url : '01080', tokens : { credit : 5, recurring : 2 },
 					location : { primary : "server", serverIndex : -3, secondary : "assetOrUpgrades", index : 0 } }, //
 				{ id : 4, faction : 'corp', url : '01089', face : "down", location : { primary : "server", serverIndex : -3, secondary : "ices", index : 0 } }, //
@@ -60,7 +60,6 @@ function bootANR(gameId) {
 				{ id : 16, face : "up", tokens : { credit : 12 }, location : { primary : "resource", index : 2 } },//
 				{ id : 11, location : { primary : "heap", index : 1 } },//
 				{ id : 12, tokens : { recurring : 0 } },//
-				{ id : 22, face : "down", location : { primary : "server", serverIndex : -3, secondary : "upgrades", index : 0 } },//
 		] });
 	}), 250)
 
@@ -1152,6 +1151,10 @@ function ExtBox(cardManager) {
 	this.hostedsContainer = new BoxContainer(cardManager, new GridLayoutFunction({ columns : 4, padding : 3 }, { mode : "mini" }));
 	this.hostedsContainer.type = "hosteds";
 
+	this.cardsContainer = new BoxContainer(cardManager, new GridLayoutFunction({ columns : 7, padding : 3 }, { mode : "mini" }));
+	this.cardsContainer.type = "cards";
+	this.cardsContainer.mergeChildCoord = mergeChildCoordFromDisplayed;
+
 	// les sous-routines
 	this.subs = [];
 
@@ -1188,10 +1191,12 @@ function ExtBox(cardManager) {
 			header.entrance();
 		}
 
-		box.entrance();
+		if (_.isFunction(box.entrance))
+			box.entrance();
 
 		me.mainContainer.addChild(box, lastMatch);
-		box.element.appendTo(me.displayedCard.ext);
+		if (box.element)
+			box.element.appendTo(me.displayedCard.ext);
 	};
 
 	/**
@@ -1246,6 +1251,14 @@ function ExtBox(cardManager) {
 		this.mainContainer.removeAllChilds();
 
 		_.each(serv.actions, me.addAction);
+
+		var innerCards = serv.getViewedCards();
+		if (innerCards) {
+			addInCardMain(this.cardsContainer);
+			_.each(innerCards, function(card) {
+				card.applyGhost(me.cardsContainer);
+			});
+		}
 
 		// rajout de la zone d'action et attachement à l'extension
 		var actions = $("<div class='action'></div>");
@@ -1488,9 +1501,9 @@ function ExtBox(cardManager) {
 			var coords = this.displayedCard.getCurrentCoord();
 			var bounds = dimension.asBounds(coords);
 			var outer = cardManager.getBounds();
-			
+
 			if (!outer.contains(bounds)) {
-				
+
 				// il faut déplacer la boite pour correspondre
 				var p = outer.getMatchingPoint(bounds);
 				this.extContainer.setCoords(new LayoutCoords(p.x, p.y));
@@ -1698,4 +1711,15 @@ function Server(def, cardManager) {
 		else if ("stack" == key)
 			return me.stack;
 	};
+
+	this.getViewedCards = function() {
+		if (def.id === -1) {
+			var a = [];
+			this.stack.each(function(c) {
+				a.push(c);
+			});
+			return a;
+		}
+		return null;
+	}
 }
