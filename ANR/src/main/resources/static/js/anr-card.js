@@ -375,7 +375,7 @@ function CardManager(cardContainer) {
 	 */
 	this.getBounds = function() {
 		// TODO gestion du radius de padding
-		return new Bounds({ x : 0, y : 0 }, new Dimension(this.area.main.width, this.area.main.height)).minus(35);
+		return new Bounds({ x : 0, y : 0 }, new Dimension(this.area.main.width, this.area.main.height)).minus(-35);
 	}
 
 	/**
@@ -1130,6 +1130,16 @@ function ExtBox(cardManager) {
 		}
 		return this.coords.merge(abs);
 	};
+	
+	// qui réalise le merge dans l'espace de me.displayedCard, sans impacted y car dans les serveurs c'est différents
+	var mergeChildCoordFromServer = function(box) {
+		var abs = box.getPositionInParent();
+		if (me.displayedCard) {
+			abs = me.displayedCard.mergeChildCoord(box);
+			abs.zIndex = 11;
+		}
+		return this.coords.merge(abs);
+	};
 
 	// la conteneur pour la seconde carte. Il peut contenir plusieurs carte mais
 	// on n'en place qu'une unique
@@ -1153,7 +1163,7 @@ function ExtBox(cardManager) {
 
 	this.cardsContainer = new BoxContainer(cardManager, new GridLayoutFunction({ columns : 7, padding : 3 }, { mode : "mini" }));
 	this.cardsContainer.type = "cards";
-	this.cardsContainer.mergeChildCoord = mergeChildCoordFromDisplayed;
+	this.cardsContainer.mergeChildCoord = mergeChildCoordFromServer;
 
 	// les sous-routines
 	this.subs = [];
@@ -1211,10 +1221,16 @@ function ExtBox(cardManager) {
 			me.displayedCard.coords.x = x;
 			me.displayedCard.coords.y = y;
 
-			if (me.secondaryCard) {
-				me.secondaryCard.redraw();
-				me.secondaryCard.update(true);
+			var redrawAndUpdate=function(c){
+				c.redraw();
+				c.update(true);
 			}
+			
+			if (me.secondaryCard) {
+				redrawAndUpdate(me.secondaryCard);
+			}
+			
+			me.cardsContainer.each(redrawAndUpdate);
 		}
 	}
 
@@ -1487,6 +1503,17 @@ function ExtBox(cardManager) {
 			// mise à jour du layout
 			this.innerContainer.requireLayout();
 		}
+		
+		if(this.cardsContainer.size()>0){
+			this.cardsContainer.each(function(c){
+				c.unapplyGhost();
+			});
+			this.cardsContainer.removeAllChilds();
+			// mise à jour du layout
+			this.innerContainer.requireLayout();
+		}
+		
+		
 	}
 
 	/**
