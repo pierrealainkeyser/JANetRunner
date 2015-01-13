@@ -172,6 +172,7 @@ div.cardstack {
 	font-size: 11px;
 	color: #999999;
 	z-index: 0;
+	.unselectable;
 	&.server {
 		.clickable;
 	}
@@ -179,11 +180,15 @@ div.cardstack {
 
 label.sub {
 	font-weight: normal;
-	width: 230px;
+	width: 230px;	
 }
 
 .clickable {
 	cursor: pointer;
+}
+
+.unselectable{
+	-webkit-user-select: none;
 }
 
 /**
@@ -282,6 +287,7 @@ div#main {
 		.clear-padding;
 		position: absolute;
 		opacity: 0;
+		.unselectable;
 		&.corp img.back {
 			content: url(/img/back-corp.png);
 		}
