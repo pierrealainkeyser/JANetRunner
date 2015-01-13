@@ -149,9 +149,9 @@ function Bounds(point, dimension) {
  * Une fonction de layout
  */
 function LayoutFunction(baseConfig) {
-	
+
 	this.baseConfig = baseConfig || {};
-	
+
 	/**
 	 * Avant le layout
 	 */
@@ -170,7 +170,7 @@ function LayoutFunction(baseConfig) {
 	 * Applique le layout
 	 */
 	this.applyLayout = function(boxContainer, index, box) {
-		return new LayoutCoords(0, 0);
+		return new LayoutCoords(0, 0, 0);
 	}
 
 	/**
@@ -233,7 +233,7 @@ function HorizontalLayoutFunction(innerCfg, baseConfig) {
 			}
 		}
 
-		var lc = new LayoutCoords(this.lastBoxX, this.currentPadding, cfg);
+		var lc = new LayoutCoords(this.lastBoxX, this.currentPadding, 0, cfg);
 
 		if (this.direction == -1)
 			delta = -delta;
@@ -245,11 +245,12 @@ function HorizontalLayoutFunction(innerCfg, baseConfig) {
 
 function VerticalLayoutFunction(innerCfg, baseConfig) {
 	var me = this;
-	LayoutFunction.call(this,baseConfig);
+	LayoutFunction.call(this, baseConfig);
 	this.spacing = innerCfg.spacing || 0;
 	this.align = innerCfg.align || "left";
 	this.padding = innerCfg.padding || 0;
 	this.currentPadding = 0;
+	this.angle = baseConfig.angle;
 
 	this.direction = innerCfg.direction || 1;
 	this.lastBoxY = 0;
@@ -278,7 +279,7 @@ function VerticalLayoutFunction(innerCfg, baseConfig) {
 
 		var boxBounds = me.getBounds(box).dimension;
 		var x = this.padding;
-		var more = boxBounds.height;		
+		var more = boxBounds.height;
 
 		if (this.align == 'center') {
 			x = (me.maxWidth - boxBounds.width) / 2;
@@ -296,7 +297,7 @@ function VerticalLayoutFunction(innerCfg, baseConfig) {
 			}
 		}
 
-		var lc = new LayoutCoords(x, this.lastBoxY, this.baseConfig);
+		var lc = new LayoutCoords(x, this.lastBoxY, this.angle, this.baseConfig);
 
 		var delta = more;
 		if (this.direction == -1)
@@ -342,7 +343,7 @@ function HandLayoutFunction(innerCfg, baseCfg) {
 		var y = me.centerOfCircle.y - me.centerOfCircle.x * sin - me.centerOfCircle.y * cos;
 
 		var angleDeg = angle * 180 / Math.PI;
-		var lc = new LayoutCoords(x, y, { angle : angleDeg, zIndex : index + this.zIndex });
+		var lc = new LayoutCoords(x, y, angleDeg, { zIndex : index + this.zIndex });
 		return lc;
 	}
 }
@@ -361,7 +362,7 @@ function GridLayoutFunction(innerCfg, baseConfig) {
 	this.beforeLayout = function(boxContainer) {
 		this.maxBox = new Dimension(0, 0);
 		_.each(boxContainer.childs, function(box, index) {
-			var dimension =me.getBounds(box).dimension;
+			var dimension = me.getBounds(box).dimension;
 			me.maxBox = me.maxBox.max(dimension);
 		});
 	};
@@ -379,7 +380,7 @@ function GridLayoutFunction(innerCfg, baseConfig) {
 		var x = col * this.maxBox.width + (this.padding * (col + 1));
 		var y = row * this.maxBox.height + (this.padding * (row + 1));
 
-		var lc = new LayoutCoords(x, y, this.baseConfig);
+		var lc = new LayoutCoords(x, y, 0, this.baseConfig);
 		return lc;
 	}
 }
@@ -413,19 +414,19 @@ function StackedLayoutFunction(baseConfig) {
 		cfg.zIndex = this.zIndex + size;
 		cfg.hidden = size < -2;
 
-		return new LayoutCoords(0, 0, cfg);
+		return new LayoutCoords(0, 0, 0, cfg);
 	}
 }
 
 /**
  * Les coordonnées de layout
  */
-function LayoutCoords(x, y, config) {
+function LayoutCoords(x, y, angle, config) {
 	Point.call(this, x, y);
 
 	config = config || {};
 
-	this.angle = config.angle || 0;
+	this.angle = angle || 0;
 	this.zIndex = config.zIndex || 0;
 	this.face = config.face || undefined;
 	this.hidden = config.hidden || false;
@@ -435,7 +436,7 @@ function LayoutCoords(x, y, config) {
 	 * Renvoi une nouveau coordonnées en intégration la difference du point
 	 */
 	this.merge = function(point) {
-		var lc = new LayoutCoords(this.x + point.x, this.y + point.y, point);		
+		var lc = new LayoutCoords(this.x + point.x, this.y + point.y, point.angle, point);
 		return lc;
 	}
 }
@@ -568,10 +569,10 @@ function Box(layoutManager) {
 	this.baseBox = new Dimension(0, 0);
 
 	// la position dans le parent
-	this.coordsInParent = new LayoutCoords(0, 0);
+	this.coordsInParent = new LayoutCoords(0, 0, 0);
 
 	// les coordonnées graphique rééel
-	this.coords = new LayoutCoords(0, 0);
+	this.coords = new LayoutCoords(0, 0, 0);
 
 	/**
 	 * Mise à jour du parent
@@ -681,7 +682,7 @@ function Box(layoutManager) {
 	this.draw = function() {
 
 	}
-	
+
 	/**
 	 * Permet de fusionner les coordonnes du parent
 	 */
@@ -701,7 +702,6 @@ function BoxContainer(layoutManager, layoutFunction) {
 
 	// le dernier composant de layout
 	this.lastBounds = undefined;
-
 
 	/**
 	 * Mise à jour de la profondeur

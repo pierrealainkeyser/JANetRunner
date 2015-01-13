@@ -140,10 +140,10 @@ function CardManager(cardContainer) {
 	 */
 	this.refresh = function() {
 		var padding = 25;
-		this.serverRows.absolutePosition = new LayoutCoords(padding, this.area.main.height - this.area.card.height * 2 - padding);
-		this.runnerColums.absolutePosition = new LayoutCoords(this.area.main.width - this.area.card.width - padding, padding);
+		this.serverRows.absolutePosition = new LayoutCoords(padding, this.area.main.height - this.area.card.height * 2 - padding, 0);
+		this.runnerColums.absolutePosition = new LayoutCoords(this.area.main.width - this.area.card.width - padding, padding, 0);
 		this.handContainer.absolutePosition = new LayoutCoords(this.area.main.width - padding / 2 - 300, this.area.main.height - this.area.card.height
-				- padding / 2 - 50);
+				- padding / 2 - 50, 0);
 
 		this.absoluteContainer.requireLayout();
 	};
@@ -1104,7 +1104,7 @@ function ExtBox(cardManager) {
 	var extLayout = new LayoutFunction(this);
 	extLayout.applyLayout = function(boxContainer, index, box) {
 		var ab = me.extContainer.getPositionInParent();
-		return new LayoutCoords(ab.x, ab.y, { mode : "extended", zIndex : 10 });
+		return new LayoutCoords(ab.x, ab.y, 0, { mode : "extended", zIndex : 10 });
 	};
 
 	var extContainer = new BoxContainer(cardManager, extLayout);
@@ -1262,7 +1262,7 @@ function ExtBox(cardManager) {
 		var coords = this.displayedCard.coords;
 		var big = cardManager.area.cardBig;
 		var small = cardManager.area.card;
-		this.extContainer.setCoords(new LayoutCoords(coords.x - (big.width - small.width) / 2, coords.y - (big.height - small.height) / 2));
+		this.extContainer.setCoords(new LayoutCoords(coords.x - (big.width - small.width) / 2, coords.y - (big.height - small.height) / 2), 0);
 		this.displayedCard.setParent(extContainer);
 
 		this.mainContainer.removeAllChilds();
@@ -1309,7 +1309,7 @@ function ExtBox(cardManager) {
 		var coords = this.displayedCard.coords;
 		var big = cardManager.area.cardBig;
 		var small = cardManager.area.card;
-		this.extContainer.setCoords(new LayoutCoords(coords.x - (big.width - small.width) / 2, coords.y - (big.height - small.height) / 2));
+		this.extContainer.setCoords(new LayoutCoords(coords.x - (big.width - small.width) / 2, coords.y - (big.height - small.height) / 2), 0);
 		this.displayedCard.applyGhost(extContainer);
 
 		this.mainContainer.removeAllChilds();
@@ -1533,7 +1533,7 @@ function ExtBox(cardManager) {
 
 				// il faut déplacer la boite pour correspondre
 				var p = outer.getMatchingPoint(bounds);
-				this.extContainer.setCoords(new LayoutCoords(p.x, p.y));
+				this.extContainer.setCoords(new LayoutCoords(p.x, p.y, 0));
 
 				var redraw = function(card) {
 					if (card != null)
@@ -1664,11 +1664,11 @@ var INNER_SERVER_LAYOUT = new function() {
 		var x = (me.maxWidth - boxBounds.width) / 2;
 		var card = boxContainer.layoutManager.area.card;
 		if (box.serverLayoutKey === 'ices') {
-			return new LayoutCoords(x, -card.height - 5);
+			return new LayoutCoords(x, -card.height - 5, 0);
 		} else if (box.serverLayoutKey === 'assetOrUpgrades' || box.serverLayoutKey === 'stack') {
-			return new LayoutCoords(x, 0);
+			return new LayoutCoords(x, 0, 0);
 		} else if (box.serverLayoutKey === 'upgrades') {
-			return new LayoutCoords(x, card.height + 10);
+			return new LayoutCoords(x, card.height + 10, 0);
 		}
 
 		return null;
