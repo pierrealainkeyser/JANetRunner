@@ -115,9 +115,9 @@ function CardManager(cardContainer) {
 		this.runnerHardwares = new BoxContainer(this, horizontalRunnerLayout);
 		this.runnerPrograms = new BoxContainer(this, horizontalRunnerLayout);
 
-		this.runnerId = new RunnerContainer(this, "Grip");
-		this.runnerStack = new RunnerContainer(this, "Stack");
-		this.runnerHeap = new RunnerContainer(this, "Heap");
+		this.runnerId = new RunnerContainer(this, "Grip", false);
+		this.runnerStack = new RunnerContainer(this, "Stack", false);
+		this.runnerHeap = new RunnerContainer(this, "Heap", true);
 		runnerRow.addChild(this.runnerHeap);
 		runnerRow.addChild(this.runnerStack);
 		runnerRow.addChild(this.runnerId);
@@ -238,14 +238,15 @@ function CardManager(cardContainer) {
 
 	};
 
-	var updateAllCards = function(elements) {
+	var updateAllCards = function(elements) {		
 		for ( var c in elements.cards) {
 			var def = elements.cards[c];
 			var card = me.getCard(def);
 			if (def.location) {
 				var container = findContainer(def.location);
-				if (container)
+				if (container) {
 					card.setParent(container, def.location.index);
+				}
 			}
 
 			if (def.face) {
@@ -398,6 +399,7 @@ function CardManager(cardContainer) {
 		this.secondaryCard = null;
 
 		var id = card.getId();
+		var faction = 'corp';
 
 		if (me.extbox.displayedCard != null) {
 			var displayedId = me.extbox.displayedCard.getId();
@@ -407,16 +409,21 @@ function CardManager(cardContainer) {
 				me.extbox.closeSecondary();
 			} else {
 
-				if (displayedId != me.primaryCardId) {
-					me.extbox.displayPrimary(card);
-				} else {
-					// affichage en tant que carte secondaire
-					me.extbox.displaySecondary(card);
+				if (card.checkViewable(faction)) {
+					if (displayedId != me.primaryCardId) {
+						me.extbox.displayPrimary(card);
+					} else {
+						// affichage en tant que carte secondaire
+						me.extbox.displaySecondary(card);
+					}
 				}
 			}
 		} else {
-			// affichage de la carte primaire
-			me.extbox.displayPrimary(card);
+
+			if (card.checkViewable(faction)) {
+				// affichage de la carte primaire
+				me.extbox.displayPrimary(card);
+			}
 		}
 	}
 
@@ -431,8 +438,8 @@ function CardManager(cardContainer) {
 	}
 }
 
-function RunnerContainer(cardManager, type) {
-	BoxContainer.call(this, cardManager, new StackedLayoutFunction({ mode : "plain" }));
+function RunnerContainer(cardManager, type, viewable) {
+	BoxContainer.call(this, cardManager, new StackedLayoutFunction({ mode : "plain", viewable : viewable }));
 	this.getBaseBox = function() {
 		return cardManager.area.card;
 	};
@@ -669,6 +676,31 @@ function Card(def, cardManager) {
 		});
 		return tok;
 	};
+
+	/**
+	 * Verifie si la carte est visible
+	 */
+	this.checkViewable = function(faction) {
+		if (me.face === 'up')
+			return true;
+
+		var coords = me.getPositionInParent();
+		if (coords && _.isBoolean(coords.viewable))
+			return coords.viewable;
+
+		return def.faction === faction;
+	}
+
+	/**
+	 * Gestion de la sélection
+	 */
+	this.updateViewable = function(faction) {
+		if (me.checkViewable(faction)) {
+			me.primary.addClass('clickable')
+		} else {
+			me.primary.removeClass('clickable')
+		}
+	}
 
 	/**
 	 * Rajoute un ghost dans le parent
@@ -1698,7 +1730,12 @@ function Server(def, cardManager) {
 	this.ices.serverLayoutKey = 'ices';
 	this.addChild(this.ices);
 
-	this.stack = new BoxContainer(cardManager, STACKED_SERVER_LAYOUT);
+	// le serveur RD n'est pas clickable
+	var stackedLayout = STACKED_SERVER_LAYOUT;
+	if (def.id === -2)
+		stackedLayout = new StackedLayoutFunction({ zIndex : 2, mode : "plain", viewable : false });
+
+	this.stack = new BoxContainer(cardManager, stackedLayout);
 	this.stack.serverLayoutKey = 'stack';
 	this.addChild(this.stack);
 

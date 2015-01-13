@@ -410,7 +410,7 @@ function StackedLayoutFunction(baseConfig) {
 
 		var size = -(boxContainer.size() - index);
 
-		var cfg = {};
+		var cfg = _.extend({}, baseConfig);
 		cfg.zIndex = this.zIndex + size;
 		cfg.hidden = size < -2;
 
@@ -424,6 +424,10 @@ function StackedLayoutFunction(baseConfig) {
 function LayoutCoords(x, y, angle, config) {
 	Point.call(this, x, y);
 
+	// recopie des autres propriétés
+	if (config)
+		_.defaults(this, config);
+
 	config = config || {};
 
 	this.angle = angle || 0;
@@ -431,6 +435,8 @@ function LayoutCoords(x, y, angle, config) {
 	this.face = config.face || undefined;
 	this.hidden = config.hidden || false;
 	this.mode = config.mode || "plain";
+	if (_.isBoolean(config.viewable))
+		this.viewable = config.viewable;
 
 	/**
 	 * Renvoi une nouveau coordonnées en intégration la difference du point
