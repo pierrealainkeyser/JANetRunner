@@ -375,7 +375,7 @@ function CardManager(cardContainer) {
 	 */
 	this.getBounds = function() {
 		// TODO gestion du radius de padding
-		return new Bounds({ x : 0, y : 0 }, new Dimension(this.area.main.width, this.area.main.height)).minus(-35);
+		return new Bounds({ x : 0, y : 0 }, new Dimension(this.area.main.width, this.area.main.height)).minus(35);
 	}
 
 	/**
@@ -1130,8 +1130,9 @@ function ExtBox(cardManager) {
 		}
 		return this.coords.merge(abs);
 	};
-	
-	// qui réalise le merge dans l'espace de me.displayedCard, sans impacted y car dans les serveurs c'est différents
+
+	// qui réalise le merge dans l'espace de me.displayedCard, sans impacted y
+	// car dans les serveurs c'est différents
 	var mergeChildCoordFromServer = function(box) {
 		var abs = box.getPositionInParent();
 		if (me.displayedCard) {
@@ -1221,15 +1222,15 @@ function ExtBox(cardManager) {
 			me.displayedCard.coords.x = x;
 			me.displayedCard.coords.y = y;
 
-			var redrawAndUpdate=function(c){
+			var redrawAndUpdate = function(c) {
 				c.redraw();
 				c.update(true);
 			}
-			
+
 			if (me.secondaryCard) {
 				redrawAndUpdate(me.secondaryCard);
 			}
-			
+
 			me.cardsContainer.each(redrawAndUpdate);
 		}
 	}
@@ -1503,17 +1504,16 @@ function ExtBox(cardManager) {
 			// mise à jour du layout
 			this.innerContainer.requireLayout();
 		}
-		
-		if(this.cardsContainer.size()>0){
-			this.cardsContainer.each(function(c){
+
+		if (this.cardsContainer.size() > 0) {
+			this.cardsContainer.each(function(c) {
 				c.unapplyGhost();
 			});
 			this.cardsContainer.removeAllChilds();
 			// mise à jour du layout
 			this.innerContainer.requireLayout();
 		}
-		
-		
+
 	}
 
 	/**
@@ -1534,10 +1534,16 @@ function ExtBox(cardManager) {
 				// il faut déplacer la boite pour correspondre
 				var p = outer.getMatchingPoint(bounds);
 				this.extContainer.setCoords(new LayoutCoords(p.x, p.y));
-				this.displayedCard.redraw();
 
-				if (me.secondaryCard != null)
-					me.secondaryCard.redraw();
+				var redraw = function(card) {
+					if (card != null)
+						card.redraw();
+				};
+
+				redraw(this.displayedCard);
+				redraw(me.secondaryCard);
+
+				me.cardsContainer.each(redraw);
 			}
 
 		}
