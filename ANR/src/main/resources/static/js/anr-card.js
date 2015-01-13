@@ -97,6 +97,11 @@ function CardManager(cardContainer) {
 	// correction de la position avant l'affichage
 	this.beforeDraw.push(function() {
 		me.extbox.checkLayoutBounds();
+
+		_.each(me.cards, function(card) {
+			var faction = 'corp';
+			card.updateViewable(faction);
+		});
 	})
 
 	this.makeReady = function() {
@@ -238,7 +243,7 @@ function CardManager(cardContainer) {
 
 	};
 
-	var updateAllCards = function(elements) {		
+	var updateAllCards = function(elements) {
 		for ( var c in elements.cards) {
 			var def = elements.cards[c];
 			var card = me.getCard(def);
@@ -1249,7 +1254,7 @@ function ExtBox(cardManager) {
 
 		if (me.displayedCard) {
 
-			me.position = new Point(x, y);
+			me.extContainer.setCoords(new LayoutCoords(x, y, 0));
 
 			me.displayedCard.coords.x = x;
 			me.displayedCard.coords.y = y;
