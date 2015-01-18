@@ -86,6 +86,35 @@ function bootANR(gameId) {
 	}), 1500)
 }
 
+/**
+ * Un Behaviour qui utilise une fonction de callback
+ */
+function CardActivationBehaviour() {
+	var me = this;
+	Behaviour.call(this);
+
+	/**
+	 * La fonction de callback
+	 */
+	this.callback = function(card) {
+
+	};
+
+	this.install = function(card) {
+		var callback = card.cardManager.within(function() {
+			me.callback(card);
+		});
+
+		card.front.on('click', callback);
+		card.back.on('click', callback);
+	};
+	this.remove = function(card) {
+		card.front.off('click');
+		card.back.off('click');
+	}
+
+}
+
 function CardManager(cardContainer) {
 	var me = this;
 	this.cards = {};
@@ -308,6 +337,11 @@ function CardManager(cardContainer) {
 		}
 	};
 
+	var displayCardBehaviour = new CardActivationBehaviour();
+	displayCardBehaviour.callback = function(card) {
+		me.displayCard(card);
+	};
+
 	/**
 	 * creation d'une carte
 	 */
@@ -317,15 +351,7 @@ function CardManager(cardContainer) {
 			this.cards[def.id] = card;
 		}
 
-		var callback = function(event) {
-			var closure = me.within(function() {
-				me.toggleCard(card);
-			});
-			closure();
-		};
-
-		card.front.on('click', callback);
-		card.back.on('click', callback);
+		card.pushBehaviours([ displayCardBehaviour ]);
 
 		return card;
 	}
@@ -397,37 +423,27 @@ function CardManager(cardContainer) {
 	};
 
 	/**
-	 * Affichage de la carte
+	 * Permet d'afficher une card
 	 */
-	this.toggleCard = function(card) {
-		this.displayedCard = null;
-		this.secondaryCard = null;
-
-		var id = card.getId();
+	this.displayCard = function(card) {
 		var faction = 'corp';
 
-		if (me.extbox.displayedCard != null) {
-			var displayedId = me.extbox.displayedCard.getId();
-			if (id == displayedId) {
-				me.extbox.closeCard();
-			} else if (me.extbox.secondaryCard != null && id == me.extbox.secondaryCard.getId()) {
-				me.extbox.closeSecondary();
-			} else {
+		if (card.checkViewable(faction)) {
 
-				if (card.checkViewable(faction)) {
-					if (displayedId != me.primaryCardId) {
-						me.extbox.displayPrimary(card);
-					} else {
-						// affichage en tant que carte secondaire
-						me.extbox.displaySecondary(card);
-					}
-				}
+			var showPrimary = true;
+			if (me.extbox.displayedCard != null) {
+				// une carte est primaire on se place en second
+				var displayedId = me.extbox.displayedCard.getId();
+				if (displayedId === me.primaryCardId)
+					showPrimary = false;
+
 			}
-		} else {
 
-			if (card.checkViewable(faction)) {
-				// affichage de la carte primaire
+			if (showPrimary) {
 				me.extbox.displayPrimary(card);
+			} else {
+				// affichage en tant que carte secondaire
+				me.extbox.displaySecondary(card);
 			}
 		}
 	}
@@ -546,6 +562,7 @@ function ExtViewServer(server) {
 	AnimatedBox.call(this, "fade");
 
 	AbstractElement.call(this, server.def);
+	Behavioral.call(this);
 
 	this.img = server.primary.clone();
 	this.img.removeAttr("style");
@@ -648,6 +665,7 @@ function Card(def, cardManager) {
 
 	AbstractElement.call(this, def);
 	BoxContainer.call(this, cardManager);
+	Behavioral.call(this);
 
 	this.def = def;
 	this.cardManager = cardManager;
@@ -1206,6 +1224,43 @@ function ExtBox(cardManager) {
 	// les sous-routines
 	this.subs = [];
 
+	var closeCardBehaviour = new CardActivationBehaviour();
+	closeCardBehaviour.callback = function(card) {
+		me.closeCard();
+	};
+
+	var closeSecondaryCardBehaviour = new CardActivationBehaviour();
+	closeSecondaryCardBehaviour.callback = function(card) {
+		me.closeSecondary();
+	};
+	
+	var displaySecondaryCardBehaviour = new CardActivationBehaviour();
+	displaySecondaryCardBehaviour.callback = function(card) {
+		me.displaySecondary(card);
+	};
+
+	var dragBehaviour = new Behaviour();
+	dragBehaviour.install = function(g) {
+		g.primary.draggable({ drag : function(event, ui) {
+			var position = g.primary.position();
+			me.updateVirtualPosition(position.left, position.top);
+		} });
+	};
+	dragBehaviour.remove = function(g) {
+		g.primary.draggable("destroy");
+	};
+
+	var closeServerBehaviour = new Behaviour();
+	closeServerBehaviour.install = function(g) {
+		// fermeture sur le click
+		g.img.on('click', me.cardManager.within(function() {
+			me.closeCard();
+		}));
+	};
+	closeServerBehaviour.remove = function(g) {
+		g.primary.off('click');
+	};
+
 	this.addChild(this.header);
 	this.addChild(this.innerContainer);
 	this.innerContainer.addChild(innerBox);
@@ -1279,19 +1334,10 @@ function ExtBox(cardManager) {
 		this.closeCard();
 		var g = serv.createView();
 		this.displayedCard = g;
-
-		// fermeture sur le click
-		g.img.on('click', function() {
-			var closure = serv.cardManager.within(function() {
-				me.closeCard();
-			});
-			closure();
-		});
-
-		g.primary.draggable({ drag : function(event, ui) {
-			var position = g.primary.position();
-			me.updateVirtualPosition(position.left, position.top);
-		} });
+		
+		//rajoute des comportements
+		g.pushBehaviours([ closeServerBehaviour, dragBehaviour ]);
+		
 
 		// remise à zero des routines
 		this.subs = [];
@@ -1310,6 +1356,9 @@ function ExtBox(cardManager) {
 		if (innerCards) {
 			addInCardMain(this.cardsContainer);
 			_.each(innerCards, function(card) {
+				
+				//TODO il faut supprimer le comportement en plus des cards à fin
+				card.pushBehaviours([ displaySecondaryCardBehaviour ]);
 				card.applyGhost(me.cardsContainer);
 			});
 		}
@@ -1334,10 +1383,7 @@ function ExtBox(cardManager) {
 		this.closeCard();
 		this.displayedCard = card;
 
-		card.primary.draggable({ drag : function(event, ui) {
-			var position = card.primary.position();
-			me.updateVirtualPosition(position.left, position.top);
-		} });
+		card.pushBehaviours([ closeCardBehaviour, dragBehaviour ]);
 
 		// remise à zero des routines
 		this.subs = [];
@@ -1432,6 +1478,8 @@ function ExtBox(cardManager) {
 		this.secondaryCard.applyGhost(this.secondaryCardContainer);
 		this.secondaryActions = [];
 
+		card.pushBehaviours([ closeSecondaryCardBehaviour ]);
+
 		_.each(card.actions, function(act) {
 			var box = me.addAction(act);
 			if (box != null) {
@@ -1511,17 +1559,28 @@ function ExtBox(cardManager) {
 	 */
 	this.closeCard = function() {
 		if (this.displayedCard !== null) {
+			this.closeSecondary();
+			
 			this.displayedCard.ext.empty();
-			this.displayedCard.primary.draggable("destroy");
+			this.displayedCard.popBehaviours();
 
 			// remise à zero des routines
 			this.subs = [];
 
 			this.displayedCard.unapplyGhost();
 			this.displayedCard = null;
-		}
+			
 
-		this.closeSecondary();
+			if (this.cardsContainer.size() > 0) {
+				this.cardsContainer.each(function(c) {
+					c.unapplyGhost();
+					c.popBehaviours();
+				});
+				this.cardsContainer.removeAllChilds();
+				// mise à jour du layout
+				this.innerContainer.requireLayout();
+			}
+		}
 	}
 
 	/**
@@ -1530,6 +1589,7 @@ function ExtBox(cardManager) {
 	this.closeSecondary = function() {
 		if (this.secondaryCard !== null) {
 			this.secondaryCard.unapplyGhost();
+			this.secondaryCard.popBehaviours();
 
 			// suppression des actions secondaires
 			_.each(this.secondaryActions, function(box) {
@@ -1542,14 +1602,6 @@ function ExtBox(cardManager) {
 			this.innerContainer.requireLayout();
 		}
 
-		if (this.cardsContainer.size() > 0) {
-			this.cardsContainer.each(function(c) {
-				c.unapplyGhost();
-			});
-			this.cardsContainer.removeAllChilds();
-			// mise à jour du layout
-			this.innerContainer.requireLayout();
-		}
 
 	}
 
