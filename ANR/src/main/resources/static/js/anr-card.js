@@ -380,6 +380,7 @@ function CardManager(cardContainer) {
 			card : new Dimension(card.width(), card.height()),//
 			cardBig : new Dimension(cardBig.width(), cardBig.height()),//							
 			cardMini : new Dimension(cardMini.width(), cardMini.height()),//
+			cardExtOffset : -23,//
 			main : { width : this.cardContainer.width(), height : this.cardContainer.height() } };
 	}
 
@@ -528,28 +529,24 @@ function GhostCard(card) {
 	this.element = img.appendTo(card.cardManager.cardContainer);
 
 	this.getBaseBox = function(cfg) {
-		var dimension = card.cardManager.area.card;
-
-		// il y a un angle on doit tourner
-		if (cfg && cfg.angle === 90)
-			dimension = dimension.swap();
-
-		return dimension;
+		return card.getBaseBox.call(this, cfg);
 	}
 
-	this.draw = function() {
+	this.draw = function(update) {
 		var box = this.getBaseBox();
 		var rotation = this.coords.angle;
 		var primaryCss = { width : box.width, height : box.height, top : this.coords.y, left : this.coords.x, rotation : rotation,
 			zIndex : this.coords.zIndex || 0 };
 
-		if (this.firstTimeShow)
+		if (this.firstTimeShow || update)
 			TweenLite.set(this.element, { css : primaryCss });
 		else
 			TweenLite.to(this.element, ANIM_DURATION, { css : primaryCss });
 
 		this.firstTimeShow = false;
 	}
+	// il faut surcharger l'update comme pour les cards
+	this.update = this.draw;
 }
 
 /**
@@ -614,6 +611,13 @@ function AbstractElement(def) {
 	this.primary = null;
 
 	/**
+	 * Les cartes ont un ID >=0
+	 */
+	this.isCard = function() {
+		return me.getId() >= 0;
+	}
+
+	/**
 	 * Accède à l'ID de la carte
 	 */
 	this.getId = function() {
@@ -674,6 +678,8 @@ function Card(def, cardManager) {
 
 	// et des sous-routines
 	this.subs = [];
+	// les images fantomes
+	this.ghosts = [];
 
 	// gestion du layout
 
@@ -729,8 +735,9 @@ function Card(def, cardManager) {
 	 * Rajoute un ghost dans le parent
 	 */
 	this.applyGhost = function(parent) {
-		this.ghost = this.createGhost();
-		this.parent.replaceChild(this, this.ghost);
+		var ghost = new GhostCard(this);
+		this.ghosts.push(ghost);
+		this.parent.replaceChild(this, ghost);
 		this.setParent(parent);
 	}
 
@@ -738,16 +745,10 @@ function Card(def, cardManager) {
 	 * Supprime le ghost et retourne à sa place
 	 */
 	this.unapplyGhost = function() {
-		this.ghost.parent.replaceChild(this.ghost, this);
-		this.ghost.remove(true);
-		this.ghost = null;
-	}
+		var ghost = this.ghosts.pop();
 
-	/**
-	 * creation du ghost de la carte
-	 */
-	this.createGhost = function() {
-		return new GhostCard(this);
+		ghost.parent.replaceChild(ghost, this);
+		ghost.remove(true);
 	}
 
 	/**
@@ -789,12 +790,12 @@ function Card(def, cardManager) {
 			mode = cfg.mode;
 
 		var dimension;
-		if (mode === 'extended' || mode === 'secondary')
-			dimension = this.cardManager.area.cardBig;
-		else if (mode === 'mini')
-			dimension = this.cardManager.area.cardMini;
+		if (mode == 'extended' || mode == 'secondary')
+			dimension = me.cardManager.area.cardBig;
+		else if (mode == 'mini')
+			dimension = me.cardManager.area.cardMini;
 		else
-			dimension = this.cardManager.area.card;
+			dimension = me.cardManager.area.card;
 
 		// il y a un angle on doit tourner
 		if (cfg && cfg.angle === 90)
@@ -1179,20 +1180,11 @@ function ExtBox(cardManager) {
 		if (me.displayedCard) {
 			abs = me.displayedCard.mergeChildCoord(box);
 			abs.zIndex = 11;
-			// FIXME il faut trouver l'offset autrement (en effet extbox est
-			// décallé par css)
-			abs.y -= 23;
-		}
-		return this.coords.merge(abs);
-	};
 
-	// qui réalise le merge dans l'espace de me.displayedCard, sans impacted y
-	// car dans les serveurs c'est différents
-	var mergeChildCoordFromServer = function(box) {
-		var abs = box.getPositionInParent();
-		if (me.displayedCard) {
-			abs = me.displayedCard.mergeChildCoord(box);
-			abs.zIndex = 11;
+			// si on affiche une carte il faut rajouter un offset
+			if (me.displayedCard.isCard()) {
+				abs.y += cardManager.area.cardExtOffset;
+			}
 		}
 		return this.coords.merge(abs);
 	};
@@ -1219,7 +1211,7 @@ function ExtBox(cardManager) {
 
 	this.cardsContainer = new BoxContainer(cardManager, new GridLayoutFunction({ columns : 7, padding : 3 }, { mode : "mini" }));
 	this.cardsContainer.type = "cards";
-	this.cardsContainer.mergeChildCoord = mergeChildCoordFromServer;
+	this.cardsContainer.mergeChildCoord = mergeChildCoordFromDisplayed;
 
 	// les sous-routines
 	this.subs = [];
@@ -1233,7 +1225,7 @@ function ExtBox(cardManager) {
 	closeSecondaryCardBehaviour.callback = function(card) {
 		me.closeSecondary();
 	};
-	
+
 	var displaySecondaryCardBehaviour = new CardActivationBehaviour();
 	displaySecondaryCardBehaviour.callback = function(card) {
 		me.displaySecondary(card);
@@ -1334,10 +1326,9 @@ function ExtBox(cardManager) {
 		this.closeCard();
 		var g = serv.createView();
 		this.displayedCard = g;
-		
-		//rajoute des comportements
+
+		// rajoute des comportements
 		g.pushBehaviours([ closeServerBehaviour, dragBehaviour ]);
-		
 
 		// remise à zero des routines
 		this.subs = [];
@@ -1356,8 +1347,6 @@ function ExtBox(cardManager) {
 		if (innerCards) {
 			addInCardMain(this.cardsContainer);
 			_.each(innerCards, function(card) {
-				
-				//TODO il faut supprimer le comportement en plus des cards à fin
 				card.pushBehaviours([ displaySecondaryCardBehaviour ]);
 				card.applyGhost(me.cardsContainer);
 			});
@@ -1560,7 +1549,7 @@ function ExtBox(cardManager) {
 	this.closeCard = function() {
 		if (this.displayedCard !== null) {
 			this.closeSecondary();
-			
+
 			this.displayedCard.ext.empty();
 			this.displayedCard.popBehaviours();
 
@@ -1569,7 +1558,6 @@ function ExtBox(cardManager) {
 
 			this.displayedCard.unapplyGhost();
 			this.displayedCard = null;
-			
 
 			if (this.cardsContainer.size() > 0) {
 				this.cardsContainer.each(function(c) {
@@ -1601,7 +1589,6 @@ function ExtBox(cardManager) {
 			// mise à jour du layout
 			this.innerContainer.requireLayout();
 		}
-
 
 	}
 

@@ -24,6 +24,7 @@ html , body , body > div.container {
 	}
 }
 
+@card-ext-offset: -23px;
 @card-width: 80px;
 @card-height: 111px;
 @card-shadow-color: rgba(0, 0, 0, 0.35);
@@ -112,7 +113,7 @@ div#conf {
 			width: @card-width;
 			height: @card-height;
 		}
-		
+
 		&.mini {
 			width: @card-width / 2;
 			height: @card-height / 2;
@@ -180,20 +181,17 @@ div.cardstack {
 
 label.sub {
 	font-weight: normal;
-	width: 230px;	
+	width: 230px;
 }
 
 .clickable {
 	cursor: pointer;
 }
 
-.unselectable{
+.unselectable {
 	-webkit-user-select: none;
 }
 
-/**
- * Le contenu du boite ext (avec un beau de titre, une zone d'action avec des boutons dedans)
- */
 .ext-action-header (@border-radius) {
 	.action {
 		position: absolute;
@@ -299,7 +297,7 @@ div#main {
 		.ext {
 			@border-radius: 8px;
 			position: absolute;
-			top: -23px;
+			top: @card-ext-offset;
 			overflow: hidden;
 			cursor: default;
 			background: @ext-background-color;
