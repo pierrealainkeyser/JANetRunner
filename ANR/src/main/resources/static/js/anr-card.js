@@ -54,8 +54,8 @@ function bootANR(gameId) {
 				{ id : 5, tokens : { credit : 5, power : 1 } },//
 				{ id : 1, face : "down", subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on Data Raven" } ],
 					location : { primary : "server", serverIndex : -3, secondary : "ices", index : 1 } },// 
-				{ id : 14, face : "up", location : { primary : "hand", index : 2 } },//
-				{ id : 9, face : "up", location : { primary : "hand", index : 3 } },//
+				{ id : 14, face : "up", location : { primary : "card", serverIndex : 4, index : 1 } },//
+				{ id : 9, face : "up", location : { primary : "card", serverIndex : 4, index : 0 } },//
 				{ id : 15, face : "up", location : { primary : "resource", index : 1 } },// 
 				{ id : 16, face : "up", tokens : { credit : 12 }, location : { primary : "resource", index : 2 } },//
 				{ id : 11, location : { primary : "heap", index : 1 } },//
@@ -255,7 +255,9 @@ function CardManager(cardContainer) {
 		if ("server" === first) {
 			var server = me.getServer({ id : path.serverIndex });
 			return server.findContainer(path.secondary);
-		} else if ("resource" === first)
+		} else if ("card" === first)
+			return me.getCard({ id : path.serverIndex });
+		else if ("resource" === first)
 			return me.runnerResources;
 		else if ("hardware" === first)
 			return me.runnerHardwares;
@@ -668,8 +670,28 @@ function Card(def, cardManager) {
 	var me = this;
 
 	AbstractElement.call(this, def);
-	BoxContainer.call(this, cardManager);
+
+	//TODO il faut placer un layout vertical pour le décallage
+	var cardLayoutFunction = new HorizontalLayoutFunction({spacing:-33}, {mode:"plain"});
+
+	BoxContainer.call(this, cardManager, cardLayoutFunction);
 	Behavioral.call(this);
+
+	var oldMerge = this.mergeChildCoord;
+	this.mergeChildCoord = function(box) {
+
+		var coord = oldMerge.call(me, box);
+
+		if (me.getPositionInParent().angle === 90) {
+			var c = box.getPositionInParent();
+			coord.x += c.y - c.x + 80;
+			coord.y += c.x - c.y;
+		} else
+			coord.y += 80;
+
+		coord.zIndex += me.coords.zIndex;
+		return coord;
+	};
 
 	this.def = def;
 	this.cardManager = cardManager;

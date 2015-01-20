@@ -207,7 +207,7 @@ function HorizontalLayoutFunction(innerCfg, baseConfig) {
 
 	this.afterLayout = function(boxContainer, bounds) {
 		bounds.dimension.width += this.padding;
-		bounds.dimension.height += this.padding;
+		bounds.dimension.height += this.padding;		
 	};
 
 	this.applyLayout = function(boxContainer, index, box) {
@@ -442,7 +442,7 @@ function LayoutCoords(x, y, angle, config) {
 	 * Renvoi une nouveau coordonnées en intégration la difference du point
 	 */
 	this.merge = function(point) {
-		var lc = new LayoutCoords(this.x + point.x, this.y + point.y, point.angle, point);
+		var lc = new LayoutCoords(this.x + point.x, this.y + point.y, this.angle + point.angle, point);
 		return lc;
 	}
 }
