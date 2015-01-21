@@ -57,12 +57,12 @@ function bootANR(gameId) {
 				{ id : 14, face : "up", location : { primary : "card", serverIndex : 4, index : 1 } },//
 				{ id : 9, face : "up", location : { primary : "card", serverIndex : 4, index : 0 } },//
 				{ id : 15, face : "up", location : { primary : "card", serverIndex : 4, index : 2 } },//
-				// { id : 15, face : "up", location : { primary : "resource",
-				// index : 1 } },//
-				// { id : 16, face : "up", tokens : { credit : 12 }, location :
-				// { primary : "resource", index : 2 } },//
-				// { id : 11, location : { primary : "heap", index : 1 } },//
-				// { id : 12, tokens : { recurring : 0 } },//
+		// { id : 15, face : "up", location : { primary : "resource",
+		// index : 1 } },//
+		// { id : 16, face : "up", tokens : { credit : 12 }, location :
+		// { primary : "resource", index : 2 } },//
+		// { id : 11, location : { primary : "heap", index : 1 } },//
+		// { id : 12, tokens : { recurring : 0 } },//
 		] });
 	}), 250)
 	/*
@@ -70,8 +70,7 @@ function bootANR(gameId) {
 	 * 1, cards : [ // { id : 5, tokens : { credit : 10 } },// { id : 1, actions : [ {
 	 * id : 1, text : "Continue", cls : "warning" } ] },// { id : 16, actions : [ {
 	 * text : "Take {2:credit} from Armitage Codebusting", cost : "{1:click}" } ]
-	 * },//
-	 *  ] }); }), 500)
+	 * },// ] }); }), 500)
 	 * 
 	 * setTimeout(cardManager.within(function() { cardManager.update({ cards : [ // {
 	 * id : 1, tokens : { power : 1 }, actions : [ { id : 2, text : "Continue",
@@ -691,15 +690,15 @@ function CardLayout(baseConfig) {
 		this.baseConfig.angle = coord.angle;
 
 		var totalWidth = 0;
-		var dimension = boxContainer.getBaseBox(this.baseConfig);
+		var dimension = boxContainer.getBaseBoxFromParent();
 		var innerWidth = dimension.width;
 
 		_.each(boxContainer.childs, function(box, index) {
-			var width = me.getBounds(box).dimension.width;
+			var width = me.getBounds(box).dimension.height;
 			totalWidth += width;
 		});
 
-		var minus = boxContainer.size() * this.spacing;
+		var minus = Math.max(0, boxContainer.size() - 2) * this.spacing;
 		var baseOffset = innerWidth - totalWidth - minus;
 
 		if (baseOffset < 0) {
@@ -712,10 +711,10 @@ function CardLayout(baseConfig) {
 
 	this.applyLayout = function(boxContainer, index, box) {
 
-		var dimension = this.getBounds(box).dimension;
+		var more = this.getBounds(box).dimension.height;
 
 		var lc = new LayoutCoords(me.verticalSpacing, me.offset, 0, this.baseConfig);
-		me.offset += dimension.height + this.spacing;
+		me.offset += more + this.spacing;
 
 		return lc;
 	}
