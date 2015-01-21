@@ -56,34 +56,32 @@ function bootANR(gameId) {
 					location : { primary : "server", serverIndex : -3, secondary : "ices", index : 1 } },// 
 				{ id : 14, face : "up", location : { primary : "card", serverIndex : 4, index : 1 } },//
 				{ id : 9, face : "up", location : { primary : "card", serverIndex : 4, index : 0 } },//
-				{ id : 15, face : "up", location : { primary : "resource", index : 1 } },// 
-				{ id : 16, face : "up", tokens : { credit : 12 }, location : { primary : "resource", index : 2 } },//
-				{ id : 11, location : { primary : "heap", index : 1 } },//
-				{ id : 12, tokens : { recurring : 0 } },//
+				{ id : 15, face : "up", location : { primary : "card", serverIndex : 4, index : 2 } },//
+				// { id : 15, face : "up", location : { primary : "resource",
+				// index : 1 } },//
+				// { id : 16, face : "up", tokens : { credit : 12 }, location :
+				// { primary : "resource", index : 2 } },//
+				// { id : 11, location : { primary : "heap", index : 1 } },//
+				// { id : 12, tokens : { recurring : 0 } },//
 		] });
 	}), 250)
-
-	setTimeout(cardManager.within(function() {
-		cardManager.update({ primary : 1, cards : [ //
-		{ id : 5, tokens : { credit : 10 } },//
-		{ id : 1, actions : [ { id : 1, text : "Continue", cls : "warning" } ] },//
-		{ id : 16, actions : [ { text : "Take {2:credit} from Armitage Codebusting", cost : "{1:click}" } ] },//
-
-		] });
-	}), 500)
-
-	setTimeout(cardManager.within(function() {
-		cardManager.update({ cards : [ //
-				{ id : 1, tokens : { power : 1 }, actions : [ { id : 2, text : "Continue", cls : "success" } ],
-					subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on Data Raven", broken : true } ] },//						
-		] });
-	}), 1000)
-
-	setTimeout(cardManager.within(function() {
-		cardManager.update({ cards : [ //
-		{ id : 1, tokens : { power : 2 } },//						
-		] });
-	}), 1500)
+	/*
+	 * setTimeout(cardManager.within(function() { cardManager.update({ primary :
+	 * 1, cards : [ // { id : 5, tokens : { credit : 10 } },// { id : 1, actions : [ {
+	 * id : 1, text : "Continue", cls : "warning" } ] },// { id : 16, actions : [ {
+	 * text : "Take {2:credit} from Armitage Codebusting", cost : "{1:click}" } ]
+	 * },//
+	 *  ] }); }), 500)
+	 * 
+	 * setTimeout(cardManager.within(function() { cardManager.update({ cards : [ // {
+	 * id : 1, tokens : { power : 1 }, actions : [ { id : 2, text : "Continue",
+	 * cls : "success" } ], subs : [ { id : 1, text : "{3:trace} If successful,
+	 * place 1 power counter on Data Raven", broken : true } ] },// ] }); }),
+	 * 1000)
+	 * 
+	 * setTimeout(cardManager.within(function() { cardManager.update({ cards : [ // {
+	 * id : 1, tokens : { power : 2 } },// ] }); }), 1500)
+	 */
 }
 
 /**
@@ -664,6 +662,67 @@ function AbstractElement(def) {
 }
 
 /**
+ * Permet de savoir si un objet est une carte
+ * 
+ * @param object
+ * @returns {Boolean}
+ */
+function isCard(object) {
+
+	if (_.isObject(object)) {
+		return object.def && object.def.id >= 0;
+	}
+
+	return false;
+}
+
+/**
+ * Layout d'une carte (pour l'instant que horizontal)
+ */
+function CardLayout(baseConfig) {
+	var me = this;
+	LayoutFunction.call(this, baseConfig);
+	this.spacing = -40;
+	this.verticalSpacing = 65;
+
+	this.beforeLayout = function(boxContainer) {
+
+		var coord = boxContainer.getParentCard().getPositionInParent();
+		this.baseConfig.angle = coord.angle;
+
+		var totalWidth = 0;
+		var dimension = boxContainer.getBaseBox(this.baseConfig);
+		var innerWidth = dimension.width;
+
+		_.each(boxContainer.childs, function(box, index) {
+			var width = me.getBounds(box).dimension.width;
+			totalWidth += width;
+		});
+
+		var minus = boxContainer.size() * this.spacing;
+		var baseOffset = innerWidth - totalWidth - minus;
+
+		if (baseOffset < 0) {
+			// mise en place de l'offset vertical
+			this.offset = baseOffset / 2;
+			boxContainer.innerOffset = this.offset;
+		} else
+			this.offset = boxContainer.innerOffset = 0;
+	}
+
+	this.applyLayout = function(boxContainer, index, box) {
+
+		var dimension = this.getBounds(box).dimension;
+
+		var lc = new LayoutCoords(me.verticalSpacing, me.offset, 0, this.baseConfig);
+		me.offset += dimension.height + this.spacing;
+
+		return lc;
+	}
+}
+var CARD_LAYOUT = new CardLayout({ mode : "plain" });
+
+/**
  * Un carte qui peut contenir d'autre carte
  */
 function Card(def, cardManager) {
@@ -671,27 +730,8 @@ function Card(def, cardManager) {
 
 	AbstractElement.call(this, def);
 
-	//TODO il faut placer un layout vertical pour le décallage
-	var cardLayoutFunction = new HorizontalLayoutFunction({spacing:-33}, {mode:"plain"});
-
-	BoxContainer.call(this, cardManager, cardLayoutFunction);
+	BoxContainer.call(this, cardManager, CARD_LAYOUT);
 	Behavioral.call(this);
-
-	var oldMerge = this.mergeChildCoord;
-	this.mergeChildCoord = function(box) {
-
-		var coord = oldMerge.call(me, box);
-
-		if (me.getPositionInParent().angle === 90) {
-			var c = box.getPositionInParent();
-			coord.x += c.y - c.x + 80;
-			coord.y += c.x - c.y;
-		} else
-			coord.y += 80;
-
-		coord.zIndex += me.coords.zIndex;
-		return coord;
-	};
 
 	this.def = def;
 	this.cardManager = cardManager;
@@ -740,6 +780,18 @@ function Card(def, cardManager) {
 			return coords.viewable;
 
 		return def.faction === faction;
+	}
+
+	/**
+	 * Renvoi le parent ou soit même si pas de parent
+	 */
+	this.getParentCard = function() {
+		var parent = me.parent;
+		if (parent != null && isCard(parent)) {
+			return parent.getParentCard();
+		}
+
+		return me;
 	}
 
 	/**

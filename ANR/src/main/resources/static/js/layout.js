@@ -74,7 +74,6 @@ function Bounds(point, dimension) {
 		var br = this.getBottomRight().max(bounds.getBottomRight());
 
 		var merged = new Bounds(tl, new Dimension(br.x - tl.x, br.y - tl.y));
-
 		return merged;
 	}
 
@@ -207,7 +206,7 @@ function HorizontalLayoutFunction(innerCfg, baseConfig) {
 
 	this.afterLayout = function(boxContainer, bounds) {
 		bounds.dimension.width += this.padding;
-		bounds.dimension.height += this.padding;		
+		bounds.dimension.height += this.padding;
 	};
 
 	this.applyLayout = function(boxContainer, index, box) {
@@ -277,25 +276,24 @@ function VerticalLayoutFunction(innerCfg, baseConfig) {
 
 	this.applyLayout = function(boxContainer, index, box) {
 
-		var boxBounds = me.getBounds(box).dimension;
+		var bounds = me.getBounds(box);
+		var dimension = bounds.dimension;
 		var x = this.padding;
-		var more = boxBounds.height;
+		var more = dimension.height;
+
+		if (box.innerOffset) {
+			more -= box.innerOffset * this.direction;
+			this.lastBoxY -= box.innerOffset * this.direction;
+		}
 
 		if (this.align == 'center') {
-			x = (me.maxWidth - boxBounds.width) / 2;
+			x = (me.maxWidth - dimension.width) / 2;
 		}
 
-		if (index == 0) {
+		if (index == 0)
 			this.lastBoxY += this.currentPadding;
-		} else {
-
-			if (more > 0) {
-				if (this.direction == -1)
-					this.lastBoxY -= this.spacing;
-				else
-					this.lastBoxY += this.spacing;
-			}
-		}
+		else if (more > 0)
+			this.lastBoxY += this.spacing * this.direction;
 
 		var lc = new LayoutCoords(x, this.lastBoxY, this.angle, this.baseConfig);
 
@@ -628,6 +626,16 @@ function Box(layoutManager) {
 	}
 
 	/**
+	 * Utilise la taille dans le contexte du parent
+	 */
+	this.getBaseBoxFromParent = function() {
+		if (this.parent != null)
+			return this.getBaseBox(this.parent.layoutFunction.baseConfig);
+		else
+			return this.getBaseBox();
+	}
+
+	/**
 	 * Mise à jours des positions
 	 */
 	this.updateLayoutCoord = function(layoutCoords) {
@@ -806,7 +814,7 @@ function BoxContainer(layoutManager, layoutFunction) {
 	this.doLayout = function() {
 
 		// boxe de base
-		var bounds = new Bounds(new Point(0, 0), me.getBaseBox());
+		var bounds = new Bounds(new Point(0, 0), me.getBaseBoxFromParent());
 
 		// appel à la fonction de layout
 		me.layoutFunction.beforeLayout(me);
