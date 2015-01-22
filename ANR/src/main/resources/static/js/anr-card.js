@@ -65,22 +65,22 @@ function bootANR(gameId) {
 		// { id : 12, tokens : { recurring : 0 } },//
 		] });
 	}), 250)
-	/*
-	 * setTimeout(cardManager.within(function() { cardManager.update({ primary :
-	 * 1, cards : [ // { id : 5, tokens : { credit : 10 } },// { id : 1, actions : [ {
-	 * id : 1, text : "Continue", cls : "warning" } ] },// { id : 16, actions : [ {
-	 * text : "Take {2:credit} from Armitage Codebusting", cost : "{1:click}" } ]
-	 * },// ] }); }), 500)
-	 * 
-	 * setTimeout(cardManager.within(function() { cardManager.update({ cards : [ // {
-	 * id : 1, tokens : { power : 1 }, actions : [ { id : 2, text : "Continue",
-	 * cls : "success" } ], subs : [ { id : 1, text : "{3:trace} If successful,
-	 * place 1 power counter on Data Raven", broken : true } ] },// ] }); }),
-	 * 1000)
-	 * 
-	 * setTimeout(cardManager.within(function() { cardManager.update({ cards : [ // {
-	 * id : 1, tokens : { power : 2 } },// ] }); }), 1500)
-	 */
+
+	setTimeout(cardManager.within(function() {
+		cardManager.update({
+			primary : 1,
+			cards : [ { id : 5, tokens : { credit : 10 } }, { id : 1, actions : [ { id : 1, text : "Continue", cls : "warning" } ] },
+					{ id : 16, actions : [ { text : "Take {2:credit} from Armitage Codebusting", cost : "{1:click}" } ] }, ] });
+	}), 500)
+
+	setTimeout(cardManager.within(function() {
+		cardManager.update({ cards : [ { id : 1, tokens : { power : 1 }, actions : [ { id : 2, text : "Continue", cls : "success" } ],
+			subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on Data Raven", broken : true } ] } ] });
+	}), 1000)
+
+	setTimeout(cardManager.within(function() {
+		cardManager.update({ cards : [ { id : 1, tokens : { power : 2 } }, ] });
+	}), 1500)
 }
 
 /**
@@ -524,7 +524,19 @@ function GhostCard(card) {
 	BoxContainer.call(this, card.cardManager, CARD_LAYOUT);
 	AnimatedBox.call(this, "fade");
 
-	var img = $("<img class='ghost' src='/card-img/" + card.def.url + "'/>");
+	var src = "";
+	var faceup = (card.coords.face || card.face) === "up";
+	if (faceup)
+		src = card.front.attr("src");
+	else {
+		// TODO récupérer ca dans la conf CSS
+		if (card.def.faction === 'corp')
+			src = "/img/back-corp.png"
+		else
+			src = "/img/back-runner.png"
+	}
+
+	var img = $("<img class='ghost' src='" + src + "'/>");
 	this.element = img.appendTo(card.cardManager.cardContainer);
 
 	this.getBaseBox = function(cfg) {
@@ -573,17 +585,30 @@ function ExtViewServer(server) {
 
 	this.ext = this.element = this.primary;
 
+	this.alive = true;
+
 	this.unapplyGhost = function() {
+
+		this.alive = false;
 		var base = server.assetOrUpgrades.getBaseBox();
-		TweenLite.to(this.element, ANIM_DURATION, {
+
+		TweenLite.to(me.element, ANIM_DURATION, {
 			css : { top : this.baseCoords.y, left : this.baseCoords.x, width : base.width, height : base.height, rotation : 0 }, onComplete : function() {
 				me.element.remove();
 			} });
 	}
 
 	this.draw = function() {
+
+		// TODO c'est un peu un hack il faudrait savoir pourquoi on appel draw
+		// apres unapply
+		if (!this.alive)
+			return;
+
 		var box = this.extbox;
 		var primaryCss = { width : box.width, height : box.height, top : this.coords.y, left : this.coords.x, zIndex : this.coords.zIndex || 0 };
+
+		console.log("darw " + JSON.stringify(primaryCss))
 
 		if (this.firstTimeShow) {
 			var base = server.assetOrUpgrades.getBaseBox();
@@ -724,6 +749,7 @@ function CardLayout(baseConfig) {
 
 		// par contre la direction doit dépendre de l'angle
 		var lc = new LayoutCoords(me.verticalSpacing, me.offset, 0, this.baseConfig);
+		lc.zIndex = index;
 		me.offset += more + this.spacing;
 
 		return lc;
@@ -1511,8 +1537,12 @@ function ExtBox(cardManager) {
 		if (isCard(parentCard)) {
 			addInCardMain(me.hostContainer);
 			parentCard.pushBehaviours([ displaySecondaryCardBehaviour ]);
-			// pc.setParent(ghost);
-			parentCard.setParent(me.hostContainer);
+			var parentGhost = parentCard.applyGhost(me.hostContainer);
+
+			// attache les cartes filles au parent
+			parentCard.each(function(c) {
+				c.setParent(parentGhost);
+			});
 		}
 
 		// rajout de la zone d'action et attachement à l'extension
