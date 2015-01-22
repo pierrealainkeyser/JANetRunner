@@ -608,8 +608,6 @@ function ExtViewServer(server) {
 		var box = this.extbox;
 		var primaryCss = { width : box.width, height : box.height, top : this.coords.y, left : this.coords.x, zIndex : this.coords.zIndex || 0 };
 
-		console.log("darw " + JSON.stringify(primaryCss))
-
 		if (this.firstTimeShow) {
 			var base = server.assetOrUpgrades.getBaseBox();
 			TweenLite.set(this.element, { top : this.baseCoords.y, left : this.baseCoords.x, width : base.width, height : base.height });
