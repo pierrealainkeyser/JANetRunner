@@ -521,7 +521,7 @@ function GhostCard(card) {
 	me.type = 'ghost';
 	this.firstTimeShow = true;
 
-	Box.call(this, card.cardManager);
+	BoxContainer.call(this, card.cardManager, CARD_LAYOUT);
 	AnimatedBox.call(this, "fade");
 
 	var img = $("<img class='ghost' src='/card-img/" + card.def.url + "'/>");
@@ -544,6 +544,10 @@ function GhostCard(card) {
 
 		this.firstTimeShow = false;
 	}
+
+	// permet de dupliquer la fonction
+	this.getParentCard = card.getParentCard;
+
 	// il faut surcharger l'update comme pour les cards
 	this.update = this.draw;
 }
@@ -579,12 +583,11 @@ function ExtViewServer(server) {
 
 	this.draw = function() {
 		var box = this.extbox;
-		var rotation = 360;
 		var primaryCss = { width : box.width, height : box.height, top : this.coords.y, left : this.coords.x, zIndex : this.coords.zIndex || 0 };
 
 		if (this.firstTimeShow) {
-			TweenLite.set(this.element, { top : this.baseCoords.y, left : this.baseCoords.x });
-			primaryCss.rotation = rotation;
+			var base = server.assetOrUpgrades.getBaseBox();
+			TweenLite.set(this.element, { top : this.baseCoords.y, left : this.baseCoords.x, width : base.width, height : base.height });
 		}
 		TweenLite.to(this.element, ANIM_DURATION, { css : primaryCss });
 
@@ -683,9 +686,9 @@ function CardLayout(baseConfig) {
 	LayoutFunction.call(this, baseConfig);
 	this.spacing = -55;
 	this.verticalSpacing = 65;
-	
-	var plainConfig={mode:"plain",angle:0};
-	var getPlainDimension=function(box){
+
+	var plainConfig = { mode : "plain", angle : 0 };
+	var getPlainDimension = function(box) {
 		return box.getBounds(plainConfig).dimension;
 	}
 
@@ -716,10 +719,10 @@ function CardLayout(baseConfig) {
 
 	this.applyLayout = function(boxContainer, index, box) {
 
-		//on utilise toujours la largeur du composant
-		var more =  getPlainDimension(box).width;
+		// on utilise toujours la largeur du composant
+		var more = getPlainDimension(box).width;
 
-		//par contre la direction doit dépendre de l'angle
+		// par contre la direction doit dépendre de l'angle
 		var lc = new LayoutCoords(me.verticalSpacing, me.offset, 0, this.baseConfig);
 		me.offset += more + this.spacing;
 
@@ -792,7 +795,7 @@ function Card(def, cardManager) {
 	 * Renvoi le parent ou soit même si pas de parent
 	 */
 	this.getParentCard = function() {
-		var parent = me.parent;
+		var parent = this.parent;
 		if (parent != null && isCard(parent)) {
 			return parent.getParentCard();
 		}
@@ -819,6 +822,7 @@ function Card(def, cardManager) {
 		this.ghosts.push(ghost);
 		this.parent.replaceChild(this, ghost);
 		this.setParent(parent);
+		return ghost;
 	}
 
 	/**
@@ -826,6 +830,10 @@ function Card(def, cardManager) {
 	 */
 	this.unapplyGhost = function() {
 		var ghost = this.ghosts.pop();
+
+		ghost.each(function(card) {
+			card.setParent(me)
+		});
 
 		ghost.parent.replaceChild(ghost, this);
 		ghost.remove(true);
@@ -935,17 +943,16 @@ function Card(def, cardManager) {
 
 		var mode = this.coords.mode;
 		if (mode === "secondary" || mode === "mini") {
-			_.extend(innerCss, { rotationY : -360 });
 			_.extend(tokenCss, { autoAlpha : 0 });
-			rotation = -360;
+			rotation = 0;
 			shadow = "";
 		}
 
 		if (mode === "extended" && this.extbox) {
 			_.extend(extCss, { width : this.extbox.width, height : this.extbox.height, autoAlpha : 1 });
-			_.extend(innerCss, { rotationY : 360 });
+			_.extend(innerCss, { rotationY : 0 });
 			_.extend(tokenCss, { autoAlpha : 0 });
-			rotation = 360;
+			rotation = 0;
 			shadow = "";
 		} else {
 			_.extend(extCss, { width : 0, height : 0, autoAlpha : 0 });
@@ -1284,10 +1291,15 @@ function ExtBox(cardManager) {
 	this.actionsContainer.draw = function() {
 	};
 
-	// TODO pour contenir les elements hotes (rajouté à la volée dans
+	// pour contenir les elements hotes (rajouté à la volée dans
 	// mainContainer)
 	this.hostedsContainer = new BoxContainer(cardManager, new GridLayoutFunction({ columns : 4, padding : 3 }, { mode : "mini" }));
 	this.hostedsContainer.type = "hosteds";
+	this.hostedsContainer.mergeChildCoord = mergeChildCoordFromDisplayed;
+
+	this.hostContainer = new BoxContainer(cardManager, new GridLayoutFunction({ columns : 4, padding : 3 }, { mode : "mini" }));
+	this.hostContainer.type = "host";
+	this.hostContainer.mergeChildCoord = mergeChildCoordFromDisplayed;
 
 	this.cardsContainer = new BoxContainer(cardManager, new GridLayoutFunction({ columns : 7, padding : 3 }, { mode : "mini" }));
 	this.cardsContainer.type = "cards";
@@ -1396,6 +1408,8 @@ function ExtBox(cardManager) {
 			}
 
 			me.cardsContainer.each(redrawAndUpdate);
+			me.hostedsContainer.each(redrawAndUpdate);
+			me.hostContainer.each(redrawAndUpdate);
 		}
 	}
 
@@ -1452,6 +1466,8 @@ function ExtBox(cardManager) {
 		this.closeCard();
 		this.displayedCard = card;
 
+		var parentCard = card.parent;
+
 		card.pushBehaviours([ closeCardBehaviour, dragBehaviour ]);
 
 		// remise à zero des routines
@@ -1462,7 +1478,7 @@ function ExtBox(cardManager) {
 		var big = cardManager.area.cardBig;
 		var small = cardManager.area.card;
 		this.extContainer.setCoords(new LayoutCoords(coords.x - (big.width - small.width) / 2, coords.y - (big.height - small.height) / 2), 0);
-		this.displayedCard.applyGhost(extContainer);
+		var ghost = this.displayedCard.applyGhost(extContainer);
 
 		this.mainContainer.removeAllChilds();
 		this.displayedCard.ext.empty();
@@ -1480,6 +1496,24 @@ function ExtBox(cardManager) {
 		card.tokensContainer.each(function(token) {
 			addInCardMain(token.clone());
 		});
+
+		// rajout des cards hote
+		if (card.size() > 0) {
+			addInCardMain(this.hostedsContainer);
+			card.each(function(c) {
+				c.pushBehaviours([ displaySecondaryCardBehaviour ]);
+				c.setParent(ghost);
+				c.applyGhost(me.hostedsContainer);
+			});
+		}
+
+		// gestion du parent
+		if (isCard(parentCard)) {
+			addInCardMain(me.hostContainer);
+			parentCard.pushBehaviours([ displaySecondaryCardBehaviour ]);
+			// pc.setParent(ghost);
+			parentCard.setParent(me.hostContainer);
+		}
 
 		// rajout de la zone d'action et attachement à l'extension
 		var actions = $("<div class='action'></div>");
@@ -1623,6 +1657,18 @@ function ExtBox(cardManager) {
 		me.subs.push(sub)
 	}
 
+	var closeCardsContainer = function(cardsContainer) {
+		if (cardsContainer.size() > 0) {
+			cardsContainer.each(function(c) {
+				c.unapplyGhost();
+				c.popBehaviours();
+			});
+			cardsContainer.removeAllChilds();
+			// mise à jour du layout
+			me.innerContainer.requireLayout();
+		}
+	}
+
 	/**
 	 * Fermeture de la carte
 	 */
@@ -1639,15 +1685,9 @@ function ExtBox(cardManager) {
 			this.displayedCard.unapplyGhost();
 			this.displayedCard = null;
 
-			if (this.cardsContainer.size() > 0) {
-				this.cardsContainer.each(function(c) {
-					c.unapplyGhost();
-					c.popBehaviours();
-				});
-				this.cardsContainer.removeAllChilds();
-				// mise à jour du layout
-				this.innerContainer.requireLayout();
-			}
+			closeCardsContainer(this.cardsContainer);
+			closeCardsContainer(this.hostedsContainer);
+			closeCardsContainer(this.hostContainer);
 		}
 	}
 
@@ -1700,8 +1740,9 @@ function ExtBox(cardManager) {
 				redraw(me.secondaryCard);
 
 				me.cardsContainer.each(redraw);
+				me.hostedsContainer.each(redraw);
+				me.hostContainer.each(redraw);
 			}
-
 		}
 	}
 }
