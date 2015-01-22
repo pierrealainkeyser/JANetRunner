@@ -681,7 +681,7 @@ function isCard(object) {
 function CardLayout(baseConfig) {
 	var me = this;
 	LayoutFunction.call(this, baseConfig);
-	this.spacing = -40;
+	this.spacing = -55;
 	this.verticalSpacing = 65;
 	
 	var plainConfig={mode:"plain",angle:0};
@@ -703,7 +703,7 @@ function CardLayout(baseConfig) {
 			totalWidth += width;
 		});
 
-		var minus = Math.max(0, boxContainer.size() - 2) * this.spacing;
+		var minus = Math.max(0, boxContainer.size() - 1) * this.spacing;
 		var baseOffset = innerWidth - totalWidth - minus;
 
 		if (baseOffset < 0) {
