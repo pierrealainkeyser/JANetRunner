@@ -685,9 +685,8 @@ function CardLayout(baseConfig) {
 	this.verticalSpacing = 65;
 	
 	var plainConfig={mode:"plain",angle:0};
-	
 	var getPlainDimension=function(box){
-		return box.getBounds(box).dimension;
+		return box.getBounds(plainConfig).dimension;
 	}
 
 	this.beforeLayout = function(boxContainer) {
