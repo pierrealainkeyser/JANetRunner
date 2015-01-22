@@ -683,6 +683,12 @@ function CardLayout(baseConfig) {
 	LayoutFunction.call(this, baseConfig);
 	this.spacing = -40;
 	this.verticalSpacing = 65;
+	
+	var plainConfig={mode:"plain",angle:0};
+	
+	var getPlainDimension=function(box){
+		return box.getBounds(box).dimension;
+	}
 
 	this.beforeLayout = function(boxContainer) {
 
@@ -690,11 +696,11 @@ function CardLayout(baseConfig) {
 		this.baseConfig.angle = coord.angle;
 
 		var totalWidth = 0;
-		var dimension = boxContainer.getBaseBoxFromParent();
+		var dimension = getPlainDimension(boxContainer);
 		var innerWidth = dimension.width;
 
 		_.each(boxContainer.childs, function(box, index) {
-			var width = me.getBounds(box).dimension.height;
+			var width = getPlainDimension(box).width;
 			totalWidth += width;
 		});
 
@@ -711,8 +717,10 @@ function CardLayout(baseConfig) {
 
 	this.applyLayout = function(boxContainer, index, box) {
 
-		var more = this.getBounds(box).dimension.height;
+		//on utilise toujours la largeur du composant
+		var more =  getPlainDimension(box).width;
 
+		//par contre la direction doit dépendre de l'angle
 		var lc = new LayoutCoords(me.verticalSpacing, me.offset, 0, this.baseConfig);
 		me.offset += more + this.spacing;
 

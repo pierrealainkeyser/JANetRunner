@@ -802,7 +802,7 @@ function BoxContainer(layoutManager, layoutFunction) {
 
 	this.super_getBounds = this.getBounds;
 	this.getBounds = function(cfg) {
-		if (this.lastBounds) {
+		if (this.lastBounds && this.size() > 0) {
 			return new Bounds(this.getPositionInParent(), this.lastBounds.dimension);
 		}
 		return this.super_getBounds(cfg);
