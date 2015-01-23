@@ -1,7 +1,6 @@
 var ANIM_DURATION = 0.3;
 
 var cardManager = null;
-var hbox2 = null;
 
 $.fn.sandbox = function(fn) {
 	var element = $(this).clone(), result;
@@ -504,7 +503,7 @@ function interpolateString(string) {
 			return nb + "<span class='icon icon-credit'></span>";
 		else if ('click' === str) {
 			var a = [];
-			for (i = 0; i < nb; i++)
+			for (var i = 0; i < nb; i++)
 				a.push("<span class='icon icon-click'>");
 			return a.join(", ");
 		}
