@@ -74,6 +74,7 @@ function Bounds(point, dimension) {
 		var br = this.getBottomRight().max(bounds.getBottomRight());
 
 		var merged = new Bounds(tl, new Dimension(br.x - tl.x, br.y - tl.y));
+		
 		return merged;
 	}
 
@@ -817,7 +818,7 @@ function BoxContainer(layoutManager, layoutFunction) {
 		var bounds = new Bounds(new Point(0, 0), me.getBaseBoxFromParent());
 
 		// appel à la fonction de layout
-		me.layoutFunction.beforeLayout(me);
+		me.layoutFunction.beforeLayout(me, bounds);
 
 		// calcul du layout
 		_.each(me.childs, function(box, index) {

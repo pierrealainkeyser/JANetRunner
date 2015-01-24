@@ -714,13 +714,12 @@ function CardLayout(baseConfig) {
 		return box.getBounds(plainConfig).dimension;
 	}
 
-	this.beforeLayout = function(boxContainer) {
-
+	this.beforeLayout = function(boxContainer, bounds) {
 		var coord = boxContainer.getParentCard().getPositionInParent();
 		this.baseConfig.angle = coord.angle;
 
 		var totalWidth = 0;
-		var dimension = getPlainDimension(boxContainer);
+		var dimension = boxContainer.getBaseBox(plainConfig);
 		var innerWidth = dimension.width;
 
 		_.each(boxContainer.childs, function(box, index) {
@@ -737,6 +736,12 @@ function CardLayout(baseConfig) {
 			boxContainer.innerOffset = this.offset;
 		} else
 			this.offset = boxContainer.innerOffset = 0;
+
+		// on sauvegarde les données
+		var bounds = new Bounds(new Point(0, 0), dimension);
+		bounds.dimension.width -= baseOffset;
+		this.bounds = bounds;
+
 	}
 
 	this.applyLayout = function(boxContainer, index, box) {
@@ -750,6 +755,12 @@ function CardLayout(baseConfig) {
 		me.offset += more + this.spacing;
 
 		return lc;
+	}
+
+	this.afterLayout = function(boxContainer, bounds) {
+		// il faut calculer le bon layout
+		bounds.point = this.bounds.point;
+		bounds.dimension = this.bounds.dimension.swap();
 	}
 }
 var CARD_LAYOUT = new CardLayout({ mode : "plain" });
