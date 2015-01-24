@@ -1355,7 +1355,17 @@ function ExtBox(cardManager) {
 	var displaySecondaryCardBehaviour = new CardActivationBehaviour();
 	displaySecondaryCardBehaviour.callback = function(card) {
 		me.displaySecondary(card);
+	};	
+
+	var displayPrimaryCardBehaviour = new CardActivationBehaviour();
+	displayPrimaryCardBehaviour.callback = function(card) {
+		me.displayPrimary(card);
 	};
+	
+	var displaySecondaryToPrimaryCardBehaviour = new CardActivationBehaviour();
+	displaySecondaryToPrimaryCardBehaviour.callback = function(card) {
+		me.displaySecondary(card, true);
+	};	
 
 	var dragBehaviour = new Behaviour();
 	dragBehaviour.install = function(g) {
@@ -1535,7 +1545,7 @@ function ExtBox(cardManager) {
 		if (card.size() > 0) {
 			addInCardMain(this.hostedsContainer);
 			card.each(function(c) {
-				c.pushBehaviours([ displaySecondaryCardBehaviour ]);
+				c.pushBehaviours([ displaySecondaryToPrimaryCardBehaviour ]);
 				c.setParent(ghost);
 				c.applyGhost(me.hostedsContainer);
 			});
@@ -1544,7 +1554,7 @@ function ExtBox(cardManager) {
 		// gestion du parent
 		if (isCard(parentCard)) {
 			addInCardMain(me.hostContainer);
-			parentCard.pushBehaviours([ displaySecondaryCardBehaviour ]);
+			parentCard.pushBehaviours([ displaySecondaryToPrimaryCardBehaviour ]);
 			var parentGhost = parentCard.applyGhost(me.hostContainer);
 
 			// attache les cartes filles au parent
@@ -1612,13 +1622,16 @@ function ExtBox(cardManager) {
 	/**
 	 * Rajoute le dernier element
 	 */
-	this.displaySecondary = function(card) {
+	this.displaySecondary = function(card, showPrimary) {
 		this.closeSecondary();
 		this.secondaryCard = card;
 
 		this.secondaryCard.applyGhost(this.secondaryCardContainer);
 		this.secondaryActions = [];
 
+		if(_.isBoolean(showPrimary) && showPrimary)
+			card.pushBehaviours([ displayPrimaryCardBehaviour ]);
+		else
 		card.pushBehaviours([ closeSecondaryCardBehaviour ]);
 
 		_.each(card.actions, function(act) {
