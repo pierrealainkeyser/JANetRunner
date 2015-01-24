@@ -1359,7 +1359,7 @@ function ExtBox(cardManager) {
 
 	var displayPrimaryCardBehaviour = new CardActivationBehaviour();
 	displayPrimaryCardBehaviour.callback = function(card) {
-		me.displayPrimary(card);
+		me.displayPrimary(card, true);
 	};
 	
 	var displaySecondaryToPrimaryCardBehaviour = new CardActivationBehaviour();
@@ -1506,7 +1506,7 @@ function ExtBox(cardManager) {
 	/**
 	 * Affichage de la carte
 	 */
-	this.displayPrimary = function(card) {
+	this.displayPrimary = function(card, dontChangeCoords) {
 		this.closeCard();
 		this.displayedCard = card;
 
@@ -1521,7 +1521,9 @@ function ExtBox(cardManager) {
 		var coords = this.displayedCard.coords;
 		var big = cardManager.area.cardBig;
 		var small = cardManager.area.card;
-		this.extContainer.setCoords(new LayoutCoords(coords.x - (big.width - small.width) / 2, coords.y - (big.height - small.height) / 2), 0);
+		
+		if(!(_.isBoolean(dontChangeCoords) && dontChangeCoords))
+			this.extContainer.setCoords(new LayoutCoords(coords.x - (big.width - small.width) / 2, coords.y - (big.height - small.height) / 2), 0);
 		var ghost = this.displayedCard.applyGhost(extContainer);
 
 		this.mainContainer.removeAllChilds();
