@@ -17,9 +17,9 @@ function bootANR(gameId) {
 
 	var objs = {
 		servers : [ //
-		{ id : -1, name : "Archives", actions : [ { id : -1, text : "Run", cost : "{1:click}" } ] },//
+		{ id : -1, name : "Archives" },//
 		{ id : -2, name : "R&D" }, //
-		{ id : -3, name : "HQ" } //
+		{ id : -3, name : "HQ" , actions : [ { id : -1, text : "Run", cost : "{1:click}" } ]} //
 
 		],
 		cards : [ // 
@@ -30,7 +30,8 @@ function bootANR(gameId) {
 				{ id : 3, faction : 'corp', url : '01080', tokens : { credit : 5, recurring : 2 },
 					location : { primary : "server", serverIndex : -3, secondary : "assetOrUpgrades", index : 0 } }, //
 				{ id : 4, faction : 'corp', url : '01089', face : "down", location : { primary : "server", serverIndex : -3, secondary : "ices", index : 0 } }, //
-				{ id : 5, faction : 'runner', url : '01033', location : { primary : "grip", index : 0 } },//
+				{ id : 5, faction : 'runner', url : '01033', location : { primary : "grip", index : 0 }, //
+					actions : [ { id : -1, text : "Gain {1:credit}", cost : "{1:click}" } ,{ id : -1, text : "Draw 1 card", cost : "{1:click}" }] },//
 				{ id : 6, faction : 'runner', url : '01034', face : "down", location : { primary : "stack", index : 0 } },//
 				{ id : 7, faction : 'runner', url : '01035', face : "down", location : { primary : "stack", index : 1 } },//
 				{ id : 8, faction : 'runner', url : '01036', face : "down", location : { primary : "stack", index : 2 } },//
@@ -42,6 +43,16 @@ function bootANR(gameId) {
 				{ id : 14, faction : 'runner', url : '01043', face : "down", location : { primary : "stack", index : 5 } },//
 				{ id : 15, faction : 'runner', url : '01052', face : "down", location : { primary : "stack", index : 6 } },//
 				{ id : 16, faction : 'runner', url : '01053', face : "down", location : { primary : "stack", index : 7 } },//
+				{ id : 17, faction : 'runner', url : '01046', face : "up", location : { primary : "program", index : 0 } },//
+				{ id : 18, faction : 'runner', url : '01040', face : "up", location : { primary : "hand", index : 2, serverIndex : 17 },// 
+				actions : [ { id : 27, text : "Install", cost : "{1:click}, {1:credit}" } ] //
+				},//
+				{ id : 19, faction : 'runner', url : '01050', face : "up", location : { primary : "hand", index : 3 },// 
+					actions : [ { id : 28, text : "Gain {9:credit}", cost : "{1:click}, {5:credit}" } ] //
+					},//
+				
+				
+
 		] };
 
 	cardManager.within(function() {
@@ -65,21 +76,24 @@ function bootANR(gameId) {
 		] });
 	}), 250)
 
-	setTimeout(cardManager.within(function() {
-		cardManager.update({
-			primary : 1,
-			cards : [ { id : 5, tokens : { credit : 10 } }, { id : 1, actions : [ { id : 1, text : "Continue", cls : "warning" } ] },
-					{ id : 16, actions : [ { text : "Take {2:credit} from Armitage Codebusting", cost : "{1:click}" } ] }, ] });
-	}), 500)
-
-	setTimeout(cardManager.within(function() {
-		cardManager.update({ cards : [ { id : 1, tokens : { power : 1 }, actions : [ { id : 2, text : "Continue", cls : "success" } ],
-			subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on Data Raven", broken : true } ] } ] });
-	}), 1000)
-
-	setTimeout(cardManager.within(function() {
-		cardManager.update({ cards : [ { id : 1, tokens : { power : 2 } }, ] });
-	}), 1500)
+//	setTimeout(cardManager.within(function() {
+//		cardManager.update({
+//			primary : 1,
+//			cards : [ { id : 5, tokens : { credit : 10 } }, { id : 1, actions : [ { id : 1, text : "Continue", cls : "warning" } ] },
+//					{ id : 16, actions : [ { text : "Take {2:credit} from Armitage Codebusting", cost : "{1:click}" } ] }, ] });
+//	}), 500)
+//
+//	setTimeout(cardManager.within(function() {
+//		cardManager.update({ cards : [
+//				{ id : 1, tokens : { power : 1 }, actions : [ { id : 2, text : "Continue", cls : "success" } ],
+//					subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on Data Raven", broken : false } ] },//
+//				{ id : 17, actions : [ { id : 3, text : "Break selected", type : "break", costs : { 1 : { cost : "{3:credit}", enabled : true } } } ] } //
+//		] });
+//	}), 1000)
+//
+//	setTimeout(cardManager.within(function() {
+//		cardManager.update({ cards : [ { id : 1, tokens : { power : 2 } }, ] });
+//	}), 1500)
 }
 
 /**
@@ -715,32 +729,36 @@ function CardLayout(baseConfig) {
 	}
 
 	this.beforeLayout = function(boxContainer, bounds) {
-		var coord = boxContainer.getParentCard().getPositionInParent();
-		this.baseConfig.angle = coord.angle;
+		// TODO il faut changer cela pour prendre dans le layout du parent
+		var parentCard = boxContainer.getParentCard();
+		if (parentCard.parent) {
+			var conf = parentCard.parent.layoutFunction.baseConfig;
+			this.baseConfig.angle = conf != null ? conf.angle || 0 : 0;
 
-		var totalWidth = 0;
-		var dimension = boxContainer.getBaseBox(plainConfig);
-		var innerWidth = dimension.width;
+			var totalWidth = 0;
+			var dimension = boxContainer.getBaseBox(plainConfig);
+			var innerWidth = dimension.width;
 
-		_.each(boxContainer.childs, function(box, index) {
-			var width = getPlainDimension(box).width;
-			totalWidth += width;
-		});
+			_.each(boxContainer.childs, function(box, index) {
+				var width = getPlainDimension(box).width;
+				totalWidth += width;
+			});
 
-		var minus = Math.max(0, boxContainer.size() - 1) * this.spacing;
-		var baseOffset = innerWidth - totalWidth - minus;
+			var minus = Math.max(0, boxContainer.size() - 1) * this.spacing;
+			var baseOffset = innerWidth - totalWidth - minus;
 
-		if (baseOffset < 0) {
-			// mise en place de l'offset vertical
-			this.offset = baseOffset / 2;
-			boxContainer.innerOffset = this.offset;
-		} else
-			this.offset = boxContainer.innerOffset = 0;
+			if (baseOffset < 0) {
+				// mise en place de l'offset vertical
+				this.offset = baseOffset / 2;
+				boxContainer.innerOffset = this.offset;
+			} else
+				this.offset = boxContainer.innerOffset = 0;
 
-		// on sauvegarde les données
-		var bounds = new Bounds(new Point(0, 0), dimension);
-		bounds.dimension.width -= baseOffset;
-		this.bounds = bounds;
+			// on sauvegarde les données
+			var bounds = new Bounds(new Point(0, 0), dimension);
+			bounds.dimension.width -= baseOffset;
+			this.bounds = bounds;
+		}
 
 	}
 
@@ -750,7 +768,11 @@ function CardLayout(baseConfig) {
 		var more = getPlainDimension(box).width;
 
 		// par contre la direction doit dépendre de l'angle
-		var lc = new LayoutCoords(me.verticalSpacing, me.offset, 0, this.baseConfig);
+		var lc;
+		if (this.baseConfig.angle == 0)
+			lc = new LayoutCoords(me.offset, me.verticalSpacing, 0, this.baseConfig);
+		else
+			lc = new LayoutCoords(me.verticalSpacing, me.offset, 0, this.baseConfig);
 		lc.zIndex = index;
 		me.offset += more + this.spacing;
 
@@ -834,7 +856,7 @@ function Card(def, cardManager) {
 			return parent.getParentCard();
 		}
 
-		return me;
+		return this;
 	}
 
 	/**
@@ -1355,17 +1377,17 @@ function ExtBox(cardManager) {
 	var displaySecondaryCardBehaviour = new CardActivationBehaviour();
 	displaySecondaryCardBehaviour.callback = function(card) {
 		me.displaySecondary(card);
-	};	
+	};
 
 	var displayPrimaryCardBehaviour = new CardActivationBehaviour();
 	displayPrimaryCardBehaviour.callback = function(card) {
 		me.displayPrimary(card, true);
 	};
-	
+
 	var displaySecondaryToPrimaryCardBehaviour = new CardActivationBehaviour();
 	displaySecondaryToPrimaryCardBehaviour.callback = function(card) {
 		me.displaySecondary(card, true);
-	};	
+	};
 
 	var dragBehaviour = new Behaviour();
 	dragBehaviour.install = function(g) {
@@ -1521,8 +1543,8 @@ function ExtBox(cardManager) {
 		var coords = this.displayedCard.coords;
 		var big = cardManager.area.cardBig;
 		var small = cardManager.area.card;
-		
-		if(!(_.isBoolean(dontChangeCoords) && dontChangeCoords))
+
+		if (!(_.isBoolean(dontChangeCoords) && dontChangeCoords))
 			this.extContainer.setCoords(new LayoutCoords(coords.x - (big.width - small.width) / 2, coords.y - (big.height - small.height) / 2), 0);
 		var ghost = this.displayedCard.applyGhost(extContainer);
 
@@ -1631,10 +1653,10 @@ function ExtBox(cardManager) {
 		this.secondaryCard.applyGhost(this.secondaryCardContainer);
 		this.secondaryActions = [];
 
-		if(_.isBoolean(showPrimary) && showPrimary)
+		if (_.isBoolean(showPrimary) && showPrimary)
 			card.pushBehaviours([ displayPrimaryCardBehaviour ]);
 		else
-		card.pushBehaviours([ closeSecondaryCardBehaviour ]);
+			card.pushBehaviours([ closeSecondaryCardBehaviour ]);
 
 		_.each(card.actions, function(act) {
 			var box = me.addAction(act);
