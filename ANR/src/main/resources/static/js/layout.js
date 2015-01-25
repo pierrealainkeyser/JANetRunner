@@ -74,7 +74,7 @@ function Bounds(point, dimension) {
 		var br = this.getBottomRight().max(bounds.getBottomRight());
 
 		var merged = new Bounds(tl, new Dimension(br.x - tl.x, br.y - tl.y));
-		
+
 		return merged;
 	}
 
@@ -610,6 +610,14 @@ function Box(layoutManager) {
 
 	this.getCurrentCoord = function() {
 		return this.coords;
+	}
+
+	/**
+	 * Renvoi la taille de base de l'éléménet
+	 */
+	this.getScreenBaseBounds = function() {
+		var basebox = this.getBaseBox();
+		return new Bounds(this.getCurrentCoord(), basebox);
 	}
 
 	/**

@@ -19,7 +19,7 @@ function bootANR(gameId) {
 		servers : [ //
 		{ id : -1, name : "Archives" },//
 		{ id : -2, name : "R&D" }, //
-		{ id : -3, name : "HQ" , actions : [ { id : -1, text : "Run", cost : "{1:click}" } ]} //
+		{ id : -3, name : "HQ", actions : [ { id : -1, text : "Run", cost : "{1:click}" } ] } //
 
 		],
 		cards : [ // 
@@ -31,7 +31,7 @@ function bootANR(gameId) {
 					location : { primary : "server", serverIndex : -3, secondary : "assetOrUpgrades", index : 0 } }, //
 				{ id : 4, faction : 'corp', url : '01089', face : "down", location : { primary : "server", serverIndex : -3, secondary : "ices", index : 0 } }, //
 				{ id : 5, faction : 'runner', url : '01033', location : { primary : "grip", index : 0 }, //
-					actions : [ { id : -1, text : "Gain {1:credit}", cost : "{1:click}" } ,{ id : -1, text : "Draw 1 card", cost : "{1:click}" }] },//
+				actions : [ { id : -1, text : "Gain {1:credit}", cost : "{1:click}" }, { id : -1, text : "Draw 1 card", cost : "{1:click}" } ] },//
 				{ id : 6, faction : 'runner', url : '01034', face : "down", location : { primary : "stack", index : 0 } },//
 				{ id : 7, faction : 'runner', url : '01035', face : "down", location : { primary : "stack", index : 1 } },//
 				{ id : 8, faction : 'runner', url : '01036', face : "down", location : { primary : "stack", index : 2 } },//
@@ -48,10 +48,8 @@ function bootANR(gameId) {
 				actions : [ { id : 27, text : "Install", cost : "{1:click}, {1:credit}" } ] //
 				},//
 				{ id : 19, faction : 'runner', url : '01050', face : "up", location : { primary : "hand", index : 3 },// 
-					actions : [ { id : 28, text : "Gain {9:credit}", cost : "{1:click}, {5:credit}" } ] //
-					},//
-				
-				
+				actions : [ { id : 28, text : "Gain {9:credit}", cost : "{1:click}, {5:credit}" } ] //
+				},//
 
 		] };
 
@@ -76,24 +74,29 @@ function bootANR(gameId) {
 		] });
 	}), 250)
 
-//	setTimeout(cardManager.within(function() {
-//		cardManager.update({
-//			primary : 1,
-//			cards : [ { id : 5, tokens : { credit : 10 } }, { id : 1, actions : [ { id : 1, text : "Continue", cls : "warning" } ] },
-//					{ id : 16, actions : [ { text : "Take {2:credit} from Armitage Codebusting", cost : "{1:click}" } ] }, ] });
-//	}), 500)
-//
-//	setTimeout(cardManager.within(function() {
-//		cardManager.update({ cards : [
-//				{ id : 1, tokens : { power : 1 }, actions : [ { id : 2, text : "Continue", cls : "success" } ],
-//					subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on Data Raven", broken : false } ] },//
-//				{ id : 17, actions : [ { id : 3, text : "Break selected", type : "break", costs : { 1 : { cost : "{3:credit}", enabled : true } } } ] } //
-//		] });
-//	}), 1000)
-//
-//	setTimeout(cardManager.within(function() {
-//		cardManager.update({ cards : [ { id : 1, tokens : { power : 2 } }, ] });
-//	}), 1500)
+	// setTimeout(cardManager.within(function() {
+	// cardManager.update({
+	// primary : 1,
+	// cards : [ { id : 5, tokens : { credit : 10 } }, { id : 1, actions : [ {
+	// id : 1, text : "Continue", cls : "warning" } ] },
+	// { id : 16, actions : [ { text : "Take {2:credit} from Armitage
+	// Codebusting", cost : "{1:click}" } ] }, ] });
+	// }), 500)
+	//
+	// setTimeout(cardManager.within(function() {
+	// cardManager.update({ cards : [
+	// { id : 1, tokens : { power : 1 }, actions : [ { id : 2, text :
+	// "Continue", cls : "success" } ],
+	// subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter
+	// on Data Raven", broken : false } ] },//
+	// { id : 17, actions : [ { id : 3, text : "Break selected", type : "break",
+	// costs : { 1 : { cost : "{3:credit}", enabled : true } } } ] } //
+	// ] });
+	// }), 1000)
+	//
+	// setTimeout(cardManager.within(function() {
+	// cardManager.update({ cards : [ { id : 1, tokens : { power : 2 } }, ] });
+	// }), 1500)
 }
 
 /**
@@ -469,6 +472,27 @@ function CardManager(cardContainer) {
 		this.secondaryCard = null;
 
 		me.extbox.displayServer(serv);
+	}
+
+	/**
+	 * cherche la carte ou le server le plus proche dans la direction
+	 */
+	this.findNext = function(direction) {
+		var map = new Hashmap();
+
+		// TODO gestion du focus
+		var focused = this.getCard({ id : 17 });
+		_.each(this.cards, function(card) {
+
+			if (focused != card) {			
+				//TODO filtrage
+				
+				var elem = map.get(card.coords);
+				if (!elem)
+					map.put(cards.coords, elem = []);
+				elem.push(card);
+			}
+		});
 	}
 }
 
