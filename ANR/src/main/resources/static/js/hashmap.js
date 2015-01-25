@@ -9,7 +9,7 @@ function Hashmap() {
 		return this.hashes[JSON.stringify(key)];
 	}
 
-	this.each = function(callback) {
-		_.each(this.hashes, callback);
+	this.values = function() {
+		return this.hashes;
 	}
 }

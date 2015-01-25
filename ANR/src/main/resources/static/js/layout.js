@@ -1,6 +1,11 @@
 /**
  * Les coordonnées x, y
  */
+var PLANE_UP = 0;
+var PLANE_DOWN = 1;
+var PLANE_LEFT = 2;
+var PLANE_RIGHT = 3;
+
 function Point(x, y) {
 	this.x = x;
 	this.y = y;
@@ -15,6 +20,22 @@ function Point(x, y) {
 
 	this.distance = function(point) {
 		return Math.sqrt(Math.pow(this.x - point.x, 2) + Math.pow(this.y - point.y, 2));
+	}
+
+	/**
+	 * Permet de savoir si un point est dans le plan définit
+	 */
+	this.isAbovePlane = function(plane, point) {
+		if (PLANE_UP === plane)
+			return point.y < this.y;
+		else if (PLANE_DOWN === plane)
+			return point.y > this.y;
+		else if (PLANE_LEFT === plane)
+			return point.x < this.x;
+		else if (PLANE_RIGHT === plane)
+			return point.x > this.x;
+
+		return false;
 	}
 }
 

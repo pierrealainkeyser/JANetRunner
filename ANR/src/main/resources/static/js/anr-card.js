@@ -477,21 +477,34 @@ function CardManager(cardContainer) {
 	/**
 	 * cherche la carte ou le server le plus proche dans la direction
 	 */
-	this.findNext = function(direction) {
+	this.findNext = function(plane) {
 		var map = new Hashmap();
 
 		// TODO gestion du focus
 		var focused = this.getCard({ id : 17 });
 		_.each(this.cards, function(card) {
 
-			if (focused != card) {			
-				//TODO filtrage
-				
-				var elem = map.get(card.coords);
-				if (!elem)
-					map.put(cards.coords, elem = []);
-				elem.push(card);
+			var coords = card.coords;
+			if (focused != card) {
+				if (focused.coords.isAbovePlane(plane, coords)) {
+					var add = true;
+
+					// on ne conserve que le zIndex max pour avoir toujours
+					// l'objet le plus visible pour les mêmes coordonnées
+					var key = { x : coords.x, y : coords.y };
+					var prev = map.get(key);
+					if (prev)
+						add = prev.coords.zIndex < coords.zIndex;
+
+					if (add)
+						map.put(key, card);
+				}
 			}
+		});
+
+		// la carte la plus proche est la suivante
+		var closest = _.min(map.values(), function(card) {
+			return focused.coords.getDistance(card.coords);
 		});
 	}
 }
