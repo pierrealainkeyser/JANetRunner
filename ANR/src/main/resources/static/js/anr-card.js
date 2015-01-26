@@ -54,15 +54,14 @@ function bootANR(gameId) {
 		] };
 
 	cardManager.within(function() {
-	
 		cardManager.update(objs);
-		
-		var c=cardManager.getCard({id:3});
-		cardManager.focused.setFocused(c);
-		
 	})();
 
 	setTimeout(cardManager.within(function() {
+		
+		var c=cardManager.getCard({id:1});
+		cardManager.focused.setFocused(c);
+		
 		cardManager.update({ cards : [ //
 				{ id : 5, tokens : { credit : 5, power : 1 } },//
 				{ id : 1, face : "down", subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on Data Raven" } ],
@@ -541,8 +540,9 @@ function FocusedElement(cardManager){
 		if(this.needDraw){
 			if(this.focused){
 				//affichage dans l'écran
-				var bounds=this.focused.getScreenBaseBounds().minus(-3);				
-				TweenLite.to(this.element,ANIM_DURATION, { css : {autoAlpha:1, top:bounds.point.y, left:bounds.point.x, width: bounds.dimension.width, height:bounds.dimension.height } });
+				var bounds=this.focused.getScreenBaseBounds().minus(-3);	
+				var coords=this.focused.coords;
+				TweenLite.to(this.element,ANIM_DURATION, { css : {autoAlpha:0.8, top:bounds.point.y, left:bounds.point.x, width: bounds.dimension.width, height:bounds.dimension.height, rotation:coords.angle } });
 			}
 			else{
 				TweenLite.to(this.element,ANIM_DURATION, { css : {autoAlpha:0} });
