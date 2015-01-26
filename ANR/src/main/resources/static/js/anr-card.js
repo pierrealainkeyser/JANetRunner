@@ -483,6 +483,15 @@ function CardManager(cardContainer) {
 
 		me.extbox.displayServer(serv);
 	}
+	
+	/**
+	 * La position de la carte change
+	 */
+	this.cardCoordsUpdated=function(card){
+		if(this.focused.focused==card){
+			this.focused.redraw();
+		}
+	}
 
 	/**
 	 * cherche la carte ou le server le plus proche dans la direction
@@ -490,8 +499,8 @@ function CardManager(cardContainer) {
 	this.findNext = function(plane) {
 		var map = new Hashmap();
 
-		// TODO gestion du focus
-		var focused = this.getCard({ id : 17 });
+		// gestion du focus
+		var focused = this.focused.focused;
 		_.each(this.cards, function(card) {
 
 			var coords = card.coords;
@@ -519,6 +528,9 @@ function CardManager(cardContainer) {
 	}
 }
 
+/**
+ * Un element graphique qui affiche le focus
+ */
 function FocusedElement(cardManager){
 	
 	var createdDiv = $("<div class='focused'/>");
@@ -1112,6 +1124,8 @@ function Card(def, cardManager) {
 			TweenLite.to(this.ext, ANIM_DURATION, { css : extCss });
 			TweenLite.to(this.tokens, ANIM_DURATION, { css : tokenCss });
 		}
+		
+		this.cardManager.cardCoordsUpdated(this);
 	}
 }
 
@@ -1543,11 +1557,13 @@ function ExtBox(cardManager) {
 
 			me.displayedCard.coords.x = x;
 			me.displayedCard.coords.y = y;
-
+		
 			var redrawAndUpdate = function(c) {
 				c.redraw();
 				c.update(true);
 			}
+			
+			redrawAndUpdate(me.displayedCard);
 
 			if (me.secondaryCard) {
 				redrawAndUpdate(me.secondaryCard);
