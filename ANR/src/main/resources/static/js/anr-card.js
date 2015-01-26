@@ -54,7 +54,12 @@ function bootANR(gameId) {
 		] };
 
 	cardManager.within(function() {
+	
 		cardManager.update(objs);
+		
+		var c=cardManager.getCard({id:3});
+		cardManager.focused.setFocused(c);
+		
 	})();
 
 	setTimeout(cardManager.within(function() {
@@ -144,10 +149,16 @@ function CardManager(cardContainer) {
 			var faction = 'corp';
 			card.updateViewable(faction);
 		});
+		
+		//permet d'afficher au besoin l'element avec le 'focus'
+		me.focused.draw();
 	})
 
 	this.makeReady = function() {
 		this.startCycle();
+		
+		this.focused=new FocusedElement(this);
+		
 		this.absoluteContainer = new BoxContainer(this, new AbsoluteLayoutFunction());
 		this.extbox = new ExtBox(this);
 		this.serverRows = new BoxContainer(this, new HorizontalLayoutFunction({ spacing : 12 }, {}));
@@ -507,6 +518,38 @@ function CardManager(cardContainer) {
 			return focused.coords.getDistance(card.coords);
 		});
 	}
+}
+
+function FocusedElement(cardManager){
+	
+	var createdDiv = $("<div class='focused'/>");
+	this.element= createdDiv.appendTo(cardManager.cardContainer)
+	
+	this.focused=null;
+	this.needDraw=false;
+	
+	this.setFocused=function(focused){
+		this.focused=focused;
+		this.redraw();
+	}
+	
+	this.redraw=function(){
+		this.needDraw=true;
+	}
+	
+	this.draw=function(){
+		if(this.needDraw){
+			if(this.focused){
+				//affichage dans l'écran
+				var bounds=this.focused.getScreenBaseBounds().minus(-3);				
+				TweenLite.to(this.element,ANIM_DURATION, { css : {autoAlpha:1, top:bounds.point.y, left:bounds.point.x, width: bounds.dimension.width, height:bounds.dimension.height } });
+			}
+			else{
+				TweenLite.to(this.element,ANIM_DURATION, { css : {autoAlpha:0} });
+			}
+			this.needDraw=false;
+		}
+	};
 }
 
 function RunnerContainer(cardManager, type, viewable) {

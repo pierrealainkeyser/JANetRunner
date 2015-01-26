@@ -28,6 +28,7 @@ html , body , body > div.container {
 @card-width: 80px;
 @card-height: 111px;
 @card-shadow-color: rgba(0, 0, 0, 0.35);
+@card-focused-color: rgba(0, 0, 255, 0.8);
 @card-primary-action-shadow-color: rgb(210, 50, 45);
 @card-action-shadow-color: rgb(240, 173, 78);
 @card-action-color: rgba(230, 230, 230, 0.5);
@@ -258,6 +259,16 @@ div#main {
 		position: absolute;
 		opacity: 0.35;
 		border-radius: 5px;
+	}
+	
+	.focused{
+		.clear-padding;
+		position: absolute;
+		border-radius: 5px;
+		opacity:0.5;
+		z-index:-10;
+	
+		background: -webkit-linear-gradient(top, rgba(152,190,222,1) 0%, rgba(222,239,255,1) 100%); 
 	}
 
 	div.ext.server {
