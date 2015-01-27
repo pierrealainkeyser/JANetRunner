@@ -9,6 +9,10 @@ function Hashmap() {
 		return this.hashes[JSON.stringify(key)];
 	}
 
+	this.isEmpty = function() {
+		return _.size(this.hashes) === 0;
+	}
+
 	this.values = function() {
 		return this.hashes;
 	}

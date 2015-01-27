@@ -14,24 +14,29 @@ function bootANR(gameId) {
 	cardManager = new CardManager($("#main"));
 	cardManager.prepare();
 	cardManager.makeReady();
-	
-	var changeFocus=function(plane){
-		return function(){
-			var card=cardManager.findNext(plane);
-			
-			if(card){
-				cardManager.within(function(){
+
+	var changeFocus = function(plane) {
+		return function() {
+			var card = cardManager.findNext(plane);
+			if (card) {
+				cardManager.within(function() {
 					cardManager.focused.setFocused(card);
 				})();
 			}
 		};
 	}
-	
+
 	Mousetrap.bind('down', changeFocus(PLANE_DOWN));
 	Mousetrap.bind('up', changeFocus(PLANE_UP));
 	Mousetrap.bind('left', changeFocus(PLANE_LEFT));
 	Mousetrap.bind('right', changeFocus(PLANE_RIGHT));
-	
+	Mousetrap.bind('space', cardManager.within(function() {
+		cardManager.focused.doClick();
+	}));
+	Mousetrap.bind('escape', cardManager.within(function() {
+		cardManager.extbox.closeCard();
+	}));
+
 	var objs = {
 		servers : [ //
 		{ id : -1, name : "Archives" },//
@@ -75,10 +80,10 @@ function bootANR(gameId) {
 	})();
 
 	setTimeout(cardManager.within(function() {
-		
-		var c=cardManager.getCard({id:1});
+
+		var c = cardManager.getCard({ id : 1 });
 		cardManager.focused.setFocused(c);
-		
+
 		cardManager.update({ cards : [ //
 				{ id : 5, tokens : { credit : 5, power : 1 } },//
 				{ id : 1, face : "down", subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on Data Raven" } ],
@@ -165,16 +170,16 @@ function CardManager(cardContainer) {
 			var faction = 'corp';
 			card.updateViewable(faction);
 		});
-		
-		//permet d'afficher au besoin l'element avec le 'focus'
+
+		// permet d'afficher au besoin l'element avec le 'focus'
 		me.focused.draw();
 	})
 
 	this.makeReady = function() {
 		this.startCycle();
-		
-		this.focused=new FocusedElement(this);
-		
+
+		this.focused = new FocusedElement(this);
+
 		this.absoluteContainer = new BoxContainer(this, new AbsoluteLayoutFunction());
 		this.extbox = new ExtBox(this);
 		this.serverRows = new BoxContainer(this, new HorizontalLayoutFunction({ spacing : 12 }, {}));
@@ -500,12 +505,12 @@ function CardManager(cardContainer) {
 
 		me.extbox.displayServer(serv);
 	}
-	
+
 	/**
 	 * La position de la carte change
 	 */
-	this.cardCoordsUpdated=function(card){
-		if(this.focused.focused==card){
+	this.cardCoordsUpdated = function(card) {
+		if (this.focused.focused == card) {
 			this.focused.redraw();
 		}
 	}
@@ -538,6 +543,10 @@ function CardManager(cardContainer) {
 			}
 		});
 
+		if (map.isEmpty()) {
+			return null;
+		}
+
 		// la carte la plus proche est la suivante
 		var closest = _.min(map.values(), function(card) {
 			return focused.coords.distance(card.coords);
@@ -549,35 +558,57 @@ function CardManager(cardContainer) {
 /**
  * Un element graphique qui affiche le focus
  */
-function FocusedElement(cardManager){
-	
+function FocusedElement(cardManager) {
+
 	var createdDiv = $("<div class='focused'/>");
-	this.element= createdDiv.appendTo(cardManager.cardContainer)
-	
-	this.focused=null;
-	this.needDraw=false;
-	
-	this.setFocused=function(focused){
-		this.focused=focused;
+	this.element = createdDiv.appendTo(cardManager.cardContainer)
+
+	this.focused = null;
+	this.needDraw = false;
+
+	this.setFocused = function(focused) {
+		this.focused = focused;
 		this.redraw();
 	}
-	
-	this.redraw=function(){
-		this.needDraw=true;
+
+	/**
+	 * Transmet le click à l'élément sélectionné
+	 */
+	this.doClick = function() {
+		if (this.focused != null) {
+			this.focused.doClick();
+		}
+
 	}
-	
-	this.draw=function(){
-		if(this.needDraw){
-			if(this.focused){
-				//affichage dans l'écran
-				var bounds=this.focused.getScreenBaseBounds().minus(-3);	
-				var coords=this.focused.coords;
-				TweenLite.to(this.element,ANIM_DURATION, { css : {autoAlpha:0.8, top:bounds.point.y, left:bounds.point.x, width: bounds.dimension.width, height:bounds.dimension.height, rotation:coords.angle, zIndex:coords.zIndex-1 } });
+
+	this.redraw = function() {
+		this.needDraw = true;
+	}
+
+	this.draw = function() {
+		if (this.needDraw) {
+			if (this.focused) {
+				// affichage dans l'écran
+				var bounds = this.focused.getScreenBaseBounds();
+				var coords = this.focused.coords;
+
+				if (coords.mode === "extended" && this.focused.extbox) {
+					// pour une carte il faut placer l'offset
+					var offset = cardManager.area.cardExtOffset;
+					bounds.point.y += offset;
+					bounds.dimension.height -= offset;
+
+					bounds.dimension.width = this.focused.extbox.width;
+
+				}
+				bounds = bounds.minus(-3)
+
+				TweenLite.to(this.element, ANIM_DURATION, { css : { autoAlpha : 0.8, top : bounds.point.y, left : bounds.point.x,
+					width : bounds.dimension.width, height : bounds.dimension.height, rotation : coords.angle, zIndex : coords.zIndex - 1 } });
+			} else {
+				TweenLite.to(this.element, ANIM_DURATION, { css : { autoAlpha : 0 } });
 			}
-			else{
-				TweenLite.to(this.element,ANIM_DURATION, { css : {autoAlpha:0} });
-			}
-			this.needDraw=false;
+			this.needDraw = false;
 		}
 	};
 }
@@ -839,7 +870,6 @@ function CardLayout(baseConfig) {
 	}
 
 	this.beforeLayout = function(boxContainer, bounds) {
-		// TODO il faut changer cela pour prendre dans le layout du parent
 		var parentCard = boxContainer.getParentCard();
 		if (parentCard.parent) {
 			var conf = parentCard.parent.layoutFunction.baseConfig;
@@ -883,7 +913,7 @@ function CardLayout(baseConfig) {
 			lc = new LayoutCoords(me.offset, me.verticalSpacing, 0, this.baseConfig);
 		else
 			lc = new LayoutCoords(me.verticalSpacing, me.offset, 0, this.baseConfig);
-		lc.zIndex = index;
+		lc.zIndex = 2 + index;
 		me.offset += more + this.spacing;
 
 		return lc;
@@ -942,6 +972,13 @@ function Card(def, cardManager) {
 		});
 		return tok;
 	};
+
+	/**
+	 * Transmet un click
+	 */
+	this.doClick = function() {
+		this.front.click();
+	}
 
 	/**
 	 * Verifie si la carte est visible
@@ -1142,7 +1179,7 @@ function Card(def, cardManager) {
 			TweenLite.to(this.ext, ANIM_DURATION, { css : extCss });
 			TweenLite.to(this.tokens, ANIM_DURATION, { css : tokenCss });
 		}
-		
+
 		this.cardManager.cardCoordsUpdated(this);
 	}
 }
@@ -1575,12 +1612,12 @@ function ExtBox(cardManager) {
 
 			me.displayedCard.coords.x = x;
 			me.displayedCard.coords.y = y;
-		
+
 			var redrawAndUpdate = function(c) {
 				c.redraw();
 				c.update(true);
 			}
-			
+
 			redrawAndUpdate(me.displayedCard);
 
 			if (me.secondaryCard) {
