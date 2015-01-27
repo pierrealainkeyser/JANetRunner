@@ -1380,7 +1380,7 @@ function BoxAction(extbox, def) {
 	var me = this;
 	me.type = 'action';
 	me.def = def;
-	this.element = $('<button class="btn btn-default"/>');
+	this.element = $('<button class="btn btn-default"  tabIndex="-1"/>');
 
 	this.cost = $("<span class='cost'/>").appendTo(this.element);
 	this.element.append(interpolateString(def.text));
