@@ -1434,7 +1434,7 @@ function ExtBox(cardManager) {
 		var abs = box.getPositionInParent();
 		if (me.displayedCard) {
 			abs = me.displayedCard.mergeChildCoord(box);
-			abs.zIndex = 11;
+			abs.zIndex = 12;
 
 			// si on affiche une carte il faut rajouter un offset
 			if (me.displayedCard.isCard()) {
