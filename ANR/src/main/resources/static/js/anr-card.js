@@ -14,7 +14,24 @@ function bootANR(gameId) {
 	cardManager = new CardManager($("#main"));
 	cardManager.prepare();
 	cardManager.makeReady();
-
+	
+	var changeFocus=function(plane){
+		return function(){
+			var card=cardManager.findNext(plane);
+			
+			if(card){
+				cardManager.within(function(){
+					cardManager.focused.setFocused(card);
+				})();
+			}
+		};
+	}
+	
+	Mousetrap.bind('down', changeFocus(PLANE_DOWN));
+	Mousetrap.bind('up', changeFocus(PLANE_UP));
+	Mousetrap.bind('left', changeFocus(PLANE_LEFT));
+	Mousetrap.bind('right', changeFocus(PLANE_RIGHT));
+	
 	var objs = {
 		servers : [ //
 		{ id : -1, name : "Archives" },//
@@ -523,8 +540,9 @@ function CardManager(cardContainer) {
 
 		// la carte la plus proche est la suivante
 		var closest = _.min(map.values(), function(card) {
-			return focused.coords.getDistance(card.coords);
+			return focused.coords.distance(card.coords);
 		});
+		return closest;
 	}
 }
 
@@ -554,7 +572,7 @@ function FocusedElement(cardManager){
 				//affichage dans l'écran
 				var bounds=this.focused.getScreenBaseBounds().minus(-3);	
 				var coords=this.focused.coords;
-				TweenLite.to(this.element,ANIM_DURATION, { css : {autoAlpha:0.8, top:bounds.point.y, left:bounds.point.x, width: bounds.dimension.width, height:bounds.dimension.height, rotation:coords.angle } });
+				TweenLite.to(this.element,ANIM_DURATION, { css : {autoAlpha:0.8, top:bounds.point.y, left:bounds.point.x, width: bounds.dimension.width, height:bounds.dimension.height, rotation:coords.angle, zIndex:coords.zIndex-1 } });
 			}
 			else{
 				TweenLite.to(this.element,ANIM_DURATION, { css : {autoAlpha:0} });
