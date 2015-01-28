@@ -510,7 +510,7 @@ function CardManager(cardContainer) {
 	 * La position de la carte change
 	 */
 	this.cardCoordsUpdated = function(card) {
-		if (this.focused.focused == card) {
+		if (this.focused.isFocused(card)) {
 			this.focused.redraw();
 		}
 	}
@@ -523,7 +523,7 @@ function CardManager(cardContainer) {
 
 		// gestion du focus
 		var focused = this.focused.focused;
-		_.each(this.cards, function(card) {
+		var collectAbovePlane= function(card) {
 
 			var coords = card.coords;
 			if (focused != card) {
@@ -541,7 +541,9 @@ function CardManager(cardContainer) {
 						map.put(key, card);
 				}
 			}
-		});
+		};
+		
+		_.each(this.cards,collectAbovePlane);
 
 		if (map.isEmpty()) {
 			return null;
@@ -553,6 +555,13 @@ function CardManager(cardContainer) {
 		});
 		return closest;
 	}
+	
+	/**
+	 * Suppression du run
+	 */
+	this.removeRun=function(run){
+		//TODO à implémenter
+	};
 }
 
 /**
@@ -570,6 +579,10 @@ function FocusedElement(cardManager) {
 		this.focused = focused;
 		this.redraw();
 	}
+	
+	this.isFocused=function(card){
+		return this.focused===card;
+	}
 
 	/**
 	 * Transmet le click à l'élément sélectionné
@@ -578,7 +591,6 @@ function FocusedElement(cardManager) {
 		if (this.focused != null) {
 			this.focused.doClick();
 		}
-
 	}
 
 	this.redraw = function() {
@@ -599,7 +611,6 @@ function FocusedElement(cardManager) {
 					bounds.dimension.height -= offset;
 
 					bounds.dimension.width = this.focused.extbox.width;
-
 				}
 				bounds = bounds.minus(-3)
 
@@ -608,6 +619,50 @@ function FocusedElement(cardManager) {
 			} else {
 				TweenLite.to(this.element, ANIM_DURATION, { css : { autoAlpha : 0 } });
 			}
+			this.needDraw = false;
+		}
+	};
+}
+
+/**
+ * Affichage graphique d'un run
+ */
+function RunElement(cardManager){
+	var me=this;
+	var createdDiv = $("<div class='run'/>");
+	this.element = createdDiv.appendTo(cardManager.cardContainer)
+	this.needDraw = false;
+	this.mode="init";
+	
+	this.setTarget=function(target){
+		this.target=target;
+	}
+	
+	this.redraw = function() {
+		this.needDraw = true;
+	}
+
+	this.draw = function() {
+		if (this.needDraw && this.target) {
+			
+			var bounds = this.target.getScreenBaseBounds();
+			if(this.mode==="init"){
+				TweenLite.set(this.element,{css:{autoAlpha:0,top:0, left:bounds.point.x, width : bounds.dimension.width, height:0}});
+				this.mode="initied";
+			}
+			if(this.mode==="clear"){
+				var remove=function(){
+					me.element.remove();
+					cardManager.removeRun(me);
+				};
+				
+				TweenLite.to(this.element, ANIM_DURATION, { css : { autoAlpha : 0,top:0, left : bounds.point.x,
+					width : bounds.dimension.width, height : 0 }, onComplete:remove });
+			}
+			else
+				TweenLite.to(this.element, ANIM_DURATION, { css : { autoAlpha : 0.8,top:0, left : bounds.point.x,
+				width : bounds.dimension.width, height : cardManager.area.main.height } });
+			
 			this.needDraw = false;
 		}
 	};
@@ -1403,6 +1458,11 @@ function BoxAction(extbox, def) {
 			this.element.addClass("btn-" + def.cls);
 
 		me.def = def;
+	}
+	
+
+	this.doClick = function() {
+		this.element.click();
 	}
 
 	/**
