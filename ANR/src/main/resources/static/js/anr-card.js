@@ -251,14 +251,9 @@ function CardManager(cardContainer) {
 		serv.setParent(me.serverRows);
 		me.servers[def.id] = serv;
 
-		var callback = function(event) {
-			var closure = me.within(function() {
-				me.toggleServer(serv);
-			});
-			closure();
-		};
-
-		serv.primary.on('click', callback);
+		serv.primary.on('click', me.within(function() {
+			me.toggleServer(serv);
+		}));
 
 		return serv;
 	}
