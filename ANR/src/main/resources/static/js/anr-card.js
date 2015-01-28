@@ -41,8 +41,7 @@ function bootANR(gameId) {
 		servers : [ //
 		{ id : -1, name : "Archives" },//
 		{ id : -2, name : "R&D" }, //
-		{ id : -3, name : "HQ", actions : [ { id : -1, text : "Run", cost : "{1:click}" } ] } //
-
+		{ id : -3, name : "HQ", actions : [ { id : -1, text : "Run", cost : "{1:click}" } ] } //		
 		],
 		cards : [ // 
 				{ id : 1, faction : 'corp', url : '01088', location : { primary : "server", serverIndex : -1, secondary : "stack", index : 0 } }, //
@@ -80,25 +79,34 @@ function bootANR(gameId) {
 	})();
 
 	setTimeout(cardManager.within(function() {
-
 		var c = cardManager.getCard({ id : 1 });
 		cardManager.focused.setFocused(c);
 
-		cardManager.update({ cards : [ //
-				{ id : 5, tokens : { credit : 5, power : 1 } },//
-				{ id : 1, face : "down", subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on Data Raven" } ],
-					location : { primary : "server", serverIndex : -3, secondary : "ices", index : 1 } },// 
-				{ id : 14, face : "up", location : { primary : "card", serverIndex : 4, index : 1 } },//
-				{ id : 9, face : "up", location : { primary : "card", serverIndex : 4, index : 0 } },//
-				{ id : 15, face : "up", location : { primary : "card", serverIndex : 4, index : 2 } },//
-		// { id : 15, face : "up", location : { primary : "resource",
-		// index : 1 } },//
-		// { id : 16, face : "up", tokens : { credit : 12 }, location :
-		// { primary : "resource", index : 2 } },//
-		// { id : 11, location : { primary : "heap", index : 1 } },//
-		// { id : 12, tokens : { recurring : 0 } },//
-		] });
-	}), 250)
+		cardManager.update({
+			runs : [ { id : 1, server : -2 } ] //
+			,
+			cards : [ //
+					{ id : 5, tokens : { credit : 5, power : 1 } },//
+					{ id : 1, face : "down", subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on Data Raven" } ],
+						location : { primary : "server", serverIndex : -3, secondary : "ices", index : 1 } },// 
+					{ id : 14, face : "up", location : { primary : "card", serverIndex : 4, index : 1 } },//
+					{ id : 9, face : "up", location : { primary : "card", serverIndex : 4, index : 0 } },//
+					{ id : 15, face : "up", location : { primary : "card", serverIndex : 4, index : 2 } },//
+			// { id : 15, face : "up", location : { primary : "resource",
+			// index : 1 } },//
+			// { id : 16, face : "up", tokens : { credit : 12 }, location :
+			// { primary : "resource", index : 2 } },//
+			// { id : 11, location : { primary : "heap", index : 1 } },//
+			// { id : 12, tokens : { recurring : 0 } },//
+			] });
+	}), 500)
+
+	setTimeout(cardManager.within(function() {
+		var c = cardManager.getCard({ id : 1 });
+		cardManager.focused.setFocused(c);
+		cardManager.update({ runs : [ { id : 1, server : -2, operation : "remove" } ] //
+		});
+	}), 1500)
 
 	// setTimeout(cardManager.within(function() {
 	// cardManager.update({
@@ -158,6 +166,7 @@ function CardManager(cardContainer) {
 	var me = this;
 	this.cards = {};
 	this.servers = {};
+	this.runs = {};
 	this.cardContainer = cardContainer;
 	this.primaryCardId = null;
 	LayoutManager.call(this);
@@ -171,8 +180,13 @@ function CardManager(cardContainer) {
 			card.updateViewable(faction);
 		});
 
+		var draw = function(element) {
+			element.draw();
+		};
+
 		// permet d'afficher au besoin l'element avec le 'focus'
-		me.focused.draw();
+		draw(me.focused);
+		_.each(me.runs, draw);
 	})
 
 	this.makeReady = function() {
@@ -243,6 +257,10 @@ function CardManager(cardContainer) {
 		return me.servers[def.id];
 	};
 
+	this.getRun = function(def) {
+		return me.runs[def.id];
+	}
+
 	/**
 	 * Création d'un server
 	 */
@@ -256,6 +274,15 @@ function CardManager(cardContainer) {
 		}));
 
 		return serv;
+	}
+
+	/**
+	 * Création d'un run
+	 */
+	this.createRun = function(def) {
+		var run = new RunElement(this, def, this.getServer({ id : def.server }));
+		me.runs[def.id] = run;
+		return run;
 	}
 
 	/**
@@ -285,6 +312,21 @@ function CardManager(cardContainer) {
 				var serv = me.getServer(def);
 				if (!serv) {
 					me.createServer(def);
+				}
+			}
+		}
+	}
+
+	var createAllRuns = function(elements) {
+		var allExists = _.every(elements.runs, me.getRun);
+		if (!allExists) {
+			for ( var c in elements.runs) {
+				var def = elements.runs[c];
+				if ("remove" !== def.operation) {
+					var serv = me.getRun(def);
+					if (!serv) {
+						me.createRun(def);
+					}
 				}
 			}
 		}
@@ -363,14 +405,26 @@ function CardManager(cardContainer) {
 		}
 	};
 
+	var updateAllRuns = function(elements) {
+		for ( var c in elements.runs) {
+			var def = elements.runs[c];
+			if ("remove" === def.operation) {
+				var run = me.getRun(def);
+				run.remove();
+			}
+		}
+	}
+
 	/**
 	 * Mise à jour des elements
 	 */
 	this.update = function(elements) {
 		createAllCards(elements);
 		createAllServers(elements);
+		createAllRuns(elements);
 		updateAllCards(elements);
 		updateAllServers(elements);
+		updateAllRuns(elements);
 
 		if (elements.primary) {
 			me.primaryCardId = elements.primary;
@@ -518,27 +572,30 @@ function CardManager(cardContainer) {
 
 		// gestion du focus
 		var focused = this.focused.focused;
-		var collectAbovePlane= function(card) {
+		var collectAbovePlane = function(card) {
 
 			var coords = card.coords;
 			if (focused != card) {
 				if (focused.coords.isAbovePlane(plane, coords)) {
-					var add = true;
 
-					// on ne conserve que le zIndex max pour avoir toujours
-					// l'objet le plus visible pour les mêmes coordonnées
-					var key = { x : coords.x, y : coords.y };
-					var prev = map.get(key);
-					if (prev)
-						add = prev.coords.zIndex < coords.zIndex;
+					if (card.primary.hasClass('clickable')) {
+						var add = true;
 
-					if (add)
-						map.put(key, card);
+						// on ne conserve que le zIndex max pour avoir toujours
+						// l'objet le plus visible pour les mêmes coordonnées
+						var key = { x : coords.x, y : coords.y };
+						var prev = map.get(key);
+						if (prev)
+							add = prev.coords.zIndex < coords.zIndex;
+
+						if (add)
+							map.put(key, card);
+					}
 				}
 			}
 		};
-		
-		_.each(this.cards,collectAbovePlane);
+
+		_.each(this.cards, collectAbovePlane);
 
 		if (map.isEmpty()) {
 			return null;
@@ -550,12 +607,12 @@ function CardManager(cardContainer) {
 		});
 		return closest;
 	}
-	
+
 	/**
 	 * Suppression du run
 	 */
-	this.removeRun=function(run){
-		//TODO à implémenter
+	this.removeRun = function(run) {
+		// TODO à implémenter
 	};
 }
 
@@ -574,9 +631,9 @@ function FocusedElement(cardManager) {
 		this.focused = focused;
 		this.redraw();
 	}
-	
-	this.isFocused=function(card){
-		return this.focused===card;
+
+	this.isFocused = function(card) {
+		return this.focused === card;
 	}
 
 	/**
@@ -622,42 +679,52 @@ function FocusedElement(cardManager) {
 /**
  * Affichage graphique d'un run
  */
-function RunElement(cardManager){
-	var me=this;
+function RunElement(cardManager, def, target) {
+	var me = this;
+	this.def = def;
 	var createdDiv = $("<div class='run'/>");
 	this.element = createdDiv.appendTo(cardManager.cardContainer)
 	this.needDraw = false;
-	this.mode="init";
-	
-	this.setTarget=function(target){
-		this.target=target;
-	}
-	
+	this.mode = "init";
+
 	this.redraw = function() {
 		this.needDraw = true;
 	}
 
+	this.remove = function() {
+		this.mode = "clear";
+		this.redraw();
+	}
+
+	this.setTarget = function(target) {
+		this.target = target;
+		this.redraw();
+	}
+
+	this.setTarget(target);
+
 	this.draw = function() {
 		if (this.needDraw && this.target) {
-			
+
 			var bounds = this.target.getScreenBaseBounds();
-			if(this.mode==="init"){
-				TweenLite.set(this.element,{css:{autoAlpha:0,top:0, left:bounds.point.x, width : bounds.dimension.width, height:0}});
-				this.mode="initied";
+			bounds.dimension = this.target.getBounds().dimension;
+			var more = 2;
+			var x = bounds.point.x - 2;
+			var w = bounds.dimension.width + more * 2;
+			if (this.mode === "init") {
+				TweenLite.set(this.element, { css : { autoAlpha : 0, top : 0, left : x, width : w, height : 0 } });
+				this.mode = "initied";
 			}
-			if(this.mode==="clear"){
-				var remove=function(){
+			if (this.mode === "clear") {
+				var remove = function() {
 					me.element.remove();
 					cardManager.removeRun(me);
 				};
-				
-				TweenLite.to(this.element, ANIM_DURATION, { css : { autoAlpha : 0,top:0, left : bounds.point.x,
-					width : bounds.dimension.width, height : 0 }, onComplete:remove });
-			}
-			else
-				TweenLite.to(this.element, ANIM_DURATION, { css : { autoAlpha : 0.8,top:0, left : bounds.point.x,
-				width : bounds.dimension.width, height : cardManager.area.main.height } });
-			
+
+				TweenLite.to(this.element, ANIM_DURATION, { css : { autoAlpha : 0, top : 0, left : x, width : w, height : 0 }, onComplete : remove });
+			} else
+				TweenLite.to(this.element, ANIM_DURATION, { css : { autoAlpha : 0.8, top : 0, left : x, width : w, height : cardManager.area.main.height } });
+
 			this.needDraw = false;
 		}
 	};
@@ -1454,7 +1521,6 @@ function BoxAction(extbox, def) {
 
 		me.def = def;
 	}
-	
 
 	this.doClick = function() {
 		this.element.click();
