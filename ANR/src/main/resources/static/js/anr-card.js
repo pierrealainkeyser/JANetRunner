@@ -15,28 +15,6 @@ function bootANR(gameId) {
 	cardManager.prepare();
 	cardManager.makeReady();
 
-	var changeFocus = function(plane) {
-		return function() {
-			var card = cardManager.findNext(plane);
-			if (card) {
-				cardManager.within(function() {
-					cardManager.focused.setFocused(card);
-				})();
-			}
-		};
-	}
-
-	Mousetrap.bind('down', changeFocus(PLANE_DOWN));
-	Mousetrap.bind('up', changeFocus(PLANE_UP));
-	Mousetrap.bind('left', changeFocus(PLANE_LEFT));
-	Mousetrap.bind('right', changeFocus(PLANE_RIGHT));
-	Mousetrap.bind('space', cardManager.within(function() {
-		cardManager.focused.doClick();
-	}));
-	Mousetrap.bind('escape', cardManager.within(function() {
-		cardManager.extbox.closeCard();
-	}));
-
 	var objs = {
 		servers : [ //
 		{ id : -1, name : "Archives" },//
@@ -134,6 +112,21 @@ function bootANR(gameId) {
 }
 
 /**
+ * Un comportement qui attache des evenements de souris
+ */
+function MouseTrapBehaviour(binding, callback) {
+	var me = this;
+	Behaviour.call(this);
+
+	this.install = function(cardManager) {
+		Mousetrap.bind(binding, callback);
+	};
+	this.remove = function(cardManager) {
+		Mousetrap.unbind(binding);
+	}
+}
+
+/**
  * Un Behaviour qui utilise une fonction de callback
  */
 function CardActivationBehaviour() {
@@ -170,6 +163,30 @@ function CardManager(cardContainer) {
 	this.cardContainer = cardContainer;
 	this.primaryCardId = null;
 	LayoutManager.call(this);
+
+	//gestion des comportements du clavier avec mousetrap
+	this.keyboardBehavioral = new Behavioral();
+	var changeFocus = function(plane) {
+		return me.within(function() {
+			var card = me.findNext(plane)
+			if (card)
+				me.focused.setFocused(card);
+		});
+	};
+
+	var basicSpace = new MouseTrapBehaviour('space', me.within(function() {
+		me.focused.doClick();
+	}));
+	var basicEscape = new MouseTrapBehaviour('escape', me.within(function() {
+		me.extbox.closeCard();
+	}));
+
+	var basicNavigation = [ new MouseTrapBehaviour('down', changeFocus(PLANE_DOWN)),//
+	new MouseTrapBehaviour('up', changeFocus(PLANE_UP)),//
+	new MouseTrapBehaviour('left', changeFocus(PLANE_LEFT)),//
+	new MouseTrapBehaviour('right', changeFocus(PLANE_RIGHT)),//
+	basicSpace, basicEscape ];
+	this.keyboardBehavioral.pushBehaviours(basicNavigation);
 
 	// correction de la position avant l'affichage
 	this.beforeDraw.push(function() {
