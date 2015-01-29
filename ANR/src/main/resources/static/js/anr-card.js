@@ -215,7 +215,7 @@ function CardManager(cardContainer) {
 
 		this.absoluteContainer = new BoxContainer(this, new AbsoluteLayoutFunction());
 		this.extbox = new ExtBox(this);
-		this.serverRows = new BoxContainer(this, new HorizontalLayoutFunction({ spacing : 23 }, {}));
+		this.serverRows = new BoxContainer(this, new HorizontalLayoutFunction({ spacing : 20 }, {}));
 		this.runnerColums = new BoxContainer(this, new VerticalLayoutFunction({ spacing : 5 }, {}));
 
 		this.handContainer = new BoxContainer(this, new HandLayoutFunction({}, { zIndex : 0, mode : "plain" }));
@@ -683,7 +683,7 @@ function FocusedElement(cardManager) {
 
 					bounds.dimension.width = this.focused.extbox.width;
 				}
-				bounds = bounds.minus(-3)
+				bounds = bounds.minus(-5)
 
 				TweenLite.to(this.element, ANIM_DURATION, { css : { autoAlpha : 0.8, top : bounds.point.y, left : bounds.point.x,
 					width : bounds.dimension.width, height : bounds.dimension.height, rotation : coords.angle, zIndex : coords.zIndex - 1 } });

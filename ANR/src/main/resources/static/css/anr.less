@@ -130,11 +130,11 @@ div#conf {
 		@shadow-delta: 2.5px;
 		@shadow-blur: 5px;
 		.with-action {
-			box-shadow: 0 0 @shadow-blur 1px @card-action-shadow-color;
+			box-shadow: 0 0 @shadow-blur 2px @card-action-shadow-color;
 		}
 
 		.with-primary-action {
-			box-shadow: 0 0 @shadow-blur 1px @card-primary-action-shadow-color;
+			box-shadow: 0 0 @shadow-blur 2px @card-primary-action-shadow-color;
 		}
 
 		.front {
@@ -160,15 +160,16 @@ div#conf {
 }
 
 div.cardstack {
-	@offset: 10px;
+	@offset: 7px;
+	@top-offset: 15px;
 	border-radius: 5px;
 	border: 1.5px dashed #cccccc;
 	.clear-padding;
-	margin-top: -@offset * 1.5;
+	margin-top: -@top-offset;
 	margin-left: -@offset;
 	position: absolute;
 	width: @card-width + @offset * 2;
-	height: @card-height + @offset * 2.2;
+	height: @card-height + @top-offset * 1.35;
 	text-align: center;
 	font-weight: bold;
 	font-size: 11px;
@@ -264,7 +265,6 @@ div#main {
 	.focused {
 		@light-color: rgba(222, 239, 255, 1);
 		@dark-color: rgba(152, 190, 222, 1);
-		
 		.clear-padding;
 		position: absolute;
 		border-radius: 5px;
