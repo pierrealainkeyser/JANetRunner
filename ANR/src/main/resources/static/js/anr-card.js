@@ -52,6 +52,8 @@ function bootANR(gameId) {
 
 		] };
 
+	
+	
 	cardManager.within(function() {
 		cardManager.update(objs);
 	})();
@@ -213,7 +215,7 @@ function CardManager(cardContainer) {
 
 		this.absoluteContainer = new BoxContainer(this, new AbsoluteLayoutFunction());
 		this.extbox = new ExtBox(this);
-		this.serverRows = new BoxContainer(this, new HorizontalLayoutFunction({ spacing : 12 }, {}));
+		this.serverRows = new BoxContainer(this, new HorizontalLayoutFunction({ spacing : 23 }, {}));
 		this.runnerColums = new BoxContainer(this, new VerticalLayoutFunction({ spacing : 5 }, {}));
 
 		this.handContainer = new BoxContainer(this, new HandLayoutFunction({}, { zIndex : 0, mode : "plain" }));
@@ -725,8 +727,8 @@ function RunElement(cardManager, def, target) {
 
 			var bounds = this.target.getScreenBaseBounds();
 			bounds.dimension = this.target.getBounds().dimension;
-			var more = 2;
-			var x = bounds.point.x - 2;
+			var more = 5;
+			var x = bounds.point.x - more;
 			var w = bounds.dimension.width + more * 2;
 			if (this.mode === "init") {
 				TweenLite.set(this.element, { css : { autoAlpha : 0, top : 0, left : x, width : w, height : 0 } });
@@ -2226,7 +2228,7 @@ var INNER_SERVER_LAYOUT = new function() {
 		var card = boxContainer.layoutManager.area.card;
 		if (box.serverLayoutKey === 'ices') {
 			return new LayoutCoords(x, -card.height - 5, 0);
-		} else if (box.serverLayoutKey === 'assetOrUpgrades' || box.serverLayoutKey === 'stack') {
+		} else if (box.serverLayoutKey === 'assetOrUpgrades' || box.serverLayoutKey === 'stack') {	
 			return new LayoutCoords(x, 0, 0);
 		} else if (box.serverLayoutKey === 'upgrades') {
 			return new LayoutCoords(x, card.height + 10, 0);
@@ -2274,12 +2276,15 @@ function Server(def, cardManager) {
 
 	// calcul des elements primaires
 	this.primary = createdDiv.appendTo(cardManager.cardContainer);
-	ElementBox.call(this.assetOrUpgrades, this.primary);
+	ElementBox.call(this.assetOrUpgrades, this.primary, true);
 	this.assetOrUpgrades.customizeCss = function(css) {
 		if (me.hasActions())
 			css.boxShadow = me.cardManager.area.shadow.withAction;
 		else
 			css.boxShadow = "";
+	}
+	this.assetOrUpgrades.getBaseBox=function(){
+		return cardManager.area.card;
 	}
 
 	this.upgrades = new BoxContainer(cardManager, ROOT_SERVER_LAYOUT);

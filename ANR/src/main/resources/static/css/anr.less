@@ -165,6 +165,7 @@ div.cardstack {
 	border: 1.5px dashed #cccccc;
 	.clear-padding;
 	margin-top: -@offset * 1.5;
+	margin-left: -@offset;
 	position: absolute;
 	width: @card-width + @offset * 2;
 	height: @card-height + @offset * 2.2;
@@ -176,10 +177,6 @@ div.cardstack {
 	.unselectable;
 	&.server {
 		.clickable;
-	}
-
-	&:not(.server) {
-		margin-left: -@offset;
 	}
 }
 
