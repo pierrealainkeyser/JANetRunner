@@ -52,8 +52,6 @@ function bootANR(gameId) {
 
 		] };
 
-	
-	
 	cardManager.within(function() {
 		cardManager.update(objs);
 	})();
@@ -166,7 +164,7 @@ function CardManager(cardContainer) {
 	this.primaryCardId = null;
 	LayoutManager.call(this);
 
-	//gestion des comportements du clavier avec mousetrap
+	// gestion des comportements du clavier avec mousetrap
 	this.keyboardBehavioral = new Behavioral();
 	var changeFocus = function(plane) {
 		return me.within(function() {
@@ -583,16 +581,51 @@ function CardManager(cardContainer) {
 		}
 	}
 
+	var notInPlainMode = function(card) {
+		return card.coords.mode !== 'plain';
+	}
+
 	/**
 	 * cherche la carte ou le server le plus proche dans la direction
 	 */
 	this.findNext = function(plane) {
-		var map = new Hashmap();
-
-		// gestion du focus
 		var focused = this.focused.focused;
-		var collectAbovePlane = function(card) {
 
+		// les cartes en mode different de plain sont dans le extbox
+		if (notInPlainMode(focused)) {
+			var map = new DistanceMap(focused, plane);
+			map.collectAbovePlane(_.filter(this.cards, notInPlainMode));
+			var closest = map.findClosest();
+			if (closest !== null)
+				return closest;
+		}
+
+		var map = new DistanceMap(focused, plane);
+		map.collectAbovePlane(this.cards);
+		return map.findClosest();
+	}
+
+	/**
+	 * Suppression du run
+	 */
+	this.removeRun = function(run) {
+		// TODO à implémenter
+	};
+}
+
+/**
+ * Permet de chercher dans une direction
+ */
+function DistanceMap(focused, plane) {
+	Hashmap.call(this);
+
+	/**
+	 * Parcours les cartes et choisi les cartes clickables
+	 */
+	this.collectAbovePlane = function(cards) {
+
+		for ( var i in cards) {
+			var card = cards[i];
 			var coords = card.coords;
 			if (focused != card) {
 				if (focused.coords.isAbovePlane(plane, coords)) {
@@ -603,36 +636,33 @@ function CardManager(cardContainer) {
 						// on ne conserve que le zIndex max pour avoir toujours
 						// l'objet le plus visible pour les mêmes coordonnées
 						var key = { x : coords.x, y : coords.y };
-						var prev = map.get(key);
+						var prev = this.get(key);
 						if (prev)
 							add = prev.coords.zIndex < coords.zIndex;
 
 						if (add)
-							map.put(key, card);
+							this.put(key, card);
 					}
 				}
 			}
-		};
+		}
+	}
 
-		_.each(this.cards, collectAbovePlane);
+	/**
+	 * Renvoi
+	 */
+	this.findClosest = function() {
 
-		if (map.isEmpty()) {
+		if (this.isEmpty()) {
 			return null;
 		}
 
 		// la carte la plus proche est la suivante
-		var closest = _.min(map.values(), function(card) {
+		var closest = _.min(this.values(), function(card) {
 			return focused.coords.distance(card.coords);
 		});
 		return closest;
 	}
-
-	/**
-	 * Suppression du run
-	 */
-	this.removeRun = function(run) {
-		// TODO à implémenter
-	};
 }
 
 /**
@@ -679,11 +709,14 @@ function FocusedElement(cardManager) {
 					// pour une carte il faut placer l'offset
 					var offset = cardManager.area.cardExtOffset;
 					bounds.point.y += offset;
-					bounds.dimension.height -= offset;
-
+					bounds.dimension.height = this.focused.extbox.height;
 					bounds.dimension.width = this.focused.extbox.width;
 				}
-				bounds = bounds.minus(-5)
+
+				if (coords.mode === 'mini')
+					bounds = bounds.minus(-2);
+				else
+					bounds = bounds.minus(-5);
 
 				TweenLite.to(this.element, ANIM_DURATION, { css : { autoAlpha : 0.8, top : bounds.point.y, left : bounds.point.x,
 					width : bounds.dimension.width, height : bounds.dimension.height, rotation : coords.angle, zIndex : coords.zIndex - 1 } });
@@ -1437,7 +1470,7 @@ function BoxSubroutine(extbox, sub) {
 	/**
 	 * Mise à jour d el'état
 	 */
-	this.update = function(sub) {
+	this.updateSub = function(sub) {
 		if (sub.broken) {
 			if (!this.checkbox.attr("disabled")) {
 				this.checkbox.attr("disabled", true);
@@ -1456,7 +1489,7 @@ function BoxSubroutine(extbox, sub) {
 	}
 
 	// maj de l'état
-	this.update(sub);
+	this.updateSub(sub);
 }
 
 /**
@@ -1516,7 +1549,7 @@ function BoxAction(extbox, def) {
 	var me = this;
 	me.type = 'action';
 	me.def = def;
-	this.element = $('<button class="btn btn-default"  tabIndex="-1"/>');
+	this.element = $('<button class="action btn btn-default"  tabIndex="-1"/>');
 
 	this.cost = $("<span class='cost'/>").appendTo(this.element);
 	this.element.append(interpolateString(def.text));
@@ -1528,10 +1561,13 @@ function BoxAction(extbox, def) {
 	ElementBox.call(this, this.element);
 	AnimatedBox.call(this);
 
+	this.unapplyGhost = this.popBehaviours = function() {
+	};
+
 	/**
 	 * Mise à jour de l'action
 	 */
-	this.update = function(def) {
+	this.updateAction = function(def) {
 		if (me.def.cls) {
 			this.element.removeClass("btn-" + me.def.cls);
 		}
@@ -1539,6 +1575,10 @@ function BoxAction(extbox, def) {
 			this.element.addClass("btn-" + def.cls);
 
 		me.def = def;
+	}
+
+	this.customizeCss = function(css) {
+		css.zIndex = me.coords.zIndex || 0;
 	}
 
 	this.doClick = function() {
@@ -1631,10 +1671,8 @@ function ExtBox(cardManager) {
 
 	this.innerContainer = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 5 }, {}));
 	this.mainContainer = new BoxContainer(cardManager, new VerticalLayoutFunction({ spacing : 3, padding : 3 }, {}));
-	this.actionsContainer = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 2, padding : 4 }, {}));
-	// suppression du draw qui est inutile
-	this.actionsContainer.draw = function() {
-	};
+	this.actionsContainer = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 2, padding : 4, mode : "secondary" }, {}));
+	this.actionsContainer.mergeChildCoord = mergeChildCoordFromDisplayed;
 
 	// pour contenir les elements hotes (rajouté à la volée dans
 	// mainContainer)
@@ -1767,6 +1805,7 @@ function ExtBox(cardManager) {
 			me.cardsContainer.each(redrawAndUpdate);
 			me.hostedsContainer.each(redrawAndUpdate);
 			me.hostContainer.each(redrawAndUpdate);
+			me.actionsContainer.each(redrawAndUpdate);
 		}
 	}
 
@@ -1905,7 +1944,7 @@ function ExtBox(cardManager) {
 			var selected = _.find(me.subs, function(s) {
 				return s.sub.id = sub.id;
 			});
-			selected.update(sub);
+			selected.updateSub(sub);
 		});
 
 		if (card.actions) {
@@ -1965,7 +2004,7 @@ function ExtBox(cardManager) {
 	this.addAction = function(def) {
 		var act = new BoxAction(this, def)
 		me.actionsContainer.addChild(act);
-		act.element.appendTo(me.displayedCard.ext);
+		act.element.appendTo(me.cardManager.cardContainer);
 		act.entrance();
 
 		act.click(function(event) {
@@ -1982,7 +2021,8 @@ function ExtBox(cardManager) {
 	 */
 	this.removeActions = function() {
 		// suppression des actions secondaires
-		this.actionsContainer.each(function(box) {
+
+		me.actionsContainer.each(function(box) {
 			box.remove(true);
 		});
 	}
@@ -2054,6 +2094,9 @@ function ExtBox(cardManager) {
 			closeCardsContainer(this.cardsContainer);
 			closeCardsContainer(this.hostedsContainer);
 			closeCardsContainer(this.hostContainer);
+			this.actionsContainer.each(function(box) {
+				box.remove(true);
+			});
 		}
 	}
 
@@ -2108,6 +2151,7 @@ function ExtBox(cardManager) {
 				me.cardsContainer.each(redraw);
 				me.hostedsContainer.each(redraw);
 				me.hostContainer.each(redraw);
+				me.actionsContainer.each(redraw);
 			}
 		}
 	}
@@ -2152,9 +2196,13 @@ function ElementBox(element, sandboxed) {
 	 * Mise à jour de l'élement graphique
 	 */
 	this.draw = function() {
+		this.update(false);
+	}
+
+	this.update = function(set) {
 		if (this.coords) {
 			var animate = true;
-			if (this.firstTimeShow) {
+			if (this.firstTimeShow || set === true) {
 				if (this.coords.initial) {
 					var css = { top : this.coords.initial.y, left : this.coords.initial.x, autoAlpha : 0 };
 					this.customizeCss(css);
@@ -2228,7 +2276,7 @@ var INNER_SERVER_LAYOUT = new function() {
 		var card = boxContainer.layoutManager.area.card;
 		if (box.serverLayoutKey === 'ices') {
 			return new LayoutCoords(x, -card.height - 5, 0);
-		} else if (box.serverLayoutKey === 'assetOrUpgrades' || box.serverLayoutKey === 'stack') {	
+		} else if (box.serverLayoutKey === 'assetOrUpgrades' || box.serverLayoutKey === 'stack') {
 			return new LayoutCoords(x, 0, 0);
 		} else if (box.serverLayoutKey === 'upgrades') {
 			return new LayoutCoords(x, card.height + 10, 0);
@@ -2283,7 +2331,7 @@ function Server(def, cardManager) {
 		else
 			css.boxShadow = "";
 	}
-	this.assetOrUpgrades.getBaseBox=function(){
+	this.assetOrUpgrades.getBaseBox = function() {
 		return cardManager.area.card;
 	}
 

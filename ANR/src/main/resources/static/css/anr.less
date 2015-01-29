@@ -207,22 +207,6 @@ label.sub {
 		z-index: 0;
 	}
 
-	button {
-		position: absolute;
-		padding: 5px 4px;
-		&:disabled {
-			text-decoration: line-through;
-		}
-
-		.cost {
-			&:after {
-				content: " : ";
-			}
-		}
-
-		z-index: 1;
-	}
-
 	.header {
 		position: absolute;
 		line-height: 20px;
@@ -302,6 +286,20 @@ div#main {
 		}
 
 		.ext-action-header (@border-radius);
+	}
+
+	.btn.action {
+		position: absolute;
+		padding: 3px 6px;
+		&:disabled {
+			text-decoration: line-through;
+		}
+
+		.cost {
+			&:after {
+				content: " : ";
+			}
+		}
 	}
 
 	div.card {
