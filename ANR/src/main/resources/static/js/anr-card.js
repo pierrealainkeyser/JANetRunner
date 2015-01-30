@@ -595,6 +595,7 @@ function CardManager(cardContainer) {
 		if (notInPlainMode(focused)) {
 			var map = new DistanceMap(focused, plane);
 			map.collectAbovePlane(_.filter(this.cards, notInPlainMode));
+			map.collectAbovePlane(this.extbox.actionsContainer.childs);
 			var closest = map.findClosest();
 			if (closest !== null)
 				return closest;
@@ -630,7 +631,7 @@ function DistanceMap(focused, plane) {
 			if (focused != card) {
 				if (focused.coords.isAbovePlane(plane, coords)) {
 
-					if (card.primary.hasClass('clickable')) {
+					if (card.isClickable()) {
 						var add = true;
 
 						// on ne conserve que le zIndex max pour avoir toujours
@@ -713,7 +714,7 @@ function FocusedElement(cardManager) {
 					bounds.dimension.width = this.focused.extbox.width;
 				}
 
-				if (coords.mode === 'mini')
+				if (coords.mode === 'mini' || coords.mode === 'action')
 					bounds = bounds.minus(-2);
 				else
 					bounds = bounds.minus(-5);
@@ -1148,6 +1149,13 @@ function Card(def, cardManager) {
 	this.doClick = function() {
 		this.front.click();
 	}
+	
+	/**
+	 * Indique si l'on peut clicker sur l'element
+	 */
+	this.isClickable=function(){
+		return this.primary.hasClass('clickable');
+	}
 
 	/**
 	 * Verifie si la carte est visible
@@ -1572,6 +1580,20 @@ function BoxAction(extbox, def) {
 
 	this.unapplyGhost = this.popBehaviours = function() {
 	};
+	
+	/**
+	 * Transmet un click
+	 */
+	this.doClick = function() {
+		this.element.click();
+	}
+	
+	/**
+	 * Indique si l'on peut clicker sur l'element
+	 */
+	this.isClickable=function(){
+		return true;
+	}
 
 	/**
 	 * Mise à jour de l'action
@@ -1680,7 +1702,7 @@ function ExtBox(cardManager) {
 
 	this.innerContainer = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 5 }, {}));
 	this.mainContainer = new BoxContainer(cardManager, new VerticalLayoutFunction({ spacing : 3, padding : 3 }, {}));
-	this.actionsContainer = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 2, padding : 4, mode : "secondary" }, {}));
+	this.actionsContainer = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 2, padding : 4 }, { mode : "action"}));
 	this.actionsContainer.mergeChildCoord = mergeChildCoordFromDisplayed;
 
 	// pour contenir les elements hotes (rajouté à la volée dans
