@@ -1356,15 +1356,20 @@ function Card(def, cardManager) {
 /**
  * une boite supprimable
  */
-function AnimatedBox(animation) {
+function AnimatedBox(animation, opt) {
 	var me = this;
 	animation = animation || "bounce";
+	
 
 	/**
 	 * Rajoute l'animation d'entrée
 	 */
 	this.entrance = function() {
-		animateCss(me.element, animation + "In");
+		var more="";
+		if(opt && opt.length===2)
+			more=opt[0];
+		
+		animateCss(me.element, animation + "In"+more);
 	}
 
 	/**
@@ -1384,7 +1389,11 @@ function AnimatedBox(animation) {
 				me.element.remove();
 			});
 
-		animateCss(me.element, animation + "Out", closure);
+		var more="";
+		if(opt && opt.length===2)
+			more=opt[1];
+		
+		animateCss(me.element, animation + "Out"+more, closure);
 	}
 }
 
@@ -1559,7 +1568,7 @@ function BoxAction(extbox, def) {
 
 	Box.call(this, extbox.cardManager);
 	ElementBox.call(this, this.element);
-	AnimatedBox.call(this);
+	AnimatedBox.call(this,"fade",["Right","Right"]);
 
 	this.unapplyGhost = this.popBehaviours = function() {
 	};
