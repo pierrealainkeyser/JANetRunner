@@ -336,6 +336,7 @@ function HandLayoutFunction(innerCfg, baseCfg) {
 	this.height = innerCfg.height || 0;
 	this.direction = innerCfg.direction || 1;
 	this.flatness = innerCfg.flatness || 3.0;
+	this.nbMinCards = innerCfg.nbMinCards || 8;
 	this.zIndex = baseCfg.zIndex || 0;
 
 	var bl = new Point(this.left, 0);
@@ -353,8 +354,9 @@ function HandLayoutFunction(innerCfg, baseCfg) {
 
 	this.applyLayout = function(boxContainer, index, box) {
 
-		var size = boxContainer.size();
-		var percent = index / (size - 1.0);
+		var size = Math.max(this.nbMinCards , boxContainer.size());
+
+		var percent = (size - index) / (size - 1.0);
 		var angle = this.startAngle + (this.maxAngle - this.startAngle) * percent;
 		var cos = Math.cos(angle);
 		var sin = Math.sin(angle);

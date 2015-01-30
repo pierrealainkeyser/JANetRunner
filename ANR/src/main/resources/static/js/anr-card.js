@@ -1,7 +1,5 @@
 var ANIM_DURATION = 0.3;
 
-var cardManager = null;
-
 $.fn.sandbox = function(fn) {
 	var element = $(this).clone(), result;
 	element.css({ visibility : 'hidden', display : 'block', position : 'absolute' }).insertAfter($("#main"));
@@ -10,105 +8,31 @@ $.fn.sandbox = function(fn) {
 	return result;
 };
 
-function bootANR(gameId) {
-	cardManager = new CardManager($("#main"));
+function GameConnector(gameId) {
+	var me = this;
+	this.gameId = gameId;
+	this.cardManager = null;
+
+	this.onBounds = function() {
+
+	}
+
+	this.sendAction = function(action) {
+		console.info("Playing action : " + JSON.stringify(action));
+	}
+}
+
+/**
+ * Démarrage de la partie
+ * 
+ * @param connector
+ */
+function bootANR(connector) {
+	var cardManager = new CardManager($("#main"), connector);
 	cardManager.prepare();
 	cardManager.makeReady();
-
-	var objs = {
-		servers : [ //
-		{ id : -1, name : "Archives" },//
-		{ id : -2, name : "R&D" }, //
-		{ id : -3, name : "HQ", actions : [ { id : -1, text : "Run", cost : "{1:click}" } ] } //		
-		],
-		cards : [ // 
-				{ id : 1, faction : 'corp', url : '01088', location : { primary : "server", serverIndex : -1, secondary : "stack", index : 0 } }, //
-				{ id : 2, faction : 'corp', url : '01082', face : "down", location : { primary : "server", serverIndex : -2, secondary : "stack", index : 0 } }, //				
-				{ id : 21, faction : 'corp', url : '01083', face : "down", location : { primary : "server", serverIndex : -1, secondary : "stack", index : 1 } }, //
-				{ id : 22, faction : 'corp', url : '01091', face : "up", location : { primary : "server", serverIndex : -1, secondary : "stack", index : 0 } }, //				
-				{ id : 3, faction : 'corp', url : '01080', tokens : { credit : 5, recurring : 2 },
-					location : { primary : "server", serverIndex : -3, secondary : "assetOrUpgrades", index : 0 } }, //
-				{ id : 4, faction : 'corp', url : '01089', face : "down", location : { primary : "server", serverIndex : -3, secondary : "ices", index : 0 } }, //
-				{ id : 5, faction : 'runner', url : '01033', location : { primary : "grip", index : 0 }, //
-				actions : [ { id : -1, text : "Gain {1:credit}", cost : "{1:click}" }, { id : -1, text : "Draw 1 card", cost : "{1:click}" } ] },//
-				{ id : 6, faction : 'runner', url : '01034', face : "down", location : { primary : "stack", index : 0 } },//
-				{ id : 7, faction : 'runner', url : '01035', face : "down", location : { primary : "stack", index : 1 } },//
-				{ id : 8, faction : 'runner', url : '01036', face : "down", location : { primary : "stack", index : 2 } },//
-				{ id : 9, faction : 'runner', url : '01037', face : "down", location : { primary : "stack", index : 3 } },//
-				{ id : 10, faction : 'runner', url : '01038', face : "up", location : { primary : "hand", index : 0 } },//
-				{ id : 11, faction : 'runner', url : '01039', location : { primary : "hardware", index : 0 } },//
-				{ id : 12, faction : 'runner', url : '01041', tokens : { recurring : 2 }, location : { primary : "hardware", index : 1 } },//
-				{ id : 13, faction : 'runner', url : '01042', location : { primary : "hand", index : 1 } },//
-				{ id : 14, faction : 'runner', url : '01043', face : "down", location : { primary : "stack", index : 5 } },//
-				{ id : 15, faction : 'runner', url : '01052', face : "down", location : { primary : "stack", index : 6 } },//
-				{ id : 16, faction : 'runner', url : '01053', face : "down", location : { primary : "stack", index : 7 } },//
-				{ id : 17, faction : 'runner', url : '01046', face : "up", location : { primary : "program", index : 0 } },//
-				{ id : 18, faction : 'runner', url : '01040', face : "up", location : { primary : "hand", index : 2, serverIndex : 17 },// 
-				actions : [ { id : 27, text : "Install", cost : "{1:click}, {1:credit}" } ] //
-				},//
-				{ id : 19, faction : 'runner', url : '01050', face : "up", location : { primary : "hand", index : 3 },// 
-				actions : [ { id : 28, text : "Gain {9:credit}", cost : "{1:click}, {5:credit}" } ] //
-				},//
-
-		] };
-
-	cardManager.within(function() {
-		cardManager.update(objs);
-	})();
-
-	setTimeout(cardManager.within(function() {
-		var c = cardManager.getCard({ id : 1 });
-		cardManager.focused.setFocused(c);
-
-		cardManager.update({
-			runs : [ { id : 1, server : -2 } ] //
-			,
-			cards : [ //
-					{ id : 5, tokens : { credit : 5, power : 1 } },//
-					{ id : 1, face : "down", subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on Data Raven" } ],
-						location : { primary : "server", serverIndex : -3, secondary : "ices", index : 1 } },// 
-					{ id : 14, face : "up", location : { primary : "card", serverIndex : 4, index : 1 } },//
-					{ id : 9, face : "up", location : { primary : "card", serverIndex : 4, index : 0 } },//
-					{ id : 15, face : "up", location : { primary : "card", serverIndex : 4, index : 2 } },//
-			// { id : 15, face : "up", location : { primary : "resource",
-			// index : 1 } },//
-			// { id : 16, face : "up", tokens : { credit : 12 }, location :
-			// { primary : "resource", index : 2 } },//
-			// { id : 11, location : { primary : "heap", index : 1 } },//
-			// { id : 12, tokens : { recurring : 0 } },//
-			] });
-	}), 500)
-
-	setTimeout(cardManager.within(function() {
-		var c = cardManager.getCard({ id : 1 });
-		cardManager.focused.setFocused(c);
-		cardManager.update({ runs : [ { id : 1, server : -2, operation : "remove" } ] //
-		});
-	}), 1500)
-
-	// setTimeout(cardManager.within(function() {
-	// cardManager.update({
-	// primary : 1,
-	// cards : [ { id : 5, tokens : { credit : 10 } }, { id : 1, actions : [ {
-	// id : 1, text : "Continue", cls : "warning" } ] },
-	// { id : 16, actions : [ { text : "Take {2:credit} from Armitage
-	// Codebusting", cost : "{1:click}" } ] }, ] });
-	// }), 500)
-	//
-	// setTimeout(cardManager.within(function() {
-	// cardManager.update({ cards : [
-	// { id : 1, tokens : { power : 1 }, actions : [ { id : 2, text :
-	// "Continue", cls : "success" } ],
-	// subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter
-	// on Data Raven", broken : false } ] },//
-	// { id : 17, actions : [ { id : 3, text : "Break selected", type : "break",
-	// costs : { 1 : { cost : "{3:credit}", enabled : true } } } ] } //
-	// ] });
-	// }), 1000)
-	//
-	// setTimeout(cardManager.within(function() {
-	// cardManager.update({ cards : [ { id : 1, tokens : { power : 2 } }, ] });
-	// }), 1500)
+	connector.cardManager = cardManager;
+	connector.onBounds();
 }
 
 /**
@@ -155,13 +79,15 @@ function CardActivationBehaviour() {
 
 }
 
-function CardManager(cardContainer) {
+function CardManager(cardContainer, connector) {
 	var me = this;
 	this.cards = {};
 	this.servers = {};
 	this.runs = {};
 	this.cardContainer = cardContainer;
 	this.primaryCardId = null;
+	this.faction = null;
+	this.connector = connector;
 	LayoutManager.call(this);
 
 	// gestion des comportements du clavier avec mousetrap
@@ -193,8 +119,7 @@ function CardManager(cardContainer) {
 		me.extbox.checkLayoutBounds();
 
 		_.each(me.cards, function(card) {
-			var faction = 'corp';
-			card.updateViewable(faction);
+			card.updateViewable(me.faction);
 		});
 
 		var draw = function(element) {
@@ -243,6 +168,15 @@ function CardManager(cardContainer) {
 
 		this.refresh();
 		this.runCycle();
+	};
+
+	/**
+	 * publication des evenements
+	 */
+	this.publish = function(elements) {
+		me.within(function() {
+			me.update(elements);
+		})();
 	};
 
 	/**
@@ -380,6 +314,12 @@ function CardManager(cardContainer) {
 			if (def.location) {
 				var container = findContainer(def.location);
 				if (container) {
+					// nettoyage de la zone de sélection
+					if (me.isDisplayed(card))
+						me.extbox.closeCard();
+					else
+						card.clearGhosts();
+
 					card.setParent(container, def.location.index);
 				}
 			}
@@ -436,6 +376,7 @@ function CardManager(cardContainer) {
 	 * Mise à jour des elements
 	 */
 	this.update = function(elements) {
+
 		createAllCards(elements);
 		createAllServers(elements);
 		createAllRuns(elements);
@@ -446,7 +387,27 @@ function CardManager(cardContainer) {
 		if (elements.primary) {
 			me.primaryCardId = elements.primary;
 			var card = me.getCard({ id : elements.primary });
-			me.extbox.displayPrimary(card);
+			if (card) {
+				if (elements.closePrimary && me.isDisplayed(card))
+					me.extbox.closeCard();
+				else {
+					me.extbox.displayPrimary(card);
+					me.focused.setFocused(card);
+				}
+
+			}
+
+		}
+
+		if (!me.faction) {
+			me.faction = elements.faction;
+
+			_.each(me.cards, function(card) {
+				var def = card.def;
+				if (def.faction === me.faction && 'id' === def.type) {
+					me.focused.setFocused(card);
+				}
+			});
 		}
 	};
 
@@ -511,9 +472,7 @@ function CardManager(cardContainer) {
 
 		me.extbox.removeActions();
 
-		console.info("Playing action : " + JSON.stringify(action));
-
-		// TODO à continuer
+		connector.sendAction(action);
 	};
 
 	/**
@@ -540,9 +499,7 @@ function CardManager(cardContainer) {
 	 * Permet d'afficher une card
 	 */
 	this.displayCard = function(card) {
-		var faction = 'corp';
-
-		if (card.checkViewable(faction)) {
+		if (card.checkViewable(me.faction)) {
 
 			var showPrimary = true;
 			if (me.extbox.displayedCard != null) {
@@ -676,6 +633,7 @@ function FocusedElement(cardManager) {
 
 	this.focused = null;
 	this.needDraw = false;
+	this.firstTimeShow = true;
 
 	this.setFocused = function(focused) {
 		this.focused = focused;
@@ -719,8 +677,13 @@ function FocusedElement(cardManager) {
 				else
 					bounds = bounds.minus(-5);
 
-				TweenLite.to(this.element, ANIM_DURATION, { css : { autoAlpha : 0.8, top : bounds.point.y, left : bounds.point.x,
-					width : bounds.dimension.width, height : bounds.dimension.height, rotation : coords.angle, zIndex : coords.zIndex - 1 } });
+				var anim = { css : { autoAlpha : 0.8, top : bounds.point.y, left : bounds.point.x, width : bounds.dimension.width,
+					height : bounds.dimension.height, rotation : coords.angle, zIndex : coords.zIndex - 1 } };
+				if (this.firstTimeShow) {
+					TweenLite.set(this.element, anim);
+					this.firstTimeShow = false;
+				} else
+					TweenLite.to(this.element, ANIM_DURATION, anim);
 			} else {
 				TweenLite.to(this.element, ANIM_DURATION, { css : { autoAlpha : 0 } });
 			}
@@ -978,6 +941,7 @@ function AbstractElement(def) {
 	 */
 	this.setActions = function(actions) {
 		this.actions = actions;
+		this.actionsReseted();
 	}
 
 	/**
@@ -1149,11 +1113,11 @@ function Card(def, cardManager) {
 	this.doClick = function() {
 		this.front.click();
 	}
-	
+
 	/**
 	 * Indique si l'on peut clicker sur l'element
 	 */
-	this.isClickable=function(){
+	this.isClickable = function() {
 		return this.primary.hasClass('clickable');
 	}
 
@@ -1217,6 +1181,15 @@ function Card(def, cardManager) {
 
 		ghost.parent.replaceChild(ghost, this);
 		ghost.remove(true);
+	}
+
+	/**
+	 * Permet de supprimer toutes les images fantomes
+	 */
+	this.clearGhosts = function() {
+		while (me.ghosts.length !== 0) {
+			me.unapplyGhost();
+		}
 	}
 
 	/**
@@ -1367,17 +1340,16 @@ function Card(def, cardManager) {
 function AnimatedBox(animation, opt) {
 	var me = this;
 	animation = animation || "bounce";
-	
 
 	/**
 	 * Rajoute l'animation d'entrée
 	 */
 	this.entrance = function() {
-		var more="";
-		if(opt && opt.length===2)
-			more=opt[0];
-		
-		animateCss(me.element, animation + "In"+more);
+		var more = "";
+		if (opt && opt.length === 2)
+			more = opt[0];
+
+		animateCss(me.element, animation + "In" + more);
 	}
 
 	/**
@@ -1397,11 +1369,11 @@ function AnimatedBox(animation, opt) {
 				me.element.remove();
 			});
 
-		var more="";
-		if(opt && opt.length===2)
-			more=opt[1];
-		
-		animateCss(me.element, animation + "Out"+more, closure);
+		var more = "";
+		if (opt && opt.length === 2)
+			more = opt[1];
+
+		animateCss(me.element, animation + "Out" + more, closure);
 	}
 }
 
@@ -1472,7 +1444,7 @@ function BoxSubroutine(extbox, sub) {
 	this.element = $("<label class='sub'/>");
 	this.sub = sub;
 
-	this.checkbox = $("<input type='checkbox' />");
+	this.checkbox = $("<input type='checkbox' tabIndex='-1'/>");
 	this.checkbox.appendTo(this.element);
 	$("<span class='icon icon-subroutine'></span>").appendTo(this.element);
 	this.element.append(interpolateString(sub.text));
@@ -1517,7 +1489,7 @@ function BoxAllSubroutine(extbox, text) {
 	me.type = 'subs';
 	this.element = $("<label class='sub all'/>");
 
-	var checkbox = $("<input type='checkbox' />");
+	var checkbox = $("<input type='checkbox' tabIndex='-1'/>");
 	this.checkbox = checkbox.appendTo(this.element);
 	this.element.append(text);
 	Box.call(this, extbox.cardManager);
@@ -1566,7 +1538,7 @@ function BoxAction(extbox, def) {
 	var me = this;
 	me.type = 'action';
 	me.def = def;
-	this.element = $('<button class="action btn btn-default"  tabIndex="-1"/>');
+	this.element = $('<button class="action btn btn-default" tabIndex="-1"/>');
 
 	this.cost = $("<span class='cost'/>").appendTo(this.element);
 	this.element.append(interpolateString(def.text));
@@ -1576,22 +1548,22 @@ function BoxAction(extbox, def) {
 
 	Box.call(this, extbox.cardManager);
 	ElementBox.call(this, this.element);
-	AnimatedBox.call(this,"fade",["Right","Right"]);
+	AnimatedBox.call(this, "fade", [ "Right", "Right" ]);
 
 	this.unapplyGhost = this.popBehaviours = function() {
 	};
-	
+
 	/**
 	 * Transmet un click
 	 */
 	this.doClick = function() {
 		this.element.click();
 	}
-	
+
 	/**
 	 * Indique si l'on peut clicker sur l'element
 	 */
-	this.isClickable=function(){
+	this.isClickable = function() {
 		return true;
 	}
 
@@ -1702,7 +1674,7 @@ function ExtBox(cardManager) {
 
 	this.innerContainer = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 5 }, {}));
 	this.mainContainer = new BoxContainer(cardManager, new VerticalLayoutFunction({ spacing : 3, padding : 3 }, {}));
-	this.actionsContainer = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 2, padding : 4 }, { mode : "action"}));
+	this.actionsContainer = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 2, padding : 4 }, { mode : "action" }));
 	this.actionsContainer.mergeChildCoord = mergeChildCoordFromDisplayed;
 
 	// pour contenir les elements hotes (rajouté à la volée dans
@@ -1916,8 +1888,7 @@ function ExtBox(cardManager) {
 		_.each(card.subs, me.addSub);
 
 		if (!_.isEmpty(card.subs)) {
-			var sub = new BoxAllSubroutine(this, " check all");
-			addInCardMain(sub);
+			addInCardMain(new BoxAllSubroutine(me, " check all"));
 		}
 
 		_.each(card.actions, me.addAction);
@@ -1971,12 +1942,21 @@ function ExtBox(cardManager) {
 	 * Mise à jour des elements
 	 */
 	this.updatePrimary = function(card) {
+		var subAdded = false;
 		_.each(card.subs, function(sub) {
 			var selected = _.find(me.subs, function(s) {
 				return s.sub.id = sub.id;
 			});
-			selected.updateSub(sub);
+			if (selected)
+				selected.updateSub(sub);
+			else {
+				me.addSub(sub);
+				subAdded = true;
+			}
 		});
+
+		if (subAdded)
+			addInCardMain(new BoxAllSubroutine(me, " check all"));
 
 		if (card.actions) {
 			// TODO mise à jour des actions, création des autres, suppression
@@ -2033,7 +2013,7 @@ function ExtBox(cardManager) {
 	 * Rajoute d'une action.
 	 */
 	this.addAction = function(def) {
-		var act = new BoxAction(this, def)
+		var act = new BoxAction(me, def)
 		me.actionsContainer.addChild(act);
 		act.element.appendTo(me.cardManager.cardContainer);
 		act.entrance();

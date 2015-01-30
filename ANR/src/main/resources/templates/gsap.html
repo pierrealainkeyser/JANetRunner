@@ -2,7 +2,7 @@
 <head>
 <title>Android Netrunner : the online card game</title>
 <link rel="icon" type="image/png" href="/img/favicon.png" />
-<link  rel="stylesheet" type="text/css" href="/webjars/bootstrap/3.3.1/css/bootstrap.css" />
+<link rel="stylesheet" type="text/css" href="/webjars/bootstrap/3.3.1/css/bootstrap.css" />
 <link rel="stylesheet" type="text/css" href="/webjars/animate.css/3.2.0/animate.css" />
 <link rel="stylesheet" type="text/css" href="/css/icons.css" />
 <link rel="stylesheet/less" type="text/css" href="/css/anr.less" />
@@ -27,10 +27,138 @@
 	$(function() {
 
 		var gameId = /*[[${gameId}]]*/12345;
-		bootANR(gameId);
+		var connector = new GameConnector(gameId);
 
+		var SURE_GAMBLE = 19;
+		var PLAY_SURE_GAMBLE = 199;
+		var KATE = 5;
+		var PERSONNAL_TOUCH = 18;
+		var INSTALL_PERSONNAL_TOUCH = 189;
+		var PIPELINE = 17;
+		var INSTALL_ON_PIPELINE = 179;
+		var RUN_HQ = 399;
+		var DATA_RAVEN = 42;
+		var DATA_RAVEN_JACKOUT = 400;
+		var DATA_RAVEN_TAKETAG = 401;
+		var DATA_RAVEN_PASS = 402;
+		var PUMP_PIPELINE = 1799;
+		var PUMP_PIPELINE2 = 1800;
+		var BREAK_WITH_PIPELINE = 1801;
+		var TOOLBOX = 12;
+
+		connector.onBounds = function() {
+			connector.cardManager.publish({
+				faction : 'runner',//	
+				servers : [ //
+				{ id : -1, name : "Archives" },//
+				{ id : -2, name : "R&D" }, //
+				{ id : -3, name : "HQ", actions : [ { id : RUN_HQ, text : "Run", cost : "{1:click}" } ] } //		
+				],
+				cards : [ // 
+						{ id : 3, faction : 'corp', type : 'id', url : '01080', tokens : { credit : 5, recurring : 2 },
+							location : { primary : "server", serverIndex : -3, secondary : "assetOrUpgrades", index : 0 } }, //
+						{ id : DATA_RAVEN, faction : 'corp', url : '01088', face : 'down',
+							location : { primary : "server", serverIndex : -3, secondary : "ices", index : 1 } }, //
+						{ id : 2, faction : 'corp', url : '01082', face : "down",
+							location : { primary : "server", serverIndex : -2, secondary : "stack", index : 0 } }, //				
+						{ id : 21, faction : 'corp', url : '01083', face : "down",
+							location : { primary : "server", serverIndex : -1, secondary : "stack", index : 1 } }, //
+						{ id : 22, faction : 'corp', url : '01091', face : "up",
+							location : { primary : "server", serverIndex : -1, secondary : "stack", index : 0 } }, //				
+
+						{ id : 4, faction : 'corp', url : '01089', face : "down",
+							location : { primary : "server", serverIndex : -3, secondary : "ices", index : 0 } }, //
+						{ id : KATE, faction : 'runner', type : 'id', url : '01033', location : { primary : "grip", index : 0 }, //
+						tokens : { credit : 5, power : 1 },
+							actions : [ { id : -1, text : "Gain {1:credit}", cost : "{1:click}" }, { id : -1, text : "Draw 1 card", cost : "{1:click}" } ] },//
+						{ id : 6, faction : 'runner', url : '01034', face : "down", location : { primary : "stack", index : 0 } },//
+						{ id : 7, faction : 'runner', url : '01035', face : "down", location : { primary : "stack", index : 1 } },//
+						{ id : 8, faction : 'runner', url : '01036', face : "down", location : { primary : "stack", index : 2 } },//
+						{ id : 9, faction : 'runner', url : '01037', face : "down", location : { primary : "stack", index : 3 } },//
+						{ id : 10, faction : 'runner', url : '01038', face : "up", location : { primary : "hand", index : 0 } },//
+						{ id : 11, faction : 'runner', url : '01039', location : { primary : "hardware", index : 0 } },//
+						{ id : TOOLBOX, faction : 'runner', url : '01041', tokens : { recurring : 2 }, location : { primary : "hardware", index : 1 } },//
+						{ id : 13, faction : 'runner', url : '01042', location : { primary : "hand", index : 1 } },//
+						{ id : 14, faction : 'runner', url : '01043', face : "down", location : { primary : "stack", index : 5 } },//
+						{ id : 15, faction : 'runner', url : '01052', face : "down", location : { primary : "stack", index : 6 } },//
+						{ id : 16, faction : 'runner', url : '01053', face : "down", location : { primary : "stack", index : 7 } },//
+						{ id : PIPELINE, faction : 'runner', url : '01046', face : "up", location : { primary : "program", index : 0 } },//
+						{ id : PERSONNAL_TOUCH, faction : 'runner', url : '01040', face : "up", location : { primary : "hand", index : 2, serverIndex : 17 },// 
+						actions : [ { id : INSTALL_PERSONNAL_TOUCH, text : "Install", cost : "{1:click}, {1:credit}" } ] },//
+						{ id : SURE_GAMBLE, faction : 'runner', url : '01050', face : "up", location : { primary : "hand", index : 3 },// 
+						actions : [ { id : PLAY_SURE_GAMBLE, text : "Gain {9:credit}", cost : "{1:click}, {5:credit}" } ] },//
+
+				] });
+		}
+
+		connector.sendAction = function(action) {
+			console.info("Playing action : " + JSON.stringify(action));
+			var cm = connector.cardManager;
+			if (action.id === PLAY_SURE_GAMBLE) {
+				cm.publish({ cards : [//
+				{ id : KATE, tokens : { credit : 9 } }, //
+				{ id : SURE_GAMBLE, face : "up", location : { primary : "heap", index : 0 } }, //
+				{ id : PERSONNAL_TOUCH, actions : [ { id : INSTALL_PERSONNAL_TOUCH, text : "Install", cost : "{1:click}, {1:credit}" } ] } //
+				] });
+			} else if (action.id === INSTALL_PERSONNAL_TOUCH) {
+				cm.publish({ primary : PERSONNAL_TOUCH, primaryText : "Select an host", cards : [//
+				{ id : PIPELINE, actions : [ { id : INSTALL_ON_PIPELINE, text : "Host on Pipeline" } ] } //
+				] });
+			} else if (action.id === INSTALL_ON_PIPELINE) {
+				cm.publish({ cards : [//
+				{ id : KATE, tokens : { credit : 8, power : 0 } }, //
+				{ id : PERSONNAL_TOUCH, face : "up", location : { primary : "card", serverIndex : PIPELINE, index : 0 } } //
+				], servers : [ //
+				{ id : -3, name : "HQ", actions : [ { id : RUN_HQ, text : "Run", cost : "{1:click}" } ] } //	
+				] });
+			} else if (action.id === RUN_HQ) {
+				cm.publish({
+					primary : DATA_RAVEN,// 
+					primaryText : "Encountering Dataraven",//
+					runs : [ { id : 1, server : -3 } ], //
+					cards : [
+							{
+								id : DATA_RAVEN,
+								face : 'up',
+								actions : [ { id : DATA_RAVEN_TAKETAG, text : "Take a tag", cls : 'warning' },
+										{ id : DATA_RAVEN_JACKOUT, text : "End the run" } ] }, //
+
+					] });
+			} else if (action.id === DATA_RAVEN_TAKETAG) {
+				cm.publish({ cards : [
+						{ id : KATE, tokens : { tag : 1 } }, //
+						{ id : DATA_RAVEN, subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on Data Raven" } ],
+							actions : [ { id : DATA_RAVEN_PASS, text : "Continue", cls : 'warning' } ] },
+						{ id : PIPELINE, actions : [ { id : PUMP_PIPELINE, cost : '{2:credit}', text : "Pump 1 strength" } ] } //
+				] });
+			} else if (action.id === DATA_RAVEN_JACKOUT) {
+				cm.publish({ primary : DATA_RAVEN, closePrimary : true, runs : [ { id : 1, operation : "remove" } ] });
+			} else if (action.id === PUMP_PIPELINE) {
+				cm.publish({ cards : [ { id : TOOLBOX, tokens : { recurring : 0 } }, //
+				{ id : PIPELINE, tokens : { power : 1 }, actions : [ { id : PUMP_PIPELINE2, cost : '{2:credit}', text : "Pump 1 strength" } ] }, //
+				{ id : DATA_RAVEN, actions : [ { id : DATA_RAVEN_PASS, text : "Continue", cls : 'warning' } ] } //
+				] });
+			} else if (action.id === PUMP_PIPELINE2) {
+				cm.publish({ cards : [
+						{ id : KATE, tokens : { credit : 6 } }, //
+						{ id : DATA_RAVEN, actions : [ { id : DATA_RAVEN_PASS, text : "Continue", cls : 'warning' } ] }, //
+						{
+							id : PIPELINE,
+							tokens : { power : 2 },
+							actions : [ { id : BREAK_WITH_PIPELINE, text : "Break selected", type : "break",
+								costs : { 1 : { text : "{1:credit}", enabled : true } } } ] } //
+				] });
+			} else if (action.id === DATA_RAVEN_PASS) {
+				cm.publish({ primary : DATA_RAVEN, closePrimary : true, cards : [//
+				{ id : DATA_RAVEN, tokens : { power : 1 } } //										
+				] });
+
+			}
+		}
+
+		bootANR(connector);
 	});
-	
+
 	/*]]>*/
 </script>
 </head>
@@ -39,7 +167,7 @@
 		<div class="card mini"></div>
 		<div class="card small"></div>
 		<div class="card big"></div>
-		
+
 		<div class="shadow">
 			<div class="with-action"></div>
 			<div class="with-primary-action"></div>
@@ -51,10 +179,10 @@
 				<div class="vertical"></div>
 				<div class="horizontal"></div>
 			</div>
-		</div>		
+		</div>
 	</div>
 
-	
+
 	<div id="modalError">
 		<div id="errorPanel" class="panel panel-danger">
 			<div class="panel-heading">
@@ -68,9 +196,8 @@
 			</div>
 		</div>
 	</div>
-	
 
-	<div id="main">
-	</div>
+
+	<div id="main"></div>
 </body>
 </html>
