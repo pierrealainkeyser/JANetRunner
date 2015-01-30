@@ -1415,6 +1415,9 @@ function BoxToken(layoutManager, key, value, text) {
 			text = "Power counters";
 		else if (key == "virus")
 			text = "Virus counters";
+		else if (key == "hability")
+			text = "Special hability";
+		
 
 		return new BoxToken(layoutManager, key, me.getValue(), text);
 	}

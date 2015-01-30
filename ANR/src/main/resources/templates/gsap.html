@@ -69,7 +69,7 @@
 						{ id : 4, faction : 'corp', url : '01089', face : "down",
 							location : { primary : "server", serverIndex : -3, secondary : "ices", index : 0 } }, //
 						{ id : KATE, faction : 'runner', type : 'id', url : '01033', location : { primary : "grip", index : 0 }, //
-						tokens : { credit : 5, power : 1 },
+						tokens : { credit : 5, hability : 1 },
 							actions : [ { id : -1, text : "Gain {1:credit}", cost : "{1:click}" }, { id : -1, text : "Draw 1 card", cost : "{1:click}" } ] },//
 						{ id : 6, faction : 'runner', url : '01034', face : "down", location : { primary : "stack", index : 0 } },//
 						{ id : 7, faction : 'runner', url : '01035', face : "down", location : { primary : "stack", index : 1 } },//
@@ -106,7 +106,7 @@
 				] });
 			} else if (action.id === INSTALL_ON_PIPELINE) {
 				cm.publish({ cards : [//
-				{ id : KATE, tokens : { credit : 8, power : 0 } }, //
+				{ id : KATE, tokens : { credit : 8, hability : 0 } }, //
 				{ id : PERSONNAL_TOUCH, face : "up", location : { primary : "card", serverIndex : PIPELINE, index : 0 } } //
 				], servers : [ //
 				{ id : -3, name : "HQ", actions : [ { id : RUN_HQ, text : "Run", cost : "{1:click}" } ] } //	
@@ -135,7 +135,7 @@
 				cm.publish({ primary : DATA_RAVEN, closePrimary : true, runs : [ { id : 1, operation : "remove" } ] });
 			} else if (action.id === PUMP_PIPELINE) {
 				cm.publish({ cards : [ { id : TOOLBOX, tokens : { recurring : 0 } }, //
-				{ id : PIPELINE, tokens : { power : 1 }, actions : [ { id : PUMP_PIPELINE2, cost : '{2:credit}', text : "Pump 1 strength" } ] }, //
+				{ id : PIPELINE, tokens : { hability : 1 }, actions : [ { id : PUMP_PIPELINE2, cost : '{2:credit}', text : "Pump 1 strength" } ] }, //
 				{ id : DATA_RAVEN, actions : [ { id : DATA_RAVEN_PASS, text : "Continue", cls : 'warning' } ] } //
 				] });
 			} else if (action.id === PUMP_PIPELINE2) {
@@ -144,7 +144,7 @@
 						{ id : DATA_RAVEN, actions : [ { id : DATA_RAVEN_PASS, text : "Continue", cls : 'warning' } ] }, //
 						{
 							id : PIPELINE,
-							tokens : { power : 2 },
+							tokens : { hability : 2 },
 							actions : [ { id : BREAK_WITH_PIPELINE, text : "Break selected", type : "break",
 								costs : { 1 : { text : "{1:credit}", enabled : true } } } ] } //
 				] });
