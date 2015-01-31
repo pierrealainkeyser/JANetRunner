@@ -69,7 +69,7 @@
 						{ id : 4, faction : 'corp', url : '01089', face : "down",
 							location : { primary : "server", serverIndex : -3, secondary : "ices", index : 0 } }, //
 						{ id : KATE, faction : 'runner', type : 'id', url : '01033', location : { primary : "grip", index : 0 }, //
-						tokens : { credit : 5, hability : 1},
+						tokens : { credit : 5, hability : 1 },
 							actions : [ { id : -1, text : "Gain {1:credit}", cost : "{1:click}" }, { id : -1, text : "Draw 1 card", cost : "{1:click}" } ] },//
 						{ id : 6, faction : 'runner', url : '01034', face : "down", location : { primary : "stack", index : 0 } },//
 						{ id : 7, faction : 'runner', url : '01035', face : "down", location : { primary : "stack", index : 1 } },//
@@ -95,17 +95,19 @@
 			console.info("Playing action : " + JSON.stringify(action));
 			var cm = connector.cardManager;
 			if (action.id === PLAY_SURE_GAMBLE) {
-				cm.publish({ cards : [//
+				cm.publish({ chats : [ "Runner plays |Sure gamble|, loses {1:click} and gains {4:credit}" ], //
+				cards : [//
 				{ id : KATE, tokens : { credit : 9 } }, //
 				{ id : SURE_GAMBLE, face : "up", location : { primary : "heap", index : 0 } }, //
 				{ id : PERSONNAL_TOUCH, actions : [ { id : INSTALL_PERSONNAL_TOUCH, text : "Install", cost : "{1:click}, {1:credit}" } ] } //
 				] });
 			} else if (action.id === INSTALL_PERSONNAL_TOUCH) {
 				cm.publish({ primary : PERSONNAL_TOUCH, primaryText : "Select an host", cards : [//
-				{ id : PIPELINE, actions : [ { id : INSTALL_ON_PIPELINE, text : "Host on Pipeline" } ] } //
+				{ id : PIPELINE, actions : [ { id : INSTALL_ON_PIPELINE, text : "Install |The personnal touch|" } ] } //
 				] });
 			} else if (action.id === INSTALL_ON_PIPELINE) {
-				cm.publish({ cards : [//
+				cm.publish({ chats : [ "Runner installs |The personnal touch| on |Pipeline|, loses {1:click} and {1:credit}" ], // 
+				cards : [//
 				{ id : KATE, tokens : { credit : 8, hability : 0 } }, //
 				{ id : PERSONNAL_TOUCH, face : "up", location : { primary : "card", serverIndex : PIPELINE, index : 0 } } //
 				], servers : [ //
@@ -113,6 +115,7 @@
 				] });
 			} else if (action.id === RUN_HQ) {
 				cm.publish({
+					chats : [ "Runner starts a run on |HQ|, loses {1:click}", "Corp rezz |Data Raven|", "Runner encounters |Data Raven|" ], //
 					primary : DATA_RAVEN,// 
 					primaryText : "Encountering Dataraven",//
 					runs : [ { id : 1, server : -3 } ], //
@@ -125,14 +128,17 @@
 
 					] });
 			} else if (action.id === DATA_RAVEN_TAKETAG) {
-				cm.publish({ cards : [
-						{ id : KATE, tokens : { tag : 1 } }, //
-						{ id : DATA_RAVEN, subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on Data Raven" } ],
-							actions : [ { id : DATA_RAVEN_PASS, text : "Continue", cls : 'warning' } ] },
-						{ id : PIPELINE, actions : [ { id : PUMP_PIPELINE, cost : '{2:credit}', text : "Pump 1 strength" } ] } //
-				] });
+				cm.publish({
+					chats : [ "Runner takes a tag" ], //
+					cards : [
+							{ id : KATE, tokens : { tag : 1 } }, //
+							{ id : DATA_RAVEN, subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on |Data Raven|" } ],
+								actions : [ { id : DATA_RAVEN_PASS, text : "Continue", cls : 'warning' } ] },
+							{ id : PIPELINE, actions : [ { id : PUMP_PIPELINE, cost : '{2:credit}', text : "Pump 1 strength" } ] } //
+					] });
 			} else if (action.id === DATA_RAVEN_JACKOUT) {
-				cm.publish({ primary : DATA_RAVEN, closePrimary : true, runs : [ { id : 1, operation : "remove" } ] });
+				cm.publish({ chats : [ "The run ends, and is failed" ], //
+				primary : DATA_RAVEN, closePrimary : true, runs : [ { id : 1, operation : "remove" } ] });
 			} else if (action.id === PUMP_PIPELINE) {
 				cm.publish({ cards : [ { id : TOOLBOX, tokens : { recurring : 0 } }, //
 				{ id : PIPELINE, tokens : { hability : 1 }, actions : [ { id : PUMP_PIPELINE2, cost : '{2:credit}', text : "Pump 1 strength" } ] }, //
@@ -149,7 +155,8 @@
 								costs : { 1 : { text : "{1:credit}", enabled : true } } } ] } //
 				] });
 			} else if (action.id === DATA_RAVEN_PASS) {
-				cm.publish({ primary : DATA_RAVEN, closePrimary : true, cards : [//
+				cm.publish({ chats : [ "A power counter is added to |Data Raven|" ], //
+				primary : DATA_RAVEN, closePrimary : true, cards : [//
 				{ id : DATA_RAVEN, tokens : { power : 1 } } //										
 				] });
 

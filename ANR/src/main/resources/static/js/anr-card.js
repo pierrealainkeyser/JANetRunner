@@ -140,6 +140,7 @@ function CardManager(cardContainer, connector) {
 		this.extbox = new ExtBox(this);
 		this.serverRows = new BoxContainer(this, new HorizontalLayoutFunction({ spacing : 20 }, {}));
 		this.runnerColums = new BoxContainer(this, new VerticalLayoutFunction({ spacing : 5 }, {}));
+		this.chatContainer = new ChatContainer(this);
 
 		this.handContainer = new BoxContainer(this, new HandLayoutFunction({}, { zIndex : 0, mode : "plain" }));
 
@@ -165,6 +166,7 @@ function CardManager(cardContainer, connector) {
 		this.absoluteContainer.addChild(this.serverRows);
 		this.absoluteContainer.addChild(this.runnerColums);
 		this.absoluteContainer.addChild(this.handContainer);
+		this.absoluteContainer.addChild(this.chatContainer);
 
 		this.refresh();
 		this.runCycle();
@@ -188,6 +190,8 @@ function CardManager(cardContainer, connector) {
 		this.runnerColums.absolutePosition = new LayoutCoords(this.area.main.width - this.area.card.width - padding, padding, 0);
 		this.handContainer.absolutePosition = new LayoutCoords(this.area.main.width - padding / 2 - 300, this.area.main.height - this.area.card.height
 				- padding / 2 - 50, 0);
+
+		this.chatContainer.absolutePosition = new LayoutCoords(5, padding, 0);
 
 		this.absoluteContainer.requireLayout();
 	};
@@ -384,6 +388,10 @@ function CardManager(cardContainer, connector) {
 		updateAllServers(elements);
 		updateAllRuns(elements);
 
+		_.each(elements.chats, function(text) {
+			me.chatContainer.addText(text);
+		})
+
 		if (elements.primary) {
 			me.primaryCardId = elements.primary;
 			var card = me.getCard({ id : elements.primary });
@@ -569,6 +577,39 @@ function CardManager(cardContainer, connector) {
 	this.removeRun = function(run) {
 		// TODO à implémenter
 	};
+}
+
+function ChatContainer(cardManager) {
+	var me = this;
+	BoxContainer.call(this, cardManager, new VerticalLayoutFunction({ direction : 1 }, {}));
+
+	this.addText = function(text) {
+		var box = new BoxText(cardManager, text);
+		box.element.appendTo(cardManager.cardContainer);
+
+		me.addChild(box, 0);
+		box.entrance();
+	}
+}
+
+/**
+ * Permet de gerer un text
+ */
+function BoxText(layoutManager, text) {
+	var me = this;
+
+	this.element = $("<span class='text'>" + interpolateString(text) + "</span>");
+	Box.call(this, layoutManager);
+	ElementBox.call(this, this.element, true);
+	AnimatedBox.call(this, "zoom", [ "Up", "" ]);
+
+	/**
+	 * Mise à jour du text
+	 */
+	this.setText = function(text) {
+		me.element.text(text);
+		me.notifyBoxChanged();
+	}
 }
 
 /**
@@ -782,7 +823,7 @@ function animateCss(element, classx, onEnd) {
  * @returns
  */
 function interpolateString(string) {
-	return string.replace(/\{(\d+):(\w+)\}/g, function() {
+	var str = string.replace(/\{(\d+):(\w+)\}/g, function() {
 		var nb = arguments[1];
 		var str = arguments[2];
 		if ('trace' === str)
@@ -797,6 +838,12 @@ function interpolateString(string) {
 		}
 
 		return "";
+	});
+
+	return str.replace(/\|([A-Za-z\d\s]+)\|/g, function() {
+		var str = arguments[1];
+
+		return "<em>" + str + "</em>";
 	});
 }
 
@@ -1417,7 +1464,6 @@ function BoxToken(layoutManager, key, value, text) {
 			text = "Virus counters";
 		else if (key == "hability")
 			text = "Special hability";
-		
 
 		return new BoxToken(layoutManager, key, me.getValue(), text);
 	}
