@@ -598,7 +598,7 @@ function ChatContainer(cardManager) {
 function BoxText(layoutManager, text) {
 	var me = this;
 
-	this.element = $("<span class='text'>" + interpolateString(text) + "</span>");
+	this.element = $("<span class='text log'>" + interpolateString(text) + "</span>");
 	Box.call(this, layoutManager);
 	ElementBox.call(this, this.element, true);
 	AnimatedBox.call(this, "zoom", [ "Up", "" ]);
