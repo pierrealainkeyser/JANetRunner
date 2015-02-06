@@ -86,6 +86,7 @@ function CardManager(cardContainer, connector) {
 	this.runs = {};
 	this.cardContainer = cardContainer;
 	this.primaryCardId = null;
+	this.lastFocusedCardOrServer = null;
 	this.faction = null;
 	this.connector = connector;
 	LayoutManager.call(this);
@@ -96,7 +97,7 @@ function CardManager(cardContainer, connector) {
 		return me.within(function() {
 			var card = me.findNext(plane)
 			if (card)
-				me.focused.setFocused(card);
+				me.setFocused(card);
 		});
 	};
 
@@ -141,6 +142,7 @@ function CardManager(cardContainer, connector) {
 		this.serverRows = new BoxContainer(this, new HorizontalLayoutFunction({ spacing : 20 }, {}));
 		this.runnerColums = new BoxContainer(this, new VerticalLayoutFunction({ spacing : 5 }, {}));
 		this.chatContainer = new ChatContainer(this);
+		this.clicksContainer = new ClickContainer(this);
 
 		this.handContainer = new BoxContainer(this, new HandLayoutFunction({}, { zIndex : 0, mode : "plain" }));
 
@@ -167,6 +169,7 @@ function CardManager(cardContainer, connector) {
 		this.absoluteContainer.addChild(this.runnerColums);
 		this.absoluteContainer.addChild(this.handContainer);
 		this.absoluteContainer.addChild(this.chatContainer);
+		this.absoluteContainer.addChild(this.clicksContainer);
 
 		this.refresh();
 		this.runCycle();
@@ -191,7 +194,8 @@ function CardManager(cardContainer, connector) {
 		this.handContainer.absolutePosition = new LayoutCoords(this.area.main.width - padding / 2 - 300, this.area.main.height - this.area.card.height
 				- padding / 2 - 50, 0);
 
-		this.chatContainer.absolutePosition = new LayoutCoords(5, padding, 0);
+		this.chatContainer.absolutePosition = new LayoutCoords(5, 35, 0);
+		this.clicksContainer.absolutePosition = new LayoutCoords(5, 5, 0);
 
 		this.absoluteContainer.requireLayout();
 	};
@@ -400,11 +404,14 @@ function CardManager(cardContainer, connector) {
 					me.extbox.closeCard();
 				else {
 					me.extbox.displayPrimary(card);
-					me.focused.setFocused(card);
+					me.setFocused(card);
 				}
 
 			}
-
+		}
+		
+		if(elements.clicks){
+			me.clicksContainer.setClicks(elements.clicks.active, elements.clicks.used);
 		}
 
 		if (!me.faction) {
@@ -413,7 +420,7 @@ function CardManager(cardContainer, connector) {
 			_.each(me.cards, function(card) {
 				var def = card.def;
 				if (def.faction === me.faction && 'id' === def.type) {
-					me.focused.setFocused(card);
+					me.setFocused(card);
 				}
 			});
 		}
@@ -475,8 +482,8 @@ function CardManager(cardContainer, connector) {
 		var resetActions = function(e) {
 			e.resetActions();
 		}
-		_.each(this.cards, resetActions);
-		_.each(this.servers, resetActions);
+		_.each(me.cards, resetActions);
+		_.each(me.servers, resetActions);
 
 		me.extbox.removeActions();
 
@@ -546,6 +553,28 @@ function CardManager(cardContainer, connector) {
 		}
 	}
 
+	/**
+	 * Retire un element, et change eventuellement le focus
+	 */
+	this.removeElement = function(element) {
+		if (this.focused.isFocused(element)) {
+
+			if (this.lastFocusedCardOrServer) {
+				this.setFocused(this.lastFocusedCardOrServer);
+			}
+		}
+	}
+
+	/**
+	 * Place le focus, et conserve le dernier element
+	 */
+	this.setFocused = function(element) {
+		this.focused.setFocused(element);
+		if (isCard(element)) {
+			this.lastFocusedCardOrServer = element;
+		}
+	}
+
 	var notInPlainMode = function(card) {
 		return card.coords.mode !== 'plain';
 	}
@@ -609,6 +638,74 @@ function BoxText(layoutManager, text) {
 	this.setText = function(text) {
 		me.element.text(text);
 		me.notifyBoxChanged();
+	}
+}
+
+/**
+ * Permet d'afficher les clicks
+ */
+function BoxClick(layoutManager) {
+	var me = this;
+
+	this.element = $("<span class='click counter'><span class='clickused'><span class='click'></span></span></span>");
+	this.click = this.element.find(".click");
+	this.active = true;
+
+	Box.call(this, layoutManager);
+	ElementBox.call(this, this.element);
+	AnimatedBox.call(this, "bounce");
+
+	/**
+	 * Permet de gerer l'état d'affichage des elements
+	 */
+	this.setActive = function(active) {		
+		if(me.active!=active){		
+			if (active) {
+				me.click.show();
+				me.entrance();
+				me.active = true;
+			} else {
+				me.active = false;
+				animateCss(me.click, "bounceOut", function() {
+					me.click.hide();
+				});
+			}
+		}
+	}
+}
+
+/**
+ * Permet d'afficher des clicks
+ */
+function ClickContainer(layoutManager) {
+	var me = this;
+	BoxContainer.call(this, layoutManager, new HorizontalLayoutFunction({}, {}));
+
+	this.setClicks = function(active, used) {
+		var total = active + used;
+		var size = me.size();
+
+		// suppression des elements en trop
+		while (size > total) {
+			--size;
+			var removed = me.childs[0];
+			removed.remove(true);
+		}
+
+		while (total > size) {
+			var click = new BoxClick(layoutManager);
+			click.setParent(me, 0);
+			click.element.appendTo(layoutManager.cardContainer);
+			++size;
+		}
+
+		var i = 0;
+		me.each(function(click) {
+			click.setActive(i < active);
+			console.log("setting "+(i < active))
+			++i;
+		});
+
 	}
 }
 
@@ -1030,7 +1127,9 @@ function AbstractElement(def) {
 function isCard(object) {
 
 	if (_.isObject(object)) {
-		return object.def && object.def.id >= 0;
+		if (_.isFunction(object.isCard))
+			return object.isCard();
+
 	}
 
 	return false;
@@ -1211,6 +1310,11 @@ function Card(def, cardManager) {
 	this.applyGhost = function(parent) {
 		var ghost = new GhostCard(this);
 		this.ghosts.push(ghost);
+
+		this.each(function(card) {
+			card.setParent(ghost);
+		});
+
 		this.parent.replaceChild(this, ghost);
 		this.setParent(parent);
 		return ghost;
@@ -1405,6 +1509,8 @@ function AnimatedBox(animation, opt) {
 	this.remove = function(withoutManager) {
 
 		var closure = null;
+
+		me.layoutManager.removeElement(me);
 		if (withoutManager) {
 			me.setParent(null);
 			closure = function() {
@@ -1947,18 +2053,17 @@ function ExtBox(cardManager) {
 		});
 
 		// rajout des cards hote
-		if (card.size() > 0) {
+		if (ghost.size() > 0) {
 			addInCardMain(this.hostedsContainer);
-			card.each(function(c) {
+			ghost.each(function(c) {
 				c.pushBehaviours([ displaySecondaryToPrimaryCardBehaviour ]);
-				c.setParent(ghost);
 				c.applyGhost(me.hostedsContainer);
 			});
 		}
 
 		// gestion du parent
 		if (isCard(parentCard)) {
-			addInCardMain(me.hostContainer);
+			addInCardMain(this.hostContainer);
 			parentCard.pushBehaviours([ displaySecondaryToPrimaryCardBehaviour ]);
 			var parentGhost = parentCard.applyGhost(me.hostContainer);
 

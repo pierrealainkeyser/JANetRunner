@@ -258,6 +258,16 @@ em {
 	text-transform: uppercase;
 }
 
+.click.counter {
+	@token-size: 30px;
+	position: absolute;
+	width: @token-size;
+	height: @token-size;
+	span {
+		.inner-token (@token-size);
+	}
+}
+
 div#main {
 	width: 100%;
 	height: 100%;

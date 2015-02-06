@@ -54,7 +54,8 @@
 				{ id : -1, name : "Archives" },//
 				{ id : -2, name : "R&D" }, //
 				{ id : -3, name : "HQ", actions : [ { id : RUN_HQ, text : "Run", cost : "{1:click}" } ] } //		
-				],
+				],//
+				clicks : { active : 4, used : 0 },// 
 				cards : [ // 
 						{ id : 3, faction : 'corp', type : 'id', url : '01080', tokens : { credit : 5, recurring : 2 },
 							location : { primary : "server", serverIndex : -3, secondary : "assetOrUpgrades", index : 0 } }, //
@@ -97,6 +98,7 @@
 			var cm = connector.cardManager;
 			if (action.id === PLAY_SURE_GAMBLE) {
 				cm.publish({ chats : [ "Runner plays |Sure gamble|, loses {1:click} and gains {4:credit}" ], //
+				clicks : { active : 3, used : 1 },//
 				cards : [//
 				{ id : KATE, tokens : { credit : 9 } }, //
 				{ id : SURE_GAMBLE, face : "up", location : { primary : "heap", index : 0 } }, //
@@ -107,7 +109,8 @@
 				{ id : PIPELINE, actions : [ { id : INSTALL_ON_PIPELINE, text : "Install |The personnal touch|" } ] } //
 				] });
 			} else if (action.id === INSTALL_ON_PIPELINE) {
-				cm.publish({ chats : [ "Runner installs |The personnal touch| on |Pipeline|, loses {1:click} and {1:credit}" ], // 
+				cm.publish({ chats : [ "Runner installs |The personnal touch| on |Pipeline|, loses {1:click} and {1:credit}" ], //
+				clicks : { active : 2, used : 2 },//
 				cards : [//
 				{ id : KATE, tokens : { credit : 8, hability : 0 } }, //
 				{ id : PERSONNAL_TOUCH, face : "up", location : { primary : "card", serverIndex : PIPELINE, index : 0 } } //
@@ -116,6 +119,7 @@
 				] });
 			} else if (action.id === RUN_HQ) {
 				cm.publish({
+					clicks : { active : 1, used : 3 },//
 					chats : [ "Runner starts a run on |HQ|, loses {1:click}", "Corp rezz |Data Raven|", "Runner encounters |Data Raven|" ], //
 					primary : DATA_RAVEN,// 
 					primaryText : "Encountering Dataraven",//
