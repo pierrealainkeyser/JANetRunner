@@ -105,7 +105,8 @@
 				{ id : PERSONNAL_TOUCH, actions : [ { id : INSTALL_PERSONNAL_TOUCH, text : "Install", cost : "{1:click}, {1:credit}" } ] } //
 				] });
 			} else if (action.id === INSTALL_PERSONNAL_TOUCH) {
-				cm.publish({ primary : PERSONNAL_TOUCH, primaryText : "Select an host", cards : [//
+				cm.publish({ primary : { id : PERSONNAL_TOUCH, text : "Select an host" },//
+				cards : [//
 				{ id : PIPELINE, actions : [ { id : INSTALL_ON_PIPELINE, text : "Install |The personnal touch|" } ] } //
 				] });
 			} else if (action.id === INSTALL_ON_PIPELINE) {
@@ -145,24 +146,23 @@
 				cm.publish({ chats : [ "The run ends, and is failed" ], //
 				runs : [ { id : 1, operation : "remove" } ] });
 			} else if (action.id === PUMP_PIPELINE) {
-				cm.publish({ 
-					primary : { id : DATA_RAVEN, text : "Encountering ice" },//
-					cards : [ { id : TOOLBOX, tokens : { recurring : 0 } }, //
+				cm.publish({ primary : { id : DATA_RAVEN, text : "Encountering ice" },//
+				cards : [ { id : TOOLBOX, tokens : { recurring : 0 } }, //
 				{ id : PIPELINE, tokens : { hability : 1 }, actions : [ { id : PUMP_PIPELINE2, cost : '{2:credit}', text : "Pump 1 strength" } ] }, //
 				{ id : DATA_RAVEN, actions : [ { id : DATA_RAVEN_PASS, text : "Continue", cls : 'warning' } ] } //
 				] });
 			} else if (action.id === PUMP_PIPELINE2) {
-				cm.publish({ 
+				cm.publish({
 					primary : { id : DATA_RAVEN, text : "Encountering ice" },//
 					cards : [
-						{ id : KATE, tokens : { credit : 6 } }, //
-						{ id : DATA_RAVEN, actions : [ { id : DATA_RAVEN_PASS, text : "Continue", cls : 'warning' } ] }, //
-						{
-							id : PIPELINE,
-							tokens : { hability : 2 },
-							actions : [ { id : BREAK_WITH_PIPELINE, text : "Break selected", type : "break",
-								costs : { 1 : { text : "{1:credit}", enabled : true } } } ] } //
-				] });
+							{ id : KATE, tokens : { credit : 6 } }, //
+							{ id : DATA_RAVEN, actions : [ { id : DATA_RAVEN_PASS, text : "Continue", cls : 'warning' } ] }, //
+							{
+								id : PIPELINE,
+								tokens : { hability : 2 },
+								actions : [ { id : BREAK_WITH_PIPELINE, text : "Break selected", type : "break",
+									costs : { 1 : { text : "{1:credit}", enabled : true } } } ] } //
+					] });
 			} else if (action.id === DATA_RAVEN_PASS) {
 				cm.publish({ chats : [ "A power counter is added to |Data Raven|" ], //
 				cards : [//

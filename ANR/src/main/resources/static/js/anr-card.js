@@ -403,6 +403,8 @@ function CardManager(cardContainer, connector) {
 			if (card) {
 				if (!me.isDisplayed(card))
 					me.displayCard(card);
+				else
+					me.extbox.setHeader(me.primaryText)
 			}
 		} else {
 			// ferme la carte si visible actuellement
