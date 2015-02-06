@@ -121,7 +121,7 @@
 				cm.publish({
 					clicks : { active : 1, used : 3 },//
 					chats : [ "Runner starts a run on |HQ|, loses {1:click}", "Corp rezz |Data Raven|", "Runner encounters |Data Raven|" ], //
-					primary : { id : DATA_RAVEN, text : "Encounter ice" },// 
+					primary : { id : DATA_RAVEN, text : "Encountering ice" },// 
 					runs : [ { id : 1, server : -3 } ], //
 					cards : [
 							{
@@ -134,6 +134,7 @@
 			} else if (action.id === DATA_RAVEN_TAKETAG) {
 				cm.publish({
 					chats : [ "Runner takes a tag" ], //
+					primary : { id : DATA_RAVEN, text : "Encountering ice" },//
 					cards : [
 							{ id : KATE, tokens : { tag : 1 } }, //
 							{ id : DATA_RAVEN, subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on |Data Raven|" } ],
@@ -144,12 +145,16 @@
 				cm.publish({ chats : [ "The run ends, and is failed" ], //
 				runs : [ { id : 1, operation : "remove" } ] });
 			} else if (action.id === PUMP_PIPELINE) {
-				cm.publish({ cards : [ { id : TOOLBOX, tokens : { recurring : 0 } }, //
+				cm.publish({ 
+					primary : { id : DATA_RAVEN, text : "Encountering ice" },//
+					cards : [ { id : TOOLBOX, tokens : { recurring : 0 } }, //
 				{ id : PIPELINE, tokens : { hability : 1 }, actions : [ { id : PUMP_PIPELINE2, cost : '{2:credit}', text : "Pump 1 strength" } ] }, //
 				{ id : DATA_RAVEN, actions : [ { id : DATA_RAVEN_PASS, text : "Continue", cls : 'warning' } ] } //
 				] });
 			} else if (action.id === PUMP_PIPELINE2) {
-				cm.publish({ cards : [
+				cm.publish({ 
+					primary : { id : DATA_RAVEN, text : "Encountering ice" },//
+					cards : [
 						{ id : KATE, tokens : { credit : 6 } }, //
 						{ id : DATA_RAVEN, actions : [ { id : DATA_RAVEN_PASS, text : "Continue", cls : 'warning' } ] }, //
 						{

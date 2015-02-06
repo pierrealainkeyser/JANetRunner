@@ -401,10 +401,11 @@ function CardManager(cardContainer, connector) {
 			me.primaryText = elements.primary.text;
 			var card = me.getCard({ id : me.primaryCardId });
 			if (card) {
-				me.displayCard(card);
+				if (!me.isDisplayed(card))
+					me.displayCard(card);
 			}
 		} else {
-			// ferme la carte si visible
+			// ferme la carte si visible actuellement
 			var card = me.getCard({ id : me.primaryCardId });
 			if (card && me.isDisplayed(card)) {
 				me.extbox.closeCard();
