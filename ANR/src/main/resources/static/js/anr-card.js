@@ -397,16 +397,18 @@ function CardManager(cardContainer, connector) {
 		})
 
 		if (elements.primary) {
-			me.primaryCardId = elements.primary;
-			var card = me.getCard({ id : elements.primary });
+			me.primaryCardId = elements.primary.id;
+			me.primaryText=elements.primary.text;
+			var card = me.getCard({ id : me.primaryCardId });
 			if (card) {
-				if (elements.closePrimary && me.isDisplayed(card))
-					me.extbox.closeCard();
-				else {
 					me.extbox.displayPrimary(card);
-					me.setFocused(card);
-				}
-
+			}
+		}
+		else{
+			//ferme la carte si visible
+			var card = me.getCard({ id : me.primaryCardId });			
+			if(card && me.isDisplayed(card)){
+				me.extbox.closeCard();
 			}
 		}
 		
