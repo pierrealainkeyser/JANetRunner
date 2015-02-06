@@ -398,21 +398,22 @@ function CardManager(cardContainer, connector) {
 
 		if (elements.primary) {
 			me.primaryCardId = elements.primary.id;
-			me.primaryText=elements.primary.text;
+			me.primaryText = elements.primary.text;
 			var card = me.getCard({ id : me.primaryCardId });
 			if (card) {
-					me.extbox.displayPrimary(card);
+				me.displayCard(card);
 			}
-		}
-		else{
-			//ferme la carte si visible
-			var card = me.getCard({ id : me.primaryCardId });			
-			if(card && me.isDisplayed(card)){
+		} else {
+			// ferme la carte si visible
+			var card = me.getCard({ id : me.primaryCardId });
+			if (card && me.isDisplayed(card)) {
 				me.extbox.closeCard();
 			}
+			me.primaryText = "";
+			me.primaryCardId = null;
 		}
-		
-		if(elements.clicks){
+
+		if (elements.clicks) {
 			me.clicksContainer.setClicks(elements.clicks.active, elements.clicks.used);
 		}
 
@@ -529,6 +530,8 @@ function CardManager(cardContainer, connector) {
 
 			if (showPrimary) {
 				me.extbox.displayPrimary(card);
+				if (card.getId() === me.primaryCardId)
+					me.extbox.setHeader(me.primaryText)
 			} else {
 				// affichage en tant que carte secondaire
 				me.extbox.displaySecondary(card);
@@ -660,8 +663,8 @@ function BoxClick(layoutManager) {
 	/**
 	 * Permet de gerer l'état d'affichage des elements
 	 */
-	this.setActive = function(active) {		
-		if(me.active!=active){		
+	this.setActive = function(active) {
+		if (me.active != active) {
 			if (active) {
 				me.click.show();
 				me.entrance();
@@ -704,7 +707,6 @@ function ClickContainer(layoutManager) {
 		var i = 0;
 		me.each(function(click) {
 			click.setActive(i < active);
-			console.log("setting "+(i < active))
 			++i;
 		});
 
