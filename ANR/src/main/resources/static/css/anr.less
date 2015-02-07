@@ -249,16 +249,18 @@ label.sub {
 }
 
 .text {
-	position: absolute;
+	
 	.unselectable;
 	&.log {
+		position: absolute;
+    	display: block;
 		.clear-padding;
-		display: block;
 		color: #999999;
 		z-index: -1;
 	}
 
 	&.status {
+		position: absolute;
 		padding: 4px 12px;
 		font-size: 14px;
 	}
