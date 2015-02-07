@@ -55,7 +55,8 @@
 				{ id : -2, name : "R&D" }, //
 				{ id : -3, name : "HQ", actions : [ { id : RUN_HQ, text : "Run", cost : "{1:click}" } ] } //		
 				],//
-				clicks : { active : 4, used : 0 },// 
+				clicks : { active : 4, used : 0 },//
+				turn : { phase : "Action", faction : "shaper" },//
 				cards : [ // 
 						{ id : 3, faction : 'corp', type : 'id', url : '01080', tokens : { credit : 5, recurring : 2 },
 							location : { primary : "server", serverIndex : -3, secondary : "assetOrUpgrades", index : 0 } }, //
@@ -97,7 +98,7 @@
 			console.info("Playing action : " + JSON.stringify(action));
 			var cm = connector.cardManager;
 			if (action.id === PLAY_SURE_GAMBLE) {
-				cm.publish({ chats : [ "Runner plays |Sure gamble|, loses {1:click} and gains {4:credit}" ], //
+				cm.publish({ chats : [ "Runner plays |Sure gamble|, loses {1:click} and gains {4:credit}" ], //				
 				clicks : { active : 3, used : 1 },//
 				cards : [//
 				{ id : KATE, tokens : { credit : 9 } }, //
@@ -120,6 +121,7 @@
 				] });
 			} else if (action.id === RUN_HQ) {
 				cm.publish({
+					turn : { phase : "Action", step : "Encountering ice", faction : "nbn" },//
 					clicks : { active : 1, used : 3 },//
 					chats : [ "Runner starts a run on |HQ|, loses {1:click}", "Corp rezz |Data Raven|", "Runner encounters |Data Raven|" ], //
 					primary : { id : DATA_RAVEN, text : "Encountering ice" },// 
@@ -144,6 +146,7 @@
 					] });
 			} else if (action.id === DATA_RAVEN_JACKOUT) {
 				cm.publish({ chats : [ "The run ends, and is failed" ], //
+				turn : { step : "" },//
 				runs : [ { id : 1, operation : "remove" } ] });
 			} else if (action.id === PUMP_PIPELINE) {
 				cm.publish({ primary : { id : DATA_RAVEN, text : "Encountering ice" },//

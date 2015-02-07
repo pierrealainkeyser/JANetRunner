@@ -248,12 +248,28 @@ label.sub {
 	}
 }
 
-span.text.log {
-	.clear-padding;
+.text {
 	position: absolute;
-	display: block;
-	color: #999999;
-	z-index: -1;
+	.unselectable;
+	&.log {
+		.clear-padding;
+		display: block;
+		color: #999999;
+		z-index: -1;
+	}
+
+	&.status {
+		padding: 4px 12px;
+		font-size: 14px;
+	}
+}
+
+.faction.icon {
+	position: absolute;
+	.unselectable;
+	font-size: 20px;
+	width: 20px;
+	height: 20px;
 }
 
 em {

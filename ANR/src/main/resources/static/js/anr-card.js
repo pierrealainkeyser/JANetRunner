@@ -143,6 +143,7 @@ function CardManager(cardContainer, connector) {
 		this.runnerColums = new BoxContainer(this, new VerticalLayoutFunction({ spacing : 5 }, {}));
 		this.chatContainer = new ChatContainer(this);
 		this.clicksContainer = new ClickContainer(this);
+		this.turnContainer = new TurnStatusContainer(this);
 
 		this.handContainer = new BoxContainer(this, new HandLayoutFunction({}, { zIndex : 0, mode : "plain" }));
 
@@ -170,6 +171,7 @@ function CardManager(cardContainer, connector) {
 		this.absoluteContainer.addChild(this.handContainer);
 		this.absoluteContainer.addChild(this.chatContainer);
 		this.absoluteContainer.addChild(this.clicksContainer);
+		this.absoluteContainer.addChild(this.turnContainer);
 
 		this.refresh();
 		this.runCycle();
@@ -196,6 +198,8 @@ function CardManager(cardContainer, connector) {
 
 		this.chatContainer.absolutePosition = new LayoutCoords(5, 35, 0);
 		this.clicksContainer.absolutePosition = new LayoutCoords(5, 5, 0);
+
+		this.turnContainer.absolutePosition = new LayoutCoords(200, 5, 0);
 
 		this.absoluteContainer.requireLayout();
 	};
@@ -420,6 +424,10 @@ function CardManager(cardContainer, connector) {
 			me.clicksContainer.setClicks(elements.clicks.active, elements.clicks.used);
 		}
 
+		if (elements.turn) {
+			me.turnContainer.syncTurn(elements.turn);
+		}
+
 		if (!me.faction) {
 			me.faction = elements.faction;
 
@@ -430,6 +438,7 @@ function CardManager(cardContainer, connector) {
 				}
 			});
 		}
+
 	};
 
 	var displayCardBehaviour = new CardActivationBehaviour();
@@ -650,44 +659,44 @@ function BoxText(layoutManager, text) {
 }
 
 /**
- * Permet d'afficher les clicks
- */
-function BoxClick(layoutManager) {
-	var me = this;
-
-	this.element = $("<span class='click counter'><span class='clickused'><span class='click'></span></span></span>");
-	this.click = this.element.find(".click");
-	this.active = true;
-
-	Box.call(this, layoutManager);
-	ElementBox.call(this, this.element);
-	AnimatedBox.call(this, "bounce");
-
-	/**
-	 * Permet de gerer l'état d'affichage des elements
-	 */
-	this.setActive = function(active) {
-		if (me.active != active) {
-			if (active) {
-				me.click.show();
-				me.entrance();
-				me.active = true;
-			} else {
-				me.active = false;
-				animateCss(me.click, "bounceOut", function() {
-					me.click.hide();
-				});
-			}
-		}
-	}
-}
-
-/**
  * Permet d'afficher des clicks
  */
 function ClickContainer(layoutManager) {
 	var me = this;
 	BoxContainer.call(this, layoutManager, new HorizontalLayoutFunction({}, {}));
+
+	/**
+	 * Permet d'afficher les clicks
+	 */
+	function BoxClick(layoutManager) {
+		var me = this;
+
+		this.element = $("<span class='click counter'><span class='clickused'><span class='click'></span></span></span>");
+		this.click = this.element.find(".click");
+		this.active = true;
+
+		Box.call(this, layoutManager);
+		ElementBox.call(this, this.element);
+		AnimatedBox.call(this, "bounce");
+
+		/**
+		 * Permet de gerer l'état d'affichage des elements
+		 */
+		this.setActive = function(active) {
+			if (me.active != active) {
+				if (active) {
+					me.click.show();
+					me.entrance();
+					me.active = true;
+				} else {
+					me.active = false;
+					animateCss(me.click, "bounceOut", function() {
+						me.click.hide();
+					});
+				}
+			}
+		}
+	}
 
 	this.setClicks = function(active, used) {
 		var total = active + used;
@@ -712,8 +721,112 @@ function ClickContainer(layoutManager) {
 			click.setActive(i < active);
 			++i;
 		});
-
 	}
+}
+
+/**
+ * Permet d'afficher les information du tour actif
+ */
+function TurnStatusContainer(layoutManager) {
+
+	function BoxStatus(layoutManager, style) {
+		var me = this;
+
+		this.element = $("<span class='label " + style + " text status'></span>");
+		Box.call(this, layoutManager);
+		ElementBox.call(this, this.element, true);
+		this.oldText = "";
+
+		/**
+		 * Mise à jour du text
+		 */
+		this.setText = function(text) {
+
+			var replace = function() {
+				me.element.text(interpolateString(text));
+				animateCss(me.element, "zoomIn");
+				me.notifyBoxChanged();
+			};
+
+			if (me.oldText === "") {
+				me.oldText = text;
+				replace();
+			} else {
+				var changed = false;
+				if (text == "") {
+					replace = function() {
+						me.oldText = "";
+						me.element.text("");
+
+					}
+					changed = true;
+				} else if (text !== me.oldText) {
+					replace = layoutManager.within(replace);
+					changed = true;
+				}
+
+				if (changed) {
+					me.oldText = text;
+					animateCss(me.element, "zoomOut", replace);
+				}
+			}
+		}
+	}
+
+	function BoxFaction(layoutManager) {
+		var me = this;
+
+		this.element = $("<span class='faction icon'></span>");
+		Box.call(this, layoutManager);
+		ElementBox.call(this, this.element, true);
+		this.oldClass = null;
+
+		this.setFaction = function(faction) {
+			var newClassname = "icon-" + faction + " " + faction;
+			var replace = function() {
+				if (me.oldClass)
+					me.element.toggleClass(me.oldClass)
+
+				me.element.toggleClass(newClassname)
+
+				me.oldClass = newClassname;
+				animateCss(me.element, "rotateIn");
+				me.notifyBoxChanged();
+			};
+
+			if (me.oldClass)
+				animateCss(me.element, "rotateOut", replace);
+			else
+				replace();
+		}
+	}
+
+	var me = this;
+	BoxContainer.call(this, layoutManager, new HorizontalLayoutFunction({ spacing : 3 }, {}));
+
+	this.factionBox = new BoxFaction(layoutManager);
+	this.factionBox.setParent(this);
+	this.factionBox.element.appendTo(layoutManager.cardContainer);
+
+	this.phaseBox = new BoxStatus(layoutManager, "label-info");
+	this.phaseBox.setParent(this);
+	this.phaseBox.element.appendTo(layoutManager.cardContainer);
+
+	this.stepBox = new BoxStatus(layoutManager, "label-default");
+	this.stepBox.setParent(this);
+	this.stepBox.element.appendTo(layoutManager.cardContainer);
+
+	this.syncTurn = function(turn) {
+		if (turn.faction)
+			me.factionBox.setFaction(turn.faction);
+
+		if (turn.phase)
+			me.phaseBox.setText(turn.phase)
+
+		if (turn.step != null)
+			me.stepBox.setText(turn.step)
+	}
+
 }
 
 /**

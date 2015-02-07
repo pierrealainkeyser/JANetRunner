@@ -148,3 +148,12 @@
 .icon-rez:before {
 	content: "\e60f";
 }
+
+.anarch, .icon-bg.icon-anarch:before{stroke:orangered;color:orangered !important;border-color:orangered}
+.criminal, .icon-bg.icon-criminal:before{stroke:royalblue;color:royalblue !important;border-color:royalblue}
+.shaper, .icon-bg.icon-shaper:before{stroke:limegreen;color:limegreen !important;border-color:limegreen}
+.neutral{stroke:gray;color:gray !important;border-color:gray}
+.haas-bioroid, .icon-bg.icon-haas-bioroid:before{stroke:blueviolet;color:blueviolet !important;border-color:blueviolet}
+.jinteki, .icon-bg.icon-jinteki:before{stroke:crimson;color:crimson !important;border-color:crimson}
+.nbn, .icon-bg.icon-nbn:before{stroke:darkorange;color:darkorange !important;border-color:darkorange}
+.weyland-consortium, .icon-bg.icon-weyland-consortium:before{stroke:darkgreen;color:darkgreen !important;border-color:darkgreen}
