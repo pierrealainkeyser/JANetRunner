@@ -213,13 +213,16 @@ function LayoutFunction(baseConfig) {
  * Un layout horizontal
  */
 function HorizontalLayoutFunction(innerCfg, baseConfig) {
+	var me = this;
 	LayoutFunction.call(this, baseConfig);
 	this.spacing = innerCfg.spacing || 0;
 	this.padding = innerCfg.padding || 0;
+	this.align = innerCfg.align || "top";
 
 	this.direction = innerCfg.direction || 1;
 	this.lastBoxX = 0;
 	this.currentPadding = 0;
+	this.maxHeight = 0;
 
 	this.beforeLayout = function(boxContainer) {
 		this.lastBoxX = 0;
@@ -229,10 +232,20 @@ function HorizontalLayoutFunction(innerCfg, baseConfig) {
 	this.afterLayout = function(boxContainer, bounds) {
 		bounds.dimension.width += this.padding;
 		bounds.dimension.height += this.padding;
+
+		this.maxHeight = 0;
+		if (this.align == 'center') {
+			this.maxHeight = boxContainer.getBaseBox().height;
+			_.each(boxContainer.childs, function(box, index) {
+				var height = me.getBounds(box).dimension.height;
+				if (height > me.maxHeight)
+					me.maxHeight = height;
+			});
+		}
 	};
 
 	this.applyLayout = function(boxContainer, index, box) {
-		var boxBounds = this.getBounds(box).dimension;
+		var dimension = this.getBounds(box).dimension;
 
 		var cfg = this.baseConfig;
 
@@ -242,7 +255,12 @@ function HorizontalLayoutFunction(innerCfg, baseConfig) {
 			cfg = _.extend(_.clone(cfg), { zIndex : cfg.zIndex + (boxContainer.size() - index) })
 		}
 
-		var delta = boxBounds.width;
+		var y = this.currentPadding;
+		if (this.align === 'center') {
+			y += (this.maxHeight - dimension.height) / 2;
+		}
+
+		var delta = dimension.width;
 		if (index == 0) {
 			this.lastBoxX += this.currentPadding;
 		} else {
@@ -254,7 +272,7 @@ function HorizontalLayoutFunction(innerCfg, baseConfig) {
 			}
 		}
 
-		var lc = new LayoutCoords(this.lastBoxX, this.currentPadding, 0, cfg);
+		var lc = new LayoutCoords(this.lastBoxX, y, 0, cfg);
 
 		if (this.direction == -1)
 			delta = -delta;
@@ -283,6 +301,7 @@ function VerticalLayoutFunction(innerCfg, baseConfig) {
 		this.currentPadding = boxContainer.size() > 0 ? this.padding : 0;
 
 		if (this.align == 'center') {
+			this.maxWidth = boxContainer.getBaseBox().width;
 			_.each(boxContainer.childs, function(box, index) {
 				var width = me.getBounds(box).dimension.width;
 				if (width > me.maxWidth)
@@ -354,7 +373,7 @@ function HandLayoutFunction(innerCfg, baseCfg) {
 
 	this.applyLayout = function(boxContainer, index, box) {
 
-		var size = Math.max(this.nbMinCards , boxContainer.size());
+		var size = Math.max(this.nbMinCards, boxContainer.size());
 
 		var percent = (size - index) / (size - 1.0);
 		var angle = this.startAngle + (this.maxAngle - this.startAngle) * percent;

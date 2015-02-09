@@ -145,7 +145,11 @@ function CardManager(cardContainer, connector) {
 		this.clicksContainer = new ClickContainer(this);
 		this.turnContainer = new TurnStatusContainer(this);
 
+		this.statusRow = new BoxContainer(this, new HorizontalLayoutFunction({ spacing : 5, align : 'center' }, {}));
 		this.handContainer = new BoxContainer(this, new HandLayoutFunction({}, { zIndex : 0, mode : "plain" }));
+
+		var innerClicks = new BoxContainer(this, new VerticalLayoutFunction({ align : 'center' }, {}));
+		innerClicks.baseBox = new Dimension(150, 0);
 
 		var runnerRow = new BoxContainer(this, new HorizontalLayoutFunction({ spacing : 12, direction : -1 }, {}));
 
@@ -166,12 +170,15 @@ function CardManager(cardContainer, connector) {
 		this.runnerColums.addChild(this.runnerHardwares);
 		this.runnerColums.addChild(this.runnerPrograms);
 
+		innerClicks.addChild(this.clicksContainer);
+		this.statusRow.addChild(innerClicks);
+		this.statusRow.addChild(this.turnContainer);
+
 		this.absoluteContainer.addChild(this.serverRows);
 		this.absoluteContainer.addChild(this.runnerColums);
 		this.absoluteContainer.addChild(this.handContainer);
 		this.absoluteContainer.addChild(this.chatContainer);
-		this.absoluteContainer.addChild(this.clicksContainer);
-		this.absoluteContainer.addChild(this.turnContainer);
+		this.absoluteContainer.addChild(this.statusRow);
 
 		this.refresh();
 		this.runCycle();
@@ -197,9 +204,7 @@ function CardManager(cardContainer, connector) {
 				- padding / 2 - 50, 0);
 
 		this.chatContainer.absolutePosition = new LayoutCoords(5, 35, 0);
-		this.clicksContainer.absolutePosition = new LayoutCoords(5, 5, 0);
-
-		this.turnContainer.absolutePosition = new LayoutCoords(200, 5, 0);
+		this.statusRow.absolutePosition = new LayoutCoords(5, 5, 0);
 
 		this.absoluteContainer.requireLayout();
 	};
@@ -424,12 +429,9 @@ function CardManager(cardContainer, connector) {
 			me.clicksContainer.setClicks(elements.clicks.active, elements.clicks.used);
 		}
 
-		if (elements.turn) {
-			me.turnContainer.syncTurn(elements.turn);
-		}
-
 		if (!me.faction) {
-			me.faction = elements.faction;
+			me.faction = elements.local;
+			me.factions = elements.factions;
 
 			_.each(me.cards, function(card) {
 				var def = card.def;
@@ -437,6 +439,10 @@ function CardManager(cardContainer, connector) {
 					me.setFocused(card);
 				}
 			});
+		}
+
+		if (elements.turn) {
+			me.turnContainer.syncTurn(elements.turn);
 		}
 
 	};
@@ -817,8 +823,10 @@ function TurnStatusContainer(layoutManager) {
 	this.stepBox.element.appendTo(layoutManager.cardContainer);
 
 	this.syncTurn = function(turn) {
-		if (turn.faction)
-			me.factionBox.setFaction(turn.faction);
+		if (turn.player) {
+			var faction = layoutManager.factions[turn.player];
+			me.factionBox.setFaction(faction);
+		}
 
 		if (turn.phase)
 			me.phaseBox.setText(turn.phase)
