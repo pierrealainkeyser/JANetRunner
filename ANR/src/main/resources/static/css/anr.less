@@ -4,8 +4,15 @@ html , body , body > div.container {
 }
 
 .animated {
-	-webkit-animation-duration: 0.3s ! important;
-	animation-duration: 0.3s ! important;
+	&:not(.fast) {
+		-webkit-animation-duration: 0.3s ! important;
+		animation-duration: 0.3s ! important;
+	}
+
+	&.fast {
+		-webkit-animation-duration: 0.15s ! important;
+		animation-duration: 0.15s ! important;
+	}
 }
 
 #modalError {
@@ -249,11 +256,10 @@ label.sub {
 }
 
 .text {
-	
 	.unselectable;
 	&.log {
 		position: absolute;
-    	display: block;
+		display: block;
 		.clear-padding;
 		color: #999999;
 		z-index: -1;
@@ -263,6 +269,12 @@ label.sub {
 		position: absolute;
 		padding: 4px 12px;
 		font-size: 14px;
+	}
+
+	&.score {
+		position: absolute;
+		.clear-padding;
+		.text-token ();
 	}
 }
 
@@ -322,6 +334,19 @@ div#main {
 		background: -webkit-linear-gradient(top, @light-color 0%, @dark-color 100%);
 		box-shadow: 0px 0px 1px 1px @dark-color;
 		z-index: -10;
+	}
+
+	.scorefaction {
+		@light-color: #EEEEEE;
+		@dark-color: #C0C0C0;
+		.clear-padding;
+		.unselectable;
+		position: absolute;
+		background: -webkit-linear-gradient(top, @light-color 0%, @dark-color 100%);
+		box-shadow: 0px 0px 1px 1px @dark-color;
+		border-radius: 3px;
+		padding: 10px;		
+		height:25px;
 	}
 
 	div.ext.server {

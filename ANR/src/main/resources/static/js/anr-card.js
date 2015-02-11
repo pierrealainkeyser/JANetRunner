@@ -144,6 +144,8 @@ function CardManager(cardContainer, connector) {
 		this.chatContainer = new ChatContainer(this);
 		this.clicksContainer = new ClickContainer(this);
 		this.turnContainer = new TurnStatusContainer(this);
+		this.corpActiveContainer = new BoxScoreContainer(this);
+		this.runnerActiveContainer = new BoxScoreContainer(this);
 
 		this.statusRow = new BoxContainer(this, new HorizontalLayoutFunction({ spacing : 5, align : 'center' }, {}));
 		this.handContainer = new BoxContainer(this, new HandLayoutFunction({}, { zIndex : 0, mode : "plain" }));
@@ -170,6 +172,8 @@ function CardManager(cardContainer, connector) {
 		this.runnerColums.addChild(this.runnerHardwares);
 		this.runnerColums.addChild(this.runnerPrograms);
 
+		this.statusRow.addChild(this.corpActiveContainer);
+		this.statusRow.addChild(this.runnerActiveContainer);
 		innerClicks.addChild(this.clicksContainer);
 		this.statusRow.addChild(innerClicks);
 		this.statusRow.addChild(this.turnContainer);
@@ -203,7 +207,7 @@ function CardManager(cardContainer, connector) {
 		this.handContainer.absolutePosition = new LayoutCoords(this.area.main.width - padding / 2 - 300, this.area.main.height - this.area.card.height
 				- padding / 2 - 50, 0);
 
-		this.chatContainer.absolutePosition = new LayoutCoords(5, 35, 0);
+		this.chatContainer.absolutePosition = new LayoutCoords(5, 40, 0);
 		this.statusRow.absolutePosition = new LayoutCoords(5, 5, 0);
 
 		this.absoluteContainer.requireLayout();
@@ -433,12 +437,24 @@ function CardManager(cardContainer, connector) {
 			me.faction = elements.local;
 			me.factions = elements.factions;
 
+			me.corpActiveContainer.setFaction(me.factions.corp);
+			me.runnerActiveContainer.setFaction(me.factions.runner);
+
 			_.each(me.cards, function(card) {
 				var def = card.def;
 				if (def.faction === me.faction && 'id' === def.type) {
 					me.setFocused(card);
 				}
 			});
+		}
+
+		if (elements.activity) {
+			var act = elements.activity;
+			if (act.corp)
+				me.corpActiveContainer.setActivity(act.corp);
+
+			if (act.runner)
+				me.runnerActiveContainer.setActivity(act.runner);
 		}
 
 		if (elements.turn) {
@@ -632,35 +648,35 @@ function CardManager(cardContainer, connector) {
 }
 
 function ChatContainer(cardManager) {
+	/**
+	 * Permet de gerer un text
+	 */
+	function InnerBoxChat(layoutManager, text) {
+		var me = this;
+
+		this.element = $("<span class='text log'>" + interpolateString(text) + "</span>");
+		Box.call(this, layoutManager);
+		ElementBox.call(this, this.element, true);
+		AnimatedBox.call(this, "zoom", [ "Up", "" ]);
+
+		/**
+		 * Mise à jour du text
+		 */
+		this.setText = function(text) {
+			me.element.text(text);
+			me.notifyBoxChanged();
+		}
+	}
+
 	var me = this;
 	BoxContainer.call(this, cardManager, new VerticalLayoutFunction({ direction : 1 }, {}));
 
 	this.addText = function(text) {
-		var box = new BoxText(cardManager, text);
+		var box = new InnerBoxChat(cardManager, text);
 		box.element.appendTo(cardManager.cardContainer);
 
 		me.addChild(box, 0);
 		box.entrance();
-	}
-}
-
-/**
- * Permet de gerer un text
- */
-function BoxText(layoutManager, text) {
-	var me = this;
-
-	this.element = $("<span class='text log'>" + interpolateString(text) + "</span>");
-	Box.call(this, layoutManager);
-	ElementBox.call(this, this.element, true);
-	AnimatedBox.call(this, "zoom", [ "Up", "" ]);
-
-	/**
-	 * Mise à jour du text
-	 */
-	this.setText = function(text) {
-		me.element.text(text);
-		me.notifyBoxChanged();
 	}
 }
 
@@ -730,83 +746,90 @@ function ClickContainer(layoutManager) {
 	}
 }
 
+function BoxText(layoutManager, style) {
+	var me = this;
+
+	this.element = $("<span class='" + style + " text'></span>");
+	Box.call(this, layoutManager);
+	ElementBox.call(this, this.element, true);
+	this.oldText = "";
+
+	/**
+	 * Mise à jour du text
+	 */
+	this.setText = function(text) {
+
+		var replace = function() {
+			me.element.text(interpolateString(text));
+			animateCss(me.element, "zoomIn");
+			me.notifyBoxChanged();
+		};
+
+		if (me.oldText === "") {
+			me.oldText = text;
+			replace();
+		} else {
+			var changed = false;
+			if (text == "") {
+				replace = function() {
+					me.oldText = "";
+					me.element.text("");
+
+				}
+				changed = true;
+			} else if (text !== me.oldText) {
+				replace = layoutManager.within(replace);
+				changed = true;
+			}
+
+			if (changed) {
+				me.oldText = text;
+				animateCss(me.element, "zoomOut", replace);
+			}
+		}
+	}
+}
+
+function BoxFaction(layoutManager) {
+	var me = this;
+
+	this.element = $("<span class='faction icon fast'></span>");
+	Box.call(this, layoutManager);
+	ElementBox.call(this, this.element, true);
+	this.oldClass = null;
+
+	this.setFaction = function(faction) {
+		var newClassname = "icon-" + faction + " " + faction;
+		var replace = function() {
+			var animate = false;
+			if (me.oldClass) {
+				me.element.toggleClass(me.oldClass)
+				animate = true;
+			}
+
+			me.element.toggleClass(newClassname)
+
+			me.oldClass = newClassname;
+			if (animate)
+				animateCss(me.element, "rotateIn");
+			me.notifyBoxChanged();
+		};
+
+		if (me.oldClass)
+			animateCss(me.element, "rotateOut", replace);
+		else
+			replace();
+	}
+
+	this.getColor = function() {
+		return me.element.css("color");
+	}
+}
+
 /**
  * Permet d'afficher les information du tour actif
  */
 function TurnStatusContainer(layoutManager) {
-
-	function BoxStatus(layoutManager, style) {
-		var me = this;
-
-		this.element = $("<span class='label " + style + " text status'></span>");
-		Box.call(this, layoutManager);
-		ElementBox.call(this, this.element, true);
-		this.oldText = "";
-
-		/**
-		 * Mise à jour du text
-		 */
-		this.setText = function(text) {
-
-			var replace = function() {
-				me.element.text(interpolateString(text));
-				animateCss(me.element, "zoomIn");
-				me.notifyBoxChanged();
-			};
-
-			if (me.oldText === "") {
-				me.oldText = text;
-				replace();
-			} else {
-				var changed = false;
-				if (text == "") {
-					replace = function() {
-						me.oldText = "";
-						me.element.text("");
-
-					}
-					changed = true;
-				} else if (text !== me.oldText) {
-					replace = layoutManager.within(replace);
-					changed = true;
-				}
-
-				if (changed) {
-					me.oldText = text;
-					animateCss(me.element, "zoomOut", replace);
-				}
-			}
-		}
-	}
-
-	function BoxFaction(layoutManager) {
-		var me = this;
-
-		this.element = $("<span class='faction icon'></span>");
-		Box.call(this, layoutManager);
-		ElementBox.call(this, this.element, true);
-		this.oldClass = null;
-
-		this.setFaction = function(faction) {
-			var newClassname = "icon-" + faction + " " + faction;
-			var replace = function() {
-				if (me.oldClass)
-					me.element.toggleClass(me.oldClass)
-
-				me.element.toggleClass(newClassname)
-
-				me.oldClass = newClassname;
-				animateCss(me.element, "rotateIn");
-				me.notifyBoxChanged();
-			};
-
-			if (me.oldClass)
-				animateCss(me.element, "rotateOut", replace);
-			else
-				replace();
-		}
-	}
-
 	var me = this;
 	BoxContainer.call(this, layoutManager, new HorizontalLayoutFunction({ spacing : 3 }, {}));
 
@@ -814,11 +837,11 @@ function TurnStatusContainer(layoutManager) {
 	this.factionBox.setParent(this);
 	this.factionBox.element.appendTo(layoutManager.cardContainer);
 
-	this.phaseBox = new BoxStatus(layoutManager, "label-info");
+	this.phaseBox = new BoxText(layoutManager, "label label-info status fast");
 	this.phaseBox.setParent(this);
 	this.phaseBox.element.appendTo(layoutManager.cardContainer);
 
-	this.stepBox = new BoxStatus(layoutManager, "label-default");
+	this.stepBox = new BoxText(layoutManager, "label label-default status fast");
 	this.stepBox.setParent(this);
 	this.stepBox.element.appendTo(layoutManager.cardContainer);
 
@@ -834,7 +857,66 @@ function TurnStatusContainer(layoutManager) {
 		if (turn.step != null)
 			me.stepBox.setText(turn.step)
 	}
+}
 
+/**
+ * Permet de traquer le score
+ */
+function BoxScoreContainer(layoutManager) {
+	var me = this;
+	BoxContainer.call(this, layoutManager, new HorizontalLayoutFunction({ spacing : 5 }, {}));
+
+	this.element = $("<div class='scorefaction'/>");
+	ElementBox.call(this, this.element);
+
+	this.factionBox = new BoxFaction(layoutManager);
+	this.factionBox.setParent(this);
+	this.factionBox.element.appendTo(this.element);
+
+	this.scoreBox = new BoxText(layoutManager, "score fast");
+	this.scoreBox.setParent(this);
+	this.scoreBox.element.appendTo(this.element);
+	this.active = false;
+
+	var blank = new Box(layoutManager);
+	blank.baseBox = new Dimension(3, 0);
+	blank.setParent(this);
+
+	this.element.appendTo(layoutManager.cardContainer);
+	this.originalShadow = this.element.css("box-shadow");
+
+	/**
+	 * Ne réalise pas de merge car les élements fils sont placés dans un
+	 * container
+	 */
+	this.mergeChildCoord = function(box) {
+		return box.getPositionInParent();
+	}
+
+	this.setFaction = function(faction) {
+		me.factionBox.setFaction(faction);
+	}
+
+	this.setActivity = function(activity) {
+		me.scoreBox.setText(String(activity.score));
+		me.active = activity.active;
+		me.fireCoordsChanged();
+	}
+
+	this.customizeCss = function(css) {
+
+		var bounds = me.getBounds();
+		css.height = bounds.dimension.height;
+		css.width = bounds.dimension.width;
+
+		if (me.active) {
+			var color = me.factionBox.getColor();
+			css.boxShadow = "0px 0px 1px 2px " + color;
+		} else {
+			css.boxShadow = me.originalShadow;
+
+		}
+	}
 }
 
 /**
