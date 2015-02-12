@@ -58,6 +58,7 @@
 				],//
 				clicks : { active : 4, used : 0 },//
 				turn : { phase : "Action", player : "runner" },//
+				activity : { corp : { active : false, score : 0 }, runner : { active : true, score : 0 } }, //
 				cards : [ // 
 						{ id : 3, faction : 'corp', type : 'id', url : '01080', tokens : { credit : 5, recurring : 2 },
 							location : { primary : "server", serverIndex : -3, secondary : "assetOrUpgrades", index : 0 } }, //
@@ -101,6 +102,7 @@
 			if (action.id === PLAY_SURE_GAMBLE) {
 				cm.publish({ chats : [ "Runner plays |Sure gamble|, loses {1:click} and gains {4:credit}" ], //				
 				clicks : { active : 3, used : 1 },//
+				activity : { corp : { active : true, score : 5 }, runner : { active : false, score : 2 } }, //
 				cards : [//
 				{ id : KATE, tokens : { credit : 9 } }, //
 				{ id : SURE_GAMBLE, face : "up", location : { primary : "heap", index : 0 } }, //
