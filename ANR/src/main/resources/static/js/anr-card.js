@@ -354,9 +354,6 @@ function CardManager(cardContainer, connector) {
 				card.fireCoordsChanged();
 			}
 
-			if (def.subs)
-				card.setSubs(def.subs);
-
 			if (me.isDisplayed(card)) {
 				// affichage de la carte primaire
 				me.extbox.updatePrimary(card);
@@ -408,6 +405,7 @@ function CardManager(cardContainer, connector) {
 		if (elements.primary) {
 			me.primaryCardId = elements.primary.id;
 			me.primaryText = elements.primary.text;
+			me.primarySubs = elements.primary.subs;
 			var card = me.getCard({ id : me.primaryCardId });
 			if (card) {
 				if (!me.isDisplayed(card))
@@ -423,6 +421,7 @@ function CardManager(cardContainer, connector) {
 			}
 			me.primaryText = "";
 			me.primaryCardId = null;
+			me.primarySubs =null;
 		}
 
 		if (elements.clicks) {
@@ -530,6 +529,10 @@ function CardManager(cardContainer, connector) {
 		}
 		return false;
 	};
+	
+	this.isPrimaryCard=function(card){
+		return card.getId()===me.primaryCardId;
+	}
 
 	/**
 	 * Permet d'afficher une card
@@ -540,15 +543,14 @@ function CardManager(cardContainer, connector) {
 			var showPrimary = true;
 			if (me.extbox.displayedCard != null) {
 				// une carte est primaire on se place en second
-				var displayedId = me.extbox.displayedCard.getId();
-				if (displayedId === me.primaryCardId)
+				if (me.isPrimaryCard(me.extbox.displayedCard))
 					showPrimary = false;
 
 			}
 
 			if (showPrimary) {
 				me.extbox.displayPrimary(card);
-				if (card.getId() === me.primaryCardId)
+				if (me.isPrimaryCard(card))
 					me.extbox.setHeader(me.primaryText)
 			} else {
 				// affichage en tant que carte secondaire
@@ -1561,7 +1563,7 @@ function Card(def, cardManager) {
 		}
 
 		if (this.hasActions()) {
-			if (this.cardManager.primaryCardId === this.def.id)
+			if (this.cardManager.isPrimaryCard(this))
 				shadow = this.cardManager.area.shadow.withPrimaryAction;
 			else
 				shadow = this.cardManager.area.shadow.withAction;
@@ -2168,11 +2170,16 @@ function ExtBox(cardManager) {
 		this.displayedCard.ext.empty();
 
 		// rajout des routines, actions et tokens
-		_.each(card.subs, me.addSub);
-
-		if (!_.isEmpty(card.subs)) {
-			addInCardMain(new BoxAllSubroutine(me, " check all"));
+		if(cardManager.isPrimaryCard(card)){
+			_.each(cardManager.primarySubs, me.addSub);
+			
+			if (!_.isEmpty(cardManager.primarySubs)) {
+				addInCardMain(new BoxAllSubroutine(me, " check all"));
+			}
 		}
+	
+
+	
 
 		_.each(card.actions, me.addAction);
 
@@ -2225,20 +2232,23 @@ function ExtBox(cardManager) {
 	 */
 	this.updatePrimary = function(card) {
 		var subAdded = false;
-		_.each(card.subs, function(sub) {
-			var selected = _.find(me.subs, function(s) {
-				return s.sub.id = sub.id;
+		//les subs se trouve dans le cardManager.primarySubs
+		if(cardManager.isPrimaryCard(card)){
+			_.each(cardManager.primarySubs, function(sub) {
+				var selected = _.find(me.subs, function(s) {
+					return s.sub.id = sub.id;
+				});
+				if (selected)
+					selected.updateSub(sub);
+				else {
+					me.addSub(sub);
+					subAdded = true;
+				}
 			});
-			if (selected)
-				selected.updateSub(sub);
-			else {
-				me.addSub(sub);
-				subAdded = true;
-			}
-		});
-
-		if (subAdded)
-			addInCardMain(new BoxAllSubroutine(me, " check all"));
+	
+			if (subAdded)
+				addInCardMain(new BoxAllSubroutine(me, " check all"));
+		}
 
 		if (card.actions) {
 			// TODO mise à jour des actions, création des autres, suppression

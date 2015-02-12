@@ -138,11 +138,11 @@
 			} else if (action.id === DATA_RAVEN_TAKETAG) {
 				cm.publish({
 					chats : [ "Runner takes a tag" ], //
-					primary : { id : DATA_RAVEN, text : "Encountering ice" },//
+					primary : { id : DATA_RAVEN, text : "Encountering ice" , subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on |Data Raven|" } ]
+					},//
 					cards : [
 							{ id : KATE, tokens : { tag : 1 } }, //
-							{ id : DATA_RAVEN, subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on |Data Raven|" } ],
-								actions : [ { id : DATA_RAVEN_PASS, text : "Continue", cls : 'warning' } ] },
+							{ id : DATA_RAVEN, 	actions : [ { id : DATA_RAVEN_PASS, text : "Continue", cls : 'warning' } ] },
 							{ id : PIPELINE, actions : [ { id : PUMP_PIPELINE, cost : '{2:credit}', text : "Pump 1 strength" } ] } //
 					] });
 			} else if (action.id === DATA_RAVEN_JACKOUT) {
