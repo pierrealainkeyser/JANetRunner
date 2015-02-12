@@ -193,7 +193,7 @@ div.cardstack {
 	font-weight: bold;
 	font-size: 11px;
 	color: #999999;
-	z-index: 0;
+	z-index: 5;
 	.unselectable;
 	&.server {
 		.clickable;
@@ -337,16 +337,11 @@ div#main {
 	}
 
 	.scorefaction {
-		@light-color: #EEEEEE;
-		@dark-color: #C0C0C0;
 		.clear-padding;
 		.unselectable;
 		position: absolute;
-		background: -webkit-linear-gradient(top, @light-color 0%, @dark-color 100%);
-		box-shadow: 0px 0px 1px 1px @dark-color;
-		border-radius: 3px;
-		padding: 10px;		
-		height:25px;
+		box-shadow: 0px;
+		border-radius: 3px;		
 	}
 
 	div.ext.server {
@@ -385,6 +380,28 @@ div#main {
 		}
 	}
 
+	label.sub {
+		position: absolute;
+		width: 230px;
+		font-weight: normal;
+		&.broken {
+			text-decoration: line-through;
+		}
+
+		&:not(.broken) {
+			cursor: pointer;
+			input {
+				cursor: pointer;
+			}
+		}
+
+		&.all {
+			font-style: italic;
+			font-weight: normal;
+			border-top: @card-action-color 1px solid;
+		}
+	}
+
 	div.card {
 		.clear-padding;
 		position: absolute;
@@ -408,28 +425,6 @@ div#main {
 			border-radius: @border-radius;
 			box-shadow: 3px 3px 5px 0px @card-shadow-color;
 			.ext-action-header (@border-radius);
-			label.sub {
-				position: absolute;
-				width: 230px;
-				font-weight: normal;
-				&.broken {
-					text-decoration: line-through;
-				}
-
-				&:not(.broken) {
-					cursor: pointer;
-					input {
-						cursor: pointer;
-					}
-				}
-
-				&.all {
-					font-style: italic;
-					font-weight: normal;
-					border-top: @card-action-color 1px solid;
-				}
-			}
-
 			.token-wrapper {
 				position: absolute;
 				width: 160px;

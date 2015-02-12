@@ -1,5 +1,10 @@
 var ANIM_DURATION = 0.3;
 
+var LAYER_LOG = 0;
+var LAYER_CARDSTACK = 10;
+var LAYER_CARD = 15;
+var LAYER_EXT = 25;
+
 $.fn.sandbox = function(fn) {
 	var element = $(this).clone(), result;
 	element.css({ visibility : 'hidden', display : 'block', position : 'absolute' }).insertAfter($("#main"));
@@ -148,7 +153,7 @@ function CardManager(cardContainer, connector) {
 		this.runnerActiveContainer = new BoxScoreContainer(this);
 
 		this.statusRow = new BoxContainer(this, new HorizontalLayoutFunction({ spacing : 5, align : 'center' }, {}));
-		this.handContainer = new BoxContainer(this, new HandLayoutFunction({}, { zIndex : 0, mode : "plain" }));
+		this.handContainer = new BoxContainer(this, new HandLayoutFunction({}, { zIndex : LAYER_CARD, mode : "plain" }));
 
 		var innerClicks = new BoxContainer(this, new VerticalLayoutFunction({ align : 'center' }, {}));
 		innerClicks.baseBox = new Dimension(150, 0);
@@ -358,10 +363,11 @@ function CardManager(cardContainer, connector) {
 				card.fireCoordsChanged();
 			}
 
-			if (me.isDisplayed(card)) {
-				// affichage de la carte primaire
+			// affichage de la carte primaire
+			if (me.isDisplayed(card))
 				me.extbox.updatePrimary(card);
-			}
+			else if (me.isDisplayedSecondary(card))
+				me.extbox.updateSecondary(card);
 		}
 	};
 
@@ -398,13 +404,10 @@ function CardManager(cardContainer, connector) {
 		createAllCards(elements);
 		createAllServers(elements);
 		createAllRuns(elements);
+
 		updateAllCards(elements);
 		updateAllServers(elements);
 		updateAllRuns(elements);
-
-		_.each(elements.chats, function(text) {
-			me.chatContainer.addText(text);
-		})
 
 		if (elements.primary) {
 			me.primaryCardId = elements.primary.id;
@@ -414,8 +417,10 @@ function CardManager(cardContainer, connector) {
 			if (card) {
 				if (!me.isDisplayed(card))
 					me.displayCard(card);
-				else
+				else {
 					me.extbox.setHeader(me.primaryText)
+					me.extbox.updatePrimary(card);
+				}
 			}
 		} else {
 			// ferme la carte si visible actuellement
@@ -425,8 +430,12 @@ function CardManager(cardContainer, connector) {
 			}
 			me.primaryText = "";
 			me.primaryCardId = null;
-			me.primarySubs =null;
+			me.primarySubs = null;
 		}
+
+		_.each(elements.chats, function(text) {
+			me.chatContainer.addText(text);
+		})
 
 		if (elements.clicks) {
 			me.clicksContainer.setClicks(elements.clicks.active, elements.clicks.used);
@@ -545,9 +554,21 @@ function CardManager(cardContainer, connector) {
 		}
 		return false;
 	};
-	
-	this.isPrimaryCard=function(card){
-		return card.getId()===me.primaryCardId;
+
+	/**
+	 * Renvoi vari si la carte est affichée en tant que secondaire
+	 */
+	this.isDisplayedSecondary = function(card) {
+		if (me.extbox.secondaryCard != null) {
+			var displayedId = me.extbox.secondaryCard.getId();
+			return card.getId() === displayedId;
+		}
+		return false;
+
+	}
+
+	this.isPrimaryCard = function(card) {
+		return card.getId() === me.primaryCardId;
 	}
 
 	/**
@@ -620,6 +641,10 @@ function CardManager(cardContainer, connector) {
 		return card.coords.mode !== 'plain';
 	}
 
+	var subsElement = function(element) {
+		return 'subs' === element.type;
+	}
+
 	/**
 	 * cherche la carte ou le server le plus proche dans la direction
 	 */
@@ -631,6 +656,11 @@ function CardManager(cardContainer, connector) {
 			var map = new DistanceMap(focused, plane);
 			map.collectAbovePlane(_.filter(this.cards, notInPlainMode));
 			map.collectAbovePlane(this.extbox.actionsContainer.childs);
+
+			// on accéde au subs que par la gauche ou la droite
+			if (subsElement(focused) || PLANE_LEFT === plane || PLANE_RIGHT === plane)
+				map.collectAbovePlane(_.filter(this.extbox.mainContainer.childs, subsElement));
+
 			var closest = map.findClosest();
 			if (closest !== null)
 				return closest;
@@ -671,7 +701,7 @@ function ChatContainer(cardManager) {
 	}
 
 	var me = this;
-	BoxContainer.call(this, cardManager, new VerticalLayoutFunction({ direction : 1 }, {}));
+	BoxContainer.call(this, cardManager, new VerticalLayoutFunction({ direction : 1, zIndex : LAYER_LOG }, {}));
 
 	this.addText = function(text) {
 		var box = new InnerBoxChat(cardManager, text);
@@ -937,7 +967,6 @@ function DistanceMap(focused, plane) {
 			var coords = card.coords;
 			if (focused != card) {
 				if (focused.coords.isAbovePlane(plane, coords)) {
-
 					if (card.isClickable()) {
 						var add = true;
 
@@ -1817,7 +1846,7 @@ function BoxSubroutine(extbox, sub) {
 	this.element.append(interpolateString(sub.text));
 	Box.call(this, extbox.cardManager);
 	ElementBox.call(this, this.element, true);
-	AnimatedBox.call(this);
+	AnimatedBox.call(this, "fade", [ "Right", "Right" ]);
 
 	this.checkbox.change(function() {
 		extbox.updateBreakActions();
@@ -1835,6 +1864,17 @@ function BoxSubroutine(extbox, sub) {
 				animateCss(this.element, "rubberBand");
 			}
 		}
+	}
+
+	/**
+	 * Indique si l'on peut clicker sur l'element
+	 */
+	this.isClickable = function() {
+		return true;
+	}
+
+	this.doClick = function() {
+		this.checkbox.click();
 	}
 
 	/**
@@ -1861,7 +1901,7 @@ function BoxAllSubroutine(extbox, text) {
 	this.element.append(text);
 	Box.call(this, extbox.cardManager);
 	ElementBox.call(this, this.element, true);
-	AnimatedBox.call(this);
+	AnimatedBox.call(this, "fade", [ "Right", "Right" ]);
 
 	this.checkbox.change(function() {
 		var value = me.checkbox.prop("checked");
@@ -1869,6 +1909,17 @@ function BoxAllSubroutine(extbox, text) {
 		$('input:checkbox:enabled').prop('checked', this.checked);
 		extbox.updateBreakActions();
 	});
+
+	this.doClick = function() {
+		this.checkbox.click();
+	}
+
+	/**
+	 * Indique si l'on peut clicker sur l'element
+	 */
+	this.isClickable = function() {
+		return true;
+	}
 }
 
 /**
@@ -1917,6 +1968,13 @@ function BoxAction(extbox, def) {
 	ElementBox.call(this, this.element);
 	AnimatedBox.call(this, "fade", [ "Right", "Right" ]);
 
+	/**
+	 * Renvoi vrai si l'action est secondaire
+	 */
+	this.isSecondaryAction = function() {
+		return def.secondary === true;
+	}
+
 	this.unapplyGhost = this.popBehaviours = function() {
 	};
 
@@ -1952,7 +2010,8 @@ function BoxAction(extbox, def) {
 	}
 
 	this.doClick = function() {
-		this.element.click();
+		if (!this.element.prop("disabled"))
+			this.element.click();
 	}
 
 	/**
@@ -2002,7 +2061,7 @@ function ExtBox(cardManager) {
 	var extLayout = new LayoutFunction(this);
 	extLayout.applyLayout = function(boxContainer, index, box) {
 		var ab = me.extContainer.getPositionInParent();
-		return new LayoutCoords(ab.x, ab.y, 0, { mode : "extended", zIndex : 10 });
+		return new LayoutCoords(ab.x, ab.y, 0, { mode : "extended", zIndex : LAYER_EXT });
 	};
 
 	var extContainer = new BoxContainer(cardManager, extLayout);
@@ -2021,7 +2080,7 @@ function ExtBox(cardManager) {
 		var abs = box.getPositionInParent();
 		if (me.displayedCard) {
 			abs = me.displayedCard.mergeChildCoord(box);
-			abs.zIndex = 12;
+			abs.zIndex = LAYER_EXT + 2;
 
 			// si on affiche une carte il faut rajouter un offset
 			if (me.displayedCard.isCard()) {
@@ -2040,7 +2099,15 @@ function ExtBox(cardManager) {
 	this.header.addClass("title");
 
 	this.innerContainer = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 5 }, {}));
-	this.mainContainer = new BoxContainer(cardManager, new VerticalLayoutFunction({ spacing : 3, padding : 3 }, {}));
+	this.mainContainer = new BoxContainer(cardManager, new VerticalLayoutFunction({ spacing : 3, padding : 3 }, { mode : "main" }));
+	var mainContainer_mergeChildCoord = this.mainContainer.mergeChildCoord;
+	this.mainContainer.mergeChildCoord = function(box) {
+		if ('subs' === box.type)
+			return mergeChildCoordFromDisplayed.call(me.mainContainer, box);
+		else
+			return mainContainer_mergeChildCoord.call(me.mainContainer, box);
+	}
+
 	this.actionsContainer = new BoxContainer(cardManager, new HorizontalLayoutFunction({ spacing : 2, padding : 4 }, { mode : "action" }));
 	this.actionsContainer.mergeChildCoord = mergeChildCoordFromDisplayed;
 
@@ -2145,8 +2212,12 @@ function ExtBox(cardManager) {
 			box.entrance();
 
 		me.mainContainer.addChild(box, lastMatch);
-		if (box.element)
-			box.element.appendTo(me.displayedCard.ext);
+		if (box.element) {
+			if ('subs' === box.type)
+				box.element.appendTo(cardManager.cardContainer);
+			else
+				box.element.appendTo(me.displayedCard.ext);
+		}
 	};
 
 	/**
@@ -2176,6 +2247,11 @@ function ExtBox(cardManager) {
 			me.hostedsContainer.each(redrawAndUpdate);
 			me.hostContainer.each(redrawAndUpdate);
 			me.actionsContainer.each(redrawAndUpdate);
+
+			me.mainContainer.each(function(c) {
+				if ('subs' === c.type)
+					redrawAndUpdate(c);
+			})
 		}
 	}
 
@@ -2252,16 +2328,13 @@ function ExtBox(cardManager) {
 		this.displayedCard.ext.empty();
 
 		// rajout des routines, actions et tokens
-		if(cardManager.isPrimaryCard(card)){
+		if (cardManager.isPrimaryCard(card)) {
 			_.each(cardManager.primarySubs, me.addSub);
-			
+
 			if (!_.isEmpty(cardManager.primarySubs)) {
 				addInCardMain(new BoxAllSubroutine(me, " check all"));
 			}
 		}
-	
-
-	
 
 		_.each(card.actions, me.addAction);
 
@@ -2314,8 +2387,8 @@ function ExtBox(cardManager) {
 	 */
 	this.updatePrimary = function(card) {
 		var subAdded = false;
-		//les subs se trouve dans le cardManager.primarySubs
-		if(cardManager.isPrimaryCard(card)){
+		// les subs se trouve dans le cardManager.primarySubs
+		if (cardManager.isPrimaryCard(card)) {
 			_.each(cardManager.primarySubs, function(sub) {
 				var selected = _.find(me.subs, function(s) {
 					return s.sub.id = sub.id;
@@ -2327,7 +2400,7 @@ function ExtBox(cardManager) {
 					subAdded = true;
 				}
 			});
-	
+
 			if (subAdded)
 				addInCardMain(new BoxAllSubroutine(me, " check all"));
 		}
@@ -2335,7 +2408,7 @@ function ExtBox(cardManager) {
 		if (card.actions) {
 			// TODO mise à jour des actions, création des autres, suppression
 			// des actions non présentes
-			me.removeActions();
+			me.removeActions(true);
 			_.each(card.actions, me.addAction);
 		}
 
@@ -2358,6 +2431,23 @@ function ExtBox(cardManager) {
 
 	};
 
+	var addSecondaryAction = function(card) {
+		_.each(card.actions, function(act) {
+			act.secondary = true;
+			var box = me.addAction(act);
+			if (box != null) {
+				me.secondaryActions.push(box);
+			}
+		});
+	}
+
+	var closeSecondaryAction = function() {
+		// suppression des actions secondaires
+		_.each(me.secondaryActions, function(box) {
+			box.remove(true);
+		});
+	}
+
 	/**
 	 * Rajoute le dernier element
 	 */
@@ -2373,13 +2463,13 @@ function ExtBox(cardManager) {
 		else
 			card.pushBehaviours([ closeSecondaryCardBehaviour ]);
 
-		_.each(card.actions, function(act) {
-			var box = me.addAction(act);
-			if (box != null) {
-				me.secondaryActions.push(box);
-			}
-		});
+		addSecondaryAction(card);
+		this.updateLayouts();
+	}
 
+	this.updateSecondary = function(card) {
+		closeSecondaryAction();
+		addSecondaryAction(card);
 		this.updateLayouts();
 	}
 
@@ -2388,7 +2478,16 @@ function ExtBox(cardManager) {
 	 */
 	this.addAction = function(def) {
 		var act = new BoxAction(me, def)
-		me.actionsContainer.addChild(act);
+		var index = me.actionsContainer.size();
+		if (!act.isSecondaryAction()) {
+			// recherche le dernier index non secondaire
+			var childs = me.actionsContainer.childs;
+			index = 0;
+			while (index < childs.length && !childs[index].isSecondaryAction())
+				index++;
+		}
+
+		me.actionsContainer.addChild(act, index);
 		act.element.appendTo(me.cardManager.cardContainer);
 		act.entrance();
 
@@ -2404,11 +2503,15 @@ function ExtBox(cardManager) {
 	/**
 	 * Suppression des actions
 	 */
-	this.removeActions = function() {
+	this.removeActions = function(onlyPrimary) {
 		// suppression des actions secondaires
-
 		me.actionsContainer.each(function(box) {
-			box.remove(true);
+			var remove = true;
+			if (onlyPrimary && box.isSecondaryAction())
+				remove = false
+
+			if (remove)
+				box.remove(true);
 		});
 	}
 
@@ -2482,6 +2585,11 @@ function ExtBox(cardManager) {
 			this.actionsContainer.each(function(box) {
 				box.remove(true);
 			});
+
+			this.mainContainer.each(function(box) {
+				if ('subs' === box.type)
+					box.remove(true);
+			});
 		}
 	}
 
@@ -2493,10 +2601,7 @@ function ExtBox(cardManager) {
 			this.secondaryCard.unapplyGhost();
 			this.secondaryCard.popBehaviours();
 
-			// suppression des actions secondaires
-			_.each(this.secondaryActions, function(box) {
-				box.remove(true);
-			});
+			closeSecondaryAction();
 
 			this.secondaryCard = null;
 
@@ -2593,7 +2698,7 @@ function ElementBox(element, sandboxed) {
 					this.customizeCss(css);
 					TweenLite.set(this.element, { css : css });
 				} else {
-					var css = { top : this.coords.y, left : this.coords.x };
+					var css = { top : this.coords.y, left : this.coords.x, zIndex : this.coords.zIndex };
 					this.customizeCss(css);
 					TweenLite.set(this.element, { css : css });
 					animate = false;
@@ -2603,7 +2708,7 @@ function ElementBox(element, sandboxed) {
 			}
 
 			if (animate) {
-				var css = { top : this.coords.y, left : this.coords.x, autoAlpha : 1 };
+				var css = { top : this.coords.y, left : this.coords.x, zIndex : this.coords.zIndex, autoAlpha : 1 };
 				this.customizeCss(css);
 				TweenLite.to(this.element, ANIM_DURATION, { css : css });
 			}
@@ -2634,9 +2739,9 @@ function HeightBox(element) {
 
 // TODO gestion de tailles dans la configuration
 
-var ICE_LAYOUT = new VerticalLayoutFunction({ spacing : 5, direction : -1, align : 'center' }, { angle : 90, mode : "plain" });
-var ROOT_SERVER_LAYOUT = new HorizontalLayoutFunction({ spacing : -40 }, { zIndex : 1, mode : "plain" });
-var STACKED_SERVER_LAYOUT = new StackedLayoutFunction({ zIndex : 2, mode : "plain" });
+var ICE_LAYOUT = new VerticalLayoutFunction({ spacing : 5, direction : -1, align : 'center' }, { zIndex : LAYER_CARD, angle : 90, mode : "plain" });
+var ROOT_SERVER_LAYOUT = new HorizontalLayoutFunction({ spacing : -40 }, { zIndex : LAYER_CARD, mode : "plain" });
+var STACKED_SERVER_LAYOUT = new StackedLayoutFunction({ zIndex : LAYER_CARD, mode : "plain" });
 var INNER_SERVER_LAYOUT = new function() {
 	var me = this;
 	LayoutFunction.call(this);
@@ -2697,7 +2802,7 @@ function Server(def, cardManager) {
 	// le serveur RD n'est pas clickable
 	var stackedLayout = STACKED_SERVER_LAYOUT;
 	if (def.id === -2)
-		stackedLayout = new StackedLayoutFunction({ zIndex : 2, mode : "plain", viewable : false });
+		stackedLayout = new StackedLayoutFunction({ zIndex : LAYER_CARD, mode : "plain", viewable : false });
 
 	this.stack = new BoxContainer(cardManager, stackedLayout);
 	this.stack.serverLayoutKey = 'stack';
@@ -2711,6 +2816,7 @@ function Server(def, cardManager) {
 	this.primary = createdDiv.appendTo(cardManager.cardContainer);
 	ElementBox.call(this.assetOrUpgrades, this.primary, true);
 	this.assetOrUpgrades.customizeCss = function(css) {
+		css.zIndex = LAYER_CARDSTACK;
 		if (me.hasActions())
 			css.boxShadow = me.cardManager.area.shadow.withAction;
 		else

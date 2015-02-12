@@ -42,6 +42,7 @@
 		var DATA_RAVEN_JACKOUT = 400;
 		var DATA_RAVEN_TAKETAG = 401;
 		var DATA_RAVEN_PASS = 402;
+		var DATA_RAVEN_BROKEN = 500;
 		var PUMP_PIPELINE = 1799;
 		var PUMP_PIPELINE2 = 1800;
 		var BREAK_WITH_PIPELINE = 1801;
@@ -140,11 +141,10 @@
 			} else if (action.id === DATA_RAVEN_TAKETAG) {
 				cm.publish({
 					chats : [ "Runner takes a tag" ], //
-					primary : { id : DATA_RAVEN, text : "Encountering ice" , subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on |Data Raven|" } ]
-					},//
-					cards : [
-							{ id : KATE, tokens : { tag : 1 } }, //
-							{ id : DATA_RAVEN, 	actions : [ { id : DATA_RAVEN_PASS, text : "Continue", cls : 'warning' } ] },
+					primary : { id : DATA_RAVEN, text : "Encountering ice",
+						subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on |Data Raven|" } ] },//
+					cards : [ { id : KATE, tokens : { tag : 1 } }, //
+					{ id : DATA_RAVEN, actions : [ { id : DATA_RAVEN_PASS, text : "Continue", cls : 'warning' } ] },
 							{ id : PIPELINE, actions : [ { id : PUMP_PIPELINE, cost : '{2:credit}', text : "Pump 1 strength" } ] } //
 					] });
 			} else if (action.id === DATA_RAVEN_JACKOUT) {
@@ -175,7 +175,22 @@
 				{ id : DATA_RAVEN, tokens : { power : 1 } } //										
 				] });
 
+			} else if (action.id === BREAK_WITH_PIPELINE) {
+				cm.publish({ primary : { id : DATA_RAVEN, text : "Encountering ice", subs : [ { id : 1, broken : true } ] },
+					chats : [ "Runner breaks '{3:trace} If successful, place 1 power counter on |Data Raven|', loses {1:credit}" ], //
+					cards : [ { id : KATE, tokens : { credit : 5 } },//
+					{ id : DATA_RAVEN, actions : [ { id : DATA_RAVEN_BROKEN, text : "Continue", cls : 'success' } ] }, //
+					] //
+				});
+			} else if (action.id === DATA_RAVEN_BROKEN) {
+				cm.publish({ chats : [ "|Data Raven| is passed" ], //
+				primary : { id : KATE, text : "Continue or jack-off ?" },//
+				cards : [//
+				{ id : KATE, actions : [ { id : 123456, text : "Continue", cls : 'success' }, { id : 123457, text : "Jack-off", cls : 'warning' } ] }, //						
+				] });
+
 			}
+
 		}
 
 		bootANR(connector);
