@@ -152,8 +152,8 @@ function CardManager(cardContainer, connector) {
 		this.corpActiveContainer = new BoxScoreContainer(this);
 		this.runnerActiveContainer = new BoxScoreContainer(this);
 
-		this.statusRow = new BoxContainer(this, new HorizontalLayoutFunction({ spacing : 5, align : 'center' }, {}));
-		new BoxStatusRow(this,this.statusRow);
+		this.statusRow = new BoxContainer(this, new HorizontalLayoutFunction({ spacing : 5, align : 'center' }, { zIndex : LAYER_LOG + 1 }));
+		new BoxStatusRow(this, this.statusRow);
 		this.handContainer = new BoxContainer(this, new HandLayoutFunction({}, { zIndex : LAYER_CARD, mode : "plain" }));
 
 		var innerClicks = new BoxContainer(this, new VerticalLayoutFunction({ align : 'center' }, {}));
@@ -214,12 +214,12 @@ function CardManager(cardContainer, connector) {
 				- padding / 2 - 50, 0);
 
 		this.chatContainer.absolutePosition = new LayoutCoords(5, 40, 0);
-		this.statusRow.absolutePosition = new LayoutCoords(5, 5, 0);
+		this.statusRow.absolutePosition = new LayoutCoords(1, 0, 0);
 
 		this.absoluteContainer.requireLayout();
-		
-		//mise à jour de tous les runs
-		_.each(this.runs,function(run){
+
+		// mise à jour de tous les runs
+		_.each(this.runs, function(run) {
 			run.redraw();
 		});
 	};
@@ -527,19 +527,17 @@ function CardManager(cardContainer, connector) {
 	 * Joue l'action
 	 */
 	this.playAction = function(action) {
-		
-		
-		
-			// reset des actions
-			var resetActions = function(e) {
-				e.resetActions();
-			}
-			_.each(me.cards, resetActions);
-			_.each(me.servers, resetActions);
-	
-			me.extbox.removeActions();
-	
-			connector.sendAction(action);
+
+		// reset des actions
+		var resetActions = function(e) {
+			e.resetActions();
+		}
+		_.each(me.cards, resetActions);
+		_.each(me.servers, resetActions);
+
+		me.extbox.removeActions();
+
+		connector.sendAction(action);
 	};
 
 	/**
@@ -724,7 +722,7 @@ function ChatContainer(cardManager) {
  */
 function ClickContainer(layoutManager) {
 	var me = this;
-	BoxContainer.call(this, layoutManager, new HorizontalLayoutFunction({}, {}));
+	BoxContainer.call(this, layoutManager, new HorizontalLayoutFunction({}, { zIndex : LAYER_LOG + 1 }));
 
 	/**
 	 * Permet d'afficher les clicks
@@ -785,18 +783,18 @@ function ClickContainer(layoutManager) {
 	}
 }
 
-function BoxStatusRow(layoutManager, container){
-	var me=this;
-	
+function BoxStatusRow(layoutManager, container) {
+	var me = this;
+
 	this.element = $("<div class='statusrow'></div>");
-	ElementBox.call(container, this.element);
+	ElementBox.call(container, this.element, true);
 	this.element.appendTo(layoutManager.cardContainer);
-	
-	container.customizeCss = function(css){
-		var box=this.getBounds().dimension;
-		css.height=box.height;
-		css.width=box.width;
-		css.zIndex=0;
+
+	container.customizeCss = function(css) {
+		var box = this.getBounds().dimension;
+		css.height = box.height;
+		css.width = box.width;
+		css.zIndex = 0;
 	}
 }
 
@@ -828,6 +826,7 @@ function BoxText(layoutManager, style) {
 				replace = function() {
 					me.oldText = "";
 					me.element.text("");
+					me.notifyBoxChanged();
 
 				}
 				changed = true;
@@ -885,7 +884,7 @@ function BoxFaction(layoutManager) {
  */
 function TurnStatusContainer(layoutManager) {
 	var me = this;
-	BoxContainer.call(this, layoutManager, new HorizontalLayoutFunction({ spacing : 3 }, {}));
+	BoxContainer.call(this, layoutManager, new HorizontalLayoutFunction({ spacing : 3 }, { zIndex : LAYER_LOG + 1 }));
 
 	this.factionBox = new BoxFaction(layoutManager);
 	this.factionBox.setParent(this);
@@ -900,16 +899,25 @@ function TurnStatusContainer(layoutManager) {
 	this.stepBox.element.appendTo(layoutManager.cardContainer);
 
 	this.syncTurn = function(turn) {
+		var redraw = false;
 		if (turn.player) {
 			var faction = layoutManager.factions[turn.player];
 			me.factionBox.setFaction(faction);
 		}
 
-		if (turn.phase)
-			me.phaseBox.setText(turn.phase)
+		if (turn.phase) {
+			me.phaseBox.setText(turn.phase);
+			redraw = true;
+		}
 
-		if (turn.step != null)
-			me.stepBox.setText(turn.step)
+		if (turn.step != null) {
+			me.stepBox.setText(turn.step);
+			redraw = true;
+		}
+		
+		if(redraw){
+			me.notifyBoxChanged();
+		}
 	}
 }
 
@@ -1103,7 +1111,7 @@ function RunElement(cardManager, def, target) {
 	this.element = createdDiv.appendTo(cardManager.cardContainer)
 	this.needDraw = false;
 	this.mode = "init";
-	this.reachedBox=null;
+	this.reachedBox = null;
 
 	this.redraw = function() {
 		this.needDraw = true;
@@ -1120,9 +1128,9 @@ function RunElement(cardManager, def, target) {
 	}
 
 	this.setTarget(target);
-	
-	this.setProgression=function(box){
-		this.reachedBox=box;
+
+	this.setProgression = function(box) {
+		this.reachedBox = box;
 		this.redraw();
 	}
 
@@ -1143,7 +1151,7 @@ function RunElement(cardManager, def, target) {
 			var h = cardManager.area.main.height;
 			if (this.reachedBox)
 				this.reachedBox.coords.y;
-			
+
 			if (this.mode === "clear") {
 				var remove = function() {
 					me.element.remove();
@@ -2250,6 +2258,25 @@ function ExtBox(cardManager) {
 		}
 	};
 
+	var applyEachInnerElements = function(closure) {
+
+		closure(me.displayedCard);
+
+		if (me.secondaryCard) {
+			closure(me.secondaryCard);
+		}
+
+		me.cardsContainer.each(closure);
+		me.hostedsContainer.each(closure);
+		me.hostContainer.each(closure);
+		me.actionsContainer.each(closure);
+
+		me.mainContainer.each(function(c) {
+			if ('subs' === c.type)
+				closure(c);
+		})
+	}
+
 	/**
 	 * Mise à jour des positions absolu des composants
 	 */
@@ -2267,21 +2294,7 @@ function ExtBox(cardManager) {
 				c.update(true);
 			}
 
-			redrawAndUpdate(me.displayedCard);
-
-			if (me.secondaryCard) {
-				redrawAndUpdate(me.secondaryCard);
-			}
-
-			me.cardsContainer.each(redrawAndUpdate);
-			me.hostedsContainer.each(redrawAndUpdate);
-			me.hostContainer.each(redrawAndUpdate);
-			me.actionsContainer.each(redrawAndUpdate);
-
-			me.mainContainer.each(function(c) {
-				if ('subs' === c.type)
-					redrawAndUpdate(c);
-			})
+			applyEachInnerElements(redrawAndUpdate);
 		}
 	}
 
@@ -2436,7 +2449,7 @@ function ExtBox(cardManager) {
 		}
 
 		if (card.actions) {
-			//on supprime toutes les actions et on les recrées
+			// on supprime toutes les actions et on les recrées
 			me.removeActions(true);
 			_.each(card.actions, me.addAction);
 		}
@@ -2521,12 +2534,12 @@ function ExtBox(cardManager) {
 		act.entrance();
 
 		act.click(function(event) {
-			
-			//suppression des autres actions possibles
-			act.click(function(){
-				//NOOP
+
+			// suppression des autres actions possibles
+			act.click(function() {
+				// NOOP
 			});
-			
+
 			event.stopPropagation();
 			cardManager.startCycle();
 			cardManager.playAction(def);
@@ -2670,17 +2683,7 @@ function ExtBox(cardManager) {
 						card.redraw();
 				};
 
-				redraw(this.displayedCard);
-				redraw(me.secondaryCard);
-
-				me.cardsContainer.each(redraw);
-				me.hostedsContainer.each(redraw);
-				me.hostContainer.each(redraw);
-				me.actionsContainer.each(redraw);
-				me.mainContainer.each(function(c) {
-					if ('subs' === c.type)
-						redraw(c);
-				})
+				applyEachInnerElements(redraw);
 			}
 		}
 	}
@@ -2699,7 +2702,7 @@ function ElementBox(element, sandboxed) {
 	 */
 	var innerSize = function() {
 		return new Dimension(this.outerWidth(true), this.outerHeight(true))
-	};                        
+	};
 
 	/**
 	 * Utilise l'élément
