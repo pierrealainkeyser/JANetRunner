@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
-import org.keyser.anr.core.UserActionContext.Type;
 import org.keyser.anr.core.corp.Ice;
 import org.keyser.anr.core.runner.DoDamageEvent;
 import org.keyser.anr.core.runner.DoDamageEvent.DamageType;
@@ -276,15 +275,15 @@ public class Turn {
 	private void initPhase() {
 		setPhase(Phase.INITING);
 
-		// d�marrage technique, mise en place des actions
+		// démarrage technique, mise en place des actions
 		game.fire(new InitTurn());
 		AbstractId id = game.getId(active);
 
 		if (active == PlayerType.CORP) {
-			id.setActions(3);
+			id.setActiveAction(3);
 			drawPhase();
 		} else {
-			id.setActions(4);
+			id.setActiveAction(4);
 			startTurn();
 		}
 	}

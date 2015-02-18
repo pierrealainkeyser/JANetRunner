@@ -7,28 +7,28 @@ public class UserActionContext {
 	}
 
 	/**
-	 * Le text associ�
+	 * Le text associé
 	 */
-	private String customText;
+	private String text;
 
 	/**
-	 * La carte primaire, peut �tre null
+	 * La carte primaire, peut être null
 	 */
-	private AbstractCard primary;
+	private Integer primary;
 
 	private Type type;
 
 	public UserActionContext(AbstractCard primary, String customText, Type type) {
-		this.primary = primary;
-		this.customText = customText;
+		this.primary = primary != null ? primary.getId() : null;
+		this.text = customText;
 		this.type = type;
 	}
 
-	public String getCustomText() {
-		return customText;
+	public String getText() {
+		return text;
 	}
 
-	public AbstractCard getPrimary() {
+	public Integer getPrimary() {
 		return primary;
 	}
 

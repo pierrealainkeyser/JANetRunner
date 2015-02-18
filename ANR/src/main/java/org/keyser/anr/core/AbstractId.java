@@ -12,7 +12,7 @@ public abstract class AbstractId extends AbstractCard {
 
 	private final PlayerType playerType;
 
-	private int actions;
+	private final Clicks clicks = new Clicks();
 
 	/**
 	 * Les sources de credits
@@ -48,11 +48,12 @@ public abstract class AbstractId extends AbstractCard {
 		draw(1, next);
 	}
 
-	public void setActions(int actions) {
-		boolean changed = this.actions != actions;
-		this.actions = actions;
-		if (changed)
-			game.fire(new AbstractCardActionChangedEvent(this));
+	public void setActiveAction(int active) {
+
+		this.clicks.setActive(active);
+		this.clicks.setUsed(0);
+
+		game.fire(new AbstractCardActionChangedEvent(this));
 	}
 
 	public void addCreditsSource(TokenCreditsSource source) {
@@ -68,8 +69,11 @@ public abstract class AbstractId extends AbstractCard {
 	 * 
 	 * @param delta
 	 */
-	public void alterAction(int delta) {
-		setActions(getActions() + delta);
+	public void useAction(int delta) {
+
+		this.clicks.setUsed(clicks.getUsed() + delta);
+		game.fire(new AbstractCardActionChangedEvent(this));
+
 	}
 
 	/**
@@ -87,7 +91,7 @@ public abstract class AbstractId extends AbstractCard {
 		// consommation des actions
 		int nbActions = cost.getValue(CostType.ACTION);
 		if (nbActions > 0)
-			alterAction(-nbActions);
+			useAction(-nbActions);
 
 		// gestion du cout de trash
 		if (cost.getValue(CostType.TRASH_SELF) > 0) {
@@ -159,7 +163,7 @@ public abstract class AbstractId extends AbstractCard {
 	}
 
 	public boolean hasAction() {
-		return actions > 0;
+		return clicks.remaining() > 0;
 	}
 
 	@Override
@@ -171,7 +175,7 @@ public abstract class AbstractId extends AbstractCard {
 
 		int action = cost.getCost().getValue(CostType.ACTION);
 		if (action > 0) {
-			if (!(actions >= action && game.getTurn().mayPlayAction()))
+			if (!(clicks.remaining() >= action && game.getTurn().mayPlayAction()))
 				return false;
 		}
 
@@ -179,8 +183,8 @@ public abstract class AbstractId extends AbstractCard {
 		return true;
 	}
 
-	public int getActions() {
-		return actions;
+	public Clicks getClicks() {
+		return clicks;
 	}
 
 }

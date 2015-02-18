@@ -11,6 +11,10 @@ import org.keyser.anr.core.TokenType;
 
 public class CardDto {
 
+	public enum CardType{
+		id
+	}
+	
 	public enum Face {
 		down, up
 	}
@@ -22,6 +26,8 @@ public class CardDto {
 	private PlayerType faction;
 
 	private int id;
+	
+	private CardType type;
 
 	private CardLocation location;
 
@@ -36,6 +42,12 @@ public class CardDto {
 		this.id = id;
 	}
 
+	public void addAction(ActionDto dto) {
+		if (actions == null)
+			actions = new ArrayList<>();
+		actions.add(dto);
+	}
+
 	public void addToken(TokenType type, int value) {
 		if (tokens == null)
 			tokens = new LinkedHashMap<String, Integer>();
@@ -48,58 +60,60 @@ public class CardDto {
 		return actions;
 	}
 
-	public void addAction(ActionDto dto) {
-		if (actions == null)
-			actions = new ArrayList<>();
-		actions.add(dto);
-	}
-
-	public void setActions(List<ActionDto> actions) {
-		this.actions = actions;
+	public CardType getType() {
+		return type;
 	}
 
 	public Face getFace() {
 		return face;
 	}
 
-	public void setFace(Face face) {
-		this.face = face;
-	}
-
 	public PlayerType getFaction() {
 		return faction;
-	}
-
-	public void setFaction(PlayerType faction) {
-		this.faction = faction;
 	}
 
 	public int getId() {
 		return id;
 	}
 
-	public void setId(int id) {
-		this.id = id;
-	}
-
 	public CardLocation getLocation() {
 		return location;
-	}
-
-	public void setLocation(CardLocation location) {
-		this.location = location;
 	}
 
 	public Map<String, Integer> getTokens() {
 		return tokens;
 	}
 
-	public void setTokens(Map<String, Integer> tokens) {
-		this.tokens = tokens;
-	}
-
 	public String getUrl() {
 		return url;
+	}
+
+	public void setActions(List<ActionDto> actions) {
+		this.actions = actions;
+	}
+
+	public void setType(CardType cardType) {
+		this.type = cardType;
+	}
+
+	public void setFace(Face face) {
+		this.face = face;
+	}
+
+	public void setFaction(PlayerType faction) {
+		this.faction = faction;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public void setLocation(CardLocation location) {
+		this.location = location;
+	}
+
+	public void setTokens(Map<String, Integer> tokens) {
+		this.tokens = tokens;
 	}
 
 	public void setUrl(String url) {
