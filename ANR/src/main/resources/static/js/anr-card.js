@@ -339,7 +339,23 @@ function CardManager(cardContainer, connector) {
 
 	};
 
+	var isMyFaction = function(action) {
+		return me.faction === action.faction;
+	}
+
+	var filterLocalActions = function(actions) {
+		_.each(actions, function(a) {
+			if (a.faction === 'corp')
+				me.runnerHasAction = true;
+			else if (a.faction === 'runner')
+				me.corpHasAction = true;
+		});
+		return _.filter(actions, isMyFaction);
+
+	}
+
 	var updateAllCards = function(elements) {
+
 		for ( var c in elements.cards) {
 			var def = elements.cards[c];
 			var card = me.getCard(def);
@@ -365,7 +381,7 @@ function CardManager(cardContainer, connector) {
 				card.setTokens(def.tokens);
 
 			if (def.actions) {
-				card.setActions(def.actions);
+				card.setActions(filterLocalActions(def.actions));
 				card.fireCoordsChanged();
 			}
 
@@ -375,6 +391,7 @@ function CardManager(cardContainer, connector) {
 			else if (me.isDisplayedSecondary(card))
 				me.extbox.updateSecondary(card);
 		}
+
 	};
 
 	/**
@@ -386,7 +403,7 @@ function CardManager(cardContainer, connector) {
 			var serv = me.getServer(def);
 
 			if (def.actions) {
-				serv.setActions(def.actions);
+				serv.setActions(filterLocalActions(def.actions));
 				serv.fireCoordsChanged();
 			}
 		}
@@ -407,6 +424,20 @@ function CardManager(cardContainer, connector) {
 	 */
 	this.update = function(elements) {
 
+		var factionSet = false;
+		if (!me.faction) {
+			me.faction = elements.local;
+			me.factions = elements.factions;
+
+			me.corpActiveContainer.setFaction(me.factions.corp);
+			me.runnerActiveContainer.setFaction(me.factions.runner);
+			factionSet = true;
+		}
+
+		// permet de savoir s'il y a des actions pour la corp ou le runner
+		me.corpHasAction = false;
+		me.runnerHasAction = false;
+
 		createAllCards(elements);
 		createAllServers(elements);
 		createAllRuns(elements);
@@ -414,6 +445,18 @@ function CardManager(cardContainer, connector) {
 		updateAllCards(elements);
 		updateAllServers(elements);
 		updateAllRuns(elements);
+
+		me.corpActiveContainer.setActive(me.corpHasAction);
+		me.runnerActiveContainer.setActive(me.runnerHasAction);
+
+		if (factionSet) {
+			_.each(me.cards, function(card) {
+				var def = card.def;
+				if (def.faction === me.faction && 'id' === def.type) {
+					me.setFocused(card);
+				}
+			});
+		}
 
 		if (elements.primary) {
 			me.primaryCardId = elements.primary.id;
@@ -447,28 +490,16 @@ function CardManager(cardContainer, connector) {
 			me.clicksContainer.setClicks(elements.clicks.active, elements.clicks.used);
 		}
 
-		if (!me.faction) {
-			me.faction = elements.local;
-			me.factions = elements.factions;
+		if (elements.score) {
+			var corp = elements.score.corp;
+			if (corp !== null) {
+				me.corpActiveContainer.setScore(corp);
+			}
 
-			me.corpActiveContainer.setFaction(me.factions.corp);
-			me.runnerActiveContainer.setFaction(me.factions.runner);
-
-			_.each(me.cards, function(card) {
-				var def = card.def;
-				if (def.faction === me.faction && 'id' === def.type) {
-					me.setFocused(card);
-				}
-			});
-		}
-
-		if (elements.activity) {
-			var act = elements.activity;
-			if (act.corp)
-				me.corpActiveContainer.setActivity(act.corp);
-
-			if (act.runner)
-				me.runnerActiveContainer.setActivity(act.runner);
+			var runner = elements.score.runner;
+			if (runner != null) {
+				me.runnerActiveContainer.setScore(runner);
+			}
 		}
 
 		if (elements.turn) {
@@ -914,8 +945,8 @@ function TurnStatusContainer(layoutManager) {
 			me.stepBox.setText(turn.step);
 			redraw = true;
 		}
-		
-		if(redraw){
+
+		if (redraw) {
 			me.notifyBoxChanged();
 		}
 	}
@@ -959,9 +990,13 @@ function BoxScoreContainer(layoutManager) {
 		me.factionBox.setFaction(faction);
 	}
 
-	this.setActivity = function(activity) {
-		me.scoreBox.setText(String(activity.score));
-		me.active = activity.active;
+	this.setScore = function(score) {
+		me.scoreBox.setText(String(score));
+		me.fireCoordsChanged();
+	}
+
+	this.setActive = function(active) {
+		me.active = active;
 		me.fireCoordsChanged();
 	}
 
