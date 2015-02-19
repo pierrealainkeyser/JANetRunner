@@ -1,10 +1,12 @@
 package org.keyser.anr.web;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.keyser.anr.core.Game;
+import org.keyser.anr.core.PlayerType;
 import org.keyser.anr.core.UserInputConverter;
 import org.keyser.anr.web.dto.EventsBasedGameDtoBuilder;
 import org.keyser.anr.web.dto.GameDto;
@@ -24,8 +26,11 @@ public class Endpoint {
 
 	private final List<SuscriberKey> alloweds;
 
-	public Endpoint(EndpointProcessor processor, Game game,
-			List<SuscriberKey> alloweds) {
+	public Endpoint(EndpointProcessor processor, Game game, String corpKey, String runnerKey) {
+		this(processor, game, Arrays.asList(new SuscriberKey(corpKey, PlayerType.CORP), new SuscriberKey(runnerKey, PlayerType.RUNNER)));
+	}
+
+	private Endpoint(EndpointProcessor processor, Game game, List<SuscriberKey> alloweds) {
 		this.processor = processor;
 		this.game = game;
 		this.alloweds = alloweds;
@@ -48,16 +53,19 @@ public class Endpoint {
 		connected.remove(r);
 	}
 
-	public void refresh(RemoteSuscriber r) {
+	public void refresh(RemoteSuscriber suscriber) {
 		GameDto dto = new EventsBasedGameDtoBuilder(game).create();
-		r.send(new TypedMessage(RemoteVerbs.VERB_REFRESH, dto));
+		dto.setLocal(suscriber.getKey().getType());
+		
+		
+		
+		suscriber.send(new TypedMessage(RemoteVerbs.VERB_REFRESH, dto));
 	}
 
 	public void receive(ResponseDTO message, UserInputConverter converter) {
 
-		// preparation de la création asynchrone en écoutant les evt
-		EventsBasedGameDtoBuilder builder = new EventsBasedGameDtoBuilder(game)
-				.listen();
+		// preparation de la crï¿½ation asynchrone en ï¿½coutant les evt
+		EventsBasedGameDtoBuilder builder = new EventsBasedGameDtoBuilder(game).listen();
 
 		// invocation de la reponse
 		game.invoke(message.getRid(), converter, message.getContent());

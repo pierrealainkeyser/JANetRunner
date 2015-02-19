@@ -24,12 +24,28 @@
 
 <script type="text/javascript" data-th-inline="javascript">
 	/*<![CDATA[*/
-	$(function() {
+
+	var gameId = /*[[${gameId}]]*/'12345';
+	var connector = new GameConnector(gameId);
+
+	if (true) {
+
+		var socket = new WebSocket("ws://" + window.location.host + "/ws/play");
+		var send = function(e) {
+			socket.send(JSON.stringify(e));
+		}
+		socket.onopen = function(e) {
+			send({ type : 'ready', data : { game : gameId } });
+		}
+		socket.onmessage = function(e) {
+			var inner = JSON.parse(e.data);
+			if (inner.type === 'broadcast' || inner.type === 'refresh')
+				connector.cardManager.publish(inner.data);
+		}
+
+	} else {
 
 		//modification pour commit
-		var gameId = /*[[${gameId}]]*/12345;
-		var connector = new GameConnector(gameId);
-
 		var SURE_GAMBLE = 19;
 		var PLAY_SURE_GAMBLE = 199;
 		var KATE = 5;
@@ -55,7 +71,7 @@
 				servers : [ //
 				{ id : -1, name : "Archives" },//
 				{ id : -2, name : "R&D" }, //
-				{ id : -3, name : "HQ", actions : [ { id : RUN_HQ, text : "Run", cost : "{1:click}" , faction : "runner" } ] } //		
+				{ id : -3, name : "HQ", actions : [ { id : RUN_HQ, text : "Run", cost : "{1:click}", faction : "runner" } ] } //		
 				],//
 				clicks : { active : 4, used : 0 },//
 				turn : { phase : "Action", player : "runner" },//
@@ -201,11 +217,11 @@
 								actions : [ { id : 123456, text : "Continue", cls : 'success', faction : "runner" },
 										{ id : 123457, text : "Jack-off", cls : 'warning', faction : "runner" } ] }, //						
 					] });
-
 			}
-
 		}
+	}
 
+	$(function() {
 		bootANR(connector);
 	});
 

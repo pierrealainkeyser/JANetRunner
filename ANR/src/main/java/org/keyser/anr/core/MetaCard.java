@@ -29,7 +29,7 @@ public class MetaCard {
 	}
 
 	/**
-	 * Permet de créer une carte
+	 * Permet de crï¿½er une carte
 	 * 
 	 * @param game
 	 * @param id
@@ -45,6 +45,10 @@ public class MetaCard {
 
 	public String getGraphic() {
 		return graphic;
+	}
+
+	public Faction getFaction() {
+		return influence.getFaction();
 	}
 
 	public Influence getInfluence() {

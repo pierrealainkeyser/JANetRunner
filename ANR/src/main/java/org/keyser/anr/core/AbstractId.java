@@ -14,6 +14,8 @@ public abstract class AbstractId extends AbstractCard {
 
 	private final Clicks clicks = new Clicks();
 
+	private int score = 0;
+
 	/**
 	 * Les sources de credits
 	 */
@@ -185,6 +187,18 @@ public abstract class AbstractId extends AbstractCard {
 
 	public Clicks getClicks() {
 		return clicks;
+	}
+
+	public int getScore() {
+		return score;
+	}
+
+	public void setScore(int score) {
+		int old = this.score;
+		this.score = score;
+		if (old != score)
+			game.fire(new AbstractCardScoreChangedEvent(this));
+
 	}
 
 }

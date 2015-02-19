@@ -88,4 +88,8 @@ public class CorpServer {
 		assetOrUpgrades.add(card);
 	}
 
+	public int getId() {
+		return id;
+	}
+
 }

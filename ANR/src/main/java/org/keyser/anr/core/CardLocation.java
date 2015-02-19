@@ -1,5 +1,7 @@
 package org.keyser.anr.core;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * La position d'une carte. Utilis� pour la partie client
  * 
@@ -9,15 +11,15 @@ package org.keyser.anr.core;
 public class CardLocation {
 
 	public enum Primary {
-		SERVER, GRIP, HEAP, STACK, RUNNER_SCORE, CORP_SCORE, HARDWARES, PROGRAMS, RESOURCES, HOSTED;
+		SERVER, GRIP, HEAP, STACK, RUNNERSCORE, CORPSCORE, HARDWARES, PROGRAMS, RESOURCES, HOSTED;
 	}
 
 	public enum Secondary {
-		ICES, ASSET_OR_UPGRADES, UPGRADES, STACK
+		ICES, ASSETORUPGRADES, UPGRADES, STACK
 	}
 
 	public static CardLocation assetOrUpgrades(int server, int aou) {
-		return new CardLocation(Primary.SERVER, server, Secondary.ASSET_OR_UPGRADES, aou);
+		return new CardLocation(Primary.SERVER, server, Secondary.ASSETORUPGRADES, aou);
 	}
 
 	public static CardLocation grip(int index) {
@@ -94,10 +96,12 @@ public class CardLocation {
 		return index;
 	}
 
+	@JsonIgnore
 	public boolean isInCorpHand() {
 		return primary == Primary.SERVER && serverIndex == HQ_INDEX && secondary == Secondary.STACK;
 	}
 
+	@JsonIgnore
 	public boolean isInRunnerHand() {
 		return primary == Primary.GRIP;
 	}

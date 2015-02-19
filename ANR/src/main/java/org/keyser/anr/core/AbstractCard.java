@@ -20,6 +20,16 @@ import org.springframework.util.ClassUtils;
  */
 public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 
+	public static Predicate<AbstractCard> hasSubtypes(CardSubType... subtypes) {
+		return (a) -> {
+			for (CardSubType s : subtypes) {
+				if (a.getSubTypes().contains(s))
+					return true;
+			}
+			return false;
+		};
+	}
+
 	private final EventMatchers events = new EventMatchers();
 
 	protected Game game;
@@ -41,7 +51,7 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	private final List<CardSubType> subTypes;
 
 	private Map<TokenType, Integer> tokens = new EnumMap<>(TokenType.class);
-
+	
 	protected AbstractCard(int id, MetaCard meta, Predicate<CollectHabilities> playPredicate, Predicate<CardLocation> playLocation) {
 
 		super(i -> CardLocation.hosted(id, i));
@@ -54,7 +64,7 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 		if (playPredicate != null && playLocation != null)
 			match(CollectHabilities.class, em -> playAction(em, playPredicate.and(location(playLocation))));
 	}
-	
+
 	/**
 	 * Permet de rajouter des actions
 	 * @param registerAction
@@ -62,32 +72,6 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	protected final void addAction(FlowArg<CollectHabilities> registerAction) {
 		// on recherche les actions jouables par défaut
 		match(CollectHabilities.class, em -> em.test(ch -> ch.isAllowAction() && ch.getType() == getOwner() && rezzed).call(registerAction));
-	}
-
-	@Override
-	public String toString() {
-		return ClassUtils.getShortName(getClass()) + "[id=" + id + "]";
-	}
-
-	protected void whileInstalled(FlowArg<Flow> onInstall, FlowArg<Flow> onRemove) {
-		if (onInstall != null)
-			match(AbstractCardInstalledCleanup.class, actc -> bindCleanup(actc, onInstall));
-		if (onRemove != null)
-			match(AbstractCardUnistalledCleanup.class, actc -> bindCleanup(actc, onRemove));
-	}
-
-	private void bindCleanup(EventMatcherBuilder<? extends AbstractCardCleanup> ric, FlowArg<Flow> call) {
-		ric.test(AbstractCardCleanup.with(myself()));
-		ric.apply((evt, next) -> call.apply(next));
-	}
-
-	/**
-	 * Permet d'envoyer l'evenement technique de nettoyage
-	 * 
-	 * @param next
-	 */
-	protected void cleanupInstall(Flow next) {
-		getGame().apply(new AbstractCardInstalledCleanup(this), next);
 	}
 
 	/**
@@ -98,8 +82,6 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	protected void addRecuringCredit(int value) {
 		match(InitTurn.class, em -> em.test(myTurn()).run(() -> setToken(TokenType.RECURRING, value)));
 	}
-
-	public abstract PlayerType getOwner();
 
 	/**
 	 * Modification du delta
@@ -112,9 +94,34 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 		setToken(type, value + delta);
 	}
 
+	private void bindCleanup(EventMatcherBuilder<? extends AbstractCardCleanup> ric, FlowArg<Flow> call) {
+		ric.test(AbstractCardCleanup.with(myself()));
+		ric.apply((evt, next) -> call.apply(next));
+	}
+
 	public void bindGame(Game game, EventMatcherListener listener) {
 		this.game = game;
 		events.install(listener);
+	}
+
+	protected Stream<AbstractCard> cards() {
+		return getGame().getCards().stream();
+	}
+
+	/**
+	 * Permet d'envoyer l'evenement technique de nettoyage
+	 * 
+	 * @param next
+	 */
+	protected void cleanupInstall(Flow next) {
+		getGame().apply(new AbstractCardInstalledCleanup(this), next);
+	}
+
+	protected <T> Predicate<T> corp(Predicate<Corp> p) {
+		return (t) -> {
+			Corp c = getCorp();
+			return c != null && p.test(c);
+		};
 	}
 
 	/**
@@ -125,6 +132,10 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	 */
 	protected Predicate<CollectHabilities> customizePlayPredicate(Predicate<CollectHabilities> pred) {
 		return pred;
+	}
+
+	public void eachToken(BiConsumer<TokenType, Integer> consumer) {
+		tokens.forEach(consumer);
 	}
 
 	@Override
@@ -153,12 +164,28 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 		return getCost().clone().withAction(1);
 	}
 
+	public Faction getFaction() {
+		return meta.getFaction();
+	}
+
 	public Game getGame() {
 		return game;
 	}
 
 	public String getGraphic() {
 		return meta.getGraphic();
+	}
+
+	/**
+	 * Renvoi l'hote ou null
+	 * 
+	 * @return
+	 */
+	public AbstractCard getHost() {
+		if (parent instanceof AbstractCard) {
+			return (AbstractCard) parent;
+		}
+		return null;
 	}
 
 	public int getId() {
@@ -173,16 +200,14 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 		return meta;
 	}
 
+	public abstract PlayerType getOwner();
+
 	public Runner getRunner() {
 		return game.getRunner();
 	}
 
 	public List<CardSubType> getSubTypes() {
 		return subTypes;
-	}
-
-	public void eachToken(BiConsumer<TokenType, Integer> consumer) {
-		tokens.forEach(consumer);
 	}
 
 	public int getToken(TokenType type) {
@@ -202,26 +227,13 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 		return (t) -> getToken(type) > 0;
 	}
 
-	protected <T> Predicate<T> myself() {
-		return (o) -> o instanceof AbstractCard && ((AbstractCard) o).getId() == getId();
+	public void hostCard(AbstractCard card, HostType type) {
+		add(card);
+		card.hostedAs = type;
 	}
 
 	protected <T> Predicate<T> installed() {
 		return (t) -> installed;
-	}
-
-	public static Predicate<AbstractCard> hasSubtypes(CardSubType... subtypes) {
-		return (a) -> {
-			for (CardSubType s : subtypes) {
-				if (a.getSubTypes().contains(s))
-					return true;
-			}
-			return false;
-		};
-	}
-
-	protected Stream<AbstractCard> cards() {
-		return getGame().getCards().stream();
 	}
 
 	public boolean isInstalled() {
@@ -248,6 +260,14 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 		events.add(builder);
 	}
 
+	protected <T> Predicate<T> myself() {
+		return (o) -> o instanceof AbstractCard && ((AbstractCard) o).getId() == getId();
+	}
+
+	protected <T> Predicate<T> myTurn() {
+		return turn(t->t.getActive()==getOwner());
+	}
+
 	protected void playAction(EventMatcherBuilder<CollectHabilities> em, Predicate<CollectHabilities> playPredicate) {
 
 		// il faut nécessaire avoir le droit de faire une action
@@ -255,20 +275,6 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 
 		em.test(customizePlayPredicate(playPredicate));
 		em.call(this::playFeedback);
-	}
-
-	/**
-	 * Permet de trasher la card avec le contexte
-	 * 
-	 * @param ctx
-	 * @param next
-	 */
-	public void trash(Object ctx, Flow next) {
-		setRezzed(false);
-		setInstalled(false);
-		
-		// TODO
-		next.apply();
 	}
 
 	/**
@@ -284,28 +290,11 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	protected <T> Predicate<T> rezzed() {
 		return (t) -> rezzed;
 	}
-
+	
 	protected <T> Predicate<T> runner(Predicate<Runner> p) {
 		return (t) -> {
 			Runner r = getRunner();
 			return r != null && p.test(r);
-		};
-	}
-
-	protected <T> Predicate<T> corp(Predicate<Corp> p) {
-		return (t) -> {
-			Corp c = getCorp();
-			return c != null && p.test(c);
-		};
-	}
-	
-	protected <T> Predicate<T> myTurn() {
-		return turn(t->t.getActive()==getOwner());
-	}
-
-	protected <T> Predicate<T> turn(Predicate<Turn> p) {
-		return (t) -> {
-			return p.test(game.getTurn());
 		};
 	}
 
@@ -319,23 +308,6 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 		}
 
 		this.parent = container;
-	}
-
-	/**
-	 * Renvoi l'hote ou null
-	 * 
-	 * @return
-	 */
-	public AbstractCard getHost() {
-		if (parent instanceof AbstractCard) {
-			return (AbstractCard) parent;
-		}
-		return null;
-	}
-
-	public void hostCard(AbstractCard card, HostType type) {
-		add(card);
-		card.hostedAs = type;
 	}
 
 	public void setInstalled(boolean installed) {
@@ -376,5 +348,37 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 		if (old != value)
 			game.fire(new AbstractCardTokenEvent(this, type));
 
+	}
+
+	@Override
+	public String toString() {
+		return ClassUtils.getShortName(getClass()) + "[id=" + id + "]";
+	}
+
+	/**
+	 * Permet de trasher la card avec le contexte
+	 * 
+	 * @param ctx
+	 * @param next
+	 */
+	public void trash(Object ctx, Flow next) {
+		setRezzed(false);
+		setInstalled(false);
+		
+		// TODO
+		next.apply();
+	}
+
+	protected <T> Predicate<T> turn(Predicate<Turn> p) {
+		return (t) -> {
+			return p.test(game.getTurn());
+		};
+	}
+
+	protected void whileInstalled(FlowArg<Flow> onInstall, FlowArg<Flow> onRemove) {
+		if (onInstall != null)
+			match(AbstractCardInstalledCleanup.class, actc -> bindCleanup(actc, onInstall));
+		if (onRemove != null)
+			match(AbstractCardUnistalledCleanup.class, actc -> bindCleanup(actc, onRemove));
 	}
 }

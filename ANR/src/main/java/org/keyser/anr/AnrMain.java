@@ -3,7 +3,12 @@ package org.keyser.anr;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.keyser.anr.core.Game;
+import org.keyser.anr.core.TokenType;
+import org.keyser.anr.core.corp.nbn.MakingNews;
+import org.keyser.anr.core.runner.shaper.KateMcCaffrey;
 import org.keyser.anr.web.AnrWebSocketHandler;
+import org.keyser.anr.web.Endpoint;
 import org.keyser.anr.web.EndpointProcessor;
 import org.keyser.anr.web.GameController;
 import org.keyser.anr.web.GameRepository;
@@ -18,6 +23,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
@@ -42,12 +48,26 @@ public class AnrMain implements WebSocketConfigurer {
 
 	@Bean
 	public ObjectMapper objectMapper() {
-		return new ObjectMapper();
+		ObjectMapper objectMapper = new ObjectMapper();		
+		objectMapper.setSerializationInclusion(Include.NON_NULL);		
+		return objectMapper;
 	}
 
 	@Bean
 	public GameRepository gameRepository() {
-		return new GameRepository();
+		GameRepository gameRepository = new GameRepository();
+
+		Game g = new Game();
+		MakingNews mn = (MakingNews) g.create(MakingNews.INSTANCE);
+		mn.setToken(TokenType.CREDIT, 5);
+		
+		KateMcCaffrey kcc = (KateMcCaffrey) g.create(KateMcCaffrey.INSTANCE);
+		kcc.setToken(TokenType.CREDIT, 5);
+		g.start();
+
+		gameRepository.register(new Endpoint(endpointProcessor(), g, "123", "456"));
+
+		return gameRepository;
 	}
 
 	@Bean

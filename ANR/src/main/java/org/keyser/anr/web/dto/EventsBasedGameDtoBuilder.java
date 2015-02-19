@@ -3,6 +3,7 @@ package org.keyser.anr.web.dto;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,14 +13,18 @@ import org.keyser.anr.core.AbstractCardLocationEvent;
 import org.keyser.anr.core.AbstractCardRezzEvent;
 import org.keyser.anr.core.AbstractCardTokenEvent;
 import org.keyser.anr.core.AbstractId;
+import org.keyser.anr.core.Corp;
 import org.keyser.anr.core.EventMatcherBuilder;
 import org.keyser.anr.core.EventMatchers;
 import org.keyser.anr.core.FlowArg;
 import org.keyser.anr.core.Game;
 import org.keyser.anr.core.Game.ActionsContext;
 import org.keyser.anr.core.PlayerType;
+import org.keyser.anr.core.Runner;
+import org.keyser.anr.core.Turn;
 import org.keyser.anr.core.UserAction;
 import org.keyser.anr.web.dto.CardDto.CardType;
+import org.keyser.anr.web.dto.ServerDto.Operation;
 
 public class EventsBasedGameDtoBuilder {
 
@@ -95,11 +100,31 @@ public class EventsBasedGameDtoBuilder {
 		matchers.add(match);
 	}
 
+	private ServerDto createServer(int id, Operation operation) {
+		String name = "Remote";
+		if (id == -1)
+			name = "Archives";
+		else if (id == -2)
+			name = "R&D";
+		else if (id == -3)
+			name = "H&Q";
+
+		return new ServerDto(id, name, operation);
+	}
+
 	public GameDto create() {
 		GameDto dto = new GameDto();
 		dto.setClicks(game.getId(game.getActivePlayer()).getClicks());
 
-		// TODO liste des servers
+		Corp corp = game.getCorp();
+		Runner runner = game.getRunner();
+		dto.setFactions(corp.getFaction(), runner.getFaction());
+		dto.setScore(corp.getScore(), runner.getScore());
+
+		List<ServerDto> servers = new ArrayList<>();
+		corp.eachServers(cs -> servers.add(createServer(cs.getId(), Operation.create)));
+		dto.setServers(servers);
+
 		for (AbstractCard ac : game.getCards()) {
 			CardDto cdto = getOrCreate(ac);
 
@@ -122,13 +147,22 @@ public class EventsBasedGameDtoBuilder {
 
 		ActionsContext actionsContext = game.getActionsContext();
 		dto.setPrimary(actionsContext.getContext());
+		Turn turn = game.getTurn();
+		dto.setTurn(new TurnDTO(turn.getActive(), turn.getPhase()));
+
+		// maj jour des actions
+		PlayerType activePlayer = turn.getActive();
+		if (actionsChanged.contains(activePlayer)) {
+			dto.setClicks(game.getId(activePlayer).getClicks());
+		}
 
 		// les actions sont à mapper sur les cartes...
 		if (!cards.isEmpty()) {
-
 			for (UserAction ua : actionsContext.getUserActions()) {
 				CardDto cdto = getOrCreate(ua.getSource());
-				cdto.addAction(convert(ua));
+				ActionDto action = convert(ua);
+				if (action != null)
+					cdto.addAction(action);
 			}
 
 			dto.setCards(new ArrayList<>(cards.values()));
@@ -151,11 +185,6 @@ public class EventsBasedGameDtoBuilder {
 		GameDto dto = new GameDto();
 		// TODO liste des nouveaux serveurs
 
-		// maj jour des actions
-		PlayerType activePlayer = game.getActivePlayer();
-		if (actionsChanged.contains(activePlayer)) {
-			dto.setClicks(game.getId(activePlayer).getClicks());
-		}
 		updateCommon(game, dto);
 		return dto;
 	}

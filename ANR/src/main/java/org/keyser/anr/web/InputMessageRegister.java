@@ -12,9 +12,6 @@ public class InputMessageRegister extends InputMessage {
 		RemoteSuscriber suscriber = getSuscriber();
 		e.add(suscriber);
 
-		// émission du message de connection en précistant la faction au distant
-		suscriber.send(new TypedMessage(RemoteVerbs.VERB_CONNECTED, suscriber.getKey().getType()));
-
 		e.refresh(suscriber);
 	}
 

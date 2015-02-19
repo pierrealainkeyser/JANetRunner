@@ -39,7 +39,7 @@ public class KateMcCaffrey extends Runner {
 
 	private void updateCost(EventMatcherBuilder<CostDeterminationEvent> em) {
 		Predicate<CostDeterminationEvent> with = CostDeterminationEvent.with(o -> o instanceof InstallHardwareAction || o instanceof InstallProgramAction);
-		em.test(with.and(hasToken(TokenType.SPECIAL_EFFECT)));
+		em.test(with.and(hasToken(TokenType.HABILITY)));
 		em.call(this::computeCostReduction);
 	}
 
@@ -52,15 +52,15 @@ public class KateMcCaffrey extends Runner {
 	}
 
 	/**
-	 * Remise à zero du token
+	 * Remise ï¿½ zero du token
 	 * 
 	 * @param start
 	 */
 	private void resetToken() {
-		setToken(TokenType.SPECIAL_EFFECT, 1);
+		setToken(TokenType.HABILITY, 1);
 	}
 
 	private void consumeToken() {
-		setToken(TokenType.SPECIAL_EFFECT, 0);
+		setToken(TokenType.HABILITY, 0);
 	}
 }

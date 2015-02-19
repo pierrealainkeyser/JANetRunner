@@ -316,10 +316,10 @@ function CardManager(cardContainer, connector) {
 	}
 
 	var findContainer = function(path) {
-		var first = path.primary;
+		var first = path.primary.toLowerCase();
 		if ("server" === first) {
 			var server = me.getServer({ id : path.serverIndex });
-			return server.findContainer(path.secondary);
+			return server.findContainer(path.secondary.toLowerCase());
 		} else if ("card" === first)
 			return me.getCard({ id : path.serverIndex });
 		else if ("resource" === first)
@@ -932,7 +932,7 @@ function TurnStatusContainer(layoutManager) {
 	this.syncTurn = function(turn) {
 		var redraw = false;
 		if (turn.player) {
-			var faction = layoutManager.factions[turn.player];
+			var faction = layoutManager.factions[turn.player.toLowerCase()];
 			me.factionBox.setFaction(faction);
 		}
 
@@ -2924,7 +2924,7 @@ function Server(def, cardManager) {
 	this.findContainer = function(key) {
 		if ("ices" == key)
 			return me.ices;
-		else if ("assetOrUpgrades" == key)
+		else if ("assetorupgrades" == key)
 			return me.assetOrUpgrades;
 		else if ("upgrades" == key)
 			return me.upgrades;

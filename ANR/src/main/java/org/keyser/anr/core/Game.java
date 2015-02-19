@@ -270,10 +270,14 @@ public class Game {
 		cards.put(id, ac);
 		ac.bindGame(this, listener);
 
-		if (ac instanceof Corp)
+		if (ac instanceof Corp) {
 			corp = (Corp) ac;
-		else if (ac instanceof Runner)
+			corp.setLocation(CardLocation.assetOrUpgrades(-3, -1));
+			corp.init(this);
+		} else if (ac instanceof Runner) {
 			runner = (Runner) ac;
+			runner.setLocation(CardLocation.grip(-1));
+		}
 
 		return ac;
 	}

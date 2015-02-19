@@ -1,11 +1,8 @@
 package org.keyser.anr.web;
 
-import org.keyser.anr.core.MetaGame;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  * Ca ne marche pas encore en java 8
@@ -16,11 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class GameController {
 
-	
-	
 	@RequestMapping(value = "gsap")
-	public String play(){
-		return "gsap";
+	public ModelAndView play() {
+
+		ModelAndView mav = new ModelAndView();
+		mav.setViewName("gsap");
+		mav.addObject("gameId", "123");
+		return mav;
 	}
 
 }

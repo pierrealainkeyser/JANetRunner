@@ -14,8 +14,9 @@ public class TestCoreSet {
 	public void testBasic() {
 
 		Game g = new Game();
-		MakingNews mn = (MakingNews) g.create(MakingNews.INSTANCE);
+		MakingNews mn = (MakingNews) g.create(MakingNews.INSTANCE);				
 		KateMcCaffrey kcc = (KateMcCaffrey) g.create(KateMcCaffrey.INSTANCE);
+		
 		g.start();
 		ActionsContext ac = g.getActionsContext();
 
