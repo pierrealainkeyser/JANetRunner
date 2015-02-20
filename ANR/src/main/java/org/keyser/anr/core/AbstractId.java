@@ -50,8 +50,11 @@ public abstract class AbstractId extends AbstractCard {
 		draw(1, next);
 	}
 
+	/**
+	 * Mise en place des actions
+	 * @param active
+	 */
 	public void setActiveAction(int active) {
-
 		this.clicks.setActive(active);
 		this.clicks.setUsed(0);
 
@@ -69,13 +72,21 @@ public abstract class AbstractId extends AbstractCard {
 	/**
 	 * Modification du nombre d'actions en appliquant le delta
 	 * 
-	 * @param delta
+	 * @param action
 	 */
-	public void useAction(int delta) {
+	public void useAction(int action) {
 
-		this.clicks.setUsed(clicks.getUsed() + delta);
+		this.clicks.setUsed(clicks.getUsed() + action);
 		game.fire(new AbstractCardActionChangedEvent(this));
-
+	}
+	
+	/**
+	 * Permet de gagner une action
+	 * @param action
+	 */
+	public void gainAction( int action){
+		this.clicks.setActive(clicks.getActive() + action);
+		game.fire(new AbstractCardActionChangedEvent(this));
 	}
 
 	/**
@@ -93,7 +104,7 @@ public abstract class AbstractId extends AbstractCard {
 		// consommation des actions
 		int nbActions = cost.getValue(CostType.ACTION);
 		if (nbActions > 0)
-			useAction(-nbActions);
+			useAction(nbActions);
 
 		// gestion du cout de trash
 		if (cost.getValue(CostType.TRASH_SELF) > 0) {

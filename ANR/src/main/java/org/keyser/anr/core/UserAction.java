@@ -10,10 +10,10 @@ public class UserAction {
 
 	private final String description;
 
-	private final PlayerType to;
+	private final AbstractId to;
 
 	public UserAction(AbstractId user, AbstractCard source, CostForAction cost, String description) {
-		this.to = user.getOwner();
+		this.to = user;
 		this.source = source;
 		this.cost = cost;
 		this.description = description;
@@ -24,23 +24,23 @@ public class UserAction {
 	}
 
 	/**
-	 * Mise Ã  jour du cout et renvoi vrai si le joueur peut payer le cout
+	 * Mise à jour du cout et renvoi vrai si le joueur peut payer le cout
 	 * 
 	 * @return
 	 */
 	public boolean checkCost() {
 		CostDeterminationEvent evt = new CostDeterminationEvent(cost);
-		Game game = source.getGame();
+		Game game = to.getGame();
 		game.fire(evt);
 
 		// permet de savoir si le cout est disponible
 		this.cost = cost.merge(evt.getEffective());
 
-		return game.mayAfford(to, this.cost);
+		return game.mayAfford(to.getOwner(), this.cost);
 	}
 
 	public PlayerType getTo() {
-		return to;
+		return to.getOwner();
 	}
 
 	public int getActionId() {
@@ -66,7 +66,7 @@ public class UserAction {
 	 */
 	public SimpleFeedback<UserAction> spendAndApply(Flow call) {
 		return new SimpleFeedback<UserAction>(this, (ua, next) -> {
-			source.getGame().getId(to).spend(getCost(), call.then(next));
+			to.spend(getCost(), call.then(next));
 		});
 	}
 
@@ -87,7 +87,7 @@ public class UserAction {
 	 */
 	public SimpleFeedback<UserAction> spendAndApply(FlowArg<Flow> call) {
 		return new SimpleFeedback<UserAction>(this, (ua, next) -> {
-			source.getGame().getId(to).spend(getCost(), next.wrap(call));
+			to.spend(getCost(), next.wrap(call));
 		});
 	}
 

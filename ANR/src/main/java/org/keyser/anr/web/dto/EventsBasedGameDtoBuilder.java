@@ -171,7 +171,7 @@ public class EventsBasedGameDtoBuilder {
 		if (!scoreChanged.isEmpty()) 
 			dto.setScore(game.getCorp().getScore(), game.getRunner().getScore());
 
-		// les actions sont Ã  mapper sur les cartes...
+		// les actions sont à mapper sur les cartes...
 		if (!cards.isEmpty()) {
 			for (UserAction ua : actionsContext.getUserActions()) {
 				CardDto cdto = getOrCreate(ua.getSource());

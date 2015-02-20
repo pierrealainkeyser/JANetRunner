@@ -1,6 +1,7 @@
 package org.keyser.anr.core;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -21,13 +22,37 @@ public class Corp extends AbstractId {
 		super(id, meta, PlayerType.CORP);
 	}
 
-	public void init(Game game) {
+	/**
+	 * Création des serveurs qui vont bien
+	 */
+	public void init() {
 		archives = new CorpServerCentral(game, nextServerId());
 		rd = new CorpServerCentral(game, nextServerId());
 		hq = new CorpServerCentral(game, nextServerId());
+
+		// on a toujours un remote vide
+		createRemote();
 	}
 
-	public int nextServerId() {
+	public CorpServer createRemote() {
+		CorpServer corpServer = new CorpServer(game, nextServerId());
+		remotes.add(corpServer);
+		// TODO event de création de server
+		return corpServer;
+	}
+
+	/**
+	 * Uniquement appelé par {@link CorpServer#delete()}
+	 * 
+	 * @param corpServer
+	 */
+	public void deleteServer(CorpServer corpServer) {
+		remotes.remove(corpServer);
+		// TODO event de suppression de sever
+
+	}
+
+	private int nextServerId() {
 		int[] min = { 0 };
 
 		eachServers(c -> {
@@ -73,6 +98,10 @@ public class Corp extends AbstractId {
 
 	public CorpServerCentral getHq() {
 		return hq;
+	}
+
+	public List<CorpServer> getRemotes() {
+		return Collections.unmodifiableList(remotes);
 	}
 
 }

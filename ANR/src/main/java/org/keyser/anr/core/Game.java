@@ -272,8 +272,8 @@ public class Game {
 
 		if (ac instanceof Corp) {
 			corp = (Corp) ac;
-			corp.setLocation(CardLocation.assetOrUpgrades(-3, -1));
-			corp.init(this);
+			corp.setLocation(CardLocation.assetOrUpgrades(CardLocation.HQ_INDEX, -1));
+			corp.init();
 		} else if (ac instanceof Runner) {
 			runner = (Runner) ac;
 			runner.setLocation(CardLocation.grip(-1));

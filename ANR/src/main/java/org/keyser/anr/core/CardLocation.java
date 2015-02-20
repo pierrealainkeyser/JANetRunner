@@ -70,7 +70,7 @@ public class CardLocation {
 
 	private final Integer index;
 
-	public final static int HQ_INDEX = 0;
+	public final static int HQ_INDEX = -3;
 
 	private CardLocation(Primary primary, Integer serverIndex, Secondary secondary, Integer index) {
 		super();

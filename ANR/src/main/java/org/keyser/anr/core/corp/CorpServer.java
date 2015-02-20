@@ -87,6 +87,10 @@ public class CorpServer {
 	public void addAssetOrUpgrade(InServerCorpCard card) {
 		assetOrUpgrades.add(card);
 	}
+	
+	public void delete(){
+		game.getCorp().deleteServer(this);
+	}
 
 	public int getId() {
 		return id;
