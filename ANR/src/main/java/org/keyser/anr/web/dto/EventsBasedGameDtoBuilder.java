@@ -11,6 +11,7 @@ import org.keyser.anr.core.AbstractCard;
 import org.keyser.anr.core.AbstractCardActionChangedEvent;
 import org.keyser.anr.core.AbstractCardLocationEvent;
 import org.keyser.anr.core.AbstractCardRezzEvent;
+import org.keyser.anr.core.AbstractCardScoreChangedEvent;
 import org.keyser.anr.core.AbstractCardTokenEvent;
 import org.keyser.anr.core.AbstractId;
 import org.keyser.anr.core.Corp;
@@ -34,6 +35,8 @@ public class EventsBasedGameDtoBuilder {
 
 	private Set<PlayerType> actionsChanged = new HashSet<>();
 
+	private Map<PlayerType, Integer> scoreChanged = new HashMap<>();
+
 	private final Game game;
 
 	public EventsBasedGameDtoBuilder(Game game) {
@@ -45,8 +48,9 @@ public class EventsBasedGameDtoBuilder {
 		match(AbstractCardRezzEvent.class, this::rezzed);
 		match(AbstractCardTokenEvent.class, this::tokens);
 
-		// notification des changements d'actions
+		// notification des changements d'actions et du score
 		match(AbstractCardActionChangedEvent.class, this::actions);
+		match(AbstractCardScoreChangedEvent.class, this::score);
 		this.game.bind(matchers);
 
 		return this;
@@ -77,12 +81,18 @@ public class EventsBasedGameDtoBuilder {
 
 	private void tokens(AbstractCardTokenEvent evt) {
 		AbstractCard card = evt.getPrimary();
-		with(card, dto -> dto.addToken(evt.getType(), card.getToken(evt.getType())));
+		with(card, dto -> dto.addToken(evt.getType(),
+				card.getToken(evt.getType())));
 	}
 
 	private void actions(AbstractCardActionChangedEvent evt) {
 		actionsChanged.add(evt.getPrimary().getOwner());
+	}
 
+	private void score(AbstractCardScoreChangedEvent evt) {
+		AbstractCard primary = evt.getPrimary();
+		AbstractId id = (AbstractId) primary;
+		scoreChanged.put(primary.getOwner(), id.getScore());
 	}
 
 	private CardDto getOrCreate(AbstractCard card) {
@@ -95,7 +105,8 @@ public class EventsBasedGameDtoBuilder {
 	}
 
 	private <T> void match(Class<T> type, FlowArg<T> builder) {
-		EventMatcherBuilder<T> match = EventMatcherBuilder.match(type, "@EventsBasedGameDtoBuilder");
+		EventMatcherBuilder<T> match = EventMatcherBuilder.match(type,
+				"@EventsBasedGameDtoBuilder");
 		match.call(builder);
 		matchers.add(match);
 	}
@@ -122,7 +133,8 @@ public class EventsBasedGameDtoBuilder {
 		dto.setScore(corp.getScore(), runner.getScore());
 
 		List<ServerDto> servers = new ArrayList<>();
-		corp.eachServers(cs -> servers.add(createServer(cs.getId(), Operation.create)));
+		corp.eachServers(cs -> servers.add(createServer(cs.getId(),
+				Operation.create)));
 		dto.setServers(servers);
 
 		for (AbstractCard ac : game.getCards()) {
@@ -155,6 +167,9 @@ public class EventsBasedGameDtoBuilder {
 		if (actionsChanged.contains(activePlayer)) {
 			dto.setClicks(game.getId(activePlayer).getClicks());
 		}
+
+		if (!scoreChanged.isEmpty()) 
+			dto.setScore(game.getCorp().getScore(), game.getRunner().getScore());
 
 		// les actions sont à mapper sur les cartes...
 		if (!cards.isEmpty()) {
