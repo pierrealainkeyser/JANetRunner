@@ -1,5 +1,7 @@
 package org.keyser.anr.core.corp;
 
+import static org.keyser.anr.core.AbstractCard.createDefList;
+
 import java.util.function.Consumer;
 
 import org.keyser.anr.core.AbstractCardContainer;
@@ -34,6 +36,15 @@ public class CorpServer {
 	public CorpServer(Game game, int id) {
 		this.game = game;
 		this.id = id;
+	}
+
+	public CorpServerDef createDef() {
+		CorpServerDef def = new CorpServerDef();
+		def.setId(id);
+		def.setAssetOrUpgrades(createDefList(assetOrUpgrades));
+		def.setIces(createDefList(ices));
+		def.setUpgrades(createDefList(upgrades));
+		return def;
 	}
 
 	public boolean isEmpty() {
@@ -87,8 +98,8 @@ public class CorpServer {
 	public void addAssetOrUpgrade(InServerCorpCard card) {
 		assetOrUpgrades.add(card);
 	}
-	
-	public void delete(){
+
+	public void delete() {
 		game.getCorp().deleteServer(this);
 	}
 

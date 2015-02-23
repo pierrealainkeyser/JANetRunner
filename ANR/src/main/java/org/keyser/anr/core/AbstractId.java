@@ -1,5 +1,6 @@
 package org.keyser.anr.core;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,6 +31,15 @@ public abstract class AbstractId extends AbstractCard {
 		setInstalled(true);
 		setRezzed(true);
 	}
+	
+	
+	protected void updateIdDef(IdDef def) {
+		def.setName(getMeta().getName());
+		if (!tokens.isEmpty())
+			def.setTokens(new HashMap<>(tokens));
+		def.setClicks(clicks.duplicate());
+	}
+
 
 	@Override
 	public void playFeedback(CollectHabilities hab) {

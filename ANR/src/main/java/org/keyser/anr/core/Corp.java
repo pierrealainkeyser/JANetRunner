@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 
 import org.keyser.anr.core.corp.CorpServer;
 import org.keyser.anr.core.corp.CorpServerCentral;
+import org.keyser.anr.core.corp.CorpServerDef;
 
 public class Corp extends AbstractId {
 
@@ -23,7 +24,7 @@ public class Corp extends AbstractId {
 	}
 
 	/**
-	 * Création des serveurs qui vont bien
+	 * Crï¿½ation des serveurs qui vont bien
 	 */
 	public void init() {
 		archives = new CorpServerCentral(game, nextServerId());
@@ -34,15 +35,30 @@ public class Corp extends AbstractId {
 		createRemote();
 	}
 
+	/**
+	 * CrÃ©ation de la dÃ©finition de la corporation
+	 * 
+	 * @return
+	 */
+	public CorpDef createCorpDef() {
+		CorpDef def = new CorpDef();
+		updateIdDef(def);
+
+		List<CorpServerDef> servers = new ArrayList<>();
+		eachServers(c -> servers.add(c.createDef()));
+		def.setServers(servers);
+		return def;
+	}
+
 	public CorpServer createRemote() {
 		CorpServer corpServer = new CorpServer(game, nextServerId());
 		remotes.add(corpServer);
-		// TODO event de création de server
+		// TODO event de crÃ©ation de server
 		return corpServer;
 	}
 
 	/**
-	 * Uniquement appelé par {@link CorpServer#delete()}
+	 * Uniquement appelÃ© par {@link CorpServer#delete()}
 	 * 
 	 * @param corpServer
 	 */

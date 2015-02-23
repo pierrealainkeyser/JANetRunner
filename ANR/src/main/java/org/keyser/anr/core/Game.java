@@ -113,7 +113,7 @@ public class Game {
 
 				AbstractId to = getId(active);
 
-				// TODO il faut pr�ciser le contexte quelque part...
+				// TODO il faut préciser le contexte quelque part...
 				AskEventOrderUserAction ask = new AskEventOrderUserAction(to, "Select order", new AbstractCardList(sources));
 
 				userContext(null, "Select matching order", Type.SELECT_MATCH_ORDER);
@@ -130,7 +130,7 @@ public class Game {
 		 */
 		private void orderSelected(AskEventOrderUserAction ask, AbstractCardList ordered, Flow next) {
 
-			// r�alise une recursion sur les cartes recuperes
+			// réalise une recursion sur les cartes recuperes
 			RecursiveIterator.recurse(ordered.iterator(), this::applyEffect, next);
 		}
 
@@ -221,6 +221,52 @@ public class Game {
 
 		// implémentation spécifique
 		listener.add(e -> true, f -> new ANREventMatcher(f).apply());
+	}
+
+	/**
+	 * Chargement d'une définition de jeu
+	 * 
+	 * @param def
+	 * @param metas
+	 */
+	public void load(GameDef def, MetaCards metas) {
+		CorpDef corpDef = def.getCorp();
+		if (corpDef != null) {
+			create(corpDef, metas);
+
+			// TODO recopie des tokens
+		}
+
+		RunnerDef runnerDef = def.getRunner();
+		if (runnerDef != null) {
+			create(runnerDef, metas);
+		}
+	}
+
+	private void create(AbstractTokenContainerId container, MetaCards metas) {
+		String name = container.getName();
+		MetaCard metaCard = metas.get(name);
+		if (metaCard != null)
+			create(metaCard);
+		else {
+			// la carte n'existe pas
+			logger.warn("La carte n'est pas encore implémenté : {}", name);
+		}
+
+	}
+
+	/**
+	 * Création de la définition du jeu
+	 * 
+	 * @return
+	 */
+	public GameDef createDef() {
+		GameDef def = new GameDef();
+		if (corp != null)
+			def.setCorp(corp.createCorpDef());
+		if (runner != null)
+			def.setRunner(runner.createRunnerDef());
+		return def;
 	}
 
 	public Game userContext(AbstractCard primary, String customText) {

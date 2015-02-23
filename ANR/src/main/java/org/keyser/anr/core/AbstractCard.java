@@ -1,7 +1,10 @@
 package org.keyser.anr.core;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -50,8 +53,8 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 
 	private final List<CardSubType> subTypes;
 
-	private Map<TokenType, Integer> tokens = new EnumMap<>(TokenType.class);
-	
+	protected Map<TokenType, Integer> tokens = new EnumMap<>(TokenType.class);
+
 	protected AbstractCard(int id, MetaCard meta, Predicate<CollectHabilities> playPredicate, Predicate<CardLocation> playLocation) {
 
 		super(i -> CardLocation.hosted(id, i));
@@ -65,8 +68,34 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 			match(CollectHabilities.class, em -> playAction(em, playPredicate.and(location(playLocation))));
 	}
 
+	public static List<AbstractCardDef> createDefList(AbstractCardContainer<? extends AbstractCard> hosteds) {
+		if (!hosteds.isEmpty())
+			return hosteds.stream().map(AbstractCard::createDef).collect(toList());
+		else
+			return null;
+	}
+
+	/**
+	 * Création de la définition. Appeler récursivement toutes les cartes
+	 * hebergees
+	 * 
+	 * @return
+	 */
+	public AbstractCardDef createDef() {
+		AbstractCardDef def = new AbstractCardDef();
+		def.setName(meta.getName());
+		def.setHostedAs(hostedAs);
+		def.setRezzed(rezzed);
+		def.setInstalled(installed);
+		if (!tokens.isEmpty())
+			def.setTokens(new HashMap<>(tokens));
+		def.setHosteds(createDefList(this));
+		return def;
+	}
+
 	/**
 	 * Permet de rajouter des actions
+	 * 
 	 * @param registerAction
 	 */
 	protected final void addAction(FlowArg<CollectHabilities> registerAction) {
@@ -265,7 +294,7 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	}
 
 	protected <T> Predicate<T> myTurn() {
-		return turn(t->t.getActive()==getOwner());
+		return turn(t -> t.getActive() == getOwner());
 	}
 
 	protected void playAction(EventMatcherBuilder<CollectHabilities> em, Predicate<CollectHabilities> playPredicate) {
@@ -290,7 +319,7 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	protected <T> Predicate<T> rezzed() {
 		return (t) -> rezzed;
 	}
-	
+
 	protected <T> Predicate<T> runner(Predicate<Runner> p) {
 		return (t) -> {
 			Runner r = getRunner();
@@ -329,7 +358,7 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	public void setRezzed(boolean rezzed) {
 		boolean old = this.rezzed;
 		this.rezzed = rezzed;
-		if (old != rezzed && game!=null)
+		if (old != rezzed && game != null)
 			game.fire(new AbstractCardRezzEvent(this));
 	}
 
@@ -364,7 +393,7 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	public void trash(Object ctx, Flow next) {
 		setRezzed(false);
 		setInstalled(false);
-		
+
 		// TODO
 		next.apply();
 	}

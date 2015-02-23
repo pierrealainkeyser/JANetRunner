@@ -6,23 +6,17 @@ import org.keyser.anr.core.runner.Resource;
 
 public class Runner extends AbstractId {
 
-	private final AbstractCardContainer<Resource> resources = new AbstractCardContainer<>(
-			CardLocation::resources);
+	private final AbstractCardContainer<Resource> resources = new AbstractCardContainer<>(CardLocation::resources);
 
-	private final AbstractCardContainer<Program> programs = new AbstractCardContainer<>(
-			CardLocation::programs);
+	private final AbstractCardContainer<Program> programs = new AbstractCardContainer<>(CardLocation::programs);
 
-	private final AbstractCardContainer<Hardware> hardwares = new AbstractCardContainer<>(
-			CardLocation::hardwares);
+	private final AbstractCardContainer<Hardware> hardwares = new AbstractCardContainer<>(CardLocation::hardwares);
 
-	private final AbstractCardContainer<AbstractCardRunner> stack = new AbstractCardContainer<>(
-			CardLocation::stack);
+	private final AbstractCardContainer<AbstractCardRunner> stack = new AbstractCardContainer<>(CardLocation::stack);
 
-	private final AbstractCardContainer<AbstractCardRunner> grip = new AbstractCardContainer<>(
-			CardLocation::grip);
+	private final AbstractCardContainer<AbstractCardRunner> grip = new AbstractCardContainer<>(CardLocation::grip);
 
-	private final AbstractCardContainer<AbstractCardRunner> heap = new AbstractCardContainer<>(
-			CardLocation::heap);
+	private final AbstractCardContainer<AbstractCardRunner> heap = new AbstractCardContainer<>(CardLocation::heap);
 
 	private int link;
 
@@ -33,6 +27,22 @@ public class Runner extends AbstractId {
 	@Override
 	public PlayerType getOwner() {
 		return PlayerType.RUNNER;
+	}
+
+	/**
+	 * Création de la définition du runner
+	 * @return
+	 */
+	public RunnerDef createRunnerDef() {
+		RunnerDef def = new RunnerDef();
+		updateIdDef(def);
+		def.setResources(createDefList(resources));
+		def.setPrograms(createDefList(programs));
+		def.setHeap(createDefList(heap));
+		def.setHardwares(createDefList(hardwares));
+		def.setStack(createDefList(stack));
+		def.setGrip(createDefList(grip));
+		return def;
 	}
 
 	public void doDraw(int nb, Flow next) {
@@ -65,7 +75,7 @@ public class Runner extends AbstractId {
 
 	public void alterMemory(int delta, Flow next) {
 
-		//TODO gestion de l'effet
+		// TODO gestion de l'effet
 	}
 
 	public void doDamage(int damage, Flow next) {
