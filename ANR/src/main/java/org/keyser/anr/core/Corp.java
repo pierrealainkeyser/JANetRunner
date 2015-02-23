@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.keyser.anr.core.corp.CorpServer;
 import org.keyser.anr.core.corp.CorpServerCentral;
@@ -24,7 +25,17 @@ public class Corp extends AbstractId {
 	}
 
 	/**
-	 * Cr�ation des serveurs qui vont bien
+	 * Chargement de la configuration
+	 * 
+	 * @param def
+	 * @param creator
+	 */
+	public void load(CorpDef def, Function<AbstractTokenContainerId, AbstractCard> creator) {
+
+	}
+
+	/**
+	 * Création des serveurs qui vont bien
 	 */
 	public void init() {
 		archives = new CorpServerCentral(game, nextServerId());

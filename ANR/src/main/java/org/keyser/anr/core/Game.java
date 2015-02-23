@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -230,27 +231,39 @@ public class Game {
 	 * @param metas
 	 */
 	public void load(GameDef def, MetaCards metas) {
+
+		Function<AbstractTokenContainerId, AbstractCard> creator = a -> create(a, metas);
+
 		CorpDef corpDef = def.getCorp();
 		if (corpDef != null) {
-			create(corpDef, metas);
-
-			// TODO recopie des tokens
+			Corp c = (Corp) creator.apply(corpDef);
+			c.load(corpDef, creator);
 		}
 
 		RunnerDef runnerDef = def.getRunner();
 		if (runnerDef != null) {
-			create(runnerDef, metas);
+			Runner r = (Runner) creator.apply(runnerDef);
+			r.load(runnerDef, creator);
 		}
 	}
 
-	private void create(AbstractTokenContainerId container, MetaCards metas) {
+	/**
+	 * Création de la carte
+	 * 
+	 * @param container
+	 * @param metas
+	 * @return
+	 */
+	private AbstractCard create(AbstractTokenContainerId container, MetaCards metas) {
 		String name = container.getName();
 		MetaCard metaCard = metas.get(name);
-		if (metaCard != null)
-			create(metaCard);
-		else {
+		if (metaCard != null) {
+			AbstractCard created = create(metaCard);
+			return created;
+		} else {
 			// la carte n'existe pas
 			logger.warn("La carte n'est pas encore implémenté : {}", name);
+			return null;
 		}
 
 	}

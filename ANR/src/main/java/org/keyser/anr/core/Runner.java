@@ -1,5 +1,7 @@
 package org.keyser.anr.core;
 
+import java.util.function.Function;
+
 import org.keyser.anr.core.runner.Hardware;
 import org.keyser.anr.core.runner.Program;
 import org.keyser.anr.core.runner.Resource;
@@ -30,7 +32,18 @@ public class Runner extends AbstractId {
 	}
 
 	/**
+	 * Chargement de la configuration
+	 * 
+	 * @param def
+	 * @param creator
+	 */
+	public void load(RunnerDef def, Function<AbstractTokenContainerId, AbstractCard> creator) {
+
+	}
+
+	/**
 	 * Création de la définition du runner
+	 * 
 	 * @return
 	 */
 	public RunnerDef createRunnerDef() {
