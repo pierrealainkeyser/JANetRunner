@@ -58,7 +58,7 @@ public class TestOCTGNParser {
 		
 		Assert.assertNotNull(corp);
 		Assert.assertNotNull(runner);
-
+		
 		Assert.assertEquals(49, corp.getRd().getStack().getContents().size());
 		Assert.assertEquals(47, runner.getStack().getContents().size());
 	}

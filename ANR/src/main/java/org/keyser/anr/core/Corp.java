@@ -3,6 +3,7 @@ package org.keyser.anr.core;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -31,7 +32,7 @@ public class Corp extends AbstractId {
 	 * @param creator
 	 */
 	public void load(CorpDef def, Function<AbstractTokenContainerId, AbstractCard> creator) {
-
+		def.getServers().stream().forEach(csd -> getOrCreate(csd.getId()).load(csd, creator));
 	}
 
 	/**
@@ -41,9 +42,22 @@ public class Corp extends AbstractId {
 		archives = new CorpServerCentral(game, nextServerId());
 		rd = new CorpServerCentral(game, nextServerId());
 		hq = new CorpServerCentral(game, nextServerId());
+	}
 
-		// on a toujours un remote vide
-		createRemote();
+	private CorpServer getOrCreate(int serverId) {
+		if (serverId == -1)
+			return archives;
+		if (serverId == -2)
+			return rd;
+		if (serverId == -3)
+			return hq;
+
+		Optional<CorpServer> first = remotes.stream().filter(cs -> cs.getId() == serverId).findFirst();
+		if (first.isPresent())
+			return first.get();
+		else
+			return createRemote(serverId);
+
 	}
 
 	/**
@@ -61,11 +75,15 @@ public class Corp extends AbstractId {
 		return def;
 	}
 
-	public CorpServer createRemote() {
-		CorpServer corpServer = new CorpServer(game, nextServerId());
+	private CorpServer createRemote(int id) {
+		CorpServer corpServer = new CorpServer(game, id);
 		remotes.add(corpServer);
 		// TODO event de création de server
 		return corpServer;
+	}
+
+	public CorpServer createRemote() {
+		return createRemote(nextServerId());
 	}
 
 	/**

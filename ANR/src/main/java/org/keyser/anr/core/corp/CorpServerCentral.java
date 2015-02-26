@@ -2,8 +2,12 @@ package org.keyser.anr.core.corp;
 
 import static org.keyser.anr.core.AbstractCard.createDefList;
 
+import java.util.function.Function;
+
+import org.keyser.anr.core.AbstractCard;
 import org.keyser.anr.core.AbstractCardContainer;
 import org.keyser.anr.core.AbstractCardCorp;
+import org.keyser.anr.core.AbstractTokenContainerId;
 import org.keyser.anr.core.CardLocation;
 import org.keyser.anr.core.Game;
 
@@ -21,6 +25,12 @@ public class CorpServerCentral extends CorpServer {
 
 	public AbstractCardContainer<AbstractCardCorp> add(AbstractCardCorp a) {
 		return stack.add(a);
+	}
+
+	@Override
+	public void load(CorpServerDef def, Function<AbstractTokenContainerId, AbstractCard> creator) {
+		super.load(def, creator);
+		registerCard(def.getStack(), a -> stack.add((AbstractCardCorp) a), creator);
 	}
 
 	@Override

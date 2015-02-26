@@ -1,6 +1,10 @@
 package org.keyser.anr.core;
 
+import org.keyser.anr.core.corp.nbn.AnonymousTip;
+import org.keyser.anr.core.corp.nbn.ClosedAccounts;
 import org.keyser.anr.core.corp.nbn.MakingNews;
+import org.keyser.anr.core.corp.nbn.Psychographics;
+import org.keyser.anr.core.corp.nbn.SEASource;
 import org.keyser.anr.core.corp.neutral.HedgeFund;
 import org.keyser.anr.core.corp.neutral.PADCampaign;
 import org.keyser.anr.core.runner.neutral.ArmitageCodebusting;
@@ -29,6 +33,10 @@ public class ANRMetaCards {
 		// corp
 		// NBN
 		INSTANCE.add(MakingNews.INSTANCE);
+		INSTANCE.add(AnonymousTip.INSTANCE);
+		INSTANCE.add(ClosedAccounts.INSTANCE);
+		INSTANCE.add(SEASource.INSTANCE);
+		INSTANCE.add(Psychographics.INSTANCE);
 
 		// neutral
 		INSTANCE.add(PADCampaign.INSTANCE);

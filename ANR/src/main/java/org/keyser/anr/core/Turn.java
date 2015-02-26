@@ -5,6 +5,7 @@ import static org.keyser.anr.core.SimpleFeedback.noop;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import org.keyser.anr.core.corp.Ice;
@@ -30,8 +31,8 @@ public class Turn {
 			String text = "Play events";
 			if (action)
 				text = "Play action";
-			
-			AbstractId id = game.getId(active);			
+
+			AbstractId id = game.getId(active);
 			game.userContext(id, text);
 			for (Feedback<?, ?> feedback : feedbacks) {
 				if (feedback.checkCost()) {
@@ -44,7 +45,7 @@ public class Turn {
 			// la continuation
 			if (!action) {
 				if (hasFeedbacks || requireQuestion()) {
-					// TODO  gestion de la carte primaire pour le done. Par
+					// TODO gestion de la carte primaire pour le done. Par
 					// défaut sur l'ID, mais c'est pas bon pour l'approche ou la
 					// rencontre d'une glace
 					AbstractId me = id;
@@ -177,37 +178,62 @@ public class Turn {
 	private final int turn;
 
 	private Flow next;
-	
-	private final List<DoDamageEvent> damagesEvents=new ArrayList<>();
+
+	private final List<DoDamageEvent> damagesEvents = new ArrayList<>();
+
+	private final List<Run> runs = new ArrayList<>();
 
 	public Turn(PlayerType active, Game game, int turn) {
 		this.active = active;
 		this.game = game;
 		this.turn = turn;
 	}
-	
-	public boolean corpTurn(){
-		return active==PlayerType.CORP;
+
+	/**
+	 * Accéde au run en cours (le dernier)
+	 * 
+	 * @return
+	 */
+	public Optional<Run> getRun() {
+		if (runs.isEmpty())
+			return Optional.empty();
+		else
+			return Optional.of(runs.get(runs.size() - 1));
 	}
-	
-	public boolean runnerTurn(){
-		return active==PlayerType.RUNNER;
+
+	/**
+	 * Permet de savoir s'il y a eu
+	 * 
+	 * @param status
+	 * @return
+	 */
+	public boolean anyRun(Run.Status status) {
+		return runs.stream().filter(r -> r.getStatus() == status).findAny().isPresent();
+	}
+
+	public boolean corpTurn() {
+		return active == PlayerType.CORP;
+	}
+
+	public boolean runnerTurn() {
+		return active == PlayerType.RUNNER;
 	}
 
 	public int getTurn() {
 		return turn;
 	}
-	
+
 	/**
 	 * Renvoi vrai s'il y a dej� eu un dommage de se type
+	 * 
 	 * @param type
 	 * @return
 	 */
-	public boolean hasSuffered(DamageType type){
-		return damagesEvents.stream().anyMatch(d->d.getType()==type);
+	public boolean hasSuffered(DamageType type) {
+		return damagesEvents.stream().anyMatch(d -> d.getType() == type);
 	}
-	
-	public void addDamageEvent(DoDamageEvent evt){
+
+	public void addDamageEvent(DoDamageEvent evt) {
 		damagesEvents.add(evt);
 	}
 
@@ -296,9 +322,9 @@ public class Turn {
 	}
 
 	private void terminate() {
-		
-		//TODO phase de cleanup
-		
+
+		// TODO phase de cleanup
+
 		next.apply();
 	}
 

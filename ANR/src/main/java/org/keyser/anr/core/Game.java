@@ -214,6 +214,8 @@ public class Game {
 
 	private Turn turn;
 
+	private Turn previousTurn;
+
 	public Game() {
 		listener = new EventMatcherListener();
 
@@ -360,6 +362,9 @@ public class Game {
 	}
 
 	private void nextTurn() {
+
+		previousTurn = turn;
+
 		turn = new Turn(turn.getActive().next(), this, turn.getTurn() + 1);
 		turn.start(this::nextTurn);
 	}
@@ -433,5 +438,9 @@ public class Game {
 
 	public ActionsContext getActionsContext() {
 		return actionsContext;
+	}
+
+	public Turn getPreviousTurn() {
+		return previousTurn;
 	}
 }

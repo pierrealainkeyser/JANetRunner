@@ -2,6 +2,7 @@ package org.keyser.anr.core;
 
 import static java.util.stream.Collectors.toList;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -12,8 +13,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-
-import org.springframework.util.ClassUtils;
 
 /**
  * Une carte abstraite
@@ -66,6 +65,11 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 
 		if (playPredicate != null && playLocation != null)
 			match(CollectHabilities.class, em -> playAction(em, playPredicate.and(location(playLocation))));
+	}
+
+	@Override
+	public String toString() {
+		return MessageFormat.format("|{0}|", meta.getName());
 	}
 
 	public static List<AbstractCardDef> createDefList(AbstractCardContainer<? extends AbstractCard> hosteds) {
@@ -253,7 +257,11 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	}
 
 	protected <T> Predicate<T> hasToken(TokenType type) {
-		return (t) -> getToken(type) > 0;
+		return (t) -> hasAnyToken(type);
+	}
+
+	public boolean hasAnyToken(TokenType type) {
+		return getToken(type) > 0;
 	}
 
 	public void hostCard(AbstractCard card, HostType type) {
@@ -379,11 +387,6 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 
 	}
 
-	@Override
-	public String toString() {
-		return ClassUtils.getShortName(getClass()) + "[id=" + id + "]";
-	}
-
 	/**
 	 * Permet de trasher la card avec le contexte
 	 * 
@@ -401,6 +404,16 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	protected <T> Predicate<T> turn(Predicate<Turn> p) {
 		return (t) -> {
 			return p.test(game.getTurn());
+		};
+	}
+
+	protected <T> Predicate<T> previousTurn(Predicate<Turn> p) {
+		return (t) -> {
+			Turn previous = game.getPreviousTurn();
+			if (previous == null)
+				return false;
+			else
+				return p.test(previous);
 		};
 	}
 

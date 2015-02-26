@@ -8,12 +8,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.keyser.anr.core.AbstractCard;
-import org.keyser.anr.core.AbstractCardCleanup;
-import org.keyser.anr.core.AbstractCardUnistalledCleanup;
 import org.keyser.anr.core.CollectHabilities;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.CostForAction;
-import org.keyser.anr.core.EventMatcherBuilder;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.Game;
 import org.keyser.anr.core.HostType;

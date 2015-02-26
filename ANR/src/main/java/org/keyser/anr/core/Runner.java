@@ -32,6 +32,15 @@ public class Runner extends AbstractId {
 	}
 
 	/**
+	 * Permet de savoir si le runner est taggé
+	 * 
+	 * @return
+	 */
+	public boolean isTagged() {
+		return hasAnyToken(TokenType.TAG);
+	}
+
+	/**
 	 * Chargement de la configuration
 	 * 
 	 * @param def

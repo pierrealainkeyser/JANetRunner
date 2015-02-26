@@ -58,4 +58,9 @@ public class AbstractCardContainer<A extends AbstractCard> {
 			a.setLocation(locationFactory.apply(i++));
 
 	}
+
+	@Override
+	public String toString() {
+		return "AbstractCardContainer [contents=" + contents + "]";
+	}
 }
