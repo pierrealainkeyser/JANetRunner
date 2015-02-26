@@ -30,12 +30,12 @@ public abstract class RunnerPreventibleEffect extends AbstractCardEvent implemen
 	private final String preventionText;
 
 	/**
-	 * Les evenements de préventions
+	 * Les evenements de prï¿½ventions
 	 */
 	private List<Function<RunnerPreventibleEffect, Feedback<?, ?>>> preventions = new ArrayList<>();
 
-	public RunnerPreventibleEffect(AbstractCard primary, String description,  String preventionText, String noPreventionText, int amount) {
-		super(primary, description, null);
+	public RunnerPreventibleEffect(AbstractCard primary,  String preventionText, String noPreventionText, int amount) {
+		super(primary, null);
 		this.amount = amount;
 		this.initialAmount = amount;
 		this.noPreventionText = noPreventionText;
@@ -47,7 +47,7 @@ public abstract class RunnerPreventibleEffect extends AbstractCardEvent implemen
 	}
 
 	/**
-	 * Vérifie s'il y a des possibilités de prévenir l'action
+	 * Vï¿½rifie s'il y a des possibilitï¿½s de prï¿½venir l'action
 	 * 
 	 * @param g
 	 * @param next
@@ -56,11 +56,11 @@ public abstract class RunnerPreventibleEffect extends AbstractCardEvent implemen
 		Game g = getGame();
 		Flow commit = next.wrap(this::commit);
 
-		// si pas de préventions, ou pas de ommage on passe à la suite
+		// si pas de prï¿½ventions, ou pas de ommage on passe ï¿½ la suite
 		if (preventions.isEmpty() || amount == 0)
 			commit.apply();
 		else {
-			// permet de réappeler la méthode fire suite au feedback
+			// permet de rï¿½appeler la mï¿½thode fire suite au feedback
 			Flow fire = next.wrap(this::fire);
 
 			// TODO placer le contexte
@@ -80,7 +80,7 @@ public abstract class RunnerPreventibleEffect extends AbstractCardEvent implemen
 	}
 
 	/**
-	 * Ajoute de l'élement
+	 * Ajoute de l'ï¿½lement
 	 * 
 	 * @param amount
 	 * @param next
@@ -91,7 +91,7 @@ public abstract class RunnerPreventibleEffect extends AbstractCardEvent implemen
 		if (amount > 0) {
 			commitAmmount(amount, next);
 
-			// TODO notification de l'évenement des dommages
+			// TODO notification de l'ï¿½venement des dommages
 		} else
 			next.apply();
 
@@ -114,7 +114,7 @@ public abstract class RunnerPreventibleEffect extends AbstractCardEvent implemen
 	}
 
 	/**
-	 * Rajout un evenement de prévention. La fonction permet de créer un
+	 * Rajout un evenement de prï¿½vention. La fonction permet de crï¿½er un
 	 * feedback
 	 * 
 	 * @param action

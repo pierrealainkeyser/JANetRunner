@@ -37,7 +37,7 @@ public class SEASource extends Operation {
 
 	private void handle(TraceAction ta, Flow next) {
 		if (true) {
-			AddTagsEvent evt = new AddTagsEvent(this, "", 1);
+			AddTagsEvent evt = new AddTagsEvent(this, 1);
 			evt.fire(next);
 		} else
 			next.apply();

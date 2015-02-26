@@ -30,6 +30,6 @@ public class NeuralEMP extends Operation {
 
 	@Override
 	protected void invoke(Flow next) {
-		new DoDamageEvent(this, "Neural EMP", 1, DamageType.NET).fire(next);
+		new DoDamageEvent(this, 1, DamageType.NET).fire(next);
 	}
 }
