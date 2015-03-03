@@ -163,17 +163,13 @@ public class Turn {
 
 	}
 
-	public enum Phase {
-		ACTION, DISCARD, DRAW, INITING, STARTING
-	}
-
 	private final static Predicate<? super AbstractCard> UNREZZED_INSTALL_CORP_CARDS = ac -> ac instanceof AbstractCardCorp && !(ac instanceof Ice) && ac.isInstalled() && !ac.isRezzed();
 
 	private final PlayerType active;
 
 	private final Game game;
 
-	private Phase phase;
+	private TurnPhase phase;
 
 	private final int turn;
 
@@ -243,7 +239,7 @@ public class Turn {
 		AbstractId id = game.getId(active);
 		if (id.hasAction()) {
 
-			setPhase(Phase.ACTION);
+			setPhase(TurnPhase.ACTION);
 
 			//création d'un serveur vide au besoin
 			if (id instanceof Corp) {
@@ -259,7 +255,7 @@ public class Turn {
 	}
 
 	public void discardPhase() {
-		setPhase(Phase.DISCARD);
+		setPhase(TurnPhase.DISCARD);
 
 		// TODO gestion du seuil puis fin
 
@@ -268,11 +264,11 @@ public class Turn {
 	}
 
 	public void drawPhase() {
-		setPhase(Phase.DRAW);
+		setPhase(TurnPhase.DRAW);
 		game.getCorp().draw(1, this::startTurn);
 	}
 
-	public Phase getPhase() {
+	public TurnPhase getPhase() {
 		return phase;
 	}
 
@@ -282,10 +278,10 @@ public class Turn {
 	}
 
 	public boolean mayPlayAction() {
-		return phase == Phase.ACTION;
+		return phase == TurnPhase.ACTION;
 	}
 
-	private void setPhase(Phase phase) {
+	private void setPhase(TurnPhase phase) {
 		this.phase = phase;
 	}
 
@@ -306,7 +302,7 @@ public class Turn {
 	}
 
 	private void initPhase() {
-		setPhase(Phase.INITING);
+		setPhase(TurnPhase.INITING);
 
 		// démarrage technique, mise en place des actions
 		game.fire(new InitTurn());
@@ -322,7 +318,7 @@ public class Turn {
 	}
 
 	private void startTurn() {
-		setPhase(Phase.STARTING);
+		setPhase(TurnPhase.STARTING);
 
 		// envoi l'evenement de debut de tour
 		game.apply(new StartOfTurn(), () -> pingpong(this::actionPhase));

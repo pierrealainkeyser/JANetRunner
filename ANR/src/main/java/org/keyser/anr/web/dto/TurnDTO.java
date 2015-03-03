@@ -1,15 +1,15 @@
 package org.keyser.anr.web.dto;
 
 import org.keyser.anr.core.PlayerType;
-import org.keyser.anr.core.Turn.Phase;
+import org.keyser.anr.core.TurnPhase;
 
 public class TurnDTO {
 
 	private final PlayerType player;
 
-	private final Phase phase;
+	private final TurnPhase phase;
 
-	public TurnDTO(PlayerType player, Phase phase) {
+	public TurnDTO(PlayerType player, TurnPhase phase) {
 		this.player = player;
 		this.phase = phase;
 	}
@@ -18,7 +18,7 @@ public class TurnDTO {
 		return player;
 	}
 
-	public Phase getPhase() {
+	public TurnPhase getPhase() {
 		return phase;
 	}
 }
