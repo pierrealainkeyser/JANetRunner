@@ -423,4 +423,12 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 		if (onRemove != null)
 			match(AbstractCardUnistalledCleanup.class, actc -> bindCleanup(actc, onRemove));
 	}
+
+	public HostType getHostedAs() {
+		return hostedAs;
+	}
+
+	public void setHostedAs(HostType hostedAs) {
+		this.hostedAs = hostedAs;
+	}
 }

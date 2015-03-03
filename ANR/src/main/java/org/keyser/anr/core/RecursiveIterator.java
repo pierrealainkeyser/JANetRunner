@@ -1,10 +1,9 @@
 package org.keyser.anr.core;
 
 import java.util.Iterator;
-import java.util.function.BiConsumer;
 
 /**
- * Permet de gerer l'itération recursive
+ * Permet de gerer l'itÃ©ration recursive
  * 
  * @author PAF
  * 

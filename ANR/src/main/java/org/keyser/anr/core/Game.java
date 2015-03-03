@@ -263,6 +263,13 @@ public class Game {
 		MetaCard metaCard = metas.get(name);
 		if (metaCard != null) {
 			AbstractCard created = create(metaCard);
+
+			if (container instanceof AbstractCardDef) {
+				// gestion des cartes hotes
+				AbstractCardDef acd = (AbstractCardDef) container;
+				updateCreatedCard(metas, created, acd);
+			}
+
 			return created;
 		} else {
 			// la carte n'existe pas
@@ -270,6 +277,35 @@ public class Game {
 			return null;
 		}
 
+	}
+
+	/**
+	 * Gestion des carte hotes et des parametres
+	 * 
+	 * @param metas
+	 * @param created
+	 * @param def
+	 */
+	private void updateCreatedCard(MetaCards metas, AbstractCard created, AbstractCardDef def) {
+		Boolean installed = def.isInstalled();
+		if (installed != null)
+			created.setInstalled(installed);
+
+		Boolean rezzed = def.isRezzed();
+		if (rezzed != null)
+			created.setRezzed(rezzed);
+
+		created.setHostedAs(def.getHostedAs());
+
+		List<AbstractCardDef> hosteds = def.getHosteds();
+		if (hosteds != null) {
+			for (AbstractCardDef h : hosteds) {
+				AbstractCard n = create(h, metas);
+				if (n != null) {
+					created.add(n);
+				}
+			}
+		}
 	}
 
 	/**
