@@ -44,6 +44,15 @@ public class Corp extends AbstractId {
 		hq = new CorpServerCentral(game, nextServerId());
 	}
 
+	/**
+	 * Permet de s'assurer qu'il a un serveur vide
+	 */
+	public void ensureEmptyServer() {
+		if (!remotes.stream().filter(CorpServer::isEmpty).findFirst().isPresent()) {
+			createRemote();
+		}
+	}
+
 	private CorpServer getOrCreate(int serverId) {
 		if (serverId == -1)
 			return archives;

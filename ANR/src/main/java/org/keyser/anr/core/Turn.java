@@ -224,7 +224,7 @@ public class Turn {
 	}
 
 	/**
-	 * Renvoi vrai s'il y a dej� eu un dommage de se type
+	 * Renvoi vrai s'il y a dejà eu un dommage de se type
 	 * 
 	 * @param type
 	 * @return
@@ -244,6 +244,12 @@ public class Turn {
 		if (id.hasAction()) {
 
 			setPhase(Phase.ACTION);
+
+			//création d'un serveur vide au besoin
+			if (id instanceof Corp) {
+				Corp corp = (Corp) id;
+				corp.ensureEmptyServer();
+			}
 
 			// on comme par l'utilisateur
 			new ActionPingPong(active).firstPlayer(this::actionPhase);
@@ -291,7 +297,7 @@ public class Turn {
 	}
 
 	/**
-	 * R�alise des �changes uniquement des evenements, pas d'action
+	 * Réalise des échanges uniquement des evenements, pas d'action
 	 * 
 	 * @param next
 	 */
