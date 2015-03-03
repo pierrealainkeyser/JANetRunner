@@ -285,6 +285,7 @@ public class Turn {
 
 	public Turn start(Flow next) {
 		this.next = next;
+		game.chat("It's now {0}'s turn", active);
 		initPhase();
 		return this;
 	}

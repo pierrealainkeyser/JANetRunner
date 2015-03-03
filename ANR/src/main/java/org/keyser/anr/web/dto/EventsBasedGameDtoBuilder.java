@@ -14,7 +14,9 @@ import org.keyser.anr.core.AbstractCardRezzEvent;
 import org.keyser.anr.core.AbstractCardScoreChangedEvent;
 import org.keyser.anr.core.AbstractCardTokenEvent;
 import org.keyser.anr.core.AbstractId;
+import org.keyser.anr.core.ChatEvent;
 import org.keyser.anr.core.Corp;
+import org.keyser.anr.core.CostForAction;
 import org.keyser.anr.core.EventMatcherBuilder;
 import org.keyser.anr.core.EventMatchers;
 import org.keyser.anr.core.FlowArg;
@@ -37,6 +39,8 @@ public class EventsBasedGameDtoBuilder {
 
 	private Map<PlayerType, Integer> scoreChanged = new HashMap<>();
 
+	private List<String> chats = new ArrayList<>();
+
 	private final Game game;
 
 	public EventsBasedGameDtoBuilder(Game game) {
@@ -51,9 +55,14 @@ public class EventsBasedGameDtoBuilder {
 		// notification des changements d'actions et du score
 		match(AbstractCardActionChangedEvent.class, this::actions);
 		match(AbstractCardScoreChangedEvent.class, this::score);
+		match(ChatEvent.class, this::chats);
 		this.game.bind(matchers);
 
 		return this;
+	}
+
+	private void chats(ChatEvent chat) {
+		chats.add(chat.toString());
 	}
 
 	private void location(AbstractCardLocationEvent evt) {
@@ -117,8 +126,8 @@ public class EventsBasedGameDtoBuilder {
 			name = "R&D";
 		else if (id == -3)
 			name = "H&Q";
-		else 
-			name += " " + Math.abs(id + 3);		
+		else
+			name += " " + Math.abs(id + 3);
 
 		return new ServerDto(id, name, operation);
 	}
@@ -166,6 +175,9 @@ public class EventsBasedGameDtoBuilder {
 		if (actionsChanged.contains(activePlayer)) {
 			dto.setClicks(game.getId(activePlayer).getClicks());
 		}
+		
+		if(!chats.isEmpty())
+			dto.setChats(chats);
 
 		if (!scoreChanged.isEmpty())
 			dto.setScore(game.getCorp().getScore(), game.getRunner().getScore());
@@ -190,7 +202,16 @@ public class EventsBasedGameDtoBuilder {
 	 * @return
 	 */
 	private ActionDto convert(UserAction ua) {
-		return null;
+
+		ActionDto a = new ActionDto();
+		a.setId(ua.getActionId());
+		a.setFaction(ua.getTo());
+		CostForAction cfa = ua.getCost();
+		if (cfa != null)
+			a.setCost(cfa.getCost().toString());
+		a.setText(ua.getDescription());
+
+		return a;
 	}
 
 	public GameDto build() {

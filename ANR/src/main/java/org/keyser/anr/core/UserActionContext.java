@@ -14,12 +14,12 @@ public class UserActionContext {
 	/**
 	 * La carte primaire, peut être null
 	 */
-	private Integer primary;
+	private Integer id;
 
 	private Type type;
 
 	public UserActionContext(AbstractCard primary, String customText, Type type) {
-		this.primary = primary != null ? primary.getId() : null;
+		this.id = primary != null ? primary.getId() : null;
 		this.text = customText;
 		this.type = type;
 	}
@@ -28,8 +28,8 @@ public class UserActionContext {
 		return text;
 	}
 
-	public Integer getPrimary() {
-		return primary;
+	public Integer getId() {
+		return id;
 	}
 
 	public Type getType() {

@@ -27,8 +27,4 @@ public class Clicks {
 	public void setUsed(int used) {
 		this.used = used;
 	}
-
-	public int remaining() {
-		return active - used;
-	}
 }

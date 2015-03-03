@@ -32,15 +32,27 @@
 
 		var socket = new WebSocket("ws://" + window.location.host + "/ws/play");
 		var send = function(e) {
-			socket.send(JSON.stringify(e));
+			var msg = JSON.stringify(e);
+			console.debug("sending " + msg)
+			socket.send(msg);
 		}
 		socket.onopen = function(e) {
 			send({ type : 'ready', data : { game : gameId } });
 		}
 		socket.onmessage = function(e) {
 			var inner = JSON.parse(e.data);
-			if (inner.type === 'broadcast' || inner.type === 'refresh')
+			console.debug(inner);
+			if (inner.type === 'broadcast' || inner.type === 'refresh') {
 				connector.cardManager.publish(inner.data);
+			}
+		}
+
+		connector.sendAction = function(action) {
+			var innerData = { rid : action.id };
+			if (action.content) 
+				innerData.content = action.content;
+
+			send({ type : 'response', data : innerData });
 		}
 
 	} else {

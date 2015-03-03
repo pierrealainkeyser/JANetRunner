@@ -2,13 +2,12 @@ package org.keyser.anr.web.dto;
 
 /**
  * Une réponse
+ * 
  * @author PAF
  *
  */
 public class ResponseDTO {
 	private int rid;
-
-	private int qid;
 
 	private Object content;
 
@@ -18,14 +17,6 @@ public class ResponseDTO {
 
 	public void setRid(int rid) {
 		this.rid = rid;
-	}
-
-	public int getQid() {
-		return qid;
-	}
-
-	public void setQid(int qid) {
-		this.qid = qid;
 	}
 
 	public Object getContent() {
@@ -41,8 +32,6 @@ public class ResponseDTO {
 		StringBuilder builder = new StringBuilder();
 		builder.append("ResponseDTO [rid=");
 		builder.append(rid);
-		builder.append(", qid=");
-		builder.append(qid);
 		builder.append(", ");
 		if (content != null) {
 			builder.append("content=");

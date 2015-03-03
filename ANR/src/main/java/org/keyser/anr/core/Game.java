@@ -1,5 +1,7 @@
 package org.keyser.anr.core;
 
+import static java.text.MessageFormat.format;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -300,6 +302,17 @@ public class Game {
 
 	public Collection<AbstractCard> getCards() {
 		return Collections.unmodifiableCollection(cards.values());
+	}
+
+	/**
+	 * Permet d'envoyer un message
+	 * 
+	 * @param msg
+	 * @param args
+	 */
+	public void chat(String msg, Object... args) {
+		msg = msg.replaceAll("'", "''");
+		fire(new ChatEvent(format(msg, args)));
 	}
 
 	public void apply(Object event, Flow flow) {

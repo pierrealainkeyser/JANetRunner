@@ -1255,7 +1255,7 @@ function interpolateString(string) {
 		return "";
 	});
 
-	return str.replace(/\|([A-Za-z\d\s]+)\|/g, function() {
+	return str.replace(/\|([A-Za-z\d\s\:]+)\|/g, function() {
 		var str = arguments[1];
 
 		return "<em>" + str + "</em>";

@@ -31,8 +31,7 @@ public abstract class AbstractId extends AbstractCard {
 		setInstalled(true);
 		setRezzed(true);
 	}
-	
-	
+
 	protected void updateIdDef(IdDef def) {
 		def.setName(getMeta().getName());
 		if (!tokens.isEmpty())
@@ -40,28 +39,37 @@ public abstract class AbstractId extends AbstractCard {
 		def.setClicks(clicks.duplicate());
 	}
 
-
 	@Override
 	public void playFeedback(CollectHabilities hab) {
 		Cost oneAction = Cost.free().withAction(1);
 		UserAction gainOne = new UserAction(this, this, new CostForAction(oneAction, new Gain1CreditAction(this)), "Gain {1:credit}");
-		hab.add(new SimpleFeedback<>(gainOne, this::gainOneCreditAction));
+
+		hab.add(gainOne.spendAndApply(this::gainOneCreditAction));
 
 		UserAction drawOne = new UserAction(this, this, new CostForAction(oneAction, new Draw1CardAction(this)), "Draw 1 card");
-		hab.add(new SimpleFeedback<>(drawOne, this::drawOneCardAction));
+		hab.add(drawOne.spendAndApply(this::drawOneCardAction));
 	}
 
-	private void gainOneCreditAction(UserAction ua, Flow next) {
+	private void gainOneCreditAction(Flow next) {
 		addToken(TokenType.CREDIT, 1);
+		game.chat("{0} clicks for {1} and loses {2}", this, Cost.credit(1), Cost.click(1));
 		next.apply();
 	}
 
-	private void drawOneCardAction(UserAction ua, Flow next) {
+	private void drawOneCardAction(Flow next) {
+		game.chat("{0} clicks for a card and loses {1}", this, Cost.click(1));
 		draw(1, next);
+	}
+
+	@Override
+	public String toString() {
+		PlayerType owner = getOwner();
+		return owner.name();
 	}
 
 	/**
 	 * Mise en place des actions
+	 * 
 	 * @param active
 	 */
 	public void setActiveAction(int active) {
@@ -84,18 +92,21 @@ public abstract class AbstractId extends AbstractCard {
 	 * 
 	 * @param action
 	 */
-	public void useAction(int action) {
+	private void useAction(int action) {
 
-		this.clicks.setUsed(clicks.getUsed() + action);
+		clicks.setUsed(clicks.getUsed() + action);
+		clicks.setActive(clicks.getActive() - action);
+
 		game.fire(new AbstractCardActionChangedEvent(this));
 	}
-	
+
 	/**
 	 * Permet de gagner une action
+	 * 
 	 * @param action
 	 */
-	public void gainAction( int action){
-		this.clicks.setActive(clicks.getActive() + action);
+	public void gainAction(int action) {
+		clicks.setActive(clicks.getActive() + action);
 		game.fire(new AbstractCardActionChangedEvent(this));
 	}
 
@@ -186,7 +197,7 @@ public abstract class AbstractId extends AbstractCard {
 	}
 
 	public boolean hasAction() {
-		return clicks.remaining() > 0;
+		return clicks.getActive() > 0;
 	}
 
 	@Override
@@ -198,7 +209,7 @@ public abstract class AbstractId extends AbstractCard {
 
 		int action = cost.getCost().getValue(CostType.ACTION);
 		if (action > 0) {
-			if (!(clicks.remaining() >= action && game.getTurn().mayPlayAction()))
+			if (!(clicks.getActive() >= action && game.getTurn().mayPlayAction()))
 				return false;
 		}
 

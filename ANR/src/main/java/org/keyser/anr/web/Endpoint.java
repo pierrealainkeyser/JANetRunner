@@ -56,22 +56,24 @@ public class Endpoint {
 	public void refresh(RemoteSuscriber suscriber) {
 		GameDto dto = new EventsBasedGameDtoBuilder(game).create();
 		dto.setLocal(suscriber.getKey().getType());
-		
-		
-		
+
 		suscriber.send(new TypedMessage(RemoteVerbs.VERB_REFRESH, dto));
 	}
 
 	public void receive(ResponseDTO message, UserInputConverter converter) {
 
-		// preparation de la cr�ation asynchrone en �coutant les evt
-		EventsBasedGameDtoBuilder builder = new EventsBasedGameDtoBuilder(game).listen();
+		try {
+			// preparation de la création asynchrone en écoutant les evt
+			EventsBasedGameDtoBuilder builder = new EventsBasedGameDtoBuilder(game).listen();
 
-		// invocation de la reponse
-		game.invoke(message.getRid(), converter, message.getContent());
+			// invocation de la reponse
+			game.invoke(message.getRid(), converter, message.getContent());
 
-		// broadcast du resultat
-		broadcast(new TypedMessage(RemoteVerbs.VERB_BROADCAST, builder.build()));
+			// broadcast du resultat
+			broadcast(new TypedMessage(RemoteVerbs.VERB_BROADCAST, builder.build()));
+		} catch (Throwable t) {
+			log.error("Erreur lors du traitement de " + message + " : " + t.getMessage(), t);
+		}
 	}
 
 	private void broadcast(TypedMessage message) {
