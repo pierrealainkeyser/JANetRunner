@@ -123,6 +123,7 @@ function CardManager(cardContainer, connector) {
 	// correction de la position avant l'affichage
 	this.beforeDraw.push(function() {
 		me.extbox.checkLayoutBounds();
+		me.extbox.syncCoordsFromDisplayedIfNeeded();
 
 		_.each(me.cards, function(card) {
 			card.updateViewable(me.faction);
@@ -2128,6 +2129,7 @@ function ExtBox(cardManager) {
 
 	this.cardManager = cardManager;
 	this.displayedCard = null;
+	this.updateCoordFromDisplayed = null;
 	this.secondaryCard = null;
 	this.secondaryActions = [];
 
@@ -2378,6 +2380,24 @@ function ExtBox(cardManager) {
 		this.updateLayouts();
 
 	}
+	
+	/**
+	 * Permet de recalculer au besoin la position de la boite
+	 */
+	this.syncCoordsFromDisplayedIfNeeded=function(){
+		
+		if(this.displayedCard && this.updateCoordFromDisplayed){
+			var coords = this.displayedCard.coords;
+			var big = cardManager.area.cardBig;
+			var small = cardManager.area.card;
+			
+			var lc=new LayoutCoords(coords.x - (big.width - small.width) / 2, coords.y - (big.height - small.height) / 2);
+			console.log(coords) 
+			
+			this.extContainer.setCoords(lc, 0);
+			this.updateCoordFromDisplayed=false;
+		}
+	}
 
 	/**
 	 * Affichage de la carte
@@ -2393,13 +2413,9 @@ function ExtBox(cardManager) {
 		// remise à zero des routines
 		this.subs = [];
 
-		// calcul de la position
-		var coords = this.displayedCard.coords;
-		var big = cardManager.area.cardBig;
-		var small = cardManager.area.card;
-
-		if (!(_.isBoolean(dontChangeCoords) && dontChangeCoords))
-			this.extContainer.setCoords(new LayoutCoords(coords.x - (big.width - small.width) / 2, coords.y - (big.height - small.height) / 2), 0);
+		// calcul de la position on le traite plus tard
+		this.updateCoordFromDisplayed=!(_.isBoolean(dontChangeCoords) && dontChangeCoords)
+		
 		var ghost = this.displayedCard.applyGhost(extContainer);
 
 		this.mainContainer.removeAllChilds();
