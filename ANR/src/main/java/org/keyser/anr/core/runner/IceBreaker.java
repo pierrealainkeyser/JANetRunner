@@ -1,14 +1,18 @@
 package org.keyser.anr.core.runner;
 
+import org.keyser.anr.core.TokenType;
+
 public abstract class IceBreaker extends Program {
 
 	protected IceBreaker() {
 		super(-1, null);
 	}
 
-	private int strength;
+	private int baseStrength;
 
 	private int bonusStrength;
+
+	private int pumpedStrength;
 
 	/*
 	 * public IceBreaker(Influence influence, Cost cost, int memoryUnit, int
@@ -17,9 +21,14 @@ public abstract class IceBreaker extends Program {
 	 * this.scheme = scheme; }
 	 */
 
-	public int getStrength() {
-		return strength + bonusStrength;
+	public void computeStrength() {
+		
+		//TODO détermination du bonus !
+		
+		setToken(TokenType.STRENGTH, baseStrength + bonusStrength
+				+ pumpedStrength);
 	}
+
 
 	public int getBonusStrength() {
 		return bonusStrength;
@@ -29,8 +38,12 @@ public abstract class IceBreaker extends Program {
 		this.bonusStrength = bonusStrength;
 	}
 
-	public void alterBonus(int delta) {
-		setBonusStrength(getBonusStrength() + delta);
+	public int getPumpedStrength() {
+		return pumpedStrength;
+	}
+
+	public void setPumpedStrength(int pumpedStrength) {
+		this.pumpedStrength = pumpedStrength;
 	}
 
 }

@@ -106,7 +106,7 @@ public class TestBreakCostAnalysis {
 
 		// on verifie que l'on conserve le boost appres l'application
 		Assert.assertEquals(3, gb.getStrengthBoost());
-		Assert.assertEquals(5, gb.getStrength());
+		Assert.assertEquals(5, gb.getBaseStrength());
 		Assert.assertEquals(3, gb.getPowerCounter().intValue());
 
 	}
