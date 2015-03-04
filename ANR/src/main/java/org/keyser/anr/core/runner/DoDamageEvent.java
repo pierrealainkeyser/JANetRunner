@@ -20,9 +20,8 @@ public class DoDamageEvent extends RunnerPreventibleEffect {
 
 	private DamageType type;
 
-	public DoDamageEvent(AbstractCard primary, String description, int damage,
-			DamageType type) {
-		super(primary, description,"Prevent damage", "Take damage", damage);
+	public DoDamageEvent(AbstractCard primary, int damage, DamageType type) {
+		super(primary, "Prevent damage", "Take damage", damage);
 		this.type = type;
 	}
 
@@ -36,7 +35,7 @@ public class DoDamageEvent extends RunnerPreventibleEffect {
 
 	@Override
 	public void fire(Flow next) {
-		//on s'enregistre dans l'effet du tour
+		// on s'enregistre dans l'effet du tour
 		getGame().getTurn().addDamageEvent(this);
 		super.fire(next);
 	}

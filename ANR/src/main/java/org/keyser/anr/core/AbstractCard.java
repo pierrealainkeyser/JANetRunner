@@ -1,7 +1,11 @@
 package org.keyser.anr.core;
 
+import static java.util.stream.Collectors.toList;
+
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -9,8 +13,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-
-import org.springframework.util.ClassUtils;
 
 /**
  * Une carte abstraite
@@ -50,8 +52,8 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 
 	private final List<CardSubType> subTypes;
 
-	private Map<TokenType, Integer> tokens = new EnumMap<>(TokenType.class);
-	
+	protected Map<TokenType, Integer> tokens = new EnumMap<>(TokenType.class);
+
 	protected AbstractCard(int id, MetaCard meta, Predicate<CollectHabilities> playPredicate, Predicate<CardLocation> playLocation) {
 
 		super(i -> CardLocation.hosted(id, i));
@@ -65,8 +67,39 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 			match(CollectHabilities.class, em -> playAction(em, playPredicate.and(location(playLocation))));
 	}
 
+	@Override
+	public String toString() {
+		return MessageFormat.format("|{0}|", meta.getName());
+	}
+
+	public static List<AbstractCardDef> createDefList(AbstractCardContainer<? extends AbstractCard> hosteds) {
+		if (!hosteds.isEmpty())
+			return hosteds.stream().map(AbstractCard::createDef).collect(toList());
+		else
+			return null;
+	}
+
+	/**
+	 * Création de la définition. Appeler récursivement toutes les cartes
+	 * hebergees
+	 * 
+	 * @return
+	 */
+	public AbstractCardDef createDef() {
+		AbstractCardDef def = new AbstractCardDef();
+		def.setName(meta.getName());
+		def.setHostedAs(hostedAs);
+		def.setRezzed(rezzed);
+		def.setInstalled(installed);
+		if (!tokens.isEmpty())
+			def.setTokens(new HashMap<>(tokens));
+		def.setHosteds(createDefList(this));
+		return def;
+	}
+
 	/**
 	 * Permet de rajouter des actions
+	 * 
 	 * @param registerAction
 	 */
 	protected final void addAction(FlowArg<CollectHabilities> registerAction) {
@@ -224,7 +257,11 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	}
 
 	protected <T> Predicate<T> hasToken(TokenType type) {
-		return (t) -> getToken(type) > 0;
+		return (t) -> hasAnyToken(type);
+	}
+
+	public boolean hasAnyToken(TokenType type) {
+		return getToken(type) > 0;
 	}
 
 	public void hostCard(AbstractCard card, HostType type) {
@@ -265,7 +302,7 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	}
 
 	protected <T> Predicate<T> myTurn() {
-		return turn(t->t.getActive()==getOwner());
+		return turn(t -> t.getActive() == getOwner());
 	}
 
 	protected void playAction(EventMatcherBuilder<CollectHabilities> em, Predicate<CollectHabilities> playPredicate) {
@@ -290,7 +327,7 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	protected <T> Predicate<T> rezzed() {
 		return (t) -> rezzed;
 	}
-	
+
 	protected <T> Predicate<T> runner(Predicate<Runner> p) {
 		return (t) -> {
 			Runner r = getRunner();
@@ -329,7 +366,7 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	public void setRezzed(boolean rezzed) {
 		boolean old = this.rezzed;
 		this.rezzed = rezzed;
-		if (old != rezzed && game!=null)
+		if (old != rezzed && game != null)
 			game.fire(new AbstractCardRezzEvent(this));
 	}
 
@@ -350,11 +387,6 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 
 	}
 
-	@Override
-	public String toString() {
-		return ClassUtils.getShortName(getClass()) + "[id=" + id + "]";
-	}
-
 	/**
 	 * Permet de trasher la card avec le contexte
 	 * 
@@ -364,7 +396,7 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	public void trash(Object ctx, Flow next) {
 		setRezzed(false);
 		setInstalled(false);
-		
+
 		// TODO
 		next.apply();
 	}
@@ -375,10 +407,28 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 		};
 	}
 
+	protected <T> Predicate<T> previousTurn(Predicate<Turn> p) {
+		return (t) -> {
+			Turn previous = game.getPreviousTurn();
+			if (previous == null)
+				return false;
+			else
+				return p.test(previous);
+		};
+	}
+
 	protected void whileInstalled(FlowArg<Flow> onInstall, FlowArg<Flow> onRemove) {
 		if (onInstall != null)
 			match(AbstractCardInstalledCleanup.class, actc -> bindCleanup(actc, onInstall));
 		if (onRemove != null)
 			match(AbstractCardUnistalledCleanup.class, actc -> bindCleanup(actc, onRemove));
+	}
+
+	public HostType getHostedAs() {
+		return hostedAs;
+	}
+
+	public void setHostedAs(HostType hostedAs) {
+		this.hostedAs = hostedAs;
 	}
 }

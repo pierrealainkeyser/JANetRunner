@@ -1,5 +1,7 @@
 package org.keyser.anr.core;
 
+import static java.util.stream.Collectors.joining;
+
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -19,6 +21,10 @@ public class Cost {
 
 	public static Cost credit(int value) {
 		return new Cost().with(new CostElement(value, CostType.CREDIT));
+	}
+	
+	public static Cost click(int value) {
+		return new Cost().with(new CostElement(value, CostType.ACTION));
 	}
 
 	public static Cost free() {
@@ -102,8 +108,24 @@ public class Cost {
 	@Override
 	public String toString() {
 		Cost c = normalize();
-		c.basics.addAll(c.additionnal);
-		return c.basics.toString();
+
+		List<String> strs = new ArrayList<>();
+		int actions = c.getValue(CostType.ACTION);
+		if (actions > 0)
+			strs.add("{" + actions + ":click}");
+
+		int credits = c.getValue(CostType.CREDIT);
+		if (credits > 0)
+			strs.add("{" + credits + ":credit}");
+
+		if (c.getValue(CostType.TRASH_AGENDA) > 0)
+			strs.add("{trash-agenda}");
+
+		if (c.getValue(CostType.TRASH_SELF) > 0)
+			strs.add("{trash-self}");
+
+		return strs.stream().collect(joining(", "));
+
 	}
 
 	public Cost with(CostElement c) {

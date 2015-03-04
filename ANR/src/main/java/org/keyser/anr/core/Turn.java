@@ -5,6 +5,7 @@ import static org.keyser.anr.core.SimpleFeedback.noop;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import org.keyser.anr.core.corp.Ice;
@@ -30,8 +31,8 @@ public class Turn {
 			String text = "Play events";
 			if (action)
 				text = "Play action";
-			
-			AbstractId id = game.getId(active);			
+
+			AbstractId id = game.getId(active);
 			game.userContext(id, text);
 			for (Feedback<?, ?> feedback : feedbacks) {
 				if (feedback.checkCost()) {
@@ -44,7 +45,7 @@ public class Turn {
 			// la continuation
 			if (!action) {
 				if (hasFeedbacks || requireQuestion()) {
-					// TODO  gestion de la carte primaire pour le done. Par
+					// TODO gestion de la carte primaire pour le done. Par
 					// défaut sur l'ID, mais c'est pas bon pour l'approche ou la
 					// rencontre d'une glace
 					AbstractId me = id;
@@ -162,52 +163,73 @@ public class Turn {
 
 	}
 
-	public enum Phase {
-		ACTION, DISCARD, DRAW, INITING, STARTING
-	}
-
 	private final static Predicate<? super AbstractCard> UNREZZED_INSTALL_CORP_CARDS = ac -> ac instanceof AbstractCardCorp && !(ac instanceof Ice) && ac.isInstalled() && !ac.isRezzed();
 
 	private final PlayerType active;
 
 	private final Game game;
 
-	private Phase phase;
+	private TurnPhase phase;
 
 	private final int turn;
 
 	private Flow next;
-	
-	private final List<DoDamageEvent> damagesEvents=new ArrayList<>();
+
+	private final List<DoDamageEvent> damagesEvents = new ArrayList<>();
+
+	private final List<Run> runs = new ArrayList<>();
 
 	public Turn(PlayerType active, Game game, int turn) {
 		this.active = active;
 		this.game = game;
 		this.turn = turn;
 	}
-	
-	public boolean corpTurn(){
-		return active==PlayerType.CORP;
+
+	/**
+	 * Accéde au run en cours (le dernier)
+	 * 
+	 * @return
+	 */
+	public Optional<Run> getRun() {
+		if (runs.isEmpty())
+			return Optional.empty();
+		else
+			return Optional.of(runs.get(runs.size() - 1));
 	}
-	
-	public boolean runnerTurn(){
-		return active==PlayerType.RUNNER;
+
+	/**
+	 * Permet de savoir s'il y a eu
+	 * 
+	 * @param status
+	 * @return
+	 */
+	public boolean anyRun(Run.Status status) {
+		return runs.stream().filter(r -> r.getStatus() == status).findAny().isPresent();
+	}
+
+	public boolean corpTurn() {
+		return active == PlayerType.CORP;
+	}
+
+	public boolean runnerTurn() {
+		return active == PlayerType.RUNNER;
 	}
 
 	public int getTurn() {
 		return turn;
 	}
-	
+
 	/**
-	 * Renvoi vrai s'il y a dej� eu un dommage de se type
+	 * Renvoi vrai s'il y a dejà eu un dommage de se type
+	 * 
 	 * @param type
 	 * @return
 	 */
-	public boolean hasSuffered(DamageType type){
-		return damagesEvents.stream().anyMatch(d->d.getType()==type);
+	public boolean hasSuffered(DamageType type) {
+		return damagesEvents.stream().anyMatch(d -> d.getType() == type);
 	}
-	
-	public void addDamageEvent(DoDamageEvent evt){
+
+	public void addDamageEvent(DoDamageEvent evt) {
 		damagesEvents.add(evt);
 	}
 
@@ -217,7 +239,13 @@ public class Turn {
 		AbstractId id = game.getId(active);
 		if (id.hasAction()) {
 
-			setPhase(Phase.ACTION);
+			setPhase(TurnPhase.ACTION);
+
+			//création d'un serveur vide au besoin
+			if (id instanceof Corp) {
+				Corp corp = (Corp) id;
+				corp.ensureEmptyServer();
+			}
 
 			// on comme par l'utilisateur
 			new ActionPingPong(active).firstPlayer(this::actionPhase);
@@ -227,7 +255,7 @@ public class Turn {
 	}
 
 	public void discardPhase() {
-		setPhase(Phase.DISCARD);
+		setPhase(TurnPhase.DISCARD);
 
 		// TODO gestion du seuil puis fin
 
@@ -236,11 +264,11 @@ public class Turn {
 	}
 
 	public void drawPhase() {
-		setPhase(Phase.DRAW);
+		setPhase(TurnPhase.DRAW);
 		game.getCorp().draw(1, this::startTurn);
 	}
 
-	public Phase getPhase() {
+	public TurnPhase getPhase() {
 		return phase;
 	}
 
@@ -250,21 +278,22 @@ public class Turn {
 	}
 
 	public boolean mayPlayAction() {
-		return phase == Phase.ACTION;
+		return phase == TurnPhase.ACTION;
 	}
 
-	private void setPhase(Phase phase) {
+	private void setPhase(TurnPhase phase) {
 		this.phase = phase;
 	}
 
 	public Turn start(Flow next) {
 		this.next = next;
+		game.chat("It's now {0}'s turn", active);
 		initPhase();
 		return this;
 	}
 
 	/**
-	 * R�alise des �changes uniquement des evenements, pas d'action
+	 * Réalise des échanges uniquement des evenements, pas d'action
 	 * 
 	 * @param next
 	 */
@@ -273,7 +302,7 @@ public class Turn {
 	}
 
 	private void initPhase() {
-		setPhase(Phase.INITING);
+		setPhase(TurnPhase.INITING);
 
 		// démarrage technique, mise en place des actions
 		game.fire(new InitTurn());
@@ -289,16 +318,16 @@ public class Turn {
 	}
 
 	private void startTurn() {
-		setPhase(Phase.STARTING);
+		setPhase(TurnPhase.STARTING);
 
 		// envoi l'evenement de debut de tour
 		game.apply(new StartOfTurn(), () -> pingpong(this::actionPhase));
 	}
 
 	private void terminate() {
-		
-		//TODO phase de cleanup
-		
+
+		// TODO phase de cleanup
+
 		next.apply();
 	}
 

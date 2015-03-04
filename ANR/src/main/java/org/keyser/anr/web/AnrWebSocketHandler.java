@@ -86,7 +86,7 @@ public class AnrWebSocketHandler extends TextWebSocketHandler {
 						.writeValueAsString(content)));
 			} catch (Throwable e) {
 				// il ne faut pas bloquer l'erreur.
-				log.debug("erreur à l'émission", e);
+				log.debug("erreur Ã  l'Ã©mission", e);
 				removeSuscriber(session);
 			}
 		}

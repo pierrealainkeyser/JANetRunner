@@ -25,6 +25,8 @@ public class GameDto {
 
 	private TurnDTO turn;
 
+	private List<String> chats;
+
 	public List<CardDto> getCards() {
 		return cards;
 	}
@@ -87,6 +89,14 @@ public class GameDto {
 
 	public void setTurn(TurnDTO turn) {
 		this.turn = turn;
+	}
+
+	public List<String> getChats() {
+		return chats;
+	}
+
+	public void setChats(List<String> chats) {
+		this.chats = chats;
 	}
 
 }

@@ -1,5 +1,7 @@
 package org.keyser.anr.core;
 
+import static java.text.MessageFormat.format;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -8,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -113,7 +116,7 @@ public class Game {
 
 				AbstractId to = getId(active);
 
-				// TODO il faut pr�ciser le contexte quelque part...
+				// TODO il faut préciser le contexte quelque part...
 				AskEventOrderUserAction ask = new AskEventOrderUserAction(to, "Select order", new AbstractCardList(sources));
 
 				userContext(null, "Select matching order", Type.SELECT_MATCH_ORDER);
@@ -130,7 +133,7 @@ public class Game {
 		 */
 		private void orderSelected(AskEventOrderUserAction ask, AbstractCardList ordered, Flow next) {
 
-			// r�alise une recursion sur les cartes recuperes
+			// réalise une recursion sur les cartes recuperes
 			RecursiveIterator.recurse(ordered.iterator(), this::applyEffect, next);
 		}
 
@@ -213,6 +216,8 @@ public class Game {
 
 	private Turn turn;
 
+	private Turn previousTurn;
+
 	public Game() {
 		listener = new EventMatcherListener();
 
@@ -221,6 +226,100 @@ public class Game {
 
 		// implémentation spécifique
 		listener.add(e -> true, f -> new ANREventMatcher(f).apply());
+	}
+
+	/**
+	 * Chargement d'une définition de jeu
+	 * 
+	 * @param def
+	 * @param metas
+	 */
+	public void load(GameDef def, MetaCards metas) {
+
+		Function<AbstractTokenContainerId, AbstractCard> creator = a -> create(a, metas);
+
+		CorpDef corpDef = def.getCorp();
+		if (corpDef != null) {
+			Corp c = (Corp) creator.apply(corpDef);
+			c.load(corpDef, creator);
+		}
+
+		RunnerDef runnerDef = def.getRunner();
+		if (runnerDef != null) {
+			Runner r = (Runner) creator.apply(runnerDef);
+			r.load(runnerDef, creator);
+		}
+	}
+
+	/**
+	 * Création de la carte
+	 * 
+	 * @param container
+	 * @param metas
+	 * @return
+	 */
+	private AbstractCard create(AbstractTokenContainerId container, MetaCards metas) {
+		String name = container.getName();
+		MetaCard metaCard = metas.get(name);
+		if (metaCard != null) {
+			AbstractCard created = create(metaCard);
+
+			if (container instanceof AbstractCardDef) {
+				// gestion des cartes hotes
+				AbstractCardDef acd = (AbstractCardDef) container;
+				updateCreatedCard(metas, created, acd);
+			}
+
+			return created;
+		} else {
+			// la carte n'existe pas
+			logger.warn("La carte n'est pas encore implémenté : {}", name);
+			return null;
+		}
+
+	}
+
+	/**
+	 * Gestion des carte hotes et des parametres
+	 * 
+	 * @param metas
+	 * @param created
+	 * @param def
+	 */
+	private void updateCreatedCard(MetaCards metas, AbstractCard created, AbstractCardDef def) {
+		Boolean installed = def.isInstalled();
+		if (installed != null)
+			created.setInstalled(installed);
+
+		Boolean rezzed = def.isRezzed();
+		if (rezzed != null)
+			created.setRezzed(rezzed);
+
+		created.setHostedAs(def.getHostedAs());
+
+		List<AbstractCardDef> hosteds = def.getHosteds();
+		if (hosteds != null) {
+			for (AbstractCardDef h : hosteds) {
+				AbstractCard n = create(h, metas);
+				if (n != null) {
+					created.add(n);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Création de la définition du jeu
+	 * 
+	 * @return
+	 */
+	public GameDef createDef() {
+		GameDef def = new GameDef();
+		if (corp != null)
+			def.setCorp(corp.createCorpDef());
+		if (runner != null)
+			def.setRunner(runner.createRunnerDef());
+		return def;
 	}
 
 	public Game userContext(AbstractCard primary, String customText) {
@@ -239,6 +338,17 @@ public class Game {
 
 	public Collection<AbstractCard> getCards() {
 		return Collections.unmodifiableCollection(cards.values());
+	}
+
+	/**
+	 * Permet d'envoyer un message
+	 * 
+	 * @param msg
+	 * @param args
+	 */
+	public void chat(String msg, Object... args) {
+		msg = msg.replaceAll("'", "''");
+		fire(new ChatEvent(format(msg, args)));
 	}
 
 	public void apply(Object event, Flow flow) {
@@ -301,6 +411,9 @@ public class Game {
 	}
 
 	private void nextTurn() {
+
+		previousTurn = turn;
+
 		turn = new Turn(turn.getActive().next(), this, turn.getTurn() + 1);
 		turn.start(this::nextTurn);
 	}
@@ -374,5 +487,9 @@ public class Game {
 
 	public ActionsContext getActionsContext() {
 		return actionsContext;
+	}
+
+	public Turn getPreviousTurn() {
+		return previousTurn;
 	}
 }

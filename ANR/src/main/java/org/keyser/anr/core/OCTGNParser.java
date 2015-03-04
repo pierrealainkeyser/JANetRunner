@@ -2,6 +2,8 @@ package org.keyser.anr.core;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -9,28 +11,21 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.keyser.anr.core.corp.CorpServerDef;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Permet de parser les fichiers .o8d pour une corp
+ * Permet de parser les fichiers .o8d pour une corp et un runner
  * 
  * @author PAF
  * 
  */
 public class OCTGNParser {
 
-	//private AllCorp corps = new AllCorp();
-
-//	private AllRunner runners = new AllRunner();
-
-	private final static Logger logger = LoggerFactory.getLogger(OCTGNParser.class);
-
-	private <P, C> P parse(InputStream is, Function<String, P> identity, Function<String, C> cards, BiConsumer<P, C> consummer) {
+	private <P> P parse(InputStream is, Function<String, P> identity, BiConsumer<P, AbstractCardDef> consummer) {
 
 		DocumentBuilder db;
 		try {
@@ -56,12 +51,8 @@ public class OCTGNParser {
 						String text = card.getTextContent();
 
 						for (int z = 0; z < qty; ++z) {
-							C c = cards.apply(text);
-							if (c != null)
-								consummer.accept(p, c);
-							else {
-								logger.warn("Card not found : {}", text);
-							}
+							AbstractCardDef c = createCardDef(text);
+							consummer.accept(p, c);
 						}
 					}
 				}
@@ -74,24 +65,55 @@ public class OCTGNParser {
 		}
 	}
 
-//	/**
-//	 * Permet de parser une corporation
-//	 * 
-//	 * @param is
-//	 * @return
-//	 */
-//	public Corp parseCorp(InputStream is) {
-//		return parse(is, corps::newCorp, (Function<String, CorpCard>) corps::newCard, Corp::addToRD);
-//	}
-//
-//	/**
-//	 * Permet de parser un runner
-//	 * 
-//	 * @param is
-//	 * @return
-//	 */
-//	public RunnerOld parseRunner(InputStream is) {
-//		return parse(is, runners::newRunner, (Function<String, RunnerCard>) runners::newCard, RunnerOld::addToStack);
-//	}
+	/**
+	 * Permet de parser une corporation
+	 * 
+	 * @param is
+	 * @return
+	 */
+	public CorpDef parseCorp(InputStream is) {
+		return parse(is, this::createCorpDef, this::addToRDStack);
+	}
+
+	/**
+	 * Permet de parser un Runner
+	 * 
+	 * @param is
+	 * @return
+	 */
+	public RunnerDef parseRunner(InputStream is) {
+		return parse(is, this::createRunnerDef, this::addToRunnerStack);
+	}
+
+	private AbstractCardDef createCardDef(String name) {
+		AbstractCardDef def = new AbstractCardDef();
+		def.setName(name);
+		return def;
+	}
+
+	private void addToRDStack(CorpDef corpDef, AbstractCardDef card) {
+		corpDef.getServers().get(0).getStack().add(card);
+	}
+
+	private CorpDef createCorpDef(String name) {
+		CorpDef def = new CorpDef();
+		CorpServerDef rd = new CorpServerDef();
+		rd.setId(-2);
+		rd.setStack(new ArrayList<>());
+		def.setServers(Arrays.asList(rd));
+		def.setName(name);
+		return def;
+	}
+
+	private void addToRunnerStack(RunnerDef runnerDef, AbstractCardDef card) {
+		runnerDef.getStack().add(card);
+	}
+
+	private RunnerDef createRunnerDef(String name) {
+		RunnerDef def = new RunnerDef();
+		def.setStack(new ArrayList<>());
+		def.setName(name);
+		return def;
+	}
 
 }

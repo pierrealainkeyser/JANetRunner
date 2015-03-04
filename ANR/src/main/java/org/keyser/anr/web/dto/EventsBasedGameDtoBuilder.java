@@ -14,7 +14,9 @@ import org.keyser.anr.core.AbstractCardRezzEvent;
 import org.keyser.anr.core.AbstractCardScoreChangedEvent;
 import org.keyser.anr.core.AbstractCardTokenEvent;
 import org.keyser.anr.core.AbstractId;
+import org.keyser.anr.core.ChatEvent;
 import org.keyser.anr.core.Corp;
+import org.keyser.anr.core.CostForAction;
 import org.keyser.anr.core.EventMatcherBuilder;
 import org.keyser.anr.core.EventMatchers;
 import org.keyser.anr.core.FlowArg;
@@ -37,6 +39,8 @@ public class EventsBasedGameDtoBuilder {
 
 	private Map<PlayerType, Integer> scoreChanged = new HashMap<>();
 
+	private List<String> chats = new ArrayList<>();
+
 	private final Game game;
 
 	public EventsBasedGameDtoBuilder(Game game) {
@@ -51,9 +55,14 @@ public class EventsBasedGameDtoBuilder {
 		// notification des changements d'actions et du score
 		match(AbstractCardActionChangedEvent.class, this::actions);
 		match(AbstractCardScoreChangedEvent.class, this::score);
+		match(ChatEvent.class, this::chats);
 		this.game.bind(matchers);
 
 		return this;
+	}
+
+	private void chats(ChatEvent chat) {
+		chats.add(chat.toString());
 	}
 
 	private void location(AbstractCardLocationEvent evt) {
@@ -81,8 +90,7 @@ public class EventsBasedGameDtoBuilder {
 
 	private void tokens(AbstractCardTokenEvent evt) {
 		AbstractCard card = evt.getPrimary();
-		with(card, dto -> dto.addToken(evt.getType(),
-				card.getToken(evt.getType())));
+		with(card, dto -> dto.addToken(evt.getType(), card.getToken(evt.getType())));
 	}
 
 	private void actions(AbstractCardActionChangedEvent evt) {
@@ -105,8 +113,7 @@ public class EventsBasedGameDtoBuilder {
 	}
 
 	private <T> void match(Class<T> type, FlowArg<T> builder) {
-		EventMatcherBuilder<T> match = EventMatcherBuilder.match(type,
-				"@EventsBasedGameDtoBuilder");
+		EventMatcherBuilder<T> match = EventMatcherBuilder.match(type, "@EventsBasedGameDtoBuilder");
 		match.call(builder);
 		matchers.add(match);
 	}
@@ -119,6 +126,8 @@ public class EventsBasedGameDtoBuilder {
 			name = "R&D";
 		else if (id == -3)
 			name = "H&Q";
+		else
+			name += " " + Math.abs(id + 3);
 
 		return new ServerDto(id, name, operation);
 	}
@@ -133,8 +142,7 @@ public class EventsBasedGameDtoBuilder {
 		dto.setScore(corp.getScore(), runner.getScore());
 
 		List<ServerDto> servers = new ArrayList<>();
-		corp.eachServers(cs -> servers.add(createServer(cs.getId(),
-				Operation.create)));
+		corp.eachServers(cs -> servers.add(createServer(cs.getId(), Operation.create)));
 		dto.setServers(servers);
 
 		for (AbstractCard ac : game.getCards()) {
@@ -167,11 +175,14 @@ public class EventsBasedGameDtoBuilder {
 		if (actionsChanged.contains(activePlayer)) {
 			dto.setClicks(game.getId(activePlayer).getClicks());
 		}
+		
+		if(!chats.isEmpty())
+			dto.setChats(chats);
 
-		if (!scoreChanged.isEmpty()) 
+		if (!scoreChanged.isEmpty())
 			dto.setScore(game.getCorp().getScore(), game.getRunner().getScore());
 
-		// les actions sont à mapper sur les cartes...
+		// les actions sont ï¿½ mapper sur les cartes...
 		if (!cards.isEmpty()) {
 			for (UserAction ua : actionsContext.getUserActions()) {
 				CardDto cdto = getOrCreate(ua.getSource());
@@ -191,7 +202,16 @@ public class EventsBasedGameDtoBuilder {
 	 * @return
 	 */
 	private ActionDto convert(UserAction ua) {
-		return null;
+
+		ActionDto a = new ActionDto();
+		a.setId(ua.getActionId());
+		a.setFaction(ua.getTo());
+		CostForAction cfa = ua.getCost();
+		if (cfa != null)
+			a.setCost(cfa.getCost().toString());
+		a.setText(ua.getDescription());
+
+		return a;
 	}
 
 	public GameDto build() {

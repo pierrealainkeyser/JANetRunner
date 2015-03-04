@@ -22,24 +22,24 @@ import org.keyser.anr.core.SequentialEvent;
 public abstract class RunnerPreventibleEffect extends AbstractCardEvent implements SequentialEvent {
 
 	private final int initialAmount;
-	
+
 	private int amount;
 
 	private final String noPreventionText;
-	
+
 	private final String preventionText;
 
 	/**
-	 * Les evenements de préventions
+	 * Les evenements de prï¿½ventions
 	 */
 	private List<Function<RunnerPreventibleEffect, Feedback<?, ?>>> preventions = new ArrayList<>();
 
-	public RunnerPreventibleEffect(AbstractCard primary, String description,  String preventionText, String noPreventionText, int amount) {
-		super(primary, description, null);
+	public RunnerPreventibleEffect(AbstractCard primary, String preventionText, String noPreventionText, int amount) {
+		super(primary, null);
 		this.amount = amount;
 		this.initialAmount = amount;
 		this.noPreventionText = noPreventionText;
-		this.preventionText=preventionText;
+		this.preventionText = preventionText;
 	}
 
 	public void alterAmount(int delta) {
@@ -47,7 +47,7 @@ public abstract class RunnerPreventibleEffect extends AbstractCardEvent implemen
 	}
 
 	/**
-	 * Vérifie s'il y a des possibilités de prévenir l'action
+	 * VÃ©rifie s'il y a des possibilitÃ©s de prÃ©venir l'action
 	 * 
 	 * @param g
 	 * @param next
@@ -56,16 +56,16 @@ public abstract class RunnerPreventibleEffect extends AbstractCardEvent implemen
 		Game g = getGame();
 		Flow commit = next.wrap(this::commit);
 
-		// si pas de préventions, ou pas de ommage on passe à la suite
+		// si pas de prï¿½ventions, ou pas de ommage on passe ï¿½ la suite
 		if (preventions.isEmpty() || amount == 0)
 			commit.apply();
 		else {
-			// permet de réappeler la méthode fire suite au feedback
+			// permet de rï¿½appeler la mÃ©thode fire suite au feedback
 			Flow fire = next.wrap(this::fire);
 
 			// TODO placer le contexte
 			AbstractCard source = getPrimary();
-		
+
 			g.userContext(source, preventionText);
 			for (Function<RunnerPreventibleEffect, Feedback<?, ?>> action : preventions) {
 				Feedback<?, ?> feedback = action.apply(this);
@@ -80,7 +80,7 @@ public abstract class RunnerPreventibleEffect extends AbstractCardEvent implemen
 	}
 
 	/**
-	 * Ajoute de l'élement
+	 * Ajoute de l'ï¿½lement
 	 * 
 	 * @param amount
 	 * @param next
@@ -90,8 +90,6 @@ public abstract class RunnerPreventibleEffect extends AbstractCardEvent implemen
 	private void commit(Flow next) {
 		if (amount > 0) {
 			commitAmmount(amount, next);
-
-			// TODO notification de l'évenement des dommages
 		} else
 			next.apply();
 
@@ -114,7 +112,7 @@ public abstract class RunnerPreventibleEffect extends AbstractCardEvent implemen
 	}
 
 	/**
-	 * Rajout un evenement de prévention. La fonction permet de créer un
+	 * Rajout un evenement de prï¿½vention. La fonction permet de crÃ©er un
 	 * feedback
 	 * 
 	 * @param action
