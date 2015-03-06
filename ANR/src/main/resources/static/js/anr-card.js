@@ -122,8 +122,8 @@ function CardManager(cardContainer, connector) {
 
 	// correction de la position avant l'affichage
 	this.beforeDraw.push(function() {
-		me.extbox.checkLayoutBounds();
 		me.extbox.syncCoordsFromDisplayedIfNeeded();
+		me.extbox.checkLayoutBounds();
 
 		_.each(me.cards, function(card) {
 			card.updateViewable(me.faction);
@@ -460,6 +460,7 @@ function CardManager(cardContainer, connector) {
 		}
 
 		if (elements.primary) {
+			// TODO gestion de l'affichage primaire que s'il y a une action pour le joueur actif
 			me.primaryCardId = elements.primary.id;
 			me.primaryText = elements.primary.text;
 			me.primarySubs = elements.primary.subs;
@@ -1336,6 +1337,13 @@ function ExtViewServer(server) {
 	this.ext = this.element = this.primary;
 
 	this.alive = true;
+	
+	/**
+	 * Renvoi les coordonnées du premier ghost
+	 */
+	this.getFirstGhostCoords=function(){
+		return server.coords;
+	}
 
 	this.unapplyGhost = function() {
 
@@ -1634,6 +1642,13 @@ function Card(def, cardManager) {
 		this.parent.replaceChild(this, ghost);
 		this.setParent(parent);
 		return ghost;
+	}
+	
+	/**
+	 * Renvoi les coordonnées du premier ghost
+	 */
+	this.getFirstGhostCoords=function(){
+		return this.ghosts[0].coords;
 	}
 
 	/**
@@ -2315,7 +2330,7 @@ function ExtBox(cardManager) {
 	}
 
 	/**
-	 * Mise à jour des positions absolu des composants
+	 * Mise à jour des positions absolu des composants suite à un scrolling manueel
 	 */
 	this.updateVirtualPosition = function(x, y) {
 
@@ -2349,12 +2364,10 @@ function ExtBox(cardManager) {
 		// remise à zero des routines
 		this.subs = [];
 
-		var coords = this.displayedCard.coords;
-		var big = cardManager.area.cardBig;
-		var small = cardManager.area.card;
-		this.extContainer.setCoords(new LayoutCoords(coords.x - (big.width - small.width) / 2, coords.y - (big.height - small.height) / 2), 0);
+		// calcul de la position on le traite plus tard
+		this.updateCoordFromDisplayed=true;
+		
 		this.displayedCard.setParent(extContainer);
-
 		this.mainContainer.removeAllChilds();
 
 		_.each(serv.actions, me.addAction);
@@ -2379,24 +2392,6 @@ function ExtBox(cardManager) {
 
 		this.updateLayouts();
 
-	}
-	
-	/**
-	 * Permet de recalculer au besoin la position de la boite
-	 */
-	this.syncCoordsFromDisplayedIfNeeded=function(){
-		
-		if(this.displayedCard && this.updateCoordFromDisplayed){
-			var coords = this.displayedCard.coords;
-			var big = cardManager.area.cardBig;
-			var small = cardManager.area.card;
-			
-			var lc=new LayoutCoords(coords.x - (big.width - small.width) / 2, coords.y - (big.height - small.height) / 2);
-			console.log(coords) 
-			
-			this.extContainer.setCoords(lc, 0);
-			this.updateCoordFromDisplayed=false;
-		}
 	}
 
 	/**
@@ -2707,7 +2702,35 @@ function ExtBox(cardManager) {
 			// mise à jour du layout
 			this.innerContainer.requireLayout();
 		}
-
+	}
+	
+	/**
+	 * Permet de mettre à jour la position des cartes dans l'espace reel
+	 */
+	var refreshExtCoords=function(lc){
+		
+		me.extContainer.setCoords(lc);
+		var redraw = function(card) {
+			if (card != null)
+				card.redraw();
+		};
+		applyEachInnerElements(redraw);
+	}
+	
+	/**
+	 * Permet de recalculer au besoin la position de la boite
+	 */
+	this.syncCoordsFromDisplayedIfNeeded=function(){
+		
+		if(this.displayedCard && this.updateCoordFromDisplayed){
+			var coords = this.displayedCard.getFirstGhostCoords();
+			var big = cardManager.area.cardBig;
+			var small = cardManager.area.card;
+			
+			var lc=new LayoutCoords(coords.x - (big.width - small.width) / 2, coords.y - (big.height - small.height) / 2);
+			refreshExtCoords(lc);
+			this.updateCoordFromDisplayed=false;
+		}
 	}
 
 	/**
@@ -2727,14 +2750,8 @@ function ExtBox(cardManager) {
 
 				// il faut déplacer la boite pour correspondre
 				var p = outer.getMatchingPoint(bounds);
-				this.extContainer.setCoords(new LayoutCoords(p.x, p.y, 0));
-
-				var redraw = function(card) {
-					if (card != null)
-						card.redraw();
-				};
-
-				applyEachInnerElements(redraw);
+				refreshExtCoords(new LayoutCoords(p.x, p.y, 0));
+			
 			}
 		}
 	}
