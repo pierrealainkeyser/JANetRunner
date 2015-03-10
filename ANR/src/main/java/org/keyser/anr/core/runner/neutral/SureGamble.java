@@ -23,6 +23,7 @@ public class SureGamble extends Event {
 	protected void invoke(Flow next) {
 		getRunner().addToken(TokenType.CREDIT, 9);
 		
+		
 		//TODO gestion de l'evenement
 		next.apply();
 	}

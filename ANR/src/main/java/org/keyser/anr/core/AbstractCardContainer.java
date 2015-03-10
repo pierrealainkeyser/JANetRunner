@@ -63,4 +63,12 @@ public class AbstractCardContainer<A extends AbstractCard> {
 	public String toString() {
 		return "AbstractCardContainer [contents=" + contents + "]";
 	}
+
+	public int size() {
+		return contents.size();
+	}
+
+	public A get(int arg0) {
+		return contents.get(arg0);
+	}
 }

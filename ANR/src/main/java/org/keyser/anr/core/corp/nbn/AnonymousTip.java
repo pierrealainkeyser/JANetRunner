@@ -2,10 +2,12 @@ package org.keyser.anr.core.corp.nbn;
 
 import static java.util.Collections.emptyList;
 
+import org.keyser.anr.core.Corp;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.MetaCard;
+import org.keyser.anr.core.TrashCause;
 import org.keyser.anr.core.corp.Operation;
 
 public class AnonymousTip extends Operation {
@@ -18,8 +20,8 @@ public class AnonymousTip extends Operation {
 
 	@Override
 	protected void invoke(Flow next) {
-		// TODO notification de l'effet ?
-		getCorp().draw(3, next);
-
+		Corp corp = getCorp();
+		game.chat("{0} plays {1}, loses {2} and draws 3 cards", corp, this, Cost.click(1));
+		corp.draw(3, () -> trash(TrashCause.PLAY, next));
 	}
 }

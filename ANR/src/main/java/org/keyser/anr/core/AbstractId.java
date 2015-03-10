@@ -43,7 +43,6 @@ public abstract class AbstractId extends AbstractCard {
 	public void playFeedback(CollectHabilities hab) {
 		Cost oneAction = Cost.free().withAction(1);
 		UserAction gainOne = new UserAction(this, this, new CostForAction(oneAction, new Gain1CreditAction(this)), "Gain {1:credit}");
-
 		hab.add(gainOne.spendAndApply(this::gainOneCreditAction));
 
 		UserAction drawOne = new UserAction(this, this, new CostForAction(oneAction, new Draw1CardAction(this)), "Draw 1 card");
@@ -191,10 +190,7 @@ public abstract class AbstractId extends AbstractCard {
 		next.apply();
 	}
 
-	public void draw(int i, Flow next) {
-		// TODO
-		next.apply();
-	}
+	public abstract void draw(int i, Flow next);
 
 	public boolean hasAction() {
 		return clicks.getActive() > 0;

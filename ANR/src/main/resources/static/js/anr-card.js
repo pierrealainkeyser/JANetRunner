@@ -459,13 +459,17 @@ function CardManager(cardContainer, connector) {
 			});
 		}
 
+		var resetPrimary = true;
 		if (elements.primary) {
-			// TODO gestion de l'affichage primaire que s'il y a une action pour le joueur actif
-			me.primaryCardId = elements.primary.id;
-			me.primaryText = elements.primary.text;
-			me.primarySubs = elements.primary.subs;
-			var card = me.getCard({ id : me.primaryCardId });
-			if (card) {
+			var primaryCardId = elements.primary.id;
+			var card = me.getCard({ id : primaryCardId });
+
+			//il faut une action sur la carte
+			if (card && card.hasActions()) {
+				resetPrimary = false;
+				me.primaryCardId = primaryCardId;
+				me.primaryText = elements.primary.text;
+				me.primarySubs = elements.primary.subs;
 				if (!me.isDisplayed(card))
 					me.displayCard(card);
 				else {
@@ -473,7 +477,10 @@ function CardManager(cardContainer, connector) {
 					me.extbox.updatePrimary(card);
 				}
 			}
-		} else {
+
+		}
+
+		if (resetPrimary) {
 			// ferme la carte si visible actuellement
 			var card = me.getCard({ id : me.primaryCardId });
 			if (card && me.isDisplayed(card)) {
@@ -1337,11 +1344,11 @@ function ExtViewServer(server) {
 	this.ext = this.element = this.primary;
 
 	this.alive = true;
-	
+
 	/**
 	 * Renvoi les coordonnées du premier ghost
 	 */
-	this.getFirstGhostCoords=function(){
+	this.getFirstGhostCoords = function() {
 		return server.coords;
 	}
 
@@ -1643,11 +1650,11 @@ function Card(def, cardManager) {
 		this.setParent(parent);
 		return ghost;
 	}
-	
+
 	/**
 	 * Renvoi les coordonnées du premier ghost
 	 */
-	this.getFirstGhostCoords=function(){
+	this.getFirstGhostCoords = function() {
 		return this.ghosts[0].coords;
 	}
 
@@ -1657,12 +1664,14 @@ function Card(def, cardManager) {
 	this.unapplyGhost = function() {
 		var ghost = this.ghosts.pop();
 
-		ghost.each(function(card) {
-			card.setParent(me)
-		});
-
-		ghost.parent.replaceChild(ghost, this);
-		ghost.remove(true);
+		if(ghost){
+			ghost.each(function(card) {
+				card.setParent(me)
+			});
+	
+			ghost.parent.replaceChild(ghost, this);
+			ghost.remove(true);
+		}
 	}
 
 	/**
@@ -2330,7 +2339,8 @@ function ExtBox(cardManager) {
 	}
 
 	/**
-	 * Mise à jour des positions absolu des composants suite à un scrolling manueel
+	 * Mise à jour des positions absolu des composants suite à un scrolling
+	 * manueel
 	 */
 	this.updateVirtualPosition = function(x, y) {
 
@@ -2365,8 +2375,8 @@ function ExtBox(cardManager) {
 		this.subs = [];
 
 		// calcul de la position on le traite plus tard
-		this.updateCoordFromDisplayed=true;
-		
+		this.updateCoordFromDisplayed = true;
+
 		this.displayedCard.setParent(extContainer);
 		this.mainContainer.removeAllChilds();
 
@@ -2409,8 +2419,8 @@ function ExtBox(cardManager) {
 		this.subs = [];
 
 		// calcul de la position on le traite plus tard
-		this.updateCoordFromDisplayed=!(_.isBoolean(dontChangeCoords) && dontChangeCoords)
-		
+		this.updateCoordFromDisplayed = !(_.isBoolean(dontChangeCoords) && dontChangeCoords)
+
 		var ghost = this.displayedCard.applyGhost(extContainer);
 
 		this.mainContainer.removeAllChilds();
@@ -2703,12 +2713,12 @@ function ExtBox(cardManager) {
 			this.innerContainer.requireLayout();
 		}
 	}
-	
+
 	/**
 	 * Permet de mettre à jour la position des cartes dans l'espace reel
 	 */
-	var refreshExtCoords=function(lc){
-		
+	var refreshExtCoords = function(lc) {
+
 		me.extContainer.setCoords(lc);
 		var redraw = function(card) {
 			if (card != null)
@@ -2716,20 +2726,20 @@ function ExtBox(cardManager) {
 		};
 		applyEachInnerElements(redraw);
 	}
-	
+
 	/**
 	 * Permet de recalculer au besoin la position de la boite
 	 */
-	this.syncCoordsFromDisplayedIfNeeded=function(){
-		
-		if(this.displayedCard && this.updateCoordFromDisplayed){
+	this.syncCoordsFromDisplayedIfNeeded = function() {
+
+		if (this.displayedCard && this.updateCoordFromDisplayed) {
 			var coords = this.displayedCard.getFirstGhostCoords();
 			var big = cardManager.area.cardBig;
 			var small = cardManager.area.card;
-			
-			var lc=new LayoutCoords(coords.x - (big.width - small.width) / 2, coords.y - (big.height - small.height) / 2);
+
+			var lc = new LayoutCoords(coords.x - (big.width - small.width) / 2, coords.y - (big.height - small.height) / 2);
 			refreshExtCoords(lc);
-			this.updateCoordFromDisplayed=false;
+			this.updateCoordFromDisplayed = false;
 		}
 	}
 
@@ -2751,7 +2761,7 @@ function ExtBox(cardManager) {
 				// il faut déplacer la boite pour correspondre
 				var p = outer.getMatchingPoint(bounds);
 				refreshExtCoords(new LayoutCoords(p.x, p.y, 0));
-			
+
 			}
 		}
 	}

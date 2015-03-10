@@ -16,6 +16,19 @@ public class AbstractCardCorp extends AbstractCard {
 		return false;
 	}
 
+	/**
+	 * Il faut un evenement pour déplacer la carte
+	 * 
+	 * @param next
+	 */
+	@Override
+	public void trash(TrashCause ctx, Flow next) {
+		super.trash(ctx, () -> {
+			getCorp().getArchives().add(this);
+			next.apply();
+		});
+	}
+
 	@Override
 	public PlayerType getOwner() {
 		return PlayerType.CORP;

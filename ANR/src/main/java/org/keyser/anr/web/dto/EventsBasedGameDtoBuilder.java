@@ -14,6 +14,7 @@ import org.keyser.anr.core.AbstractCardRezzEvent;
 import org.keyser.anr.core.AbstractCardScoreChangedEvent;
 import org.keyser.anr.core.AbstractCardTokenEvent;
 import org.keyser.anr.core.AbstractId;
+import org.keyser.anr.core.CardLocation;
 import org.keyser.anr.core.ChatEvent;
 import org.keyser.anr.core.Corp;
 import org.keyser.anr.core.CostForAction;
@@ -27,6 +28,7 @@ import org.keyser.anr.core.Runner;
 import org.keyser.anr.core.Turn;
 import org.keyser.anr.core.UserAction;
 import org.keyser.anr.web.dto.CardDto.CardType;
+import org.keyser.anr.web.dto.CardDto.Face;
 import org.keyser.anr.web.dto.ServerDto.Operation;
 
 public class EventsBasedGameDtoBuilder {
@@ -71,7 +73,8 @@ public class EventsBasedGameDtoBuilder {
 	}
 
 	private void updateLocation(AbstractCard card, CardDto dto) {
-		dto.setLocation(card.getLocation());
+		CardLocation location = card.getLocation();
+		dto.setLocation(location);
 	}
 
 	private void with(AbstractCard card, FlowArg<CardDto> act) {
@@ -132,8 +135,9 @@ public class EventsBasedGameDtoBuilder {
 		return new ServerDto(id, name, operation);
 	}
 
-	public GameDto create() {
+	public GameDto create(PlayerType playerType) {
 		GameDto dto = new GameDto();
+		dto.setLocal(playerType);
 		dto.setClicks(game.getId(game.getActivePlayer()).getClicks());
 
 		Corp corp = game.getCorp();
@@ -159,11 +163,11 @@ public class EventsBasedGameDtoBuilder {
 			ac.eachToken(cdto::addToken);
 		}
 
-		updateCommon(game, dto);
+		updateCommon(game, dto, playerType);
 		return dto;
 	}
 
-	private void updateCommon(Game game, GameDto dto) {
+	private void updateCommon(Game game, GameDto dto, PlayerType playerType) {
 
 		ActionsContext actionsContext = game.getActionsContext();
 		dto.setPrimary(actionsContext.getContext());
@@ -175,14 +179,14 @@ public class EventsBasedGameDtoBuilder {
 		if (actionsChanged.contains(activePlayer)) {
 			dto.setClicks(game.getId(activePlayer).getClicks());
 		}
-		
-		if(!chats.isEmpty())
+
+		if (!chats.isEmpty())
 			dto.setChats(chats);
 
 		if (!scoreChanged.isEmpty())
 			dto.setScore(game.getCorp().getScore(), game.getRunner().getScore());
 
-		// les actions sont � mapper sur les cartes...
+		// les actions sont à mapper sur les cartes...
 		if (!cards.isEmpty()) {
 			for (UserAction ua : actionsContext.getUserActions()) {
 				CardDto cdto = getOrCreate(ua.getSource());
@@ -192,6 +196,22 @@ public class EventsBasedGameDtoBuilder {
 			}
 
 			dto.setCards(new ArrayList<>(cards.values()));
+		}
+
+		// mise à jour des positions des cartes
+		if (dto.getCards() != null) {
+			for (CardDto c : dto.getCards()) {
+				CardLocation location = c.getLocation();
+				if (location != null) {
+					if (PlayerType.CORP == playerType && location.isInCorpHand()) {
+						c.setLocation(location.toHandLocation());
+						c.setFace(Face.up);
+					} else if (PlayerType.RUNNER == playerType && location.isInRunnerHand()) {
+						c.setLocation(location.toHandLocation());
+						c.setFace(Face.up);
+					}
+				}
+			}
 		}
 	}
 
@@ -214,13 +234,14 @@ public class EventsBasedGameDtoBuilder {
 		return a;
 	}
 
-	public GameDto build() {
+	public GameDto build(PlayerType type) {
 
 		matchers.uninstall();
 		GameDto dto = new GameDto();
 		// TODO liste des nouveaux serveurs
 
-		updateCommon(game, dto);
+		updateCommon(game, dto, type);
+
 		return dto;
 	}
 }

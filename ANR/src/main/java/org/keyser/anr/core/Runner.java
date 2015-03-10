@@ -116,4 +116,11 @@ public class Runner extends AbstractId {
 		this.link = link;
 		// TODO notification effect
 	}
+
+	@Override
+	public void draw(int i, Flow next) {
+		// TODO Auto-generated method stub
+		next.apply();
+		
+	}
 }

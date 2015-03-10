@@ -54,8 +54,8 @@ public class Endpoint {
 	}
 
 	public void refresh(RemoteSuscriber suscriber) {
-		GameDto dto = new EventsBasedGameDtoBuilder(game).create();
-		dto.setLocal(suscriber.getKey().getType());
+		PlayerType type = suscriber.getKey().getType();
+		GameDto dto = new EventsBasedGameDtoBuilder(game).create(type);
 
 		suscriber.send(new TypedMessage(RemoteVerbs.VERB_REFRESH, dto));
 	}
@@ -70,19 +70,18 @@ public class Endpoint {
 			game.invoke(message.getRid(), converter, message.getContent());
 
 			// broadcast du resultat
-			broadcast(new TypedMessage(RemoteVerbs.VERB_BROADCAST, builder.build()));
+			for (RemoteSuscriber suscriber : connected.values()) {
+				PlayerType remoteType = suscriber.getKey().getType();
+				try {
+					TypedMessage output = new TypedMessage(RemoteVerbs.VERB_BROADCAST, builder.build(remoteType));
+					suscriber.send(output);
+				} catch (Throwable t) {
+					log.warn("Erreur lors du send " + remoteType, t);
+				}
+			}
+
 		} catch (Throwable t) {
 			log.error("Erreur lors du traitement de " + message + " : " + t.getMessage(), t);
-		}
-	}
-
-	private void broadcast(TypedMessage message) {
-		for (RemoteSuscriber suscriber : connected.values()) {
-			try {
-				suscriber.send(message);
-			} catch (Throwable t) {
-				log.warn("Erreur lors du send {} : {}", suscriber, message);
-			}
 		}
 	}
 

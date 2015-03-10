@@ -16,7 +16,7 @@ import org.keyser.anr.core.runner.AddTagsEvent;
 
 public class SEASource extends Operation {
 
-	public final static MetaCard INSTANCE = new MetaCard("SEA Source", Faction.NBN.infl(2), Cost.credit(2), false, "01084", emptyList(), SEASource::new);
+	public final static MetaCard INSTANCE = new MetaCard("SEA Source", Faction.NBN.infl(2), Cost.credit(2), false, "01086", emptyList(), SEASource::new);
 
 	protected SEASource(int id, MetaCard meta) {
 		super(id, meta);

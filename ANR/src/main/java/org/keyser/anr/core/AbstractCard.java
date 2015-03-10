@@ -359,7 +359,7 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	public void setLocation(CardLocation location) {
 		CardLocation old = this.location;
 		this.location = location;
-		if (Objects.equals(old, location))
+		if (!Objects.equals(old, location))
 			game.fire(new AbstractCardLocationEvent(this));
 	}
 
@@ -379,7 +379,6 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	public void setToken(TokenType type, int value) {
 
 		int old = getToken(type);
-
 		tokens.put(type, value);
 
 		if (old != value)
@@ -393,8 +392,8 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	 * @param ctx
 	 * @param next
 	 */
-	public void trash(Object ctx, Flow next) {
-		setRezzed(false);
+	public void trash(TrashCause ctx, Flow next) {
+		setRezzed(ctx.isRezzedAfterTrash());
 		setInstalled(false);
 
 		// TODO

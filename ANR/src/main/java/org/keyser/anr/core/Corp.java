@@ -44,6 +44,26 @@ public class Corp extends AbstractId {
 		hq = new CorpServerCentral(game, nextServerId());
 	}
 
+	@Override
+	public void draw(int i, Flow next) {
+
+		AbstractCardContainer<AbstractCardCorp> rdStack = rd.getStack();
+		AbstractCardContainer<AbstractCardCorp> hqStack = hq.getStack();
+		int size = rdStack.size();
+		if (i <= size) {
+			List<AbstractCardCorp> cards = new ArrayList<>();
+			for (int j = 0; j < i; j++)
+				cards.add(rdStack.get(j));
+
+			cards.stream().forEach(hqStack::add);
+		} else {
+			// corp à perdue
+		}
+
+		next.apply();
+
+	}
+
 	/**
 	 * Permet de s'assurer qu'il a un serveur vide
 	 */

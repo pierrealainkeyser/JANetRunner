@@ -1,12 +1,17 @@
 package org.keyser.anr;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.keyser.anr.core.ANRMetaCards;
+import org.keyser.anr.core.Corp;
 import org.keyser.anr.core.Game;
+import org.keyser.anr.core.GameDef;
+import org.keyser.anr.core.OCTGNParser;
+import org.keyser.anr.core.TestOCTGNParser;
 import org.keyser.anr.core.TokenType;
-import org.keyser.anr.core.corp.nbn.MakingNews;
-import org.keyser.anr.core.runner.shaper.KateMcCaffrey;
 import org.keyser.anr.web.AnrWebSocketHandler;
 import org.keyser.anr.web.Endpoint;
 import org.keyser.anr.web.EndpointProcessor;
@@ -48,9 +53,14 @@ public class AnrMain implements WebSocketConfigurer {
 
 	@Bean
 	public ObjectMapper objectMapper() {
-		ObjectMapper objectMapper = new ObjectMapper();		
-		objectMapper.setSerializationInclusion(Include.NON_NULL);		
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.setSerializationInclusion(Include.NON_NULL);
 		return objectMapper;
+	}
+
+	@Bean
+	public OCTGNParser oCTGNParser() {
+		return new OCTGNParser();
 	}
 
 	@Bean
@@ -58,11 +68,26 @@ public class AnrMain implements WebSocketConfigurer {
 		GameRepository gameRepository = new GameRepository();
 
 		Game g = new Game();
-		MakingNews mn = (MakingNews) g.create(MakingNews.INSTANCE);
-		mn.setToken(TokenType.CREDIT, 5);
-		
-		KateMcCaffrey kcc = (KateMcCaffrey) g.create(KateMcCaffrey.INSTANCE);
-		kcc.setToken(TokenType.CREDIT, 5);
+
+		GameDef def = new GameDef();
+		OCTGNParser p = new OCTGNParser();
+		try (InputStream fis = TestOCTGNParser.class.getResourceAsStream("/core-shapper.o8d")) {
+			def.setRunner(p.parseRunner(fis));
+		} catch (IOException e) {
+
+		}
+		try (InputStream fis = TestOCTGNParser.class.getResourceAsStream("/core-nbn.o8d")) {
+			def.setCorp(p.parseCorp(fis));
+		} catch (IOException e) {
+		}
+
+		g.load(def, ANRMetaCards.INSTANCE);
+
+		Corp corp = g.getCorp();
+		corp.setToken(TokenType.CREDIT, 5);
+		corp.draw(5, () -> {
+		});
+
 		g.start();
 
 		gameRepository.register(new Endpoint(endpointProcessor(), g, "123", "456"));

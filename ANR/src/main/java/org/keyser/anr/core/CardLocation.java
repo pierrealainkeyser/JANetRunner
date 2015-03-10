@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class CardLocation {
 
 	public enum Primary {
-		SERVER, GRIP, HEAP, STACK, RUNNERSCORE, CORPSCORE, HARDWARES, PROGRAMS, RESOURCES, HOSTED;
+		SERVER, GRIP, HEAP, STACK, RUNNERSCORE, CORPSCORE, HARDWARES, PROGRAMS, RESOURCES, HOSTED, HAND;
 	}
 
 	public enum Secondary {
@@ -96,13 +96,59 @@ public class CardLocation {
 		return index;
 	}
 
+	/**
+	 * Convertit en adresse dans la main
+	 * 
+	 * @return
+	 */
+	public CardLocation toHandLocation() {
+		return new CardLocation(Primary.HAND, null, null, index);
+	}
+
 	@JsonIgnore
 	public boolean isInCorpHand() {
-		return primary == Primary.SERVER && serverIndex == HQ_INDEX && secondary == Secondary.STACK;
+		return primary == Primary.SERVER && serverIndex == HQ_INDEX && secondary == Secondary.STACK && index >= 0;
 	}
 
 	@JsonIgnore
 	public boolean isInRunnerHand() {
 		return primary == Primary.GRIP;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((index == null) ? 0 : index.hashCode());
+		result = prime * result + ((primary == null) ? 0 : primary.hashCode());
+		result = prime * result + ((secondary == null) ? 0 : secondary.hashCode());
+		result = prime * result + ((serverIndex == null) ? 0 : serverIndex.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CardLocation other = (CardLocation) obj;
+		if (index == null) {
+			if (other.index != null)
+				return false;
+		} else if (!index.equals(other.index))
+			return false;
+		if (primary != other.primary)
+			return false;
+		if (secondary != other.secondary)
+			return false;
+		if (serverIndex == null) {
+			if (other.serverIndex != null)
+				return false;
+		} else if (!serverIndex.equals(other.serverIndex))
+			return false;
+		return true;
 	}
 }

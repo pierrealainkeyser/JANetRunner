@@ -11,6 +11,7 @@ import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.SimpleFeedback;
 import org.keyser.anr.core.TokenType;
+import org.keyser.anr.core.TrashCause;
 import org.keyser.anr.core.UserAction;
 import org.keyser.anr.core.runner.Resource;
 
@@ -38,9 +39,8 @@ public class ArmitageCodebusting extends Resource {
 	private void take2CreditsAction(UserAction ua, Flow next) {
 		getRunner().addToken(TokenType.CREDIT, 2);
 		addToken(TokenType.CREDIT, -2);
-		// TODO gestion du contexte de trash
 		if (0 == getToken(TokenType.CREDIT))
-			trash(null, next);
+			trash(TrashCause.EXHAUSTED, next);
 		else
 			next.apply();
 	}
