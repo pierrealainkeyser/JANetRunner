@@ -22,8 +22,8 @@ function Card(layoutManager, def) {
 }
 
 var CardMixin = function() {
-	AbstractBoxLeafMixin.call(Card.prototype)
-	TweenLiteSyncScreenMixin.call(Card.prototype);
+	AbstractBoxLeafMixin.call(this)
+	TweenLiteSyncScreenMixin.call(this);
 
 	/**
 	 * Détermine la taille
@@ -72,12 +72,13 @@ var CardMixin = function() {
 	 */
 	this.syncScreen = function() {
 		var shadow = null;
+		var faceup = this.face === "up";
 		var hints = this.container.renderingHints();
 		var css = this.computeCssTween({ zIndex : true, rotation : true });
 		if (true === hints.horizontal)
 			css.rotation = 90.0;
 
-		var frontCss = { rotationY : this.face === "up" ? 0 : -180 };
+		var frontCss = { rotationY : shadow ? 0 : -180 };
 		var backCss = _.extend(_.clone(innerCss), { boxShadow : shadow });
 
 		this.tweenElement(this.element, css, this.firstSyncScreen);

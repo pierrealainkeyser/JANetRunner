@@ -297,7 +297,7 @@ AbstractBoxMixin.call(AbstractBox.prototype);
 
 // ---------------------------------------------
 function AbstractBoxLeaf(layoutManager) {
-	AbstractBoxLeaf.call(this, layoutManager);
+	AbstractBox.call(this, layoutManager);
 
 	// propage les changements à l'écran
 	Object.observe(this.screen, this.needSyncScreen.bind(this));
@@ -324,7 +324,7 @@ AbstractBoxLeafMixin.call(AbstractBoxLeaf.prototype)
 
 // ---------------------------------------------
 function AbstractBoxContainer(layoutManager, _renderingHints, layoutFunction) {
-	AbstractBoxLeaf.call(this, layoutManager);
+	AbstractBox.call(this, layoutManager);
 
 	this.childs = [];
 	this.layoutFunction = layoutFunction;
