@@ -253,7 +253,8 @@ AbstractBox.CONTAINER = "container";
 
 var AbstractBoxMixin = function() {
 	/**
-	 * Indique le besoin de recopie les coordonnées local dans les coordonnées screen
+	 * Indique le besoin de recopie les coordonnées local dans les coordonnées
+	 * screen
 	 */
 	this.needMergeToScreen = function() {
 		this.layoutManager.needMergeToScreen(this);
@@ -322,11 +323,12 @@ var AbstractBoxLeafMixin = function() {
 AbstractBoxLeafMixin.call(AbstractBoxLeaf.prototype)
 
 // ---------------------------------------------
-function AbstractBoxContainer(layoutManager, layoutFunction) {
+function AbstractBoxContainer(layoutManager, _renderingHints, layoutFunction) {
 	AbstractBoxLeaf.call(this, layoutManager);
 
 	this.childs = [];
 	this.layoutFunction = layoutFunction;
+	this._renderingHints = _renderingHints;
 
 	this.bindNeedLayout = this.needLayout.bind(this);
 
@@ -339,6 +341,13 @@ function AbstractBoxContainer(layoutManager, layoutFunction) {
 
 var AbstractBoxContainerMixin = function() {
 	AbstractBoxMixin.call(this);
+
+	/**
+	 * Accède aux élements de rendu
+	 */
+	this.renderingHints = function() {
+		return this._renderingHints;
+	}
 
 	/**
 	 * Indique qu'il y a besoin d'un layout
