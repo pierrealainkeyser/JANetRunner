@@ -214,16 +214,16 @@ var LayoutManagerMixin = function() {
 
 	}
 
-	this.needLayout = function(abstractBox) {
-		this.layoutCycle.layout[abstractBox._boxId] = abstractBox;
+	this.needLayout = function(abstractBoxContainer) {
+		this.layoutCycle.layout[abstractBoxContainer._boxId] = abstractBoxContainer;
 	}
 
 	this.needMergeToScreen = function(abstractBox) {
 		this.layoutCycle.merge[abstractBox._boxId] = abstractBox;
 	}
 
-	this.needSyncScreen = function(abstractBox) {
-		this.layoutCycle.sync[abstractBox._boxId] = abstractBox;
+	this.needSyncScreen = function(abstractBoxLeaf) {
+		this.layoutCycle.sync[abstractBoxLeaf._boxId] = abstractBoxLeaf;
 	}
 }
 LayoutManagerMixin.call(LayoutManager.prototype);
@@ -244,11 +244,6 @@ function AbstractBox(layoutManager) {
 	 */
 	this.depth = 0;
 
-	this.bindSyncScreen = this.needSyncScreen.bind(this);
-
-	// propage les changements à l'écran
-	Object.observe(this.screen, this.bindSyncScreen);
-
 	// un changement sur le local provoque un needToMergetoScreen
 	Object.observe(this.local, this.needMergeToScreen.bind(this));
 
@@ -257,12 +252,11 @@ AbstractBox.DEPTH = "depth";
 AbstractBox.CONTAINER = "container";
 
 var AbstractBoxMixin = function() {
+	/**
+	 * Indique le besoin de recopie les coordonnées local dans les coordonnées screen
+	 */
 	this.needMergeToScreen = function() {
 		this.layoutManager.needMergeToScreen(this);
-	}
-
-	this.needSyncScreen = function() {
-		this.layoutManager.needSyncScreen(this);
 	}
 
 	/**
@@ -303,10 +297,20 @@ AbstractBoxMixin.call(AbstractBox.prototype);
 // ---------------------------------------------
 function AbstractBoxLeaf(layoutManager) {
 	AbstractBoxLeaf.call(this, layoutManager);
+
+	// propage les changements à l'écran
+	Object.observe(this.screen, this.needSyncScreen.bind(this));
 }
 
 var AbstractBoxLeafMixin = function() {
 	AbstractBoxMixin.call(this);
+
+	/**
+	 * Indique qu'il faudra appeler la méthode syncScreen en fin de layout
+	 */
+	this.needSyncScreen = function() {
+		this.layoutManager.needSyncScreen(this);
+	}
 
 	/**
 	 * Recopie des coordonnées à l'écran, depuis screen
