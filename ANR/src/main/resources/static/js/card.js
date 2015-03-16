@@ -12,14 +12,18 @@ function Card(layoutManager, def) {
 	this.back = this.primary.find("img.back");
 	this.tokens = this.primary.find("div.tokens");
 
-	this.face = "up";
-	this.rotation = 0.0;
+	// la rotation et la position de la carte, ainsi que la profondeur
+	this.face = Card.FACE_UP;
 
-	this.firstSyncScreen = true;
+	// permet de montrer le mode de zoom up, down et null
+	this.zoomable = Card.FACE_UP;
 
 	// en cas de changement de parent redétermine la taille
-	Object.observe(this, this.computeSize.bind(this), AbstractBox.CONTAINER);
+	Object.observe(this, this.computeSize.bind(this), [ AbstractBox.CONTAINER ]);
 }
+
+Card.FACE_UP = "up";
+Card.FACE_DOWN = "down";
 
 var CardMixin = function() {
 	AbstractBoxLeafMixin.call(this)
@@ -32,13 +36,16 @@ var CardMixin = function() {
 		var hints = this.container.renderingHints();
 
 		// en fonction du mode on calcul la taille
+		// TODO à déplacer dans le card manager
 		var size = this.layoutManager.area.card;
-		if ("mini" === hints.cardsize)
+		var cardsize = hints.cardsize;
+		if ("mini" === cardsize)
 			size = this.layoutManager.area.mini;
-		else if ("zoom" === hints.cardsize)
+		else if ("zoom" === cardsize)
 			size = this.layoutManager.area.zoom;
 
-		// si horizotal on inverse la taille pour les calculs de layout
+		// si horizontal on inverse la taille pour les calculs de layout, on
+		// remettra en place avec une rotation
 		if (true === hints.horizontal)
 			size = size.swap();
 
@@ -56,6 +63,8 @@ var CardMixin = function() {
 		if (this.container != null) {
 			var hints = this.container.renderingHints();
 			if (true === hints.horizontal) {
+				// on retransforme la bonne taille pour prendre en compte la
+				// rotation
 				moveTo = moveTo.swap();
 				size = size.swap();
 			}
@@ -72,30 +81,37 @@ var CardMixin = function() {
 	 */
 	this.syncScreen = function() {
 		var shadow = null;
-		var faceup = this.face === "up";
+		var faceup = this.face === Card.FACE_UP;
 		var hints = this.container.renderingHints();
-		var css = this.computeCssTween({ zIndex : true, rotation : true });
+		var css = this.computeCssTween({
+			zIndex : true,
+			rotation : true,
+			autoAlpha : true,
+			size : true
+		});
+		// en cas d'affichage horizontal on corrige la position
 		if (true === hints.horizontal)
 			css.rotation = 90.0;
 
-		var frontCss = { rotationY : shadow ? 0 : -180 };
-		var backCss = _.extend(_.clone(innerCss), { boxShadow : shadow });
+		var frontCss = {
+			rotationY : faceup ? 0 : -180
+		};
+		var backCss = _.extend(_.clone(frontCss), {
+			boxShadow : shadow
+		});
 
-		this.tweenElement(this.element, css, this.firstSyncScreen);
-		this.tweenElement(this.front, frontCss, this.firstSyncScreen);
-		this.tweenElement(this.back, backCss, this.firstSyncScreen);
+		var set = this.firstSyncScreen();
 
-		this.firstSyncScreen = false;
+		this.tweenElement(this.element, css, set);
+		this.tweenElement(this.front, frontCss, set);
+		this.tweenElement(this.back, backCss, set);
 	}
 
 	/**
 	 * Changement de la face de la carte
 	 */
 	this.setFace = function(face) {
-		var oldFace = this.face;
-		this.face = face;
-		if (oldFace !== face)
-			this.needSyncScreen();
+		this._innerSet("face", face);
 	}
 }
 

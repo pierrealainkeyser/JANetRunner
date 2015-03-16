@@ -29,6 +29,10 @@ var PointMixin = function() {
 	this.distance = function(point) {
 		return Math.sqrt(Math.pow(this.x - point.x, 2) + Math.pow(this.y - point.y, 2));
 	}
+	
+	this.swap=function(){
+		return new Point(this.y,this.x);
+	}
 
 	/**
 	 * Permet de savoir si un point est dans le plan définit
@@ -108,10 +112,16 @@ var RectangleMixin = function() {
 		var x = destination.x;
 		var y = destination.y;
 		if (x !== this.point.x || y !== this.point.y) {
-			var notifier = Object.getNotifier(this);
-			this.point.x = x;
-			this.point.y = y;
-			notifier.notify({ object : this, type : Rectangle.MOVE_TO })
+			var self = this;
+			Object.getNotifier(this).performChange(Rectangle.MOVE_TO, function() {
+				var ret = {
+					oldX : self.point.x,
+					oldY : self.point.y
+				};
+				self.point.x = x;
+				self.point.y = y;
+				return ret;
+			});
 		}
 	}
 
@@ -122,10 +132,16 @@ var RectangleMixin = function() {
 		var width = size.width;
 		var height = size.height;
 		if (width !== this.size.width || height !== this.size.height) {
-			var notifier = Object.getNotifier(this);
-			this.point.width = width;
-			this.size.height = height;
-			notifier.notify({ object : this, type : Rectangle.RESIZE_TO })
+			var self = this;
+			Object.getNotifier(this).performChange(Rectangle.RESIZE_TO, function() {
+				var ret = {
+					oldWidth : self.size.width,
+					oldHeight : self.size.height
+				}
+				self.size.width = width;
+				self.size.height = height;
+				return ret;
+			});
 		}
 	}
 
@@ -266,11 +282,13 @@ var AbstractBoxMixin = function() {
 	 */
 	this.mergeToScreen = function() {
 		var moveTo = this.local.topLeft();
+		var sizeTo = this.local.size();
 		if (this.container != null) {
 			var topLeft = this.container.screen.topLeft()
 			moveTo.add(topLeft);
 		}
 		this.screen.moveTo(moveTo);
+		this.screen.resizeTo(sizeTo);
 	}
 
 	/**
@@ -298,6 +316,11 @@ AbstractBoxMixin.call(AbstractBox.prototype);
 // ---------------------------------------------
 function AbstractBoxLeaf(layoutManager) {
 	AbstractBox.call(this, layoutManager);
+	
+	//gestion rotation, profondeur et visibilité
+	this.rotation = 0.0;
+	this.zIndex = 0;
+	this.visible = true;
 
 	// propage les changements à l'écran
 	Object.observe(this.screen, this.needSyncScreen.bind(this));
@@ -311,6 +334,37 @@ var AbstractBoxLeafMixin = function() {
 	 */
 	this.needSyncScreen = function() {
 		this.layoutManager.needSyncScreen(this);
+	}
+	
+	/**
+	 * Modifie la propriété name de this et peut demander un needSyncScreen en cas de changement
+	 */
+	this._innerSet = function(name, value) {
+		var old = this[name];
+		this[name] = value;
+		if (old !== value)
+			this.needSyncScreen();
+	}
+	
+	/**
+	 * Changement d'angle 
+	 */
+	this.setRotation = function(rotation) {
+		this._innerSet("rotation", rotation);
+	}
+
+	/**
+	 * Changement de profondeur
+	 */
+	this.setZIndex = function(zIndex) {
+		this._innerSet("zIndex", zIndex);
+	}
+	
+	/**
+	 * Changement de visibilite
+	 */
+	this.setVisible = function(visible) {
+		this._innerSet("visible", visible);
 	}
 
 	/**
@@ -333,10 +387,10 @@ function AbstractBoxContainer(layoutManager, _renderingHints, layoutFunction) {
 	this.bindNeedLayout = this.needLayout.bind(this);
 
 	// on réagit sur la profondeur pour propager dans les enfants
-	Object.observe(this, this.propagateDepth.bind(this), AbstractBox.DEPTH);
+	Object.observe(this, this.propagateDepth.bind(this), [AbstractBox.DEPTH]);
 
 	// propage les déplacements aux enfants
-	Object.observe(this.local, this.propagateNeedMergeToScreen.bind(this), Rectangle.MOVE_TO);
+	Object.observe(this.local, this.propagateNeedMergeToScreen.bind(this), [Rectangle.MOVE_TO]);
 }
 
 var AbstractBoxContainerMixin = function() {
@@ -384,7 +438,7 @@ var AbstractBoxContainerMixin = function() {
 		box.setDepth(this.depth + 1);
 
 		// suit le champ de taille des enfants
-		Object.observe(child, this.bindNeedLayout, Rectangle.MOVE_TO);
+		Object.observe(child, this.bindNeedLayout, [Rectangle.MOVE_TO]);
 
 		if (index !== undefined)
 			this.childs.splice(index, 0, box);
@@ -421,7 +475,7 @@ var AbstractBoxContainerMixin = function() {
 	 * Supprime tous les enfantts
 	 */
 	this.removeAllChilds = function() {
-		this.eachChild(unbindChild);
+		this.eachChild(unbindChild.bind(this));
 		this.childs = [];
 		this.needLayout();
 	}
