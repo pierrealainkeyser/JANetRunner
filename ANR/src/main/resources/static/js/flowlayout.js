@@ -22,11 +22,8 @@ function flowLayout(options) {
 
 	return function(boxcontainer, childs) {
 
-		var bounds = new Rectangle();
-
 		// recherche de la taille maximum
 		var maxSize = null;
-
 		_.each(childs, function(c) {
 			var localsize = c.local.size;
 			if (maxSize === null)
@@ -36,8 +33,6 @@ function flowLayout(options) {
 		});
 
 		var currentPoint = new Point(padding, padding);
-
-		var index = 0;
 		_.each(childs, function(c) {
 			var localsize = c.local.size;
 
@@ -51,8 +46,7 @@ function flowLayout(options) {
 				if (direction === FlowLayout.Direction.TOP || direction === FlowLayout.Direction.BOTTOM) {
 					var delta = (maxSize.width - localsize.width) / 2;
 					point.x += delta;
-				}
-				else if (direction === FlowLayout.Direction.LEFT || direction === FlowLayout.Direction.RIGHT) {
+				} else if (direction === FlowLayout.Direction.LEFT || direction === FlowLayout.Direction.RIGHT) {
 					var delta = (maxSize.height - localsize.height) / 2;
 					point.y += delta;
 				}
@@ -64,14 +58,20 @@ function flowLayout(options) {
 			if (direction === FlowLayout.Direction.RIGHT)
 				currentPoint.x += localsize.width + spacing
 
-			bounds = bounds.merge(c.local)
 		});
 
-		var size = new Size(bounds.size);
-		if (childs.length > 0)
-			size.add(new Size(padding, padding));
+		var bounds = new Rectangle();
+		if (childs.length > 0) {
+			// calcul de la taille
+			_.each(childs, function(c) {
+				bounds = bounds.merge(c.local);
+			});
+
+			// application du padding au besoin
+			bounds.size.add(new Size(padding, padding));
+		}
 
 		// transmission de la taille au container
-		boxcontainer.local.resizeTo(size);
+		boxcontainer.local.resizeTo(bounds.size);
 	};
 }
