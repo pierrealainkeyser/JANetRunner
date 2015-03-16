@@ -29,9 +29,9 @@ var PointMixin = function() {
 	this.distance = function(point) {
 		return Math.sqrt(Math.pow(this.x - point.x, 2) + Math.pow(this.y - point.y, 2));
 	}
-	
-	this.swap=function(){
-		return new Point(this.y,this.x);
+
+	this.swap = function() {
+		return new Point(this.y, this.x);
 	}
 
 	/**
@@ -62,12 +62,12 @@ function Size(width, height) {
 }
 
 var SizeMixin = function() {
-	
+
 	this.add = function(size) {
 		this.width += size.width;
 		this.height += size.height;
 	}
-	
+
 	/**
 	 * Inverse les coordonnées
 	 */
@@ -112,6 +112,14 @@ var RectangleMixin = function() {
 	}
 
 	/**
+	 * Recopie les valeurs dans le rectangle
+	 */
+	this.copyRectangle = function(rectangle) {
+		this.moveTo(rectangle.point);
+		this.resizeTo(rectangle.size);
+	}
+
+	/**
 	 * Déplace le rectangle
 	 */
 	this.moveTo = function(destination) {
@@ -120,10 +128,7 @@ var RectangleMixin = function() {
 		if (x !== this.point.x || y !== this.point.y) {
 			var self = this;
 			Object.getNotifier(this).performChange(Rectangle.MOVE_TO, function() {
-				var ret = {
-					oldX : self.point.x,
-					oldY : self.point.y
-				};
+				var ret = { oldX : self.point.x, oldY : self.point.y };
 				self.point.x = x;
 				self.point.y = y;
 				return ret;
@@ -140,10 +145,7 @@ var RectangleMixin = function() {
 		if (width !== this.size.width || height !== this.size.height) {
 			var self = this;
 			Object.getNotifier(this).performChange(Rectangle.RESIZE_TO, function() {
-				var ret = {
-					oldWidth : self.size.width,
-					oldHeight : self.size.height
-				}
+				var ret = { oldWidth : self.size.width, oldHeight : self.size.height }
 				self.size.width = width;
 				self.size.height = height;
 				return ret;
@@ -265,22 +267,21 @@ function AbstractBox(layoutManager) {
 	 * La profondeur
 	 */
 	this.depth = 0;
-	
+
 	/**
 	 * Rotation
 	 */
 	this.rotation = 0.0;
-	
+
 	/**
 	 * ZIndex
 	 */
 	this.zIndex = 0;
-	
+
 	/**
 	 * Visibilité
 	 */
 	this.visible = true;
-
 
 	// un changement sur le local provoque un needToMergetoScreen
 	Object.observe(this.local, this.needMergeToScreen.bind(this));
@@ -288,6 +289,9 @@ function AbstractBox(layoutManager) {
 }
 AbstractBox.DEPTH = "depth";
 AbstractBox.CONTAINER = "container";
+AbstractBox.ROTATION = "rotation";
+AbstractBox.ZINDEX = "zIndex";
+AbstractBox.VISIBLE = "visible";
 
 var AbstractBoxMixin = function() {
 	/**
@@ -312,50 +316,51 @@ var AbstractBoxMixin = function() {
 		this.screen.moveTo(moveTo);
 		this.screen.resizeTo(sizeTo);
 	}
-	
+
 	/**
-	 * Modifie la propriété name de this et peut demander un needSyncScreen en cas de changement
+	 * Modifie la propriété name de this et peut demander un needSyncScreen en
+	 * cas de changement
 	 */
 	this._innerSet = function(name, value) {
 		var old = this[name];
 		this[name] = value;
 		if (old !== value)
-			Object.getNotifier(this).notify({type:name, object:this, oldValue:old})
+			Object.getNotifier(this).notify({ type : name, object : this, oldValue : old })
 	}
-	
+
 	/**
-	 * Changement d'angle 
+	 * Changement d'angle
 	 */
 	this.setRotation = function(rotation) {
-		this._innerSet("rotation", rotation);
+		this._innerSet(AbstractBox.ROTATION, rotation);
 	}
 
 	/**
 	 * Changement de profondeur
 	 */
 	this.setZIndex = function(zIndex) {
-		this._innerSet("zIndex", zIndex);
+		this._innerSet(AbstractBox.ZINDEX, zIndex);
 	}
-	
+
 	/**
 	 * Changement de visibilite
 	 */
 	this.setVisible = function(visible) {
-		this._innerSet("visible", visible);
+		this._innerSet(AbstractBox.VISIBLE, visible);
 	}
 
 	/**
 	 * Modifie la profondeur du composant
 	 */
 	this.setDepth = function(depth) {
-		this._innerSet(AbstractBox.DEPTH ,depth);
+		this._innerSet(AbstractBox.DEPTH, depth);
 	}
 
 	/**
 	 * Place le parent
 	 */
 	this.setContainer = function(container) {
-		this._innerSet(AbstractBox.CONTAINER,container);
+		this._innerSet(AbstractBox.CONTAINER, container);
 	}
 }
 AbstractBoxMixin.call(AbstractBox.prototype);
@@ -363,13 +368,13 @@ AbstractBoxMixin.call(AbstractBox.prototype);
 // ---------------------------------------------
 function AbstractBoxLeaf(layoutManager) {
 	AbstractBox.call(this, layoutManager);
-	
+
 	// propage les changements à l'écran
 	var syncScreen = this.needSyncScreen.bind(this);
 	Object.observe(this.screen, syncScreen);
 
 	// changement sur les propriete lié à la visibilité
-	Object.observe(this, syncScreen, [ "visible", "zIndex", "rotation" ]);
+	Object.observe(this, syncScreen, [ AbstractBox.VISIBLE, AbstractBox.ZINDEX, AbstractBox.ROTATION ]);
 }
 
 var AbstractBoxLeafMixin = function() {
@@ -402,10 +407,10 @@ function AbstractBoxContainer(layoutManager, _renderingHints, layoutFunction) {
 	this.bindNeedLayout = this.needLayout.bind(this);
 
 	// on réagit sur la profondeur pour propager dans les enfants
-	Object.observe(this, this.propagateDepth.bind(this), [AbstractBox.DEPTH]);
+	Object.observe(this, this.propagateDepth.bind(this), [ AbstractBox.DEPTH ]);
 
 	// propage les déplacements aux enfants
-	Object.observe(this.local, this.propagateNeedMergeToScreen.bind(this), [Rectangle.MOVE_TO]);
+	Object.observe(this.local, this.propagateNeedMergeToScreen.bind(this), [ Rectangle.MOVE_TO ]);
 }
 
 var AbstractBoxContainerMixin = function() {
@@ -453,7 +458,7 @@ var AbstractBoxContainerMixin = function() {
 		box.setDepth(this.depth + 1);
 
 		// suit le champ de taille des enfants
-		Object.observe(child, this.bindNeedLayout, [Rectangle.MOVE_TO]);
+		Object.observe(child, this.bindNeedLayout, [ Rectangle.MOVE_TO ]);
 
 		if (index !== undefined)
 			this.childs.splice(index, 0, box);

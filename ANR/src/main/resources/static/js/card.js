@@ -46,8 +46,11 @@ var CardMixin = function() {
 
 		// si horizontal on inverse la taille pour les calculs de layout, on
 		// remettra en place avec une rotation
-		if (true === hints.horizontal)
+		if (true === hints.horizontal) {
 			size = size.swap();
+			this.setRotation(90.0);
+		} else
+			this.setRotation(0.0);
 
 		this.local.resizeTo(size);
 	}
@@ -83,22 +86,13 @@ var CardMixin = function() {
 		var shadow = null;
 		var faceup = this.face === Card.FACE_UP;
 		var hints = this.container.renderingHints();
-		var css = this.computeCssTween({
-			zIndex : true,
-			rotation : true,
-			autoAlpha : true,
-			size : true
-		});
+		var css = this.computeCssTween({ zIndex : true, rotation : true, autoAlpha : true, size : true });
 		// en cas d'affichage horizontal on corrige la position
 		if (true === hints.horizontal)
 			css.rotation = 90.0;
 
-		var frontCss = {
-			rotationY : faceup ? 0 : -180
-		};
-		var backCss = _.extend(_.clone(frontCss), {
-			boxShadow : shadow
-		});
+		var frontCss = { rotationY : faceup ? 0 : -180 };
+		var backCss = _.extend(_.clone(frontCss), { boxShadow : shadow });
 
 		var set = this.firstSyncScreen();
 

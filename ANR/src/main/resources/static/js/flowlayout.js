@@ -1,16 +1,4 @@
-FlowLayout = {
-	Direction : {
-		TOP : 1,
-		BOTTOM : -1,
-		LEFT : -2,
-		RIGHT : 2
-	},
-	Align : {
-		FIRST : -1,
-		MIDDLE : 0,
-		LAST : 1
-	}
-}
+FlowLayout = { Direction : { TOP : 1, BOTTOM : -1, LEFT : -2, RIGHT : 2 }, Align : { FIRST : -1, MIDDLE : 0, LAST : 1 } }
 
 function flowLayout(options) {
 
@@ -19,6 +7,11 @@ function flowLayout(options) {
 	var spacing = options.spacing || 5;
 	var align = options.align || FlowLayout.Align.MIDDLE;
 	var direction = options.direction || FlowLayout.Direction.TOP;
+
+	var toLeft = direction === FlowLayout.Direction.LEFT;
+	var toRight = direction === FlowLayout.Direction.RIGHT;
+	var toTop = direction === FlowLayout.Direction.TOP;
+	var toBottom = direction === FlowLayout.Direction.BOTTOM;
 
 	return function(boxcontainer, childs) {
 
@@ -33,20 +26,27 @@ function flowLayout(options) {
 		});
 
 		var currentPoint = new Point(padding, padding);
+		if (toLeft)
+			currentPoint.x = -padding;
+		else if (toTop)
+			currentPoint.y = -padding;
+
 		_.each(childs, function(c) {
 			var localsize = c.local.size;
 
-			if (direction === FlowLayout.Direction.LEFT)
+			if (toLeft)
 				currentPoint.x -= (localsize.width + spacing)
+			else if (toTop)
+				currentPoint.y -= (localsize.height + spacing);
 
 			var point = new Point(currentPoint);
 
 			// TODO gestion de l'alignement
 			if (align === FlowLayout.Align.MIDDLE) {
-				if (direction === FlowLayout.Direction.TOP || direction === FlowLayout.Direction.BOTTOM) {
+				if (toTop || toBottom) {
 					var delta = (maxSize.width - localsize.width) / 2;
 					point.x += delta;
-				} else if (direction === FlowLayout.Direction.LEFT || direction === FlowLayout.Direction.RIGHT) {
+				} else if (toLeft || toRight) {
 					var delta = (maxSize.height - localsize.height) / 2;
 					point.y += delta;
 				}
@@ -54,9 +54,11 @@ function flowLayout(options) {
 
 			c.local.moveTo(point);
 
-			// TODO déplacement du point dans la bonne direction
-			if (direction === FlowLayout.Direction.RIGHT)
-				currentPoint.x += localsize.width + spacing
+			// déplacement du point dans la bonne direction
+			if (toRight)
+				currentPoint.x += (localsize.width + spacing)
+			else if (toBottom)
+				currentPoint.y += (localsize.height + spacing)
 
 		});
 

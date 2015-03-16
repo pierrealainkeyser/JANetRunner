@@ -5,11 +5,7 @@ var JQUeryComputeSizeMixin = function() {
 	 */
 	this.computeSize = function(element) {
 		element = element.clone();
-		element.css({
-			visibility : 'hidden',
-			display : 'block',
-			position : 'absolute'
-		}).insertAfter($("#main"));
+		element.css({ visibility : 'hidden', display : 'block', position : 'absolute' }).insertAfter($("#main"));
 		var size = new Size(element.outWidth(true), element.outerHeight(true));
 		element.remove();
 
@@ -91,9 +87,7 @@ var TweenLiteSyncScreenMixin = function() {
 	this.tweenElement = function(element, css, set, onComplete) {
 		var animDuration = this.animationDuration || 0.3;
 
-		var anim = {
-			css : css
-		};
+		var anim = { css : css };
 		if (onComplete)
 			anim.onComplete = onComplete;
 
@@ -109,10 +103,7 @@ var TweenLiteSyncScreenMixin = function() {
 	this.computeCssTween = function(opt) {
 		opt = opt || {};
 		var point = this.screen.point;
-		var css = {
-			top : point.y,
-			left : point.x
-		};
+		var css = { top : point.y, left : point.x };
 
 		if (opt.size) {
 			var size = this.screen.size;
@@ -130,7 +121,7 @@ var TweenLiteSyncScreenMixin = function() {
 			css.zIndex = this.zIndex;
 
 		return css;
-	}	
+	}
 }
 
 // ---------------------------------------------------
