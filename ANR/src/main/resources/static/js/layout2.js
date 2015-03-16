@@ -58,10 +58,16 @@ PointMixin.call(Point.prototype)
  */
 function Size(width, height) {
 	this.width = width || 0;
-	this.height = yheight || 0;
+	this.height = height || 0;
 }
 
 var SizeMixin = function() {
+	
+	this.add = function(size) {
+		this.width += size.width;
+		this.height += size.height;
+	}
+	
 	/**
 	 * Inverse les coordonnées
 	 */
@@ -259,6 +265,22 @@ function AbstractBox(layoutManager) {
 	 * La profondeur
 	 */
 	this.depth = 0;
+	
+	/**
+	 * Rotation
+	 */
+	this.rotation = 0.0;
+	
+	/**
+	 * ZIndex
+	 */
+	this.zIndex = 0;
+	
+	/**
+	 * Visibilité
+	 */
+	this.visible = true;
+
 
 	// un changement sur le local provoque un needToMergetoScreen
 	Object.observe(this.local, this.needMergeToScreen.bind(this));
@@ -290,51 +312,6 @@ var AbstractBoxMixin = function() {
 		this.screen.moveTo(moveTo);
 		this.screen.resizeTo(sizeTo);
 	}
-
-	/**
-	 * Modifie la profondeur du composant
-	 */
-	this.setDepth = function(depth) {
-		var notifier = Object.getNotifier(this);
-		var oldDepth = this.depth;
-		this.depth = depth;
-		notifier.notify({ type : AbstractBox.DEPTH, oldValue : oldDepth });
-	}
-
-	/**
-	 * Place le parent
-	 */
-	this.setContainer = function(container) {
-		var notifier = Object.getNotifier(this);
-		var oldDepth = this.container;
-		this.container = container;
-		notifier.notify({ type : AbstractBox.CONTAINER, oldValue : oldDepth });
-	}
-}
-AbstractBoxMixin.call(AbstractBox.prototype);
-
-// ---------------------------------------------
-function AbstractBoxLeaf(layoutManager) {
-	AbstractBox.call(this, layoutManager);
-	
-	//gestion rotation, profondeur et visibilité
-	this.rotation = 0.0;
-	this.zIndex = 0;
-	this.visible = true;
-
-	// propage les changements à l'écran
-	Object.observe(this.screen, this.needSyncScreen.bind(this));
-}
-
-var AbstractBoxLeafMixin = function() {
-	AbstractBoxMixin.call(this);
-
-	/**
-	 * Indique qu'il faudra appeler la méthode syncScreen en fin de layout
-	 */
-	this.needSyncScreen = function() {
-		this.layoutManager.needSyncScreen(this);
-	}
 	
 	/**
 	 * Modifie la propriété name de this et peut demander un needSyncScreen en cas de changement
@@ -343,7 +320,7 @@ var AbstractBoxLeafMixin = function() {
 		var old = this[name];
 		this[name] = value;
 		if (old !== value)
-			this.needSyncScreen();
+			Object.getNotifier(this).notify({type:name, object:this, oldValue:old})
 	}
 	
 	/**
@@ -365,6 +342,44 @@ var AbstractBoxLeafMixin = function() {
 	 */
 	this.setVisible = function(visible) {
 		this._innerSet("visible", visible);
+	}
+
+	/**
+	 * Modifie la profondeur du composant
+	 */
+	this.setDepth = function(depth) {
+		this._innerSet(AbstractBox.DEPTH ,depth);
+	}
+
+	/**
+	 * Place le parent
+	 */
+	this.setContainer = function(container) {
+		this._innerSet(AbstractBox.CONTAINER,container);
+	}
+}
+AbstractBoxMixin.call(AbstractBox.prototype);
+
+// ---------------------------------------------
+function AbstractBoxLeaf(layoutManager) {
+	AbstractBox.call(this, layoutManager);
+	
+	// propage les changements à l'écran
+	var syncScreen = this.needSyncScreen.bind(this);
+	Object.observe(this.screen, syncScreen);
+
+	// changement sur les propriete lié à la visibilité
+	Object.observe(this, syncScreen, [ "visible", "zIndex", "rotation" ]);
+}
+
+var AbstractBoxLeafMixin = function() {
+	AbstractBoxMixin.call(this);
+
+	/**
+	 * Indique qu'il faudra appeler la méthode syncScreen en fin de layout
+	 */
+	this.needSyncScreen = function() {
+		this.layoutManager.needSyncScreen(this);
 	}
 
 	/**
