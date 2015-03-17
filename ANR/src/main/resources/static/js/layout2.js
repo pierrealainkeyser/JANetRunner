@@ -164,6 +164,17 @@ var RectangleMixin = function() {
 		var merged = new Rectangle({ point : tl, size : new Size(br.x - tl.x, br.y - tl.y) });
 		return merged;
 	}
+	
+	/**
+	 * Augmente la taille d'un nouveau rectangle
+	 */
+	this.grow = function(radius) {
+		var r = new Rectangle();
+		r.copyRectangle(this)
+		r.point.add(new Point(-radius,-radius,));
+		r.size.add(new Size(radius*2,radius*2));
+		return r;
+	}
 }
 
 Rectangle.MOVE_TO = "moveTo";

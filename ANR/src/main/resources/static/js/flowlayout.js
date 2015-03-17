@@ -5,6 +5,7 @@ function flowLayout(options) {
 	options = options || {};
 	var padding = options.padding || 0;
 	var spacing = options.spacing || 5;
+	var startAt = options.startAt || new Point(0, 0);
 	var align = options.align || FlowLayout.Align.MIDDLE;
 	var direction = options.direction || FlowLayout.Direction.TOP;
 
@@ -25,12 +26,9 @@ function flowLayout(options) {
 				maxSize = maxSize.max(localsize);
 		});
 
-		var currentPoint = new Point(padding, padding);
-		if (toLeft)
-			currentPoint.x = -padding;
-		else if (toTop)
-			currentPoint.y = -padding;
-
+		//le point de début
+		var currentPoint = new Point(startAt);
+		var boxToPoint = {};
 		_.each(childs, function(c) {
 			var localsize = c.local.size;
 
@@ -52,25 +50,29 @@ function flowLayout(options) {
 				}
 			}
 
-			c.local.moveTo(point);
+			boxToPoint[c._boxId] = point;
 
 			// déplacement du point dans la bonne direction
 			if (toRight)
 				currentPoint.x += (localsize.width + spacing)
 			else if (toBottom)
 				currentPoint.y += (localsize.height + spacing)
-
 		});
+		
+		//TODO décallage de tous les points avec un offset
 
 		var bounds = new Rectangle();
+		// recopie dans le point et calcul de l'enveloppement
+		_.each(childs, function(c) {
+			c.local.moveTo(boxToPoint[c._boxId]);
+			bounds = bounds.merge(c.local);
+		});
+
+	
 		if (childs.length > 0) {
-			// calcul de la taille
-			_.each(childs, function(c) {
-				bounds = bounds.merge(c.local);
-			});
 
 			// application du padding au besoin
-			bounds.size.add(new Size(padding, padding));
+			bounds.grow(padding);
 		}
 
 		// transmission de la taille au container
