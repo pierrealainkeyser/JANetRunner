@@ -17,35 +17,37 @@ var LayoutManagerMixin = function() {
 	}
 
 	var layoutPhase = function(layoutCycle) {
-		console.debug("layoutPhase", layoutCycle.layout)
 		while (!_.isEmpty(layoutCycle.layout)) {
 
 			// recopie de la map des layouts triés dans un tableau trié par
 			// profondeur décroissante
-			var layoutByDepths = _.sortBy(_.values(layoutCycle.layout, function(boxcontainer) {
+			var layoutByDepths = _.sortBy(layoutCycle.layout, function(boxcontainer) {
 				return -boxcontainer.depth;
-			}));
+			});
+			console.debug("layoutPhase", layoutByDepths)
 
 			// reset des layouts, qui seront remis en oeuvre à la prochaine
 			// passe
 			layoutCycle.layout = [];
 			_.each(layoutByDepths, function(boxcontainer) {
-				boxcontainer.doLayout();
+				if (boxcontainer)
+					boxcontainer.doLayout();
 			});
 		}
 	}
 
 	var mergePhase = function(layoutCycle) {
-		console.debug("mergePhase", layoutCycle.merge)
 		while (!_.isEmpty(layoutCycle.merge)) {
 			// recopie de la map des coordnnées dans un tableau trié par
 			// profondeur croissante
-			var mergeByDepths = _.sortBy(_.values(layoutCycle.merge), "depth");
+			var mergeByDepths = _.sortBy(layoutCycle.merge, "depth");
+			console.debug("mergePhase", mergeByDepths)
 
 			// réalise le merge
 			layoutCycle.merge = [];
 			_.each(mergeByDepths, function(box) {
-				box.mergeToScreen();
+				if (box)
+					box.mergeToScreen();
 			});
 		}
 	}
@@ -62,7 +64,7 @@ var LayoutManagerMixin = function() {
 	 * Applique la closure durant une phase de layout
 	 */
 	this.runLayout = function(closure) {
-
+		console.debug("<runLayout>")
 		this.layoutCycle = { layout : [], merge : [], sync : [] }
 		closure();
 		layoutPhase(this.layoutCycle);
@@ -73,6 +75,8 @@ var LayoutManagerMixin = function() {
 			this.afterFirstMerge();
 		mergePhase(this.layoutCycle);
 		syncPhase(this.layoutCycle);
+
+		console.debug("</runLayout>")
 	}
 
 	/**
@@ -93,7 +97,6 @@ var LayoutManagerMixin = function() {
 	}
 
 	this.needSyncScreen = function(abstractBoxLeaf) {
-		console.log("needSyncScreen ", abstractBoxLeaf)
 		this.layoutCycle.sync[abstractBoxLeaf._boxId] = abstractBoxLeaf;
 	}
 }
@@ -213,6 +216,11 @@ var AbstractBoxMixin = function() {
 	 * Place le parent
 	 */
 	this.setContainer = function(container) {
+
+		var oldContainer = this.container;
+		if (oldContainer)
+			oldContainer.removeChild(this);
+
 		this._innerSet(AbstractBox.CONTAINER, container);
 	}
 }
@@ -314,7 +322,7 @@ function AbstractBoxContainer(layoutManager, _renderingHints, layoutFunction) {
 	this.observe(this.propagateDepth.bind(this), [ AbstractBox.DEPTH ]);
 
 	// propage les déplacements aux enfants
-	this.local.observe(this.propagateNeedMergeToScreen.bind(this), [ Rectangle.MOVE_TO ]);
+	this.screen.observe(this.propagateNeedMergeToScreen.bind(this), [ Rectangle.MOVE_TO ]);
 }
 
 var AbstractBoxContainerMixin = function() {
@@ -338,7 +346,7 @@ var AbstractBoxContainerMixin = function() {
 	 * Envoi les instrusction needMergetoScreen pour tout les enfants
 	 */
 	this.propagateNeedMergeToScreen = function() {
-		_.each(this.childs, function(c) {
+		this.eachChild(function(c) {
 			c.needMergeToScreen();
 		});
 	}

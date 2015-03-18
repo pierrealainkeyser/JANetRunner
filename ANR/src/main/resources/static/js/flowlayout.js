@@ -1,4 +1,4 @@
-FlowLayout = { Direction : { TOP : 1, BOTTOM : -1, LEFT : -2, RIGHT : 2 }, Align : { FIRST : -1, MIDDLE : 0, LAST : 1 } }
+FlowLayout = { Direction : { TOP : 1, BOTTOM : -1, LEFT : -2, RIGHT : 2 }, Align : { FIRST : -1, MIDDLE : 1, LAST : 2 } }
 
 function flowLayout(options) {
 
@@ -44,7 +44,7 @@ function flowLayout(options) {
 
 				var point = new Point(currentPoint.x, currentPoint.y);
 
-				// TODO gestion de l'alignement
+				// gestion de l'alignement
 				if (align === FlowLayout.Align.MIDDLE) {
 					if (toTop || toBottom) {
 						var delta = (maxSize.width - localsize.width) / 2;
@@ -64,7 +64,7 @@ function flowLayout(options) {
 				boxToPoint[c._boxId] = point;
 
 				// calcul de la taille
-				bounds = bounds.merge(new Rectangle(point, localsize));
+				bounds = bounds.merge(new Rectangle({ point : point, size : localsize }));
 
 				// déplacement du point dans la bonne direction
 				if (toRight)
@@ -83,10 +83,10 @@ function flowLayout(options) {
 			// recopie dans le point et calcul de l'enveloppement
 			_.each(childs, function(c) {
 				var to = boxToPoint[c._boxId];
-				console.log("----------" + to)
 				to.add(offset);
 				c.local.moveTo(to);
 			});
+
 		}
 
 		// transmission de la taille au container
