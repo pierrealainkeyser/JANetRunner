@@ -232,10 +232,10 @@ function AbstractBoxLeaf(layoutManager) {
 
 	// propage les changements à l'écran
 	var syncScreen = this.needSyncScreen.bind(this);
-	this.screen.observe(syncScreen);
+	this.screen.observe(syncScreen, [ Rectangle.MOVE_TO, Rectangle.RESIZE_TO ]);
 
 	// changement sur les propriete lié à la visibilité
-	this.observe(syncScreen);
+	this.observe(syncScreen, [ AbstractBox.VISIBLE, AbstractBox.ZINDEX, AbstractBox.ROTATION ]);
 }
 
 var AbstractBoxLeafMixin = function() {
@@ -289,7 +289,7 @@ var TrackingScreenChangeBofLeafMixin = function(options) {
 
 		this.watchAbstractBoxBindings[box._boxId] = watchFunction;
 
-		box.screen.observe(watchFunction);
+		box.screen.observe(watchFunction, [ Rectangle.MOVE_TO, Rectangle.RESIZE_TO ]);
 		box.observe(watchFunction, [ AbstractBox.VISIBLE, AbstractBox.ZINDEX, AbstractBox.ROTATION ]);
 	};
 
