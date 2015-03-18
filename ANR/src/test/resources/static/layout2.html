@@ -1,0 +1,68 @@
+<html lang="en">
+<head>
+
+<link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/animate.css/3.2.3/animate.min.css" />
+
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/gsap/1.16.1/TweenMax.min.js"></script>
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+
+<script type="text/javascript" src="../../../main/resources/static/js/observable.js"></script>
+<script type="text/javascript" src="../../../main/resources/static/js/geometry.js"></script>
+<script type="text/javascript" src="../../../main/resources/static/js/layout2.js"></script>
+<script type="text/javascript" src="../../../main/resources/static/js/ui-utils.js"></script>
+<script type="text/javascript" src="../../../main/resources/static/js/flowlayout.js"></script>
+
+<style>
+.element {
+	position: absolute;
+}
+</style>
+
+<script type="text/javascript">
+	function JQueryBox(layoutManager, text) {
+		AbstractBoxLeaf.call(this, layoutManager);
+		this.element = layoutManager.append($("<div class='element blue'>" + text + "</div>"));
+		this.computeSize(this.element);
+	}
+
+	var JQueryBoxMixin = function() {
+		AbstractBoxLeafMixin.call(this)
+		TweenLiteSyncScreenMixin.call(this);
+		JQUeryComputeSizeMixin.call(this);
+
+		this.syncScreen = function() {
+			var css = this.computeCssTween({ zIndex : true, rotation : true, autoAlpha : true, size : true });
+			var set = this.firstSyncScreen();
+			this.tweenElement(this.element, css, set);
+		}
+	}
+
+	JQueryBoxMixin.call(JQueryBox.prototype);
+
+	$(function() {
+		var layoutManager = new LayoutManager($("#main"));
+
+		layoutManager.runLayout(function() {
+			var first = new AbstractBoxContainer(layoutManager, {}, flowLayout());
+			var second = new AbstractBoxContainer(layoutManager, {}, flowLayout({ direction : FlowLayout.Direction.RIGHT }));
+			first.local.moveTo({ x : 200, y : 100 });
+
+			var box = new JQueryBox(layoutManager, "PRE");
+			first.addChild(box);
+			first.addChild(second);
+
+			first.addChild(new JQueryBox(layoutManager, "Second"));
+			first.addChild(new JQueryBox(layoutManager, "Troisième très"));
+			
+			second.addChild(new JQueryBox(layoutManager, "+++"))
+			second.addChild(new JQueryBox(layoutManager, "***"))
+		});
+
+	});
+</script>
+
+
+</head>
+<div id="main"></div>
+</html>

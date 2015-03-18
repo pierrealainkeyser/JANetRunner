@@ -7,7 +7,7 @@ function Card(layoutManager, def) {
 	"<img class='back'/>" + //
 	"<img class='front' src='/card-img/" + this.def.url + "'/>" + // 
 	"<div class='tokens'/></div>");
-	this.element = createdDiv.appendTo(layoutManager.container);
+	this.element = layoutManager.append(createdDiv);
 	this.front = this.primary.find("img.front");
 	this.back = this.primary.find("img.back");
 	this.tokens = this.primary.find("div.tokens");
@@ -19,7 +19,7 @@ function Card(layoutManager, def) {
 	this.zoomable = Card.FACE_UP;
 
 	// en cas de changement de parent redétermine la taille
-	Object.observe(this, this.computeSize.bind(this), [ AbstractBox.CONTAINER ]);
+	this.observe(this.computeSize.bind(this), [ AbstractBox.CONTAINER ]);
 }
 
 Card.FACE_UP = "up";

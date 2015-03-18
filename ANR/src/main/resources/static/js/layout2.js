@@ -1,7 +1,7 @@
-
-function LayoutManager() {
+function LayoutManager(container) {
 	this._id = 0;
 	this.layoutCycle = null;
+	this.container = container;
 }
 
 var LayoutManagerMixin = function() {
@@ -9,7 +9,15 @@ var LayoutManagerMixin = function() {
 		return this._id++;
 	}
 
+	/**
+	 * Permet de placer le container
+	 */
+	this.append = function(element) {
+		return element.appendTo(this.container);
+	}
+
 	var layoutPhase = function(layoutCycle) {
+		console.debug("layoutPhase", layoutCycle.layout)
 		while (!_.isEmpty(layoutCycle.layout)) {
 
 			// recopie de la map des layouts triés dans un tableau trié par
@@ -20,7 +28,7 @@ var LayoutManagerMixin = function() {
 
 			// reset des layouts, qui seront remis en oeuvre à la prochaine
 			// passe
-			layoutCycle.layout = {};
+			layoutCycle.layout = [];
 			_.each(layoutByDepths, function(boxcontainer) {
 				boxcontainer.doLayout();
 			});
@@ -28,13 +36,14 @@ var LayoutManagerMixin = function() {
 	}
 
 	var mergePhase = function(layoutCycle) {
+		console.debug("mergePhase", layoutCycle.merge)
 		while (!_.isEmpty(layoutCycle.merge)) {
 			// recopie de la map des coordnnées dans un tableau trié par
 			// profondeur croissante
 			var mergeByDepths = _.sortBy(_.values(layoutCycle.merge), "depth");
 
 			// réalise le merge
-			layoutCycle.merge = {};
+			layoutCycle.merge = [];
 			_.each(mergeByDepths, function(box) {
 				box.mergeToScreen();
 			});
@@ -42,8 +51,10 @@ var LayoutManagerMixin = function() {
 	}
 
 	var syncPhase = function(layoutCycle) {
+		console.debug("syncPhase", layoutCycle.sync)
 		_.each(layoutCycle.sync, function(box) {
-			box.syncScreen();
+			if (box)
+				box.syncScreen();
 		});
 	}
 
@@ -51,9 +62,9 @@ var LayoutManagerMixin = function() {
 	 * Applique la closure durant une phase de layout
 	 */
 	this.runLayout = function(closure) {
-		this.layoutCycle = { layout : {}, merge : {}, sync : {} }
-		closure();
 
+		this.layoutCycle = { layout : [], merge : [], sync : [] }
+		closure();
 		layoutPhase(this.layoutCycle);
 
 		// 2 phases de merge pour pouvoir appeler une fonction afterFirstMerge
@@ -62,7 +73,15 @@ var LayoutManagerMixin = function() {
 			this.afterFirstMerge();
 		mergePhase(this.layoutCycle);
 		syncPhase(this.layoutCycle);
+	}
 
+	/**
+	 * Renvoi une fonction qui wrappe runLayout
+	 */
+	this.withinLayout = function(closure) {
+		return function() {
+			this.runLayout(closure);
+		}.bind(this);
 	}
 
 	this.needLayout = function(abstractBoxContainer) {
@@ -74,6 +93,7 @@ var LayoutManagerMixin = function() {
 	}
 
 	this.needSyncScreen = function(abstractBoxLeaf) {
+		console.log("needSyncScreen ", abstractBoxLeaf)
 		this.layoutCycle.sync[abstractBoxLeaf._boxId] = abstractBoxLeaf;
 	}
 }
@@ -111,7 +131,7 @@ function AbstractBox(layoutManager) {
 	this.visible = true;
 
 	// un changement sur le local provoque un needToMergetoScreen
-	Object.observe(this.local, this.needMergeToScreen.bind(this));
+	this.local.observe(this.needMergeToScreen.bind(this), [ Rectangle.MOVE_TO, Rectangle.RESIZE_TO ]);
 
 }
 AbstractBox.DEPTH = "depth";
@@ -121,6 +141,8 @@ AbstractBox.ZINDEX = "zIndex";
 AbstractBox.VISIBLE = "visible";
 
 var AbstractBoxMixin = function() {
+	ObservableMixin.call(this);
+
 	/**
 	 * Indique le besoin de recopie les coordonnées local dans les coordonnées
 	 * screen
@@ -135,7 +157,7 @@ var AbstractBoxMixin = function() {
 	 */
 	this.mergeToScreen = function() {
 		var moveTo = this.local.topLeft();
-		var sizeTo = this.local.size();
+		var sizeTo = this.local.size;
 		if (this.container != null) {
 			var topLeft = this.container.screen.topLeft()
 			moveTo.add(topLeft);
@@ -145,13 +167,18 @@ var AbstractBoxMixin = function() {
 	}
 
 	/**
-	 * Modifie la propriété name de this et transmet un notification au nom de la propriété
+	 * Modifie la propriété name de this et transmet un notification au nom de
+	 * la propriété
 	 */
 	this._innerSet = function(name, value) {
-		var old = this[name];
-		this[name] = value;
-		if (old !== value)
-			Object.getNotifier(this).notify({ type : name, object : this, oldValue : old })
+		var self = this;
+		var old = self[name];
+		if (old !== value) {
+			this.performChange(name, function() {
+				self[name] = value;
+				return { oldvalue : old };
+			})
+		}
 	}
 
 	/**
@@ -197,10 +224,10 @@ function AbstractBoxLeaf(layoutManager) {
 
 	// propage les changements à l'écran
 	var syncScreen = this.needSyncScreen.bind(this);
-	Object.observe(this.screen, syncScreen);
+	this.screen.observe(syncScreen);
 
 	// changement sur les propriete lié à la visibilité
-	Object.observe(this, syncScreen, [ AbstractBox.VISIBLE, AbstractBox.ZINDEX, AbstractBox.ROTATION ]);
+	this.observe(syncScreen);
 }
 
 var AbstractBoxLeafMixin = function() {
@@ -228,7 +255,8 @@ AbstractBoxLeafMixin.call(AbstractBoxLeaf.prototype)
  * A rajouter sur le prototype d'un objet pour permettre de dupliquer les
  * changements dans l'objet screen et les propriétés visibles.
  * 
- * L'idée est de pouvoir associé un AbstractBoxLeaf à un AbstractBoxContainer. Ainsi l'objet feuille est positionné à la place du conteneur
+ * L'idée est de pouvoir associé un AbstractBoxLeaf à un AbstractBoxContainer.
+ * Ainsi l'objet feuille est positionné à la place du conteneur
  */
 var TrackingScreenChangeBofLeafMixin = function(options) {
 
@@ -253,8 +281,8 @@ var TrackingScreenChangeBofLeafMixin = function(options) {
 
 		this.watchAbstractBoxBindings[box._boxId] = watchFunction;
 
-		Object.observe(box.screen, watchFunction);
-		Object.observe(box, watchFunction, [ AbstractBox.VISIBLE, AbstractBox.ZINDEX, AbstractBox.ROTATION ]);
+		box.screen.observe(watchFunction);
+		box.observe(watchFunction, [ AbstractBox.VISIBLE, AbstractBox.ZINDEX, AbstractBox.ROTATION ]);
 	};
 
 	/**
@@ -264,8 +292,8 @@ var TrackingScreenChangeBofLeafMixin = function(options) {
 		if (this.watchAbstractBoxBindings) {
 			var watchFunction = this.watchAbstractBoxBindings[box._boxId];
 			if (watchFunction) {
-				Object.unobserve(box.screen, watchFunction);
-				Object.unobserve(box, watchFunction);
+				box.screen.unobserve(watchFunction);
+				box.unobserve(watchFunction);
 				delete this.watchAbstractBoxBindings[box._boxId];
 			}
 		}
@@ -283,10 +311,10 @@ function AbstractBoxContainer(layoutManager, _renderingHints, layoutFunction) {
 	this.bindNeedLayout = this.needLayout.bind(this);
 
 	// on réagit sur la profondeur pour propager dans les enfants
-	Object.observe(this, this.propagateDepth.bind(this), [ AbstractBox.DEPTH ]);
+	this.observe(this.propagateDepth.bind(this), [ AbstractBox.DEPTH ]);
 
 	// propage les déplacements aux enfants
-	Object.observe(this.local, this.propagateNeedMergeToScreen.bind(this), [ Rectangle.MOVE_TO ]);
+	this.local.observe(this.propagateNeedMergeToScreen.bind(this), [ Rectangle.MOVE_TO ]);
 }
 
 var AbstractBoxContainerMixin = function() {
@@ -334,7 +362,7 @@ var AbstractBoxContainerMixin = function() {
 		box.setDepth(this.depth + 1);
 
 		// suit le champ de taille des enfants
-		Object.observe(child, this.bindNeedLayout, [ Rectangle.MOVE_TO ]);
+		box.observe(this.bindNeedLayout, [ Rectangle.MOVE_TO ]);
 
 		if (index !== undefined)
 			this.childs.splice(index, 0, box);
@@ -355,7 +383,7 @@ var AbstractBoxContainerMixin = function() {
 	}
 
 	var unbindChild = function(box) {
-		Object.unobserve(box, this.bindNeedLayout)
+		box.unobserve(this.bindNeedLayout)
 	}
 
 	/**
@@ -387,7 +415,7 @@ var AbstractBoxContainerMixin = function() {
 	 * Réalise le layout. Transmet à la fonction de layout
 	 */
 	this.doLayout = function() {
-		layoutFunction(this, this.childs);
+		this.layoutFunction(this, this.childs);
 	}
 }
 AbstractBoxContainerMixin.call(AbstractBoxContainer.prototype)

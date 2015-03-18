@@ -5,8 +5,8 @@ function flowLayout(options) {
 	options = options || {};
 	var padding = options.padding || 0;
 	var spacing = options.spacing || 5;
-	var align = options.align || FlowLayout.Align.MIDDLE;
-	var direction = options.direction || FlowLayout.Direction.TOP;
+	var align = options.align || FlowLayout.Align.FIRST;
+	var direction = options.direction || FlowLayout.Direction.BOTTOM;
 
 	var toLeft = direction === FlowLayout.Direction.LEFT;
 	var toRight = direction === FlowLayout.Direction.RIGHT;
@@ -28,22 +28,22 @@ function flowLayout(options) {
 						maxSize = maxSize.max(localsize);
 				});
 			}
-	
-			//le point de début
+
+			// le point de début
 			var currentPoint = new Point();
-			
-			//permet de conserver la position souhaitable
+
+			// permet de conserver la position souhaitable
 			var boxToPoint = {};
 			_.each(childs, function(c) {
 				var localsize = c.local.size;
-	
+
 				if (toLeft)
 					currentPoint.x -= (localsize.width + spacing)
 				else if (toTop)
 					currentPoint.y -= (localsize.height + spacing);
-	
-				var point = new Point(currentPoint);
-	
+
+				var point = new Point(currentPoint.x, currentPoint.y);
+
 				// TODO gestion de l'alignement
 				if (align === FlowLayout.Align.MIDDLE) {
 					if (toTop || toBottom) {
@@ -59,20 +59,20 @@ function flowLayout(options) {
 					else if (toLeft || toRight)
 						point.y -= localsize.height;
 				}
-	
-				//conserve en mémoire le point
+
+				// conserve en mémoire le point
 				boxToPoint[c._boxId] = point;
-				
-				//calcul de la taille
+
+				// calcul de la taille
 				bounds = bounds.merge(new Rectangle(point, localsize));
-	
+
 				// déplacement du point dans la bonne direction
 				if (toRight)
 					currentPoint.x += (localsize.width + spacing)
 				else if (toBottom)
 					currentPoint.y += (localsize.height + spacing)
 			});
-	
+
 			// application du padding au besoin
 			bounds.grow(padding);
 
@@ -83,6 +83,7 @@ function flowLayout(options) {
 			// recopie dans le point et calcul de l'enveloppement
 			_.each(childs, function(c) {
 				var to = boxToPoint[c._boxId];
+				console.log("----------" + to)
 				to.add(offset);
 				c.local.moveTo(to);
 			});

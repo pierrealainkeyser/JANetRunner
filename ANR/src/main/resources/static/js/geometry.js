@@ -92,7 +92,9 @@ function Rectangle(I) {
 	this.size = I.size || new Size();
 }
 
-var RectangleMixin = function() {
+var RectangleMixin = function() {	
+	ObservableMixin.call(this);
+	
 	/**
 	 * Renvoi le point en haut à gauche
 	 */
@@ -127,7 +129,7 @@ var RectangleMixin = function() {
 		var y = destination.y;
 		if (x !== this.point.x || y !== this.point.y) {
 			var self = this;
-			Object.getNotifier(this).performChange(Rectangle.MOVE_TO, function() {
+			this.performChange(Rectangle.MOVE_TO, function() {
 				var ret = { oldX : self.point.x, oldY : self.point.y };
 				self.point.x = x;
 				self.point.y = y;
@@ -144,7 +146,7 @@ var RectangleMixin = function() {
 		var height = size.height;
 		if (width !== this.size.width || height !== this.size.height) {
 			var self = this;
-			Object.getNotifier(this).performChange(Rectangle.RESIZE_TO, function() {
+			this.performChange(Rectangle.RESIZE_TO, function() {
 				var ret = { oldWidth : self.size.width, oldHeight : self.size.height }
 				self.size.width = width;
 				self.size.height = height;
@@ -164,15 +166,15 @@ var RectangleMixin = function() {
 		var merged = new Rectangle({ point : tl, size : new Size(br.x - tl.x, br.y - tl.y) });
 		return merged;
 	}
-	
+
 	/**
 	 * Augmente la taille d'un nouveau rectangle
 	 */
 	this.grow = function(radius) {
 		var r = new Rectangle();
 		r.copyRectangle(this)
-		r.point.add(new Point(-radius,-radius,));
-		r.size.add(new Size(radius*2,radius*2));
+		r.point.add(new Point(-radius, -radius));
+		r.size.add(new Size(radius * 2, radius * 2));
 		return r;
 	}
 }
