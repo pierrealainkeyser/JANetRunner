@@ -170,7 +170,7 @@ var RectangleMixin = function() {
 	/**
 	 * Augmente la taille d'un nouveau rectangle
 	 */
-	this.grow = function(radius) {
+	this.grow = function(radius) {		
 		var r = new Rectangle();
 		r.copyRectangle(this)
 		r.point.add(new Point(-radius, -radius));

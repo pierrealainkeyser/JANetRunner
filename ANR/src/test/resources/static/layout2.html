@@ -18,12 +18,16 @@
 .element {
 	position: absolute;
 }
+
+.backbox {
+	background-color: red;
+}
 </style>
 
 <script type="text/javascript">
 	function JQueryBox(layoutManager, text) {
 		AbstractBoxLeaf.call(this, layoutManager);
-		this.element = layoutManager.append($("<div class='element blue'>" + text + "</div>"));
+		this.element = layoutManager.append($("<div class='element'>" + text + "</div>"));
 		this.computeSize(this.element);
 	}
 
@@ -41,32 +45,43 @@
 
 	JQueryBoxMixin.call(JQueryBox.prototype);
 
+	function JQueryBackBox(layoutManager) {
+		AbstractBoxLeaf.call(this, layoutManager);
+		this.element = layoutManager.append($("<div class='element backbox'></div>"));
+		this.computeSize(this.element);
+	}
+
+	var JQueryBackBoxMixin = function() {
+		AbstractBoxLeafMixin.call(this)
+		TweenLiteSyncScreenMixin.call(this);
+		JQUeryComputeSizeMixin.call(this);
+		TrackingScreenChangeBofLeafMixin.call(this, { zIndexDelta : -1 });
+
+		this.syncScreen = function() {
+			var css = this.computeCssTween({ zIndex : true, rotation : true, autoAlpha : true, size : true });
+			var set = this.firstSyncScreen();
+			this.tweenElement(this.element, css, set);
+		}
+	}
+
+	
+	JQueryBackBoxMixin.call(JQueryBackBox.prototype);
+
 	$(function() {
 		var layoutManager = new LayoutManager($("#main"));
-		layoutManager.config.animDuration = 1;
+		layoutManager.config.animDuration = 0.3;
 
 		layoutManager.runLayout(function() {
-			var first = new AbstractBoxContainer(layoutManager, {}, flowLayout({
-				align : FlowLayout.Align.FIRST
-			}));
-			first.local.moveTo({
-				x : 200,
-				y : 100
-			});
-			var second = new AbstractBoxContainer(layoutManager, {}, flowLayout({
-				direction : FlowLayout.Direction.RIGHT
-			}));
-			var third = new AbstractBoxContainer(layoutManager, {}, flowLayout({
-				align : FlowLayout.Align.MIDDLE,
-				direction : FlowLayout.Direction.TOP
-			}));
+			var first = new AbstractBoxContainer(layoutManager, {}, flowLayout({ align : FlowLayout.Align.FIRST }));
+			first.local.moveTo({ x : 200, y : 100 });
+			var second = new AbstractBoxContainer(layoutManager, {}, flowLayout({ direction : FlowLayout.Direction.RIGHT }));
+			var third = new AbstractBoxContainer(layoutManager, {}, flowLayout({ align : FlowLayout.Align.MIDDLE, direction : FlowLayout.Direction.TOP,
+				padding : 10 }));
 
-			var anchor = new AbstractBoxContainer(layoutManager, {}, anchorLayout({
-				minSize : new Size(200, 30),
-				horizontal : AnchorLayout.Horizontal.MIDDLE,
-				vertical : AnchorLayout.Vertical.BOTTOM
-			}));
+			var anchor = new AbstractBoxContainer(layoutManager, {}, anchorLayout({ minSize : new Size(200, 30), horizontal : AnchorLayout.Horizontal.MIDDLE,
+				vertical : AnchorLayout.Vertical.BOTTOM }));
 			anchor.addChild(new JQueryBox(layoutManager, "---"))
+			var backbox = new JQueryBackBox(layoutManager);
 
 			var box = new JQueryBox(layoutManager, "PRE");
 			first.addChild(box);
@@ -86,6 +101,8 @@
 			third.addChild(new JQueryBox(layoutManager, "222"))
 			third.addChild(new JQueryBox(layoutManager, "3333"))
 			third.addChild(new JQueryBox(layoutManager, "44444"))
+
+			backbox.trackAbstractBox(third)
 
 			setTimeout(layoutManager.withinLayout(function() {
 

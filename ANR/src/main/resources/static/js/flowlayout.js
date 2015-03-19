@@ -74,7 +74,7 @@ function flowLayout(options) {
 			});
 
 			// application du padding au besoin
-			bounds.grow(padding);
+			bounds = bounds.grow(padding);
 
 			// calcul de l'offset pour que les coordonnées commence
 			// à 0,0
