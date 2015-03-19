@@ -89,7 +89,7 @@ var TweenLiteSyncScreenMixin = function() {
 	 * Mise à au point unitaire
 	 */
 	this.tweenElement = function(element, css, set, onComplete) {
-		var animDuration = this.animationDuration || 0.3;
+		var animDuration = this.layoutManager.config.animDuration;
 
 		var anim = { css : css };
 		if (onComplete)

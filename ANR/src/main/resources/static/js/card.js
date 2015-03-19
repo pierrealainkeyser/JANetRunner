@@ -72,8 +72,8 @@ var CardMixin = function() {
 				size = size.swap();
 			}
 
-			var topLeft = this.container.screen.topLeft()
-			moveTo.add(topLeft);
+			//applique la transformation du parent
+			AbstractBoxMixin.mergePosition.apply(this,moveTo);
 		}
 		this.screen.moveTo(moveTo);
 		this.screen.resizeTo(size);

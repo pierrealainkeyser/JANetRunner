@@ -2,6 +2,7 @@ function LayoutManager(container) {
 	this._id = 0;
 	this.layoutCycle = null;
 	this.container = container;
+	this.config={animDuration:0.3};
 }
 
 var LayoutManagerMixin = function() {
@@ -154,6 +155,24 @@ var AbstractBoxMixin = function() {
 		this.layoutManager.needMergeToScreen(this);
 	}
 
+		
+	/**
+	 * Permet de modifier la position depuis le container parent.
+	 * 
+	 * moveTo est entree/sortie
+	 */
+	this.mergePosition = function(moveTo) {
+		if (this.container != null) {
+			var topLeft = this.container.screen.topLeft()
+			moveTo.add(topLeft);
+		}
+		
+		if(_.isFunction(this.additionnalMergePosition)){
+			this.additionnalMergePosition(moveTo);
+		}
+	}
+	
+
 	/**
 	 * Recopie les coordonnées de l'élement local+l'élément screen du parent
 	 * dans l'élément screen
@@ -161,10 +180,7 @@ var AbstractBoxMixin = function() {
 	this.mergeToScreen = function() {
 		var moveTo = this.local.topLeft();
 		var sizeTo = this.local.size;
-		if (this.container != null) {
-			var topLeft = this.container.screen.topLeft()
-			moveTo.add(topLeft);
-		}
+		this.mergePosition(moveTo);
 		this.screen.moveTo(moveTo);
 		this.screen.resizeTo(sizeTo);
 	}
