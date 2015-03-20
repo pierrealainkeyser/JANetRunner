@@ -1,23 +1,4 @@
-var JQUeryComputeSizeMixin = function() {
 
-	/**
-	 * Permet de placer la taille locale déterminée partir de l'élément
-	 */
-	this.computeSize = function(element) {
-
-		// accède au containerdu gestionnaire de layout
-		var container = this.layoutManager.container;
-
-		element = element.clone();
-		element.css({ visibility : 'hidden', display : 'block', position : 'absolute' }).insertAfter(container);
-		var size = new Size(element.outerWidth(true), element.outerHeight(true));
-		element.remove();
-
-		this.local.resizeTo(size);
-	}
-}
-
-// ---------------------------------------------------
 function AnimateCss(element, entranceAnimation, removalAnimation) {
 	this.element = element;
 	this.entranceAnimation = entranceAnimation;
@@ -54,7 +35,7 @@ var AnimateCssMixin = function() {
 	 * Joue l'animation de fin
 	 */
 	this.animateRemove = function(onEnd) {
-		this.animateCss(this.element, this.removalAnimation, onEnd)
+		this.animateCss(this.element, this.removalAnimation.bind(this), onEnd)
 	}
 	/**
 	 * Supprime l'élément JQuery à la fin de l'animation
@@ -129,4 +110,67 @@ var TweenLiteSyncScreenMixin = function() {
 }
 
 // ---------------------------------------------------
+var JQUeryComputeSizeMixin = function() {
+
+	/**
+	 * Permet de placer la taille locale déterminée partir de l'élément
+	 */
+	this.computeSize = function(element) {
+
+		// accède au containerdu gestionnaire de layout
+		var container = this.layoutManager.container;
+
+		element = element.clone();
+		element.css({ visibility : 'hidden', display : 'block', position : 'absolute' }).insertAfter(container);
+		var size = new Size(element.outerWidth(true), element.outerHeight(true));
+		element.remove();
+
+		this.local.resizeTo(size);
+	}
+}
+
+//---------------------------------------------------
+function JQueryBox(layoutManager, element, cssTweenConfig) {
+
+	AbstractBoxLeaf.call(this, layoutManager);
+	this.element = layoutManager.append(element);
+
+	// créationde la configuration des tweens
+	cssTweenConfig = cssTweenConfig || {}
+	if (cssTweenConfig.zIndex === null)
+		cssTweenConfig.zIndex = true;
+	if (cssTweenConfig.rotation === null)
+		cssTweenConfig.rotation = true;
+	if (cssTweenConfig.autoAlpha === null)
+		cssTweenConfig.autoAlpha = true;
+	if (cssTweenConfig.size === null)
+		cssTweenConfig.size = true;
+
+	this.cssTweenConfig = cssTweenConfig;
+	this.computeSize(this.element);
+}
+
+var JQueryBoxMixin = function() {
+	AbstractBoxLeafMixin.call(this)
+	TweenLiteSyncScreenMixin.call(this);
+	JQUeryComputeSizeMixin.call(this);
+
+	/**
+	 * réalise la synchronisation de base
+	 */
+	this.syncScreen = function() {
+		var css = this.computeCssTween(this.cssTweenConfig);
+		var set = this.firstSyncScreen();
+		this.tweenElement(this.element, css, set);
+	}
+
+	/**
+	 * Permet de supprimer l'élement parent
+	 */
+	this.remove = function() {
+		this.element.remove();
+	}
+}
+
+JQueryBoxMixin.call(JQueryBox.prototype);
 

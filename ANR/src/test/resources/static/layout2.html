@@ -25,46 +25,14 @@
 </style>
 
 <script type="text/javascript">
-	function JQueryBox(layoutManager, text) {
-		AbstractBoxLeaf.call(this, layoutManager);
-		this.element = layoutManager.append($("<div class='element'>" + text + "</div>"));
-		this.computeSize(this.element);
-	}
-
-	var JQueryBoxMixin = function() {
-		AbstractBoxLeafMixin.call(this)
-		TweenLiteSyncScreenMixin.call(this);
-		JQUeryComputeSizeMixin.call(this);
-
-		this.syncScreen = function() {
-			var css = this.computeCssTween({ zIndex : true, rotation : true, autoAlpha : true, size : false });
-			var set = this.firstSyncScreen();
-			this.tweenElement(this.element, css, set);
-		}
-	}
-
-	JQueryBoxMixin.call(JQueryBox.prototype);
 
 	function JQueryBackBox(layoutManager) {
-		AbstractBoxLeaf.call(this, layoutManager);
-		this.element = layoutManager.append($("<div class='element backbox'></div>"));
-		this.computeSize(this.element);
+		JQueryBox.call(this,layoutManager,$("<div class='element backbox'/>"),{ zIndex : true, rotation : true, autoAlpha : true, size : true });
 	}
-
 	var JQueryBackBoxMixin = function() {
-		AbstractBoxLeafMixin.call(this)
-		TweenLiteSyncScreenMixin.call(this);
-		JQUeryComputeSizeMixin.call(this);
+		JQueryBoxMixin.call(this)
 		TrackingScreenChangeBofLeafMixin.call(this, { zIndexDelta : -1 });
-
-		this.syncScreen = function() {
-			var css = this.computeCssTween({ zIndex : true, rotation : true, autoAlpha : true, size : true });
-			var set = this.firstSyncScreen();
-			this.tweenElement(this.element, css, set);
-		}
 	}
-
-	
 	JQueryBackBoxMixin.call(JQueryBackBox.prototype);
 
 	$(function() {
@@ -80,27 +48,27 @@
 
 			var anchor = new AbstractBoxContainer(layoutManager, {}, anchorLayout({ minSize : new Size(200, 30), horizontal : AnchorLayout.Horizontal.MIDDLE,
 				vertical : AnchorLayout.Vertical.BOTTOM }));
-			anchor.addChild(new JQueryBox(layoutManager, "---"))
+			anchor.addChild(new JQueryBox(layoutManager, $("<div class='element'>---</div>")))
 			var backbox = new JQueryBackBox(layoutManager);
 
-			var box = new JQueryBox(layoutManager, "PRE");
+			var box = new JQueryBox(layoutManager, $("<div class='element'>PRE</div>"));
 			first.addChild(box);
 			first.addChild(second);
 
-			first.addChild(new JQueryBox(layoutManager, "Second"));
-			first.addChild(new JQueryBox(layoutManager, "Troisième très très très grand"));
+			first.addChild(new JQueryBox(layoutManager, $("<div class='element'>grand</div>")));
+			first.addChild(new JQueryBox(layoutManager, $("<div class='element'>Troisième très très très grand</div>")));
 
-			second.addChild(new JQueryBox(layoutManager, "+++"))
-			second.addChild(new JQueryBox(layoutManager, "***"))
-			second.addChild(new JQueryBox(layoutManager, "///"))
+			second.addChild(new JQueryBox(layoutManager, $("<div class='element'>+++</div>")));
+			second.addChild(new JQueryBox(layoutManager, $("<div class='element'>___</div>")));
+			second.addChild(new JQueryBox(layoutManager, $("<div class='element'>---</div>")));
 			second.addChild(third);
 
 			second.addChild(anchor)
 
-			third.addChild(new JQueryBox(layoutManager, "11"))
-			third.addChild(new JQueryBox(layoutManager, "222"))
-			third.addChild(new JQueryBox(layoutManager, "3333"))
-			third.addChild(new JQueryBox(layoutManager, "44444"))
+			third.addChild(new JQueryBox(layoutManager, $("<div class='element'>11</div>")));
+			third.addChild(new JQueryBox(layoutManager, $("<div class='element'>222</div>")));
+			third.addChild(new JQueryBox(layoutManager, $("<div class='element'>333</div>")));
+			third.addChild(new JQueryBox(layoutManager, $("<div class='element'>4444</div>")));
 
 			backbox.trackAbstractBox(third)
 
