@@ -5,7 +5,7 @@
 
 <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/gsap/1.16.1/TweenMax.min.js"></script>
 <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>
-<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 
 <script type="text/javascript" src="../../../main/resources/static/js/observable.js"></script>
 <script type="text/javascript" src="../../../main/resources/static/js/geometry.js"></script>
@@ -13,10 +13,31 @@
 <script type="text/javascript" src="../../../main/resources/static/js/ui-utils.js"></script>
 <script type="text/javascript" src="../../../main/resources/static/js/flowlayout.js"></script>
 <script type="text/javascript" src="../../../main/resources/static/js/anchorlayout.js"></script>
+<script type="text/javascript" src="../../../main/resources/static/js/turntracker.js"></script>
+
+<link rel="stylesheet" type="text/css" href="../../../main/resources/static/css/icons.css" />
 
 <style>
 .element {
 	position: absolute;
+}
+
+.faction.score {
+	position: absolute;
+	width: 60px;
+	height: 30px;
+	display: table;
+	border-radius: 3px;
+	font-size: 20px;
+	box-shadow: 0px 0px 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+.faction.score .icon, .faction.score .scorearea {
+	display: table-cell;
+	width: 50%;
+	height: 100%;
+	vertical-align: middle;
+	text-align: center;
 }
 
 .backbox {
@@ -25,13 +46,15 @@
 </style>
 
 <script type="text/javascript">
-
 	function JQueryBackBox(layoutManager) {
-		JQueryBox.call(this,layoutManager,$("<div class='element backbox'/>"),{ zIndex : true, rotation : true, autoAlpha : true, size : true });
+		JQueryBox.call(this, layoutManager, $("<div class='element backbox'/>"), { zIndex : true, rotation : true, autoAlpha : true, size : true });
+		AnimateAppeareanceCss.call(this, "rotateIn", "rotateOut");
 	}
 	var JQueryBackBoxMixin = function() {
 		JQueryBoxMixin.call(this)
 		TrackingScreenChangeBofLeafMixin.call(this, { zIndexDelta : -1 });
+		AnimateAppeareanceCssMixin.call(this);
+
 	}
 	JQueryBackBoxMixin.call(JQueryBackBox.prototype);
 
@@ -70,12 +93,33 @@
 			third.addChild(new JQueryBox(layoutManager, $("<div class='element'>333</div>")));
 			third.addChild(new JQueryBox(layoutManager, $("<div class='element'>4444</div>")));
 
-			backbox.trackAbstractBox(third)
+			backbox.trackAbstractBox(third);
+			backbox.animateEnter(backbox.element);
+
+			var scoreContainer = new AbstractBoxContainer(layoutManager, {}, flowLayout({ direction : FlowLayout.Direction.RIGHT, spacing : 10 }));
+			scoreContainer.local.moveTo({ x : 400, y : 50 });
+
+			var score = new ScoreFactionBox(layoutManager);
+			score.setFaction("nbn");
+			score.setScore(5);
+			score.setActive(true);
+			scoreContainer.addChild(score);
+
+			var shaper = new ScoreFactionBox(layoutManager);
+			shaper.setFaction("shaper");
+			shaper.setScore(1);
+			shaper.setActive(false);
+			scoreContainer.addChild(shaper);
 
 			setTimeout(layoutManager.withinLayout(function() {
 
 				third.addChild(second)
 				first.addChild(third);
+
+				backbox.animateRemove(backbox.element);
+
+				shaper.setScore(3);
+				shaper.setActive(true);
 
 			}), 1000);
 

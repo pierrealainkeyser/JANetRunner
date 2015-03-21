@@ -1020,7 +1020,6 @@ function BoxScoreContainer(layoutManager) {
 			css.boxShadow = "0px 0px 1px 2px " + color;
 		} else {
 			css.boxShadow = me.originalShadow;
-
 		}
 	}
 }

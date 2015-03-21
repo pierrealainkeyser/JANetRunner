@@ -24,12 +24,16 @@ function anchorLayout(options) {
 			if (vertical === AnchorLayout.Vertical.MIDDLE)
 				point.y = (bounds.size.height - size.height) / 2;
 			else if (vertical === AnchorLayout.Vertical.BOTTOM)
-				point.y = bounds.size.height - size.height;
+				point.y = bounds.size.height - size.height - padding;
+			else if (vertical === AnchorLayout.Vertical.TOP)
+				point.y = padding;
 
 			if (horizontal === AnchorLayout.Horizontal.MIDDLE)
 				point.x = (bounds.size.width - size.width) / 2;
 			else if (horizontal === AnchorLayout.Horizontal.RIGHT)
-				point.x = bounds.size.width - size.width;
+				point.x = bounds.size.width - size.width - padding;
+			else if (horizontal === AnchorLayout.Horizontal.LEFT)
+				point.x = padding;
 
 			local.moveTo(point);
 		}

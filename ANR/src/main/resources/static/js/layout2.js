@@ -23,7 +23,10 @@ var LayoutManagerMixin = function() {
 			// recopie de la map des layouts triés dans un tableau trié par
 			// profondeur décroissante
 			var layoutByDepths = _.sortBy(layoutCycle.layout, function(boxcontainer) {
-				return -boxcontainer.depth;
+				if(boxcontainer)
+					return -boxcontainer.depth;
+				else
+					return 0;
 			});
 			console.debug("layoutPhase", layoutByDepths)
 

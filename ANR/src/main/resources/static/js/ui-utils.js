@@ -1,10 +1,3 @@
-
-function AnimateCss(element, entranceAnimation, removalAnimation) {
-	this.element = element;
-	this.entranceAnimation = entranceAnimation;
-	this.removalAnimation = removalAnimation;
-}
-
 var AnimateCssMixin = function() {
 
 	/**
@@ -25,30 +18,63 @@ var AnimateCssMixin = function() {
 	}
 
 	/**
+	 * Rajoute un swap
+	 */
+	this.animateSwapCss = function(element, startClass, swapFunction, endClass, onEnd) {
+
+		var swap = function() {
+			swapFunction();
+			this.animateCss(element, "fast " + endClass, onEnd);
+		}.bind(this);
+
+		this.animateCss(element, "fast " + startClass, swap)
+	}
+}
+
+/**
+ * Permet de placer des animations
+ */
+function AnimateAppeareanceCss(entranceAnimation, removalAnimation) {
+	this.entranceAnimation = entranceAnimation;
+	this.removalAnimation = removalAnimation;
+}
+
+var AnimateAppeareanceCssMixin = function() {
+	AnimateCssMixin.call(this);
+
+	/**
 	 * Joue l'animation de début
 	 */
-	this.animateEnter = function() {
-		this.animateCss(this.element, this.entranceAnimation)
+	this.animateEnter = function(element) {
+		this.animateCss(element, this.entranceAnimation)
 	}
 
 	/**
 	 * Joue l'animation de fin
 	 */
-	this.animateRemove = function(onEnd) {
-		this.animateCss(this.element, this.removalAnimation.bind(this), onEnd)
+	this.animateRemove = function(element, onEnd) {
+		this.animateCss(element, this.removalAnimation, onEnd)
 	}
+
+	/**
+	 * Permet de réalise un swap
+	 */
+	this.animateSwap = function(element, onSwap) {
+		this.animateSwapCss(element, this.removalAnimation, onSwap, this.entranceAnimation);
+	}
+
 	/**
 	 * Supprime l'élément JQuery à la fin de l'animation
 	 */
-	this.animateCompleteRemove = function() {
+	this.animateCompleteRemove = function(element) {
 		var me = this;
 		this.animateRemove(new function() {
-			me.element.remove();
+			element.remove();
 		})
 	}
-
 }
-AnimateCssMixin.call(AnimateCss.prototype);
+
+AnimateAppeareanceCssMixin.call(AnimateAppeareanceCss.prototype);
 
 // ---------------------------------------------------
 
@@ -129,7 +155,7 @@ var JQUeryComputeSizeMixin = function() {
 	}
 }
 
-//---------------------------------------------------
+// ---------------------------------------------------
 function JQueryBox(layoutManager, element, cssTweenConfig) {
 
 	AbstractBoxLeaf.call(this, layoutManager);
@@ -173,4 +199,3 @@ var JQueryBoxMixin = function() {
 }
 
 JQueryBoxMixin.call(JQueryBox.prototype);
-
