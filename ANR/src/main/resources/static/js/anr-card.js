@@ -770,7 +770,7 @@ function ClickContainer(layoutManager) {
 	function BoxClick(layoutManager) {
 		var me = this;
 
-		this.element = $("<span class='click counter'><span class='clickused'><span class='click'></span></span></span>");
+		this.element = $("<span class='clickcounter'><span class='clickused'><span class='click'></span></span></span>");
 		this.click = this.element.find(".click");
 		this.active = true;
 

@@ -1,0 +1,146 @@
+@card-shadow-color: rgba(0, 0, 0, 0.35);
+@token-recurring-text-color: #FFCC33;
+@token-text-border: #383838;
+@token-text-color: #E8E8E8;
+html , body , body > div.container {
+	height: 100%;
+	overflow: hidden;
+	font-family: sans serif;
+}
+
+.animated {
+	&:not(.fast) {
+		-webkit-animation-duration: 0.3s ! important;
+		animation-duration: 0.3s ! important;
+	}
+
+	&.fast {
+		-webkit-animation-duration: 0.15s ! important;
+		animation-duration: 0.15s ! important;
+	}
+}
+
+.text-border (@border-color) {
+	text-shadow: 2px 0px 0 @border-color, 0px 2px 0 @border-color, 0px -1px 0 @border-color, -1px 0px 0 @border-color;
+}
+
+.round-shadow (@border-radius) {
+	border-radius: @border-radius;
+	box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.75);
+}
+
+.text-token () {
+	font-weight: bold;
+	font-size: 15px;
+	color: @token-text-color;
+	.text-border (@token-text-border);
+}
+
+.element () {
+	margin: 0px;
+	padding: 0px;
+	position: absolute;
+}
+
+.inner-token (@token-width) {
+	display: inline-block;
+	width: @token-width;
+	height: @token-width;
+	line-height: @token-width;
+	background-image: url(/img/tokens.png);
+	background-size: @token-width * 4 @token-width * 4;
+	.text-token ();
+	text-align: center;
+	&.credit {
+		background-position: 0 0;
+		.round-shadow (@token-width);
+	}
+
+	&.recurring {
+		background-position: 0 0;
+		.round-shadow (@token-width);
+		color: @token-recurring-text-color;
+	}
+
+	&.advance {
+		background-position: 0 -@token-width;
+		.round-shadow (@token-width);
+	}
+
+	&.brain {
+		background-position: -@token-width 0;
+	}
+
+	&.tag {
+		background-position: -@token-width -@token-width;
+	}
+
+	&.badpub {
+		background-position: 0 -@token-width * 2;
+	}
+
+	&.virus {
+		background-position: -@token-width -@token-width * 2;
+	}
+
+	&.power {
+		background-position: 0 -@token-width * 3;
+	}
+
+	&.hability {
+		background-position: -@token-width -@token-width * 3;
+	}
+
+	&.click {
+		background-position: -@token-width * 2 0;
+	}
+
+	&.clickused {
+		background-position: -@token-width * 2 -@token-width;
+	}
+}
+
+.clickcounter {
+	.element ();
+}
+
+//------------------------------
+.faction.icon {
+	@size: 30px;
+	.element ();
+	height: @size;
+	width: @size;
+	font-size: 22px;
+	line-height: @size;
+	text-align: center;
+}
+
+//------------------------------
+.faction.score {
+	@size: 30px;
+	.element ();
+	width: @size * 2;
+	height: @size;
+	display: table;
+	border-radius: 3px;
+	font-size: 20px;
+	box-shadow: 0px 0px 1px 2px @card-shadow-color;
+	.icon , .scorearea {
+		display: table-cell;
+		width: 50%;
+		height: 100%;
+		vertical-align: middle;
+		text-align: center;
+	}
+}
+
+//------------------------------
+.clickcounter {
+	@token-size: 30px;
+	position: absolute;
+	width: @token-size;
+	height: @token-size;
+	span {
+		.inner-token (@token-size);
+	}
+}

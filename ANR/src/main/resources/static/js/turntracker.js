@@ -1,5 +1,5 @@
 function ActiveFactionBox(layoutManager) {
-	JQueryBox.call(this, layoutManager, $("<div class='faction icon'/>"), { zIndex : true, rotation : true, autoAlpha : true, size : true });
+	JQueryBox.call(this, layoutManager, $("<div class='faction icon'/>"), { zIndex : true, rotation : false, autoAlpha : true, size : true });
 	AnimateAppeareanceCss.call(this, "rotateIn", "rotateOut");
 	this.oldClass = null;
 }
@@ -104,3 +104,99 @@ var ScoreFactionBoxMixin = function() {
 }
 
 ScoreFactionBoxMixin.call(ScoreFactionBox.prototype);
+
+// ---------------------------------------------------
+
+/**
+ * Permet d'afficher les clicks
+ */
+function BoxClick(layoutManager) {
+
+	JQueryBox.call(this, layoutManager, $("<span class='clickcounter'><span class='clickused'><span class='click'></span></span></span>"), { zIndex : true,
+		rotation : false, autoAlpha : true, size : true });
+	AnimateAppeareanceCss.call(this, "bounceIn", "bounceOut");
+
+	this.click = this.element.find(".click");
+	this.active = true;
+}
+
+var BoxClickMixin = function() {
+	JQueryBoxMixin.call(this)
+	AnimateAppeareanceCssMixin.call(this);
+
+	/**
+	 * Permet de gerer l'état d'affichage des elements
+	 */
+	this.setActive = function(active) {
+		if (active) {
+			console.log(this)
+			this.click.show();
+			this.animateEnter(this.click);
+		} else {
+			this.animateRemove(this.click, function() {
+				this.click.hide();
+			}.bind(this));
+		}
+	}
+}
+BoxClickMixin.call(BoxClick.prototype);
+
+/**
+ * Permet d'afficher des clicks
+ */
+function ClickContainer(layoutManager) {
+	AbstractBoxContainer.call(this, layoutManager, {}, flowLayout({ direction : FlowLayout.Direction.RIGHT, spacing : 7 }));
+}
+
+var ClickContainerMixin = function() {
+	AbstractBoxContainerMixin.call(this);
+
+	/**
+	 * Affichage des clicks
+	 */
+	this.setClicks = function(active, used) {
+		var total = active + used;
+		var size = this.size();
+
+		// suppression des elements en trop
+		while (size > total) {
+			--size;
+			var removed = this.childs[this.size() - 1];
+			removed.animateCompleteRemove(removed.element);
+			this.removeChild(removed);
+		}
+
+		while (total > size) {
+			var click = new BoxClick(this.layoutManager);
+			this.addChild(click, 0);
+			++size;
+		}
+
+		var i = 0;
+		this.eachChild(function(click) {
+			click.setActive(i < active);
+			++i;
+		});
+	}
+}
+ClickContainerMixin.call(ClickContainer.prototype);
+
+// ---------------------------------------------------
+function TurnTracker(layoutManager) {
+	AbstractBoxContainer.call(this, layoutManager, {}, flowLayout({ direction : FlowLayout.Direction.RIGHT, spacing : 7 }));
+
+	this.corpScore = new ScoreFactionBox(layoutManager);
+	this.runnerScore = new ScoreFactionBox(layoutManager);
+	this.activeFaction = new ActiveFactionBox(layoutManager);
+	this.clicks = new ClickContainer(layoutManager);
+
+	var clickWrapper = new AbstractBoxContainer(layoutManager, {}, anchorLayout({ minSize : new Size({ width : 300, height : 30 }) }));
+	clickWrapper.addChild(this.clicks);
+
+	this.addChild(this.corpScore);
+	this.addChild(this.runnerScore);
+	this.addChild(this.activeFaction);
+	this.addChild(clickWrapper);
+}
+
+AbstractBoxContainerMixin.call(TurnTracker.prototype)

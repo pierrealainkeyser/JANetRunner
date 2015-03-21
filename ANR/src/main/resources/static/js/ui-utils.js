@@ -67,8 +67,7 @@ var AnimateAppeareanceCssMixin = function() {
 	 * Supprime l'élément JQuery à la fin de l'animation
 	 */
 	this.animateCompleteRemove = function(element) {
-		var me = this;
-		this.animateRemove(new function() {
+		this.animateRemove(element, function() {
 			element.remove();
 		})
 	}

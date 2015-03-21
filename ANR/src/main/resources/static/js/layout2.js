@@ -2,7 +2,7 @@ function LayoutManager(container) {
 	this._id = 0;
 	this.layoutCycle = null;
 	this.container = container;
-	this.config={animDuration:0.3};
+	this.config = { animDuration : 0.3 };
 }
 
 var LayoutManagerMixin = function() {
@@ -23,7 +23,7 @@ var LayoutManagerMixin = function() {
 			// recopie de la map des layouts triés dans un tableau trié par
 			// profondeur décroissante
 			var layoutByDepths = _.sortBy(layoutCycle.layout, function(boxcontainer) {
-				if(boxcontainer)
+				if (boxcontainer)
 					return -boxcontainer.depth;
 				else
 					return 0;
@@ -158,7 +158,6 @@ var AbstractBoxMixin = function() {
 		this.layoutManager.needMergeToScreen(this);
 	}
 
-		
 	/**
 	 * Permet de modifier la position depuis le container parent.
 	 * 
@@ -169,12 +168,11 @@ var AbstractBoxMixin = function() {
 			var topLeft = this.container.screen.topLeft()
 			moveTo.add(topLeft);
 		}
-		
-		if(_.isFunction(this.additionnalMergePosition)){
+
+		if (_.isFunction(this.additionnalMergePosition)) {
 			this.additionnalMergePosition(moveTo);
 		}
 	}
-	
 
 	/**
 	 * Recopie les coordonnées de l'élement local+l'élément screen du parent
@@ -429,6 +427,13 @@ var AbstractBoxContainerMixin = function() {
 		this.eachChild(unbindChild.bind(this));
 		this.childs = [];
 		this.needLayout();
+	}
+
+	/**
+	 * Compte le nombre d'enfant
+	 */
+	this.size = function() {
+		return this.childs.length;
 	}
 
 	/**
