@@ -34,8 +34,7 @@ var LayoutManagerMixin = function() {
 			// passe
 			layoutCycle.layout = {};
 			_.each(layoutByDepths, function(boxcontainer) {
-				if (boxcontainer)
-					boxcontainer.doLayout();
+				boxcontainer.doLayout();
 			});
 		}
 	}
@@ -50,17 +49,16 @@ var LayoutManagerMixin = function() {
 			// réalise le merge
 			layoutCycle.merge = {};
 			_.each(mergeByDepths, function(box) {
-				if (box)
-					box.mergeToScreen();
+				box.mergeToScreen();
 			});
 		}
 	}
 
 	var syncPhase = function(layoutCycle) {
-		console.debug("syncPhase", layoutCycle.sync)
-		_.each(_.values(layoutCycle.sync), function(box) {
-			if (box)
-				box.syncScreen();
+		var sync = _.values(layoutCycle.sync);
+		console.debug("syncPhase", sync)
+		_.each(sync, function(box) {
+			box.syncScreen();
 		});
 	}
 
