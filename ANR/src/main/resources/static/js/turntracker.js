@@ -216,7 +216,7 @@ GameStepBoxMixin.call(GameStepBox.prototype);
 // ---------------------------------------------------
 function TurnTracker(layoutManager) {
 	AbstractBoxContainer.call(this, layoutManager, {}, flowLayout({ align : FlowLayout.Align.MIDDLE, direction : FlowLayout.Direction.RIGHT, spacing : 2,
-		padding : 2 }));
+		padding : 1 }));
 
 	this.corpScore = new ScoreFactionBox(layoutManager, "left");
 	this.runnerScore = new ScoreFactionBox(layoutManager, "right");
