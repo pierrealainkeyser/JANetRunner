@@ -1,5 +1,7 @@
 @color0: rgba(230, 230, 230, 0.5);
 @color1: rgba(0, 0, 0, 0.35);
+@color2: rgba(255, 255, 255, 1);
+@color3: rgba(30, 30, 30, 0.9);
 @token-recurring-text-color: #FFCC33;
 @token-text-border: #383838;
 @token-text-color: #E8E8E8;
@@ -22,7 +24,7 @@ html , body , body > div.container {
 }
 
 .text-border (@border-color) {
-	text-shadow: 2px 0px 0 @border-color, 0px 2px 0 @border-color, 0px -1px 0 @border-color, -1px 0px 0 @border-color;
+	text-shadow: 2px 0px 1px @border-color, 0px 2px 0 @border-color, 0px -1px 0 @border-color, -1px 0px 0 @border-color;
 }
 
 .round-shadow (@border-radius) {
@@ -128,6 +130,11 @@ html , body , body > div.container {
 		height: 100%;
 		vertical-align: middle;
 		text-align: center;
+	}
+	
+	.scorearea{
+		.text-border (@color3);
+		color: @color2;
 	}
 
 	&.left {

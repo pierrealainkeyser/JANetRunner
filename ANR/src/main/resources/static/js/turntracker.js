@@ -215,7 +215,8 @@ GameStepBoxMixin.call(GameStepBox.prototype);
 
 // ---------------------------------------------------
 function TurnTracker(layoutManager) {
-	AbstractBoxContainer.call(this, layoutManager, {}, flowLayout({align:FlowLayout.Align.MIDDLE, direction : FlowLayout.Direction.RIGHT, spacing : 2 }));
+	AbstractBoxContainer.call(this, layoutManager, {}, flowLayout({ align : FlowLayout.Align.MIDDLE, direction : FlowLayout.Direction.RIGHT, spacing : 2,
+		padding : 2 }));
 
 	this.corpScore = new ScoreFactionBox(layoutManager, "left");
 	this.runnerScore = new ScoreFactionBox(layoutManager, "right");
@@ -224,7 +225,7 @@ function TurnTracker(layoutManager) {
 	this.gameStep = new GameStepBox(layoutManager, "label label-info");
 	this.gamePhase = new GameStepBox(layoutManager, "label label-success");
 
-	var clickWrapper = new AbstractBoxContainer(layoutManager, {}, anchorLayout({ minSize : new Size(140, 34) }));
+	var clickWrapper = new AbstractBoxContainer(layoutManager, {}, anchorLayout({ minSize : new Size(140, 30) }));
 	clickWrapper.addChild(this.clicks);
 
 	this.addChild(this.corpScore);
