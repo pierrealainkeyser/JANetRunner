@@ -4,7 +4,7 @@ function flowLayout(options) {
 
 	options = options || {};
 	var padding = options.padding || 0;
-	var spacing = options.spacing || 5;
+	var spacing = options.spacing  || 5;
 	var align = options.align || FlowLayout.Align.FIRST;
 	var direction = options.direction || FlowLayout.Direction.BOTTOM;
 

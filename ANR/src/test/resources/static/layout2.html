@@ -30,14 +30,11 @@
 	position: absolute;
 }
 
-.backbox {
-	background-color: red;
-}
 </style>
 
 <script type="text/javascript">
 	function JQueryBackBox(layoutManager) {
-		JQueryBox.call(this, layoutManager, $("<div class='element backbox'/>"), { zIndex : true, rotation : true, autoAlpha : true, size : true });
+		JQueryBox.call(this, layoutManager, $("<div class='statusrow'/>"), { zIndex : true, rotation : true, autoAlpha : true, size : true });
 		AnimateAppeareanceCss.call(this, "rotateIn", "rotateOut");
 	}
 	var JQueryBackBoxMixin = function() {
@@ -87,7 +84,7 @@
 			backbox.animateEnter(backbox.element);
 
 			var turnTracker = new TurnTracker(layoutManager);
-			turnTracker.local.moveTo({ x : 400, y : 50 });
+			turnTracker.local.moveTo({ x : 2, y : 0 });
 
 			turnTracker.corpScore.setFaction("nbn");
 			turnTracker.corpScore.setScore(5);
@@ -102,7 +99,7 @@
 			
 			turnTracker.gameStep.setText("machin truc");
 
-			backbox.trackAbstractBox(turnTracker.clicks.container);
+			backbox.trackAbstractBox(turnTracker);
 
 			setTimeout(layoutManager.withinLayout(function() {
 

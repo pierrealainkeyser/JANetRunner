@@ -34,9 +34,9 @@ ActiveFactionBoxMixin.call(ActiveFactionBox.prototype);
 
 // ---------------------------------------------------
 
-function ScoreFactionBox(layoutManager) {
-	JQueryBox.call(this, layoutManager, $("<div class='faction score'><span class='icon'/><span class='scorearea'/></div>"), { zIndex : true, rotation : false,
-		autoAlpha : true, size : true });
+function ScoreFactionBox(layoutManager, additionnalClass) {
+	JQueryBox.call(this, layoutManager, $("<div class='faction score " + additionnalClass + "'><span class='icon'/><span class='scorearea'/></div>"), {
+		zIndex : true, rotation : false, autoAlpha : true, size : true });
 	AnimateAppeareanceCss.call(this, "bounceIn", "bounceOut");
 	this.originalShadow = this.element.css("box-shadow");
 	this.oldScore = null;
@@ -215,16 +215,16 @@ GameStepBoxMixin.call(GameStepBox.prototype);
 
 // ---------------------------------------------------
 function TurnTracker(layoutManager) {
-	AbstractBoxContainer.call(this, layoutManager, {}, flowLayout({ direction : FlowLayout.Direction.RIGHT, spacing : 5 }));
+	AbstractBoxContainer.call(this, layoutManager, {}, flowLayout({align:FlowLayout.Align.MIDDLE, direction : FlowLayout.Direction.RIGHT, spacing : 2 }));
 
-	this.corpScore = new ScoreFactionBox(layoutManager);
-	this.runnerScore = new ScoreFactionBox(layoutManager);
+	this.corpScore = new ScoreFactionBox(layoutManager, "left");
+	this.runnerScore = new ScoreFactionBox(layoutManager, "right");
 	this.activeFaction = new ActiveFactionBox(layoutManager);
 	this.clicks = new ClickContainer(layoutManager);
 	this.gameStep = new GameStepBox(layoutManager, "label label-info");
 	this.gamePhase = new GameStepBox(layoutManager, "label label-success");
 
-	var clickWrapper = new AbstractBoxContainer(layoutManager, {}, anchorLayout({ minSize : new Size(150, 30) }));
+	var clickWrapper = new AbstractBoxContainer(layoutManager, {}, anchorLayout({ minSize : new Size(140, 34) }));
 	clickWrapper.addChild(this.clicks);
 
 	this.addChild(this.corpScore);
