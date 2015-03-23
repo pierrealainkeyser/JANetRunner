@@ -22,7 +22,7 @@ var LayoutManagerMixin = function() {
 
 			// recopie de la map des layouts triés dans un tableau trié par
 			// profondeur décroissante
-			var layoutByDepths = _.sortBy(layoutCycle.layout, function(boxcontainer) {
+			var layoutByDepths = _.sortBy(_.values(layoutCycle.layout), function(boxcontainer) {
 				if (boxcontainer)
 					return -boxcontainer.depth;
 				else
@@ -32,7 +32,7 @@ var LayoutManagerMixin = function() {
 
 			// reset des layouts, qui seront remis en oeuvre à la prochaine
 			// passe
-			layoutCycle.layout = [];
+			layoutCycle.layout = {};
 			_.each(layoutByDepths, function(boxcontainer) {
 				if (boxcontainer)
 					boxcontainer.doLayout();
@@ -44,11 +44,11 @@ var LayoutManagerMixin = function() {
 		while (!_.isEmpty(layoutCycle.merge)) {
 			// recopie de la map des coordnnées dans un tableau trié par
 			// profondeur croissante
-			var mergeByDepths = _.sortBy(layoutCycle.merge, "depth");
+			var mergeByDepths = _.sortBy(_.values(layoutCycle.merge), "depth");
 			console.debug("mergePhase", mergeByDepths)
 
 			// réalise le merge
-			layoutCycle.merge = [];
+			layoutCycle.merge = {};
 			_.each(mergeByDepths, function(box) {
 				if (box)
 					box.mergeToScreen();
@@ -58,7 +58,7 @@ var LayoutManagerMixin = function() {
 
 	var syncPhase = function(layoutCycle) {
 		console.debug("syncPhase", layoutCycle.sync)
-		_.each(layoutCycle.sync, function(box) {
+		_.each(_.values(layoutCycle.sync), function(box) {
 			if (box)
 				box.syncScreen();
 		});
@@ -69,7 +69,7 @@ var LayoutManagerMixin = function() {
 	 */
 	this.runLayout = function(closure) {
 		console.debug("<runLayout>")
-		this.layoutCycle = { layout : [], merge : [], sync : [] }
+		this.layoutCycle = { layout : {}, merge : {}, sync : {} }
 		closure();
 		layoutPhase(this.layoutCycle);
 
@@ -93,15 +93,15 @@ var LayoutManagerMixin = function() {
 	}
 
 	this.needLayout = function(abstractBoxContainer) {
-		this.layoutCycle.layout[abstractBoxContainer._boxId] = abstractBoxContainer;
+		this.layoutCycle.layout[abstractBoxContainer._boxId + ""] = abstractBoxContainer;
 	}
 
 	this.needMergeToScreen = function(abstractBox) {
-		this.layoutCycle.merge[abstractBox._boxId] = abstractBox;
+		this.layoutCycle.merge[abstractBox._boxId + ""] = abstractBox;
 	}
 
 	this.needSyncScreen = function(abstractBoxLeaf) {
-		this.layoutCycle.sync[abstractBoxLeaf._boxId] = abstractBoxLeaf;
+		this.layoutCycle.sync[abstractBoxLeaf._boxId + ""] = abstractBoxLeaf;
 	}
 }
 LayoutManagerMixin.call(LayoutManager.prototype);
@@ -333,7 +333,7 @@ function AbstractBoxContainer(layoutManager, _renderingHints, layoutFunction) {
 	this.layoutFunction = layoutFunction;
 	this._renderingHints = _renderingHints;
 
-	this.bindNeedLayout = this.needLayout.bind(this);	
+	this.bindNeedLayout = this.needLayout.bind(this);
 
 	// on réagit sur la profondeur pour propager dans les enfants
 	this.observe(this.propagateDepth.bind(this), [ AbstractBox.DEPTH ]);
