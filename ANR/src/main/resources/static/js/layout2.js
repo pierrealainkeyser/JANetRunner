@@ -333,7 +333,7 @@ function AbstractBoxContainer(layoutManager, _renderingHints, layoutFunction) {
 	this.layoutFunction = layoutFunction;
 	this._renderingHints = _renderingHints;
 
-	this.bindNeedLayout = this.needLayout.bind(this);
+	this.bindNeedLayout = this.needLayout.bind(this);	
 
 	// on réagit sur la profondeur pour propager dans les enfants
 	this.observe(this.propagateDepth.bind(this), [ AbstractBox.DEPTH ]);
@@ -387,7 +387,7 @@ var AbstractBoxContainerMixin = function() {
 		box.setDepth(this.depth + 1);
 
 		// suit le champ de taille des enfants
-		box.observe(this.bindNeedLayout, [ Rectangle.MOVE_TO ]);
+		box.local.observe(this.bindNeedLayout, [ Rectangle.RESIZE_TO ]);
 
 		if (index !== undefined)
 			this.childs.splice(index, 0, box);
@@ -408,7 +408,7 @@ var AbstractBoxContainerMixin = function() {
 	}
 
 	var unbindChild = function(box) {
-		box.unobserve(this.bindNeedLayout)
+		box.local.unobserve(this.bindNeedLayout)
 	}
 
 	/**

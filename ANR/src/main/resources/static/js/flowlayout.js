@@ -86,9 +86,8 @@ function flowLayout(options) {
 				to.add(offset);
 				c.local.moveTo(to);
 			});
-
 		}
-
+		
 		// transmission de la taille au container
 		boxcontainer.local.resizeTo(bounds.size);
 	};

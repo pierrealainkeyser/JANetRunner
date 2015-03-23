@@ -14,7 +14,8 @@ function anchorLayout(options) {
 			var local = childs[0].local;
 			var size = local.size;
 
-			bounds = new Rectangle({ point : origin, size : size }).merge(bounds);
+			
+			bounds = new Rectangle({ point : origin, size : size }).merge(local);
 
 			// prise en compte du padding
 			bounds = bounds.grow(padding);

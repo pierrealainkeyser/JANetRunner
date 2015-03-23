@@ -129,7 +129,6 @@ var BoxClickMixin = function() {
 	 */
 	this.setActive = function(active) {
 		if (active) {
-			console.log(this)
 			this.click.show();
 			this.animateEnter(this.click);
 		} else {

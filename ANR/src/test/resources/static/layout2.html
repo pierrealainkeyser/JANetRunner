@@ -83,7 +83,7 @@
 			third.addChild(new JQueryBox(layoutManager, $("<div class='element'>333</div>")));
 			third.addChild(new JQueryBox(layoutManager, $("<div class='element'>4444</div>")));
 
-			backbox.trackAbstractBox(third);
+			//backbox.trackAbstractBox(third);
 			backbox.animateEnter(backbox.element);
 
 			var turnTracker = new TurnTracker(layoutManager);
@@ -99,20 +99,23 @@
 
 			turnTracker.activeFaction.setFaction("nbn");
 			turnTracker.clicks.setClicks(0, 4);
+			
+			console.log("------------------",turnTracker.clicks.container)
+			backbox.trackAbstractBox(turnTracker.clicks.container);
 
 			setTimeout(layoutManager.withinLayout(function() {
 
-				third.addChild(second)
+/* 				third.addChild(second)
 				first.addChild(third);
 
-				backbox.animateRemove(backbox.element);
+				backbox.animateRemove(backbox.element); */
 
-				turnTracker.runnerScore.setScore(3);
+				/* 	turnTracker.runnerScore.setScore(3);
 				turnTracker.runnerScore.setActive(true);
-				turnTracker.activeFaction.setFaction("shaper");
+				turnTracker.activeFaction.setFaction("shaper"); */
 				turnTracker.clicks.setClicks(2, 1);
 
-			}), 1300);
+			}), 2000);
 
 		});
 
