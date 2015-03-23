@@ -181,13 +181,48 @@ var ClickContainerMixin = function() {
 ClickContainerMixin.call(ClickContainer.prototype);
 
 // ---------------------------------------------------
+function GameStepBox(layoutManager, classMore) {
+	JQueryBox.call(this, layoutManager, $("<span class='gamestep " + classMore + "'></span>"), { zIndex : true, rotation : false, autoAlpha : false,
+		size : false });
+	AnimateAppeareanceCss.call(this, "bounceIn", "bounceOut");
+	this.text = null;
+}
+
+var GameStepBoxMixin = function() {
+	JQueryBoxMixin.call(this)
+	AnimateAppeareanceCssMixin.call(this);
+
+	/**
+	 * Mise à jour du texte
+	 */
+	this.setText = function(text) {
+		var updateText = function() {
+			this.element.text(text);
+			this.computeSize(this.element);
+			this.oldText = text;
+		}.bind(this);
+
+		// l'animation se fait dans un layout
+		if (this.oldText !== null && this.oldText !== text)
+			this.animateSwap(this.element, this.layoutManager.withinLayout(updateText));
+		else {
+			updateText();
+			this.animateEnter(this.element);
+		}
+	}
+}
+GameStepBoxMixin.call(GameStepBox.prototype);
+
+// ---------------------------------------------------
 function TurnTracker(layoutManager) {
-	AbstractBoxContainer.call(this, layoutManager, {}, flowLayout({ direction : FlowLayout.Direction.RIGHT, spacing : 7 }));
+	AbstractBoxContainer.call(this, layoutManager, {}, flowLayout({ direction : FlowLayout.Direction.RIGHT, spacing : 5 }));
 
 	this.corpScore = new ScoreFactionBox(layoutManager);
 	this.runnerScore = new ScoreFactionBox(layoutManager);
 	this.activeFaction = new ActiveFactionBox(layoutManager);
 	this.clicks = new ClickContainer(layoutManager);
+	this.gameStep = new GameStepBox(layoutManager, "label label-info");
+	this.gamePhase = new GameStepBox(layoutManager, "label label-success");
 
 	var clickWrapper = new AbstractBoxContainer(layoutManager, {}, anchorLayout({ minSize : new Size({ width : 300, height : 30 }) }));
 	clickWrapper.addChild(this.clicks);
@@ -196,6 +231,8 @@ function TurnTracker(layoutManager) {
 	this.addChild(this.runnerScore);
 	this.addChild(this.activeFaction);
 	this.addChild(clickWrapper);
+	this.addChild(this.gameStep);
+	this.addChild(this.gamePhase);
 }
 
 AbstractBoxContainerMixin.call(TurnTracker.prototype)

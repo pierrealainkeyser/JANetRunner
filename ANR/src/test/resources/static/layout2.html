@@ -6,6 +6,7 @@
 <link rel="stylesheet/less" type="text/css" href="../../../main/resources/static/css/game.less" />
 <link rel="stylesheet" type="text/css" href="../../../main/resources/static/css/icons.css" />
 
+<link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
 <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/animate.css/3.2.3/animate.min.css" />
 
 <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/gsap/1.16.1/TweenMax.min.js"></script>
@@ -28,7 +29,6 @@
 .element {
 	position: absolute;
 }
-
 
 .backbox {
 	background-color: red;
@@ -100,19 +100,26 @@
 			turnTracker.activeFaction.setFaction("nbn");
 			turnTracker.clicks.setClicks(0, 4);
 			
+			turnTracker.gameStep.setText("machin truc");
+
 			backbox.trackAbstractBox(turnTracker.clicks.container);
 
 			setTimeout(layoutManager.withinLayout(function() {
 
-/* 				third.addChild(second)
-				first.addChild(third);
+				/* 				third.addChild(second)
+				 first.addChild(third);
 
-				backbox.animateRemove(backbox.element); */
+				 backbox.animateRemove(backbox.element); */
 
-				/* 	turnTracker.runnerScore.setScore(3);
+				 turnTracker.corpScore.setActive(false);
+				 
+				turnTracker.runnerScore.setScore(3);
 				turnTracker.runnerScore.setActive(true);
-				turnTracker.activeFaction.setFaction("shaper"); */
+				turnTracker.activeFaction.setFaction("shaper");
 				turnTracker.clicks.setClicks(2, 1);
+				
+				turnTracker.gameStep.setText("bidule chouette");
+				turnTracker.gamePhase.setText("autre machin");
 
 			}), 2000);
 

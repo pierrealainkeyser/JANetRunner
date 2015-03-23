@@ -100,10 +100,6 @@ html , body , body > div.container {
 	}
 }
 
-.clickcounter {
-	.element ();
-}
-
 //------------------------------
 .faction.icon {
 	@size: 30px;
@@ -137,10 +133,25 @@ html , body , body > div.container {
 //------------------------------
 .clickcounter {
 	@token-size: 30px;
-	position: absolute;
+	.element ();
 	width: @token-size;
 	height: @token-size;
 	span {
 		.inner-token (@token-size);
 	}
 }
+
+//------------------------------
+.gamestep {
+	@size: 30px;
+	.element ();
+	height: @size;
+	line-height: @size ! important;
+	display: inline ! important;
+	padding: 0em 0em ! important;
+	
+	&:not(:empty){
+		padding: 0em .6em ! important;	
+	}
+}
+
