@@ -37,6 +37,6 @@ function anchorLayout(options) {
 
 			local.moveTo(point);
 		}
-		boxcontainer.local.resizeTo(bounds);
+		boxcontainer.local.resizeTo(bounds.size);
 	}
 }
