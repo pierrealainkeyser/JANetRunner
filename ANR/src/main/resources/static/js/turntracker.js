@@ -144,7 +144,7 @@ BoxClickMixin.call(BoxClick.prototype);
  * Permet d'afficher des clicks
  */
 function ClickContainer(layoutManager) {
-	AbstractBoxContainer.call(this, layoutManager, {}, flowLayout({ direction : FlowLayout.Direction.RIGHT, spacing : 7 }));
+	AbstractBoxContainer.call(this, layoutManager, {}, flowLayout({ direction : FlowLayout.Direction.RIGHT, spacing : 3 }));
 }
 
 var ClickContainerMixin = function() {
@@ -224,7 +224,7 @@ function TurnTracker(layoutManager) {
 	this.gameStep = new GameStepBox(layoutManager, "label label-info");
 	this.gamePhase = new GameStepBox(layoutManager, "label label-success");
 
-	var clickWrapper = new AbstractBoxContainer(layoutManager, {}, anchorLayout({ minSize : new Size({ width : 300, height : 30 }) }));
+	var clickWrapper = new AbstractBoxContainer(layoutManager, {}, anchorLayout({ minSize : new Size(150, 30) }));
 	clickWrapper.addChild(this.clicks);
 
 	this.addChild(this.corpScore);
