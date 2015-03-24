@@ -198,3 +198,19 @@ var JQueryBoxMixin = function() {
 }
 
 JQueryBoxMixin.call(JQueryBox.prototype);
+
+//---------------------------------------------------
+
+/**
+ * Permet de suivre un élemnet
+ */
+function JQueryTrackingBox(layoutManager, element) {
+	JQueryBox.call(this, layoutManager, element, { zIndex : true, rotation : true, autoAlpha : true, size : true });
+}
+var JQueryTrackingBoxMixin = function() {
+	JQueryBoxMixin.call(this)
+	TrackingScreenChangeBofLeafMixin.call(this, { zIndexDelta : -1 });
+
+}
+JQueryTrackingBoxMixin.call(JQueryTrackingBox.prototype);
+

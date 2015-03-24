@@ -131,8 +131,8 @@ html , body , body > div.container {
 		vertical-align: middle;
 		text-align: center;
 	}
-	
-	.scorearea{
+
+	.scorearea {
 		.text-border (@color3);
 		color: @color2;
 	}
@@ -179,7 +179,23 @@ html , body , body > div.container {
 	background: @color0;
 	box-shadow: 3px 3px 4px 0px @color1;
 	border-radius: 3px;
-	border-top-right-radius: 0px;	
+	border-top-right-radius: 0px;
 	margin-top: 0px;
+}
+
+//------------------------------
+.statusseparator {
+	@padding: 10px;
+	.element ();
+	height: 24px;
+	&.left {
+		padding-left: @padding;
+		border-right: 1px @color1 solid;
+	}
+
+	&.right {
+		padding-right: @padding;
+		border-left: 1px @color1 solid;
+	}
 }
 

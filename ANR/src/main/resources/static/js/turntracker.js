@@ -225,13 +225,19 @@ function TurnTracker(layoutManager) {
 	this.gameStep = new GameStepBox(layoutManager, "label label-info");
 	this.gamePhase = new GameStepBox(layoutManager, "label label-success");
 
-	var clickWrapper = new AbstractBoxContainer(layoutManager, {}, anchorLayout({ minSize : new Size(140, 30) }));
+	var trackingBox = new JQueryTrackingBox(layoutManager, $("<div class='statusrow'/>"));
+	trackingBox.trackAbstractBox(this);
+
+	var clickWrapper = new AbstractBoxContainer(layoutManager, {}, anchorLayout({ minSize : new Size(130, 30) }));
 	clickWrapper.addChild(this.clicks);
 
 	this.addChild(this.corpScore);
 	this.addChild(this.runnerScore);
+	
+	this.addChild(new JQueryBox(layoutManager,$("<span class='statusseparator left'/>")));	
 	this.addChild(this.activeFaction);
 	this.addChild(clickWrapper);
+	this.addChild(new JQueryBox(layoutManager,$("<span class='statusseparator right'/>")));
 	this.addChild(this.gameStep);
 	this.addChild(this.gamePhase);
 }

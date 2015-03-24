@@ -29,56 +29,14 @@
 .element {
 	position: absolute;
 }
-
 </style>
 
 <script type="text/javascript">
-	function JQueryBackBox(layoutManager) {
-		JQueryBox.call(this, layoutManager, $("<div class='statusrow'/>"), { zIndex : true, rotation : true, autoAlpha : true, size : true });
-	}
-	var JQueryBackBoxMixin = function() {
-		JQueryBoxMixin.call(this)
-		TrackingScreenChangeBofLeafMixin.call(this, { zIndexDelta : -1 });
-
-	}
-	JQueryBackBoxMixin.call(JQueryBackBox.prototype);
-
 	$(function() {
 		var layoutManager = new LayoutManager($("#main"));
 		layoutManager.config.animDuration = 0.3;
 
 		layoutManager.runLayout(function() {
-			var first = new AbstractBoxContainer(layoutManager, {}, flowLayout({ align : FlowLayout.Align.FIRST }));
-			first.local.moveTo({ x : 200, y : 100 });
-			var second = new AbstractBoxContainer(layoutManager, {}, flowLayout({ direction : FlowLayout.Direction.RIGHT }));
-			var third = new AbstractBoxContainer(layoutManager, {}, flowLayout({ align : FlowLayout.Align.MIDDLE, direction : FlowLayout.Direction.TOP,
-				padding : 10 }));
-
-			var anchor = new AbstractBoxContainer(layoutManager, {}, anchorLayout({ minSize : new Size(200, 30), horizontal : AnchorLayout.Horizontal.MIDDLE,
-				vertical : AnchorLayout.Vertical.BOTTOM }));
-			anchor.addChild(new JQueryBox(layoutManager, $("<div class='element'>---</div>")))
-			var backbox = new JQueryBackBox(layoutManager);
-
-			var box = new JQueryBox(layoutManager, $("<div class='element'>PRE</div>"));
-			first.addChild(box);
-			first.addChild(second);
-
-			first.addChild(new JQueryBox(layoutManager, $("<div class='element'>grand</div>")));
-			first.addChild(new JQueryBox(layoutManager, $("<div class='element'>Troisième très très très grand</div>")));
-
-			second.addChild(new JQueryBox(layoutManager, $("<div class='element'>+++</div>")));
-			second.addChild(new JQueryBox(layoutManager, $("<div class='element'>___</div>")));
-			second.addChild(new JQueryBox(layoutManager, $("<div class='element'>---</div>")));
-			second.addChild(third);
-
-			second.addChild(anchor)
-
-			third.addChild(new JQueryBox(layoutManager, $("<div class='element'>11</div>")));
-			third.addChild(new JQueryBox(layoutManager, $("<div class='element'>222</div>")));
-			third.addChild(new JQueryBox(layoutManager, $("<div class='element'>333</div>")));
-			third.addChild(new JQueryBox(layoutManager, $("<div class='element'>4444</div>")));
-
-			//backbox.trackAbstractBox(third);
 
 			var turnTracker = new TurnTracker(layoutManager);
 			turnTracker.local.moveTo({ x : 0, y : 0 });
@@ -93,25 +51,18 @@
 
 			turnTracker.activeFaction.setFaction("nbn");
 			turnTracker.clicks.setClicks(0, 4);
-			
-			turnTracker.gameStep.setText("machin truc");
 
-			backbox.trackAbstractBox(turnTracker);
+			turnTracker.gameStep.setText("machin truc");
 
 			setTimeout(layoutManager.withinLayout(function() {
 
-				/* 				third.addChild(second)
-				 first.addChild(third);
+				turnTracker.corpScore.setActive(false);
 
-				 backbox.animateRemove(backbox.element); */
-
-				 turnTracker.corpScore.setActive(false);
-				 
 				turnTracker.runnerScore.setScore(3);
 				turnTracker.runnerScore.setActive(true);
 				turnTracker.activeFaction.setFaction("shaper");
 				turnTracker.clicks.setClicks(2, 1);
-				
+
 				turnTracker.gameStep.setText("bidule chouette");
 				turnTracker.gamePhase.setText("autre machin");
 
