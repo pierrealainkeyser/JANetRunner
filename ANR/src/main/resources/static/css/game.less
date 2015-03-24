@@ -2,6 +2,7 @@
 @color1: rgba(0, 0, 0, 0.35);
 @color2: rgba(255, 255, 255, 1);
 @color3: rgba(30, 30, 30, 0.9);
+@color4: rgba(204, 204, 204, 1);
 @token-recurring-text-color: #FFCC33;
 @token-text-border: #383838;
 @token-text-color: #E8E8E8;
@@ -196,6 +197,26 @@ html , body , body > div.container {
 	&.right {
 		padding-right: @padding;
 		border-left: 1px @color1 solid;
+	}
+}
+
+//------------------------------
+.cardcontainer {
+	.element ();
+	border-radius: 5px;
+	border: 1.5px dashed @color4;
+	.innertext {
+		position: absolute;
+		width: 100%;
+		bottom: 0px;
+		text-align: center;
+		font-size: 11px;
+		color: @color4;
+		font-style: italic;
+		.counter {
+			font-style: normal;
+			font-weight: bold;
+		}
 	}
 }
 

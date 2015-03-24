@@ -172,7 +172,9 @@ function JQueryBox(layoutManager, element, cssTweenConfig) {
 		cssTweenConfig.size = true;
 
 	this.cssTweenConfig = cssTweenConfig;
-	this.computeSize(this.element);
+
+	if (cssTweenConfig.computeInitialSize === null || cssTweenConfig.computeInitialSize !== false)
+		this.computeSize(this.element);
 }
 
 var JQueryBoxMixin = function() {
@@ -199,13 +201,13 @@ var JQueryBoxMixin = function() {
 
 JQueryBoxMixin.call(JQueryBox.prototype);
 
-//---------------------------------------------------
+// ---------------------------------------------------
 
 /**
  * Permet de suivre un élemnet
  */
 function JQueryTrackingBox(layoutManager, element) {
-	JQueryBox.call(this, layoutManager, element, { zIndex : true, rotation : true, autoAlpha : true, size : true });
+	JQueryBox.call(this, layoutManager, element, { zIndex : true, rotation : true, autoAlpha : true, size : true, computeInitialSize : false });
 }
 var JQueryTrackingBoxMixin = function() {
 	JQueryBoxMixin.call(this)
@@ -213,4 +215,3 @@ var JQueryTrackingBoxMixin = function() {
 
 }
 JQueryTrackingBoxMixin.call(JQueryTrackingBox.prototype);
-
