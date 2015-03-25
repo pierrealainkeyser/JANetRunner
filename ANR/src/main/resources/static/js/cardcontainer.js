@@ -10,6 +10,7 @@ function CardContainerBox(layoutManager, type, cardContainerLayout) {
 	this.innertext = this.trackingBox.element.find(".innertext");
 	this.counter = this.trackingBox.element.find(".counter");
 	this.oldCounter = 0;
+	this.type = type;
 	
 	//il faut rajouter les cartes dans le container
 	this.cards = new AbstractBoxContainer(layoutManager, {}, cardContainerLayout);
@@ -25,7 +26,6 @@ var CardContainerBoxMixin = function() {
 	 */
 	this.setCounter = function(counter) {
 		var updateText = function() {
-			console.log(this, counter)
 			this.counter.text(counter);
 			this.oldCounter = counter;
 		}.bind(this);
