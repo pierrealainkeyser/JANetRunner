@@ -235,9 +235,9 @@ function TurnTracker(layoutManager) {
 	this.addChild(this.runnerScore);
 	
 	this.addChild(new JQueryBox(layoutManager,$("<span class='statusseparator left'/>")));	
-	this.addChild(this.activeFaction);
 	this.addChild(clickWrapper);
 	this.addChild(new JQueryBox(layoutManager,$("<span class='statusseparator right'/>")));
+	this.addChild(this.activeFaction);
 	this.addChild(this.gameStep);
 	this.addChild(this.gamePhase);
 }
