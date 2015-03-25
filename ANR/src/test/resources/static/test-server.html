@@ -35,14 +35,16 @@
 
 			var container = new AbstractBoxContainer(layoutManager, {}, flowLayout({ direction : FlowLayout.Direction.RIGHT, spacing : 3 }));
 			container.local.moveTo({ x : 50, y : 50 });
+
+			var flowlayout=flowLayout({});
 			
-			var archives = new CardContainerBox(layoutManager, "Archives");
+			var archives = new CardContainerBox(layoutManager, "Archives",flowlayout);
 			container.addChild(archives);
 
-			var rd = new CardContainerBox(layoutManager, "R&D");
+			var rd = new CardContainerBox(layoutManager, "R&D",flowlayout);
 			container.addChild(rd);
 			
-			var hq = new CardContainerBox(layoutManager, "HQ");
+			var hq = new CardContainerBox(layoutManager, "HQ",flowlayout);
 			container.addChild(hq);
 
 			setTimeout(layoutManager.withinLayout(function() {

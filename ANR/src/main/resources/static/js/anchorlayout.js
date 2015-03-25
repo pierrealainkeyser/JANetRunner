@@ -10,13 +10,13 @@ function anchorLayout(options) {
 	return function(boxcontainer, childs) {
 		var origin = new Point();
 		var bounds = new Rectangle({ point : origin, size : minSize });
+		// prise en compte du padding
+		bounds = bounds.grow(padding);
+		
 		if (childs.length > 0) {
 			var local = childs[0].local;
 			var size = local.size;						
 			bounds = bounds.merge(local);
-
-			// prise en compte du padding
-			bounds = bounds.grow(padding);
 
 			// on centre le nouveau point
 			var point = new Point();

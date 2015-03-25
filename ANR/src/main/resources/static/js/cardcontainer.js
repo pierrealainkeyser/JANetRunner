@@ -1,5 +1,5 @@
-function CardContainerBox(layoutManager, type) {
-	AbstractBoxContainer.call(this, layoutManager, {}, anchorLayout({ minSize : new Size(80, 131) }));
+function CardContainerBox(layoutManager, type, cardContainerLayout) {
+	AbstractBoxContainer.call(this, layoutManager, {}, anchorLayout({vertical:AnchorLayout.Vertical.TOP, padding:3, minSize : new Size(80, 126) }));
 	AnimateAppeareanceCss.call(this, "bounceIn", "bounceOut");
 
 	// permet de placer l'élement
@@ -10,7 +10,10 @@ function CardContainerBox(layoutManager, type) {
 	this.innertext = this.trackingBox.element.find(".innertext");
 	this.counter = this.trackingBox.element.find(".counter");
 	this.oldCounter = 0;
-	this.needLayout();
+	
+	//il faut rajouter les cartes dans le container
+	this.cards = new AbstractBoxContainer(layoutManager, {}, cardContainerLayout);
+	this.addChild(this.cards);
 }
 
 var CardContainerBoxMixin = function() {
