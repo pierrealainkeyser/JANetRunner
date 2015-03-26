@@ -1,4 +1,5 @@
-define([ "./jqueryboxmixin", "layout/abstractboxleaf" ], function(JQueryBoxMixin, AbstractBoxLeaf) {
+define([ "mix", "layout/abstractboxleaf", "./tweenlitesyncscreenmixin", "./jquerycomputesizemixin" ],//
+function(mix, AbstractBoxLeaf, TweenLiteSyncScreenMixin, JQUeryComputeSizeMixin) {
 	function JQueryBox(layoutManager, element, cssTweenConfig) {
 
 		AbstractBoxLeaf.call(this, layoutManager);
@@ -22,8 +23,26 @@ define([ "./jqueryboxmixin", "layout/abstractboxleaf" ], function(JQueryBoxMixin
 	}
 
 	// applications des mixins
-	AbstractBoxLeaf.call(JQueryBox);
-	JQueryBoxMixin.call(JQueryBox);
+
+	mix(JQueryBox, function() {
+		/**
+		 * réalise la synchronisation de base
+		 */
+		this.syncScreen = function() {
+			var css = this.computeCssTween(this.cssTweenConfig);
+			var set = this.firstSyncScreen();
+			this.tweenElement(this.element, css, set);
+		}
+
+		/**
+		 * Permet de supprimer l'élement parent
+		 */
+		this.remove = function() {
+			this.element.remove();
+		}
+	});
+
+	mix(JQueryBox, AbstractBoxLeaf);
 
 	return JQueryBox;
 });

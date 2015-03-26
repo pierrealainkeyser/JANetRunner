@@ -1,4 +1,4 @@
-define([], function() {
+define([ "mix" ], function(mix) {
 
 	/**
 	 * Les coordonnées x, y
@@ -13,7 +13,7 @@ define([], function() {
 	Point.PLANE_LEFT = 2;
 	Point.PLANE_RIGHT = 3;
 
-	var PointMixin = function() {
+	mix(Point, function() {
 
 		this.add = function(point) {
 			this.x += point.x;
@@ -51,8 +51,7 @@ define([], function() {
 
 			return false;
 		}
-	}
-	PointMixin.call(Point.prototype);
+	});
 
 	return Point;
 });

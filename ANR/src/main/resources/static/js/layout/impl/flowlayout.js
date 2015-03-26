@@ -48,26 +48,26 @@ define([ "underscore",  "geometry/package" ], function(_, geom) {
 			_.each(childs, function(c) {
 				var localsize = c.local.size;
 
-				if (toLeft)
+				if (this.toLeft)
 					currentPoint.x -= (localsize.width + spacing)
-				else if (toTop)
+				else if (this.toTop)
 					currentPoint.y -= (localsize.height + spacing);
 
 				var point = new geom.Point(currentPoint.x, currentPoint.y);
 
 				// gestion de l'alignement
-				if (align === FlowLayout.Align.MIDDLE) {
-					if (toTop || toBottom) {
+				if (this.align === FlowLayout.Align.MIDDLE) {
+					if (this.toTop || this.toBottom) {
 						var delta = (maxSize.width - localsize.width) / 2;
 						point.x += delta;
-					} else if (toLeft || toRight) {
+					} else if (this.toLeft || this.toRight) {
 						var delta = (maxSize.height - localsize.height) / 2;
 						point.y += delta;
 					}
-				} else if (align === FlowLayout.Align.LAST) {
-					if (toTop || toBottom)
+				} else if (this.align === FlowLayout.Align.LAST) {
+					if (this.toTop || this.toBottom)
 						point.x -= localsize.width;
-					else if (toLeft || toRight)
+					else if (this.toLeft || this.toRight)
 						point.y -= localsize.height;
 				}
 
@@ -81,14 +81,14 @@ define([ "underscore",  "geometry/package" ], function(_, geom) {
 				}));
 
 				// déplacement du point dans la bonne direction
-				if (toRight)
+				if (this.toRight)
 					currentPoint.x += (localsize.width + spacing)
-				else if (toBottom)
+				else if (this.toBottom)
 					currentPoint.y += (localsize.height + spacing)
 			});
 
 			// application du padding au besoin
-			bounds = bounds.grow(padding);
+			bounds = bounds.grow(this.padding);
 
 			// calcul de l'offset pour que les coordonnées commence
 			// à 0,0

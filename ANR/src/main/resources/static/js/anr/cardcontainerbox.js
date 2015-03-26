@@ -1,16 +1,14 @@
-define([ "jquery", "layout/package", "ui/package", "geometry/package", "layout/impl/anchorlayout" ],// 
-function($, layout, ui, geom, AnchorLayout) {
+define([ "mix", "jquery", "layout/package", "ui/package", "geometry/package", "layout/impl/anchorlayout" ],// 
+function(mix, $, layout, ui, geom, AnchorLayout) {
 
 	function CardContainerBox(layoutManager, type, cardContainerLayout) {
-		layout.AbstractBoxContainer.call(this, layoutManager, {}, new AnchorLayout({
-			vertical : AnchorLayout.Vertical.TOP,
-			padding : 3,
-			minSize : new geom.Size(80, 126)
-		}));
+		layout.AbstractBoxContainer.call(this, layoutManager, {}, new AnchorLayout({ vertical : AnchorLayout.Vertical.TOP, padding : 3,
+			minSize : new geom.Size(80, 126) }));
 		ui.AnimateAppeareanceCss.call(this, "bounceIn", "bounceOut");
 
 		// permet de placer l'élement
-		this.trackingBox = new ui.JQueryTrackingBox(layoutManager, $("<div class='cardcontainer'><div class='innertext'>" + type + " / <span class='counter'>0</span></div></div>"));
+		this.trackingBox = new ui.JQueryTrackingBox(layoutManager, $("<div class='cardcontainer'><div class='innertext'>" + type
+				+ " / <span class='counter'>0</span></div></div>"));
 		this.trackingBox.trackAbstractBox(this);
 
 		this.innertext = this.trackingBox.element.find(".innertext");
@@ -23,9 +21,7 @@ function($, layout, ui, geom, AnchorLayout) {
 		this.addChild(this.cards);
 	}
 
-	var CardContainerBoxMixin = function() {
-		layout.AbstractBoxContainerMixin.call(this);
-		ui.AnimateAppeareanceCssMixin.call(this);
+	mix(CardContainerBox, function() {
 
 		/**
 		 * Mise à jour du compteur
@@ -44,8 +40,10 @@ function($, layout, ui, geom, AnchorLayout) {
 				this.animateEnter(this.innertext);
 			}
 		}
-	}
-	CardContainerBoxMixin.call(CardContainerBox.prototype);
+	});
+
+	mix(CardContainerBox, layout.AbstractBoxContainer);
+	mix(CardContainerBox, ui.AnimateAppeareanceCss);
 
 	return CardContainerBox;
 });

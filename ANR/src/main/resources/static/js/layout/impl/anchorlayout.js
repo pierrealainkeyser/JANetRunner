@@ -8,25 +8,14 @@ define([ "geometry/package" ], function(geom) {
 		this.minSize = options.minSize || new geom.Size();
 	}
 
-	AnchorLayout.Vertical = {
-		TOP : 1,
-		MIDDLE : 2,
-		BOTTOM : -1
-	};
-	AnchorLayout.Horizontal = {
-		LEFT : -1,
-		RIGHT : 1,
-		MIDDLE : 2,
-	};
+	AnchorLayout.Vertical = { TOP : 1, MIDDLE : 2, BOTTOM : -1 };
+	AnchorLayout.Horizontal = { LEFT : -1, RIGHT : 1, MIDDLE : 2, };
 
 	AnchorLayout.prototype.doLayout = function(boxcontainer, childs) {
 		var origin = new geom.Point();
-		var bounds = new geom.Rectangle({
-			point : origin,
-			size : minSize
-		});
+		var bounds = new geom.Rectangle({ point : origin, size : this.minSize });
 		// prise en compte du padding
-		bounds = bounds.grow(padding);
+		bounds = bounds.grow(this.padding);
 
 		if (childs.length > 0) {
 			var local = childs[0].local;
@@ -35,23 +24,23 @@ define([ "geometry/package" ], function(geom) {
 
 			// on centre le nouveau point
 			var point = new geom.Point();
-			if (vertical === AnchorLayout.Vertical.MIDDLE)
+			if (this.vertical === AnchorLayout.Vertical.MIDDLE)
 				point.y = (bounds.size.height - size.height) / 2;
-			else if (vertical === AnchorLayout.Vertical.BOTTOM)
+			else if (this.vertical === AnchorLayout.Vertical.BOTTOM)
 				point.y = bounds.size.height - size.height - padding;
-			else if (vertical === AnchorLayout.Vertical.TOP)
-				point.y = padding;
+			else if (this.vertical === AnchorLayout.Vertical.TOP)
+				point.y = this.padding;
 
-			if (horizontal === AnchorLayout.Horizontal.MIDDLE)
+			if (this.horizontal === AnchorLayout.Horizontal.MIDDLE)
 				point.x = (bounds.size.width - size.width) / 2;
-			else if (horizontal === AnchorLayout.Horizontal.RIGHT)
+			else if (this.horizontal === AnchorLayout.Horizontal.RIGHT)
 				point.x = bounds.size.width - size.width - padding;
-			else if (horizontal === AnchorLayout.Horizontal.LEFT)
-				point.x = padding;
+			else if (this.horizontal === AnchorLayout.Horizontal.LEFT)
+				point.x = this.padding;
 
 			local.moveTo(point);
 		}
 		boxcontainer.local.resizeTo(bounds.size);
 	}
-
+	return AnchorLayout;
 });

@@ -1,13 +1,15 @@
-define([ "./animateappeareancecssmixin", "./jquerybox", "./jqueryboxmixin", //
-"./jquerycomputesizemixin", "./jquerytrackingbox", "./tweenlitesyncscreenmixin" ], //
-function(AnimateAppeareanceCssMixin, JQueryBox, JQueryBoxMixin, //
-JQUeryComputeSizeMixin, JQueryTrackingBox, TweenLiteSyncScreenMixin) {
-	return {
-		AnimateAppeareanceCssMixin : AnimateAppeareanceCssMixin,
-		JQueryBox : JQueryBox,
-		JQueryBoxMixin : JQueryBoxMixin,
-		JQUeryComputeSizeMixin : JQUeryComputeSizeMixin,
-		JQueryTrackingBox : JQueryTrackingBox,
-		TweenLiteSyncScreenMixin : TweenLiteSyncScreenMixin
+define([ "./jquerybox", //
+"./jquerycomputesizemixin", "./jquerytrackingbox", "./tweenlitesyncscreenmixin",//
+"./animateappearancecss" //
+], //
+function(JQueryBox, //
+JQUeryComputeSizeMixin, JQueryTrackingBox, TweenLiteSyncScreenMixin,//
+AnimateAppeareanceCss) {
+	return {//
+	AnimateAppeareanceCss : AnimateAppeareanceCss,//
+	JQueryBox : JQueryBox,//
+	JQUeryComputeSizeMixin : JQUeryComputeSizeMixin,//
+	JQueryTrackingBox : JQueryTrackingBox,//
+	TweenLiteSyncScreenMixin : TweenLiteSyncScreenMixin // 
 	};
 });

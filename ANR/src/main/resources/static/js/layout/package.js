@@ -1,18 +1,14 @@
-define([ "./layoutmanager", "./layoutmanagermixin", "./abstractbox", //
-"./abstractboxcontainer", "./abstractboxleaf", "./abstractboxmixin", //
-"./abstractboxcontainermixin", "./abstractboxleafmixin", "./trackingscreenchangeboxleafmixin" //
-], function(LayoutManager, LayoutManagerMixin, AbstractBox, //
-AbstractBoxContainer, AbstractBoxLeaf, AbstractBoxMixin, //
-AbstractBoxContainerMixin, AbstractBoxLeafMixin, TrackingScreenChangeBofLeafMixin) {
-	return {
-		LayoutManager : LayoutManager,
-		LayoutManagerMixin : LayoutManagerMixin,
-		AbstractBox : AbstractBox,
-		AbstractBoxContainer : AbstractBoxContainer,
-		AbstractBoxLeaf : AbstractBoxLeaf,
-		AbstractBoxMixin : AbstractBoxMixin,
-		AbstractBoxContainerMixin : AbstractBoxContainerMixin,
-		AbstractBoxLeafMixin : AbstractBoxLeafMixin,
-		TrackingScreenChangeBofLeafMixin : TrackingScreenChangeBofLeafMixin
+define([ "./layoutmanager", "./abstractbox", //
+"./abstractboxcontainer", "./abstractboxleaf", //
+"./trackingscreenchangeboxleafmixin" //
+], function(LayoutManager, AbstractBox, //
+AbstractBoxContainer, AbstractBoxLeaf, //
+TrackingScreenChangeBofLeafMixin) {
+	return {//
+	LayoutManager : LayoutManager, //
+	AbstractBox : AbstractBox, //
+	AbstractBoxContainer : AbstractBoxContainer, //
+	AbstractBoxLeaf : AbstractBoxLeaf, //
+	TrackingScreenChangeBofLeafMixin : TrackingScreenChangeBofLeafMixin //
 	};
 });

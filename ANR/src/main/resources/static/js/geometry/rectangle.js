@@ -1,11 +1,11 @@
-define([ "util/observablemixin", "./point", "./size" ], function(ObservableMixin, Point, Size) {
+define([ "mix", "util/observablemixin", "./point", "./size" ], function(mix, ObservableMixin, Point, Size) {
 	function Rectangle(I) {
 		I = I || {};
 		this.point = I.point || new Point();
 		this.size = I.size || new Size();
 	}
 
-	var RectangleMixin = function() {
+	mix(Rectangle, function() {
 		ObservableMixin.call(this);
 
 		/**
@@ -43,10 +43,7 @@ define([ "util/observablemixin", "./point", "./size" ], function(ObservableMixin
 			if (x !== this.point.x || y !== this.point.y) {
 				var self = this;
 				this.performChange(Rectangle.MOVE_TO, function() {
-					var ret = {
-						oldX : self.point.x,
-						oldY : self.point.y
-					};
+					var ret = { oldX : self.point.x, oldY : self.point.y };
 					self.point.x = x;
 					self.point.y = y;
 					return ret;
@@ -63,10 +60,7 @@ define([ "util/observablemixin", "./point", "./size" ], function(ObservableMixin
 			if (width !== this.size.width || height !== this.size.height) {
 				var self = this;
 				this.performChange(Rectangle.RESIZE_TO, function() {
-					var ret = {
-						oldWidth : self.size.width,
-						oldHeight : self.size.height
-					}
+					var ret = { oldWidth : self.size.width, oldHeight : self.size.height }
 					self.size.width = width;
 					self.size.height = height;
 					return ret;
@@ -82,10 +76,7 @@ define([ "util/observablemixin", "./point", "./size" ], function(ObservableMixin
 			var tl = this.topLeft().min(rectangle.topLeft());
 			var br = this.bottomRight().max(rectangle.bottomRight());
 
-			var merged = new Rectangle({
-				point : tl,
-				size : new Size(br.x - tl.x, br.y - tl.y)
-			});
+			var merged = new Rectangle({ point : tl, size : new Size(br.x - tl.x, br.y - tl.y) });
 			return merged;
 		}
 
@@ -99,12 +90,10 @@ define([ "util/observablemixin", "./point", "./size" ], function(ObservableMixin
 			r.size.add(new Size(radius * 2, radius * 2));
 			return r;
 		}
-	}
+	});
 
 	Rectangle.MOVE_TO = "moveTo";
 	Rectangle.RESIZE_TO = "resizeTo";
-
-	RectangleMixin.call(Rectangle.prototype);
 
 	return Rectangle;
 });

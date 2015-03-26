@@ -1,4 +1,4 @@
-define([ "./abstractbox", "./abstractboxleafmixin", "geometry/rectangle" ], function(AbstractBox, AbstractBoxLeafMixin, Rectangle) {
+define([ "mix", "./abstractbox", "geometry/rectangle" ], function(mix, AbstractBox, Rectangle) {
 	function AbstractBoxLeaf(layoutManager) {
 		AbstractBox.call(this, layoutManager);
 
@@ -10,8 +10,23 @@ define([ "./abstractbox", "./abstractboxleafmixin", "geometry/rectangle" ], func
 		this.observe(syncScreen, [ AbstractBox.VISIBLE, AbstractBox.ZINDEX, AbstractBox.ROTATION ]);
 	}
 
-	// application du mixin
-	AbstractBoxLeafMixin.call(AbstractBoxLeaf.prototype);
+	mix(AbstractBoxLeaf, function() {
+
+		/**
+		 * Indique qu'il faudra appeler la méthode syncScreen en fin de layout
+		 */
+		this.needSyncScreen = function() {
+			this.layoutManager.needSyncScreen(this);
+		}
+
+		/**
+		 * Recopie des coordonnées à l'écran, depuis screen
+		 */
+		this.syncScreen = function() {
+
+		}
+	});
+	mix(AbstractBoxLeaf, AbstractBox);
 
 	return AbstractBoxLeaf;
 

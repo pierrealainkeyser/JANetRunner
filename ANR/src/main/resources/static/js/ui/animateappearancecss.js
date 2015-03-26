@@ -1,5 +1,13 @@
-define([ "underscore", "jquery" ], function(_, $) {
-	var AnimateAppeareanceCssMixin = function() {
+define([ "mix", "underscore", "jquery" ], function(mix, _, $) {
+	/**
+	 * Permet de placer des animations
+	 */
+	function AnimateAppeareanceCss(entranceAnimation, removalAnimation) {
+		this.entranceAnimation = entranceAnimation;
+		this.removalAnimation = removalAnimation;
+	}
+
+	mix(AnimateAppeareanceCss, function() {
 		/**
 		 * Place une animation css avec animate.css
 		 * 
@@ -59,7 +67,7 @@ define([ "underscore", "jquery" ], function(_, $) {
 				element.remove();
 			})
 		}
-	}
+	});
 
-	return AnimateAppeareanceCssMixin;
+	return AnimateAppeareanceCss;
 });
