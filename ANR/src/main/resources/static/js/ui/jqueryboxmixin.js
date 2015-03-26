@@ -1,4 +1,5 @@
-define([ "./abstractboxleafmixin", "./tweenlitesyncscreenmixin", "layout/abstractboxleafmixin" ], function(AbstractBoxLeafMixin, TweenLiteSyncScreenMixin, JQUeryComputeSizeMixin) {
+define([ "layout/abstractboxleafmixin", "./tweenlitesyncscreenmixin", "./jquerycomputesizemixin" ], //
+function(AbstractBoxLeafMixin, TweenLiteSyncScreenMixin, JQUeryComputeSizeMixin) {
 	var JQueryBoxMixin = function() {
 		AbstractBoxLeafMixin.call(this)
 		TweenLiteSyncScreenMixin.call(this);

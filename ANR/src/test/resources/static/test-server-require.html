@@ -6,19 +6,18 @@
 <link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
 <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/animate.css/3.2.3/animate.min.css" />
 
-
 <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/less.js/2.4.0/less.js"></script>
-
-
-<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/gsap/1.16.1/TweenMax.min.js"></script>
-<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>
-<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 
 <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.16/require.min.js"></script>
 
 <script type="text/javascript">
 	require.config({
-		baseUrl : "../../../main/resources/static/js/"
+		baseUrl : "../../../main/resources/static/js/",
+		paths : {
+			jquery : "http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js",
+			underscore : "http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js",
+			tweenlite : "http://cdnjs.cloudflare.com/ajax/libs/gsap/1.16.1/TweenMax.min.js"
+		}
 	});
 
 	require([ "jquery", "layout/package", "layout/impl/flowlayout", "anr/cardcontainerbox" ],//

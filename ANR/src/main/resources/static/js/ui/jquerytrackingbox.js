@@ -1,5 +1,5 @@
-define([ "./jquerybox", "./jqueryboxmixin", "layout/trackingscreenchangeboxleafmixin" ],
-		function(JQueryBox, JQueryBoxMixin, TrackingScreenChangeBofLeafMixin) {
+define([ "./jquerybox", "./jqueryboxmixin", "layout/trackingscreenchangeboxleafmixin" ], //
+function(JQueryBox, JQueryBoxMixin, TrackingScreenChangeBofLeafMixin) {
 	/**
 	 * Permet de suivre un élément
 	 */
@@ -11,11 +11,12 @@ define([ "./jquerybox", "./jqueryboxmixin", "layout/trackingscreenchangeboxleafm
 			size : true,
 			computeInitialSize : false
 		});
+	}
 
 	JQueryBoxMixin.call(JQueryTrackingBox.prototype);
 	TrackingScreenChangeBofLeafMixin.call(JQueryTrackingBox.prototype, {
 		zIndexDelta : -1
 	});
-	
+
 	return JQueryTrackingBox;
 });

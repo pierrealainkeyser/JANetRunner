@@ -1,6 +1,6 @@
 define([ "./layoutmanager", "./layoutmanagermixin", "./abstractbox", //
 "./abstractboxcontainer", "./abstractboxleaf", "./abstractboxmixin", //
-"./abstractboxcontainermixin", "./abstractboxleafmixin", "./trackingscreenchangeboxleafmixin.js" //
+"./abstractboxcontainermixin", "./abstractboxleafmixin", "./trackingscreenchangeboxleafmixin" //
 ], function(LayoutManager, LayoutManagerMixin, AbstractBox, //
 AbstractBoxContainer, AbstractBoxLeaf, AbstractBoxMixin, //
 AbstractBoxContainerMixin, AbstractBoxLeafMixin, TrackingScreenChangeBofLeafMixin) {
