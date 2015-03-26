@@ -1,5 +1,7 @@
 <html lang="en">
 <head>
+
+
 <link rel="stylesheet/less" type="text/css" href="../../../main/resources/static/css/game.less" />
 <link rel="stylesheet" type="text/css" href="../../../main/resources/static/css/icons.css" />
 
@@ -21,31 +23,43 @@
 		} //
 	});
 
-	require([ "jquery", "layout/package", "layout/impl/flowlayout", "anr/cardcontainerbox" ],//
-	function($, layout, FlowLayout, CardContainerBox) {
+	require([ "jquery", "layout/layoutmanager", "anr/turntracker" ],//
+	function($, LayoutManager, TurnTracker) {
 		$(function() {
-			var layoutManager = new layout.LayoutManager($("#main"));
+
+			var layoutManager = new LayoutManager($("#main"));
 			layoutManager.config.animDuration = 0.3;
 
 			layoutManager.runLayout(function() {
+				var turnTracker = new TurnTracker(layoutManager);
+				turnTracker.local.moveTo({ x : 0, y : 0 });
 
-				var container = new layout.AbstractBoxContainer(layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.RIGHT, spacing : 3 }));
-				container.local.moveTo({ x : 50, y : 50 });
+				turnTracker.corpScore.setFaction("nbn");
+				turnTracker.corpScore.setScore(5);
+				turnTracker.corpScore.setActive(true);
 
-				var flowlayout = new FlowLayout({});
+				turnTracker.runnerScore.setFaction("shaper");
+				turnTracker.runnerScore.setScore(1);
+				turnTracker.runnerScore.setActive(false);
 
-				var archives = new CardContainerBox(layoutManager, "Archives", flowlayout);
-				container.addChild(archives);
+				turnTracker.activeFaction.setFaction("nbn");
+				turnTracker.clicks.setClicks(0, 4);
 
-				var rd = new CardContainerBox(layoutManager, "R&D", flowlayout);
-				container.addChild(rd);
-
-				var hq = new CardContainerBox(layoutManager, "HQ", flowlayout);
-				container.addChild(hq);
+				turnTracker.gameStep.setText("machin truc");
 
 				setTimeout(layoutManager.withinLayout(function() {
-					rd.setCounter(15);
-				}), 1000);
+
+					turnTracker.corpScore.setActive(false);
+
+					turnTracker.runnerScore.setScore(3);
+					turnTracker.runnerScore.setActive(true);
+					turnTracker.activeFaction.setFaction("shaper");
+					turnTracker.clicks.setClicks(2, 1);
+
+					turnTracker.gameStep.setText("bidule chouette");
+					turnTracker.gamePhase.setText("autre machin");
+
+				}), 2000);
 			});
 		});
 	});
