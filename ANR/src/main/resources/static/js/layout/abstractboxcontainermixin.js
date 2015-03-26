@@ -1,4 +1,4 @@
-define([ "./abstractboxmixin", "geometry/rectangle" ], function(AbstractBoxMixin, Rectangle) {
+define([ "underscore", "./abstractboxmixin", "geometry/rectangle" ], function(_, AbstractBoxMixin, Rectangle) {
 
 	var AbstractBoxContainerMixin = function() {
 		AbstractBoxMixin.call(this);
@@ -105,9 +105,9 @@ define([ "./abstractboxmixin", "geometry/rectangle" ], function(AbstractBoxMixin
 		 * Réalise le layout. Transmet à la fonction de layout
 		 */
 		this.doLayout = function() {
-			this.layoutFunction(this, this.childs);
+			this.layoutFunction.doLayout(this, this.childs);
 		}
 	}
-	
+
 	return AbstractBoxContainerMixin;
 });
