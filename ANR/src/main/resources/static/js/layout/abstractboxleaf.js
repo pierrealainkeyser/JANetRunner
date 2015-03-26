@@ -10,6 +10,7 @@ define([ "mix", "./abstractbox", "geometry/rectangle" ], function(mix, AbstractB
 		this.observe(syncScreen, [ AbstractBox.VISIBLE, AbstractBox.ZINDEX, AbstractBox.ROTATION ]);
 	}
 
+	mix(AbstractBoxLeaf, AbstractBox);
 	mix(AbstractBoxLeaf, function() {
 
 		/**
@@ -26,7 +27,6 @@ define([ "mix", "./abstractbox", "geometry/rectangle" ], function(mix, AbstractB
 
 		}
 	});
-	mix(AbstractBoxLeaf, AbstractBox);
 
 	return AbstractBoxLeaf;
 

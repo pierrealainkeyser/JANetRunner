@@ -41,8 +41,8 @@ define([ "mix", "underscore", "util/observablemixin", "geometry/rectangle" ], fu
 	AbstractBox.VISIBLE = "visible";
 
 	// application du mixin
+	mix(AbstractBox, ObservableMixin);
 	mix(AbstractBox, function() {
-		ObservableMixin.call(this);
 
 		/**
 		 * Indique le besoin de recopie les coordonnées local dans les
@@ -99,28 +99,28 @@ define([ "mix", "underscore", "util/observablemixin", "geometry/rectangle" ], fu
 		 * Changement d'angle
 		 */
 		this.setRotation = function(rotation) {
-			this._innerSet(this.constructor.ROTATION, rotation);
+			this._innerSet(AbstractBox.ROTATION, rotation);
 		}
 
 		/**
 		 * Changement de profondeur
 		 */
 		this.setZIndex = function(zIndex) {
-			this._innerSet(this.constructor.ZINDEX, zIndex);
+			this._innerSet(AbstractBox.ZINDEX, zIndex);
 		}
 
 		/**
 		 * Changement de visibilite
 		 */
 		this.setVisible = function(visible) {
-			this._innerSet(this.constructor.VISIBLE, visible);
+			this._innerSet(AbstractBox.VISIBLE, visible);
 		}
 
 		/**
 		 * Modifie la profondeur du composant
 		 */
 		this.setDepth = function(depth) {
-			this._innerSet(this.constructor.DEPTH, depth);
+			this._innerSet(AbstractBox.DEPTH, depth);
 		}
 
 		/**
@@ -132,7 +132,7 @@ define([ "mix", "underscore", "util/observablemixin", "geometry/rectangle" ], fu
 			if (oldContainer)
 				oldContainer.removeChild(this);
 
-			this._innerSet(this.constructor.CONTAINER, container);
+			this._innerSet(AbstractBox.CONTAINER, container);
 		}
 	});
 

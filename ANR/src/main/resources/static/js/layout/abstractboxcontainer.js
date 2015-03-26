@@ -16,6 +16,7 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 		this.screen.observe(this.propagateNeedMergeToScreen.bind(this), [ Rectangle.MOVE_TO ]);
 	}
 
+	mix(AbstractBoxContainer, AbstractBox);
 	mix(AbstractBoxContainer, function() {
 
 		/**
@@ -123,7 +124,7 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 			this.layoutFunction.doLayout(this, this.childs);
 		}
 	});
-	mix(AbstractBoxContainer, AbstractBox);
+	
 
 	return AbstractBoxContainer;
 });

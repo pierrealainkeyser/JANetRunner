@@ -1,4 +1,4 @@
-define([ "underscore",  "geometry/package" ], function(_, geom) {
+define([ "underscore", "geometry/package" ], function(_, geom) {
 	function FlowLayout(options) {
 		options = options || {};
 		this.padding = options.padding || 0;
@@ -12,17 +12,8 @@ define([ "underscore",  "geometry/package" ], function(_, geom) {
 		this.toBottom = direction === FlowLayout.Direction.BOTTOM;
 	}
 
-	FlowLayout.Direction = {
-		TOP : 1,
-		BOTTOM : -1,
-		LEFT : -2,
-		RIGHT : 2
-	};
-	FlowLayout.Align = {
-		FIRST : -1,
-		MIDDLE : 1,
-		LAST : 2
-	};
+	FlowLayout.Direction = { TOP : 1, BOTTOM : -1, LEFT : -2, RIGHT : 2 };
+	FlowLayout.Align = { FIRST : -1, MIDDLE : 1, LAST : 2 };
 
 	FlowLayout.prototype.doLayout = function(boxcontainer, childs) {
 
@@ -49,9 +40,9 @@ define([ "underscore",  "geometry/package" ], function(_, geom) {
 				var localsize = c.local.size;
 
 				if (this.toLeft)
-					currentPoint.x -= (localsize.width + spacing)
+					currentPoint.x -= (localsize.width + this.spacing)
 				else if (this.toTop)
-					currentPoint.y -= (localsize.height + spacing);
+					currentPoint.y -= (localsize.height + this.spacing);
 
 				var point = new geom.Point(currentPoint.x, currentPoint.y);
 
@@ -75,17 +66,14 @@ define([ "underscore",  "geometry/package" ], function(_, geom) {
 				boxToPoint[c._boxId] = point;
 
 				// calcul de la taille
-				bounds = bounds.merge(new geom.Rectangle({
-					point : point,
-					size : localsize
-				}));
+				bounds = bounds.merge(new geom.Rectangle({ point : point, size : localsize }));
 
 				// déplacement du point dans la bonne direction
 				if (this.toRight)
-					currentPoint.x += (localsize.width + spacing)
+					currentPoint.x += (localsize.width + this.spacing)
 				else if (this.toBottom)
-					currentPoint.y += (localsize.height + spacing)
-			});
+					currentPoint.y += (localsize.height + this.spacing)
+			}.bind(this));
 
 			// application du padding au besoin
 			bounds = bounds.grow(this.padding);

@@ -20,9 +20,7 @@ define([ "underscore", "tweenlite" ], function(_, TweenLite) {
 		this.tweenElement = function(element, css, set, onComplete) {
 			var animDuration = this.layoutManager.config.animDuration;
 
-			var anim = {
-				css : css
-			};
+			var anim = { css : css };
 			if (onComplete)
 				anim.onComplete = onComplete;
 
@@ -38,10 +36,7 @@ define([ "underscore", "tweenlite" ], function(_, TweenLite) {
 		this.computeCssTween = function(opt) {
 			opt = opt || {};
 			var point = this.screen.point;
-			var css = {
-				top : point.y,
-				left : point.x
-			};
+			var css = { top : point.y, left : point.x };
 
 			if (opt.size) {
 				var size = this.screen.size;
