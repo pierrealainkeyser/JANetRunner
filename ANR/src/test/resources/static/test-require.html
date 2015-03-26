@@ -1,0 +1,33 @@
+<html lang="en">
+<head>
+
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.16/require.min.js"></script>
+
+
+
+<script type="text/javascript">
+	require.config({
+		baseUrl : "../../../main/resources/static/js/"
+	});
+
+	require([ "geometry/package" ], function(geometry) {
+		var r = new geometry.Rectangle({
+			point : {
+				x : 3,
+				y : 4
+			},
+			size : {
+				width : 100,
+				height : 200
+			}
+		});
+		console.log(r.__proto__.constructor.name);
+		console.log(new geometry.Rectangle());
+		console.log(r.center());
+	});
+</script>
+
+
+</head>
+<div id="main"></div>
+</html>
