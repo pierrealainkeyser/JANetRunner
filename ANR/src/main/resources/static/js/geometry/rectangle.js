@@ -1,4 +1,4 @@
-define([ "util/observablemixin", "geometry/point", "geometry/size" ], function(ObservableMixin, Point, Size) {
+define([ "util/observablemixin", "./point", "./size" ], function(ObservableMixin, Point, Size) {
 	function Rectangle(I) {
 		I = I || {};
 		this.point = I.point || new Point();
