@@ -1,4 +1,4 @@
-define([ "underscore", "geometry/rectangle", "geometry/point" ], function(_, Rectangle, Point) {
+define([ "underscore",  "geometry/package" ], function(_, geom) {
 	function FlowLayout(options) {
 		options = options || {};
 		this.padding = options.padding || 0;
@@ -27,7 +27,7 @@ define([ "underscore", "geometry/rectangle", "geometry/point" ], function(_, Rec
 	FlowLayout.prototype.doLayout = function(boxcontainer, childs) {
 
 		// recherche de la taille maximum
-		var bounds = new Rectangle();
+		var bounds = new geom.Rectangle();
 		if (childs.length > 0) {
 			var maxSize = null;
 			if (this.align === FlowLayout.Align.MIDDLE) {
@@ -41,7 +41,7 @@ define([ "underscore", "geometry/rectangle", "geometry/point" ], function(_, Rec
 			}
 
 			// le point de début
-			var currentPoint = new Point();
+			var currentPoint = new geom.Point();
 
 			// permet de conserver la position souhaitable
 			var boxToPoint = {};
@@ -53,7 +53,7 @@ define([ "underscore", "geometry/rectangle", "geometry/point" ], function(_, Rec
 				else if (toTop)
 					currentPoint.y -= (localsize.height + spacing);
 
-				var point = new Point(currentPoint.x, currentPoint.y);
+				var point = new geom.Point(currentPoint.x, currentPoint.y);
 
 				// gestion de l'alignement
 				if (align === FlowLayout.Align.MIDDLE) {
@@ -75,7 +75,7 @@ define([ "underscore", "geometry/rectangle", "geometry/point" ], function(_, Rec
 				boxToPoint[c._boxId] = point;
 
 				// calcul de la taille
-				bounds = bounds.merge(new Rectangle({
+				bounds = bounds.merge(new geom.Rectangle({
 					point : point,
 					size : localsize
 				}));
@@ -92,7 +92,7 @@ define([ "underscore", "geometry/rectangle", "geometry/point" ], function(_, Rec
 
 			// calcul de l'offset pour que les coordonnées commence
 			// à 0,0
-			var offset = new Point(-bounds.point.x, -bounds.point.y);
+			var offset = new geom.Point(-bounds.point.x, -bounds.point.y);
 
 			// recopie dans le point et calcul de l'enveloppement
 			_.each(childs, function(c) {
