@@ -28,6 +28,10 @@ html , body , body > div#main {
 	text-shadow: 2px 0px 1px @border-color, 0px 2px 0 @border-color, 0px -1px 0 @border-color, -1px 0px 0 @border-color;
 }
 
+.unselectable {
+	-webkit-user-select: none;
+}
+
 .round-shadow (@border-radius) {
 	border-radius: @border-radius;
 	box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.75);
@@ -38,6 +42,7 @@ html , body , body > div#main {
 	font-size: 15px;
 	color: @token-text-color;
 	.text-border (@token-text-border);
+	.unselectable();
 }
 
 .element () {
@@ -119,6 +124,7 @@ html , body , body > div#main {
 .faction.score {
 	@size: 30px;
 	.element ();
+	.unselectable();
 	width: @size * 2;
 	height: @size;
 	display: table;
@@ -165,6 +171,7 @@ html , body , body > div#main {
 .gamestep {
 	@size: 26px;
 	.element ();
+	.unselectable();
 	height: @size;
 	line-height: @size ! important;
 	display: inline ! important;
@@ -203,9 +210,10 @@ html , body , body > div#main {
 //------------------------------
 .cardcontainer {
 	.element ();
+	.unselectable();
 	border-radius: 5px;
 	border: 1.5px dashed @color4;
-	.innertext {
+	.innertext {		
 		position: absolute;
 		width: 100%;
 		bottom: 0px;
