@@ -10,6 +10,15 @@
 
 <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.16/require.min.js"></script>
 
+<style>
+.element {
+	position: absolute;
+	width: 50;
+	height: 50;
+	background-color: blue;
+}
+</style>
+
 <script type="text/javascript">
 	require.config({
 		baseUrl : "../../../main/resources/static/js/",
@@ -21,30 +30,46 @@
 		} //
 	});
 
-	require([ "jquery", "layout/package", "layout/impl/flowlayout", "anr/cardcontainerbox" ],//
-	function($, layout, FlowLayout, CardContainerBox) {
+	require([ "jquery", "layout/package", "layout/impl/flowlayout", "anr/corpserver", "ui/jquerybox", "ui/jquerytrackingbox" ],//
+	function($, layout, FlowLayout, CorpServer, JQueryBox, JQueryTrackingBox) {
 		$(function() {
 			var layoutManager = new layout.LayoutManager($("#main"));
 			layoutManager.config.animDuration = 0.3;
 
 			layoutManager.runLayout(function() {
 
-				var container = new layout.AbstractBoxContainer(layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.RIGHT, spacing : 3 }));
-				container.local.moveTo({ x : 50, y : 50 });
+				var h = layoutManager.container.height() - 450;
+				console.log("h", h)
+
+				//TODO il faut rajouter une option pour replacer ans l'ordre sens
+				var container = new layout.AbstractBoxContainer(layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.RIGHT,
+					align : FlowLayout.Align.LAST, spacing : 3 }));
+				container.local.moveTo({ x : 50, y : h });
 
 				var flowlayout = new FlowLayout({});
 
-				var archives = new CardContainerBox(layoutManager, "Archives", flowlayout);
+				var archives = new CorpServer(layoutManager, { id : -1 });
 				container.addChild(archives);
 
-				var rd = new CardContainerBox(layoutManager, "R&D", flowlayout);
+				var rd = new CorpServer(layoutManager, { id : -2 });
 				container.addChild(rd);
 
-				var hq = new CardContainerBox(layoutManager, "HQ", flowlayout);
+				var hq = new CorpServer(layoutManager, { id : -3 });
 				container.addChild(hq);
+				container.addChild(new CorpServer(layoutManager, { id : -4 }));
+
+				hq.ices.addChild(new JQueryBox(layoutManager, $("<div class='element'/>")))
+				hq.ices.addChild(new JQueryBox(layoutManager, $("<div class='element'/>")))
+				hq.ices.addChild(new JQueryBox(layoutManager, $("<div class='element'/>")))
+
+				hq.upgrades.addChild(new JQueryBox(layoutManager, $("<div class='element' style='background-color:red;'/>")))
+				hq.upgrades.addChild(new JQueryBox(layoutManager, $("<div class='element' style='background-color:green;'/>")))
+
+				var trac = new JQueryTrackingBox(layoutManager, $("<div class='element' style='background-color:cyan;'/>"));
+				trac.trackAbstractBox(hq);
 
 				setTimeout(layoutManager.withinLayout(function() {
-					rd.setCounter(15);
+					rd.mainContainer.setCounter(15);
 				}), 1000);
 			});
 		});
