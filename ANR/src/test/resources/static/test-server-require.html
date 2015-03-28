@@ -13,8 +13,8 @@
 <style>
 .element {
 	position: absolute;
-	width: 50;
-	height: 50;
+	width: 80;
+	height: 111;
 	background-color: blue;
 }
 </style>
@@ -30,8 +30,8 @@
 		} //
 	});
 
-	require([ "jquery", "layout/package", "layout/impl/flowlayout", "anr/corpserver", "ui/jquerybox", "ui/jquerytrackingbox" ],//
-	function($, layout, FlowLayout, CorpServer, JQueryBox, JQueryTrackingBox) {
+	require([ "jquery", "layout/package", "layout/impl/flowlayout", "anr/corpserver", "ui/jquerybox", "ui/jquerytrackingbox", "layout/impl/translatelayout" ],//
+	function($, layout, FlowLayout, CorpServer, JQueryBox, JQueryTrackingBox, TranslateLayout) {
 		$(function() {
 			var layoutManager = new layout.LayoutManager($("#main"));
 			layoutManager.config.animDuration = 0.3;
@@ -42,8 +42,7 @@
 
 				//il faut rajouter une option pour replacer ans l'ordre sens
 				var container = new layout.AbstractBoxContainer(layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.RIGHT,
-					align : FlowLayout.Align.LAST, push : FlowLayout.Push.TO_TOP, spacing : 3, padding : 0 }));
-				container.local.moveTo({ x : 5, y : h });
+					align : FlowLayout.Align.LAST, spacing : 3, padding : 0 }));
 
 				var flowlayout = new FlowLayout({});
 
@@ -67,6 +66,10 @@
 
 				var trac = new JQueryTrackingBox(layoutManager, $("<div class='element' style='background-color:cyan;'/>"));
 				//trac.trackAbstractBox(hq);
+
+				var translateContainer = new layout.AbstractBoxContainer(layoutManager, {}, new TranslateLayout({ y : -1 }));
+				translateContainer.local.moveTo({ x : 5, y : h });
+				translateContainer.addChild(container);
 
 				setTimeout(layoutManager.withinLayout(function() {
 					rd.mainContainer.setCounter(15);

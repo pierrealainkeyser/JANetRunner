@@ -4,7 +4,6 @@ define([ "underscore", "geometry/package" ], function(_, geom) {
 		this.padding = options.padding || 0;
 		this.spacing = options.spacing || 5;
 		this.align = options.align || FlowLayout.Align.FIRST;
-		this.push = options.push || FlowLayout.Push.NONE;
 		var direction = options.direction || FlowLayout.Direction.BOTTOM;
 
 		this.toLeft = direction === FlowLayout.Direction.LEFT;
@@ -15,7 +14,6 @@ define([ "underscore", "geometry/package" ], function(_, geom) {
 
 	FlowLayout.Direction = { TOP : 1, BOTTOM : -1, LEFT : -2, RIGHT : 2 };
 	FlowLayout.Align = { FIRST : -1, MIDDLE : 1, LAST : 2 };
-	FlowLayout.Push = { TO_TOP : -1, NONE : 1 };
 
 	FlowLayout.prototype.doLayout = function(boxcontainer, childs) {
 
@@ -23,8 +21,7 @@ define([ "underscore", "geometry/package" ], function(_, geom) {
 		var bounds = new geom.Rectangle();
 		if (childs.length > 0) {
 			var maxSize = null;
-			var pushToTop = this.push === FlowLayout.Push.TO_TOP;
-			if (this.align === FlowLayout.Align.MIDDLE || pushToTop) {
+			if (this.align === FlowLayout.Align.MIDDLE) {
 				_.each(childs, function(c) {
 					var localsize = c.local.size;
 					if (maxSize === null)
@@ -84,9 +81,7 @@ define([ "underscore", "geometry/package" ], function(_, geom) {
 			// calcul de l'offset pour que les coordonnées commence
 			// à 0,0
 			var offset = new geom.Point(-bounds.point.x, -bounds.point.y);
-			if (maxSize && pushToTop)
-				offset.add({ x : 0, y : -maxSize.height });
-
+			
 			// recopie dans le point et calcul de l'enveloppement
 			_.each(childs, function(c) {
 				var to = boxToPoint[c._boxId];
