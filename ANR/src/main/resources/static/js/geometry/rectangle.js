@@ -5,14 +5,21 @@ define([ "mix", "util/observablemixin", "./point", "./size" ], function(mix, Obs
 		this.size = I.size || new Size();
 	}
 
+	mix(Rectangle, ObservableMixin);
 	mix(Rectangle, function() {
-		ObservableMixin.call(this);
 
 		/**
 		 * Renvoi le point en haut à gauche
 		 */
 		this.topLeft = function() {
 			return new Point(this.point.x, this.point.y);
+		}
+
+		/**
+		 * Duplique la taille
+		 */
+		this.cloneSize = function() {
+			return new Size(this.size.width, this.size.height);
 		}
 
 		/**

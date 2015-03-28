@@ -30,11 +30,13 @@
 		} //
 	});
 
-	require([ "jquery", "layout/package", "layout/impl/flowlayout", "anr/corpserver", "ui/jqueryboxsize", "ui/jquerytrackingbox", "layout/impl/translatelayout" ],//
-	function($, layout, FlowLayout, CorpServer, JQueryBoxSize, JQueryTrackingBox, TranslateLayout) {
+	require([ "jquery", "layout/package", "layout/impl/flowlayout", "anr/corpserver", "ui/jqueryboxsize", "ui/jquerytrackingbox",
+			"layout/impl/translatelayout", "anr/card", "geometry/size" ],//
+	function($, layout, FlowLayout, CorpServer, JQueryBoxSize, JQueryTrackingBox, TranslateLayout, Card, Size) {
 		$(function() {
 			var layoutManager = new layout.LayoutManager($("#main"));
 			layoutManager.config.animDuration = 0.3;
+			layoutManager.config.card = { normal : new Size(80, 111) };
 
 			layoutManager.runLayout(function() {
 
@@ -57,15 +59,17 @@
 				container.addChild(new CorpServer(layoutManager, { id : -4 }));
 				container.addChild(new CorpServer(layoutManager, { id : -5 }));
 
-				hq.ices.addChild(new JQueryBoxSize(layoutManager, $("<div class='element'/>")))
-				hq.ices.addChild(new JQueryBoxSize(layoutManager, $("<div class='element'/>")))
-				hq.ices.addChild(new JQueryBoxSize(layoutManager, $("<div class='element'/>")))
+				var c = new Card(layoutManager, { url : "01083.png", faction : "corp" });
+				c.setFace(Card.FACE_DOWN);
 
 				hq.upgrades.addChild(new JQueryBoxSize(layoutManager, $("<div class='element' style='background-color:red;'/>")))
-				hq.upgrades.addChild(new JQueryBoxSize(layoutManager, $("<div class='element' style='background-color:green;'/>")))
+				hq.upgrades.addChild(new Card(layoutManager, { url : "01091.png", faction : "corp" }));
+				hq.ices.addChild(c);
+				hq.ices.addChild(new Card(layoutManager, { url : "01089.png", faction : "corp" }));
+				hq.ices.addChild(new Card(layoutManager, { url : "01088.png", faction : "corp" }));
 
 				var trac = new JQueryTrackingBox(layoutManager, $("<div class='element' style='background-color:cyan;'/>"));
-				//trac.trackAbstractBox(hq);
+				trac.trackAbstractBox(hq.ices);
 
 				var translateContainer = new layout.AbstractBoxContainer(layoutManager, {}, new TranslateLayout({ y : -1 }));
 				translateContainer.local.moveTo({ x : 5, y : h });

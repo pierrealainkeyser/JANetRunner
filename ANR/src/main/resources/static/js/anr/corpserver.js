@@ -1,5 +1,14 @@
 define([ "mix", "layout/package", "ui/package", "geometry/package", "layout/impl/anchorlayout", "layout/impl/flowlayout", "./cardcontainerBox" ],// 
 function(mix, layout, ui, geom, AnchorLayout, FlowLayout, CardContainerBox) {
+
+	/**
+	 * Permet d'apparaitre différement dans le debugger
+	 */
+	function Ices(layoutManager) {
+		layout.AbstractBoxContainer.call(this, layoutManager, { horizontal : true }, new FlowLayout({ direction : FlowLayout.Direction.TOP, padding : 3 }));
+	}
+	mix(Ices, layout.AbstractBoxContainer);
+
 	function CorpServer(layoutManager, def) {
 		this.def = def;
 		layout.AbstractBoxContainer.call(this, layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.TOP, align : FlowLayout.Align.MIDDLE,
@@ -21,8 +30,8 @@ function(mix, layout, ui, geom, AnchorLayout, FlowLayout, CardContainerBox) {
 
 		this.mainContainer = new CardContainerBox(layoutManager, type, innerLayout);
 
-		this.upgrades = new layout.AbstractBoxContainer(layoutManager, {}, new FlowLayout({direction : FlowLayout.Direction.LEFT}));
-		this.ices = new layout.AbstractBoxContainer(layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.TOP, padding : 3 }));
+		this.upgrades = new layout.AbstractBoxContainer(layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.LEFT }));
+		this.ices = new Ices(layoutManager);
 
 		var upgradesMinSize = new layout.AbstractBoxContainer(layoutManager, {}, new AnchorLayout({ padding : 3, minSize : new geom.Size(80, 111) }));
 		upgradesMinSize.addChild(this.upgrades);

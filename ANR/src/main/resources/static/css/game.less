@@ -42,7 +42,7 @@ html , body , body > div#main {
 	font-size: 15px;
 	color: @token-text-color;
 	.text-border (@token-text-border);
-	.unselectable();
+	.unselectable ();
 }
 
 .element () {
@@ -124,7 +124,7 @@ html , body , body > div#main {
 .faction.score {
 	@size: 30px;
 	.element ();
-	.unselectable();
+	.unselectable ();
 	width: @size * 2;
 	height: @size;
 	display: table;
@@ -171,7 +171,7 @@ html , body , body > div#main {
 .gamestep {
 	@size: 26px;
 	.element ();
-	.unselectable();
+	.unselectable ();
 	height: @size;
 	line-height: @size ! important;
 	display: inline ! important;
@@ -210,10 +210,10 @@ html , body , body > div#main {
 //------------------------------
 .cardcontainer {
 	.element ();
-	.unselectable();
+	.unselectable ();
 	border-radius: 5px;
 	border: 1.5px dashed @color4;
-	.innertext {		
+	.innertext {
 		position: absolute;
 		width: 100%;
 		bottom: 0px;
@@ -224,6 +224,29 @@ html , body , body > div#main {
 		.counter {
 			font-style: normal;
 			font-weight: bold;
+		}
+	}
+}
+
+//------------------------------
+.card {
+	.element ();
+	.unselectable ();
+	&.corp img.back {
+		content: url(/img/back-corp.png);
+	}
+
+	&.runner img.back {
+		content: url(/img/back-runner.png);
+	}
+
+	img {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		border-radius: 5px;
+		&.front {
+			backface-visibility: hidden;
 		}
 	}
 }
