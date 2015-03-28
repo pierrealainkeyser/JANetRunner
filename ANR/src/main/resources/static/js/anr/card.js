@@ -90,13 +90,16 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin) {
 			var hints = this.container.renderingHints();
 			var css = this.computeCssTween({ zIndex : true, rotation : true, autoAlpha : true, size : true });
 			// en cas d'affichage horizontal on corrige la position
-			if (true === hints.horizontal)
+			if (true === hints.horizontal) {
 				css.rotation = 90.0;
+				css.transformOrigin = "top left";
+				css.left += this.screen.size.height;
+			}
 
 			var frontCss = { rotationY : faceup ? 0 : -180 };
 			var backCss = _.extend(_.clone(frontCss), { boxShadow : shadow });
 
-			var set = this.firstSyncScreen();			
+			var set = this.firstSyncScreen();
 
 			this.tweenElement(this.element, css, set);
 			this.tweenElement(this.front, frontCss, set);
