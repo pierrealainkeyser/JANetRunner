@@ -18,19 +18,20 @@ function(mix, layout, ui, geom, AnchorLayout, FlowLayout, CardContainerBox) {
 		if (def.id >= -3)
 			innerLayout = new AnchorLayout({});
 		else
-			innerLayout = new FlowLayout();
+			innerLayout = new FlowLayout({ padding : 0, direction : FlowLayout.Direction.RIGHT, spacing : -30 });
 
 		var type = "Remote " + (-def.id - 3);
 		if (def.id == -1)
 			type = "Archives";
 		else if (def.id == -2)
-			type = "HQ";
-		if (def.id == -3)
 			type = "R&D";
+		if (def.id == -3)
+			type = "HQ";
 
 		this.mainContainer = new CardContainerBox(layoutManager, type, innerLayout);
 
-		this.upgrades = new layout.AbstractBoxContainer(layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.LEFT }));
+		this.upgrades = new layout.AbstractBoxContainer(layoutManager, {}, new FlowLayout(
+				{ padding : 0, direction : FlowLayout.Direction.RIGHT, spacing : -30 }));
 		this.ices = new Ices(layoutManager);
 
 		var upgradesMinSize = new layout.AbstractBoxContainer(layoutManager, {}, new AnchorLayout({ padding : 3, minSize : new geom.Size(80, 111) }));

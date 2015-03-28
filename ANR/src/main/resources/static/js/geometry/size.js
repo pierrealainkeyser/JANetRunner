@@ -1,4 +1,4 @@
-define([], function() {
+define([ "mix" ], function(mix) {
 	/**
 	 * La taille
 	 */
@@ -7,11 +7,18 @@ define([], function() {
 		this.height = height || 0;
 	}
 
-	var SizeMixin = function() {
+	mix(Size, function() {
 
 		this.add = function(size) {
 			this.width += size.width;
 			this.height += size.height;
+		}
+
+		/**
+		 * Permet de dupliquer la taille
+		 */
+		this.clone = function() {
+			return new Size(this.width, this.height);
 		}
 
 		/**
@@ -27,7 +34,6 @@ define([], function() {
 		this.max = function(dimension) {
 			return new Size(Math.max(dimension.width, this.width), Math.max(dimension.height, this.height));
 		}
-	}
-	SizeMixin.call(Size.prototype);
+	});
 	return Size;
 });

@@ -2,7 +2,7 @@ define([ "mix", "jquery", "layout/package", "ui/package", "geometry/package", "l
 function(mix, $, layout, ui, geom, AnchorLayout) {
 
 	function CardContainerBox(layoutManager, type, cardContainerLayout) {
-		layout.AbstractBoxContainer.call(this, layoutManager, {}, new AnchorLayout({ vertical : AnchorLayout.Vertical.TOP, padding : 3,
+		layout.AbstractBoxContainer.call(this, layoutManager, {}, new AnchorLayout({ vertical : AnchorLayout.Vertical.TOP, padding : 8,
 			minSize : new geom.Size(80, 126) }));
 		ui.AnimateAppeareanceCss.call(this, "bounceIn", "bounceOut");
 
@@ -20,7 +20,10 @@ function(mix, $, layout, ui, geom, AnchorLayout) {
 		this.cards = new layout.AbstractBoxContainer(layoutManager, {}, cardContainerLayout);
 		this.addChild(this.cards);
 	}
-
+	
+	
+	mix(CardContainerBox, layout.AbstractBoxContainer);
+	mix(CardContainerBox, ui.AnimateAppeareanceCss);
 	mix(CardContainerBox, function() {
 
 		/**
@@ -42,8 +45,6 @@ function(mix, $, layout, ui, geom, AnchorLayout) {
 		}
 	});
 
-	mix(CardContainerBox, layout.AbstractBoxContainer);
-	mix(CardContainerBox, ui.AnimateAppeareanceCss);
-
+	
 	return CardContainerBox;
 });

@@ -46,6 +46,7 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin) {
 				size = this.layoutManager.config.card.mini;
 			else if ("zoom" === cardsize)
 				size = this.layoutManager.config.card.zoom;
+			size = size.clone();
 
 			// si horizontal on inverse la taille pour les calculs de layout, on
 			// remettra en place avec une rotation
@@ -82,22 +83,29 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin) {
 		}
 
 		/**
+		 * Calcule la position principale
+		 */
+		this.computePrimaryCssTween = function() {
+			var hints = this.container.renderingHints();
+			var css = this.computeCssTween({ zIndex : true, rotation : true, autoAlpha : true, size : true });
+			// en cas d'affichage horizontal on corrige la position
+			if (true === hints.horizontal) {
+				css.transformOrigin = "top left";
+				css.left += this.screen.size.height;
+			}
+			return css;
+		}
+
+		/**
 		 * Mise à jour des elements graphique
 		 */
 		this.syncScreen = function() {
 			var shadow = "";
 			var faceup = this.face === Card.FACE_UP;
-			var hints = this.container.renderingHints();
-			var css = this.computeCssTween({ zIndex : true, rotation : true, autoAlpha : true, size : true });
-			// en cas d'affichage horizontal on corrige la position
-			if (true === hints.horizontal) {
-				css.rotation = 90.0;
-				css.transformOrigin = "top left";
-				css.left += this.screen.size.height;
-			}
 
 			var frontCss = { rotationY : faceup ? 0 : -180 };
 			var backCss = _.extend(_.clone(frontCss), { boxShadow : shadow });
+			var css = this.computePrimaryCssTween();
 
 			var set = this.firstSyncScreen();
 

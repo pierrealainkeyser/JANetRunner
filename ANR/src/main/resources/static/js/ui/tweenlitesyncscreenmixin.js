@@ -44,8 +44,10 @@ define([ "underscore", "tweenlite" ], function(_, TweenLite) {
 				css.height = size.height;
 			}
 
-			if (opt.rotation && this.rotation !== undefined)
+			if (opt.rotation && this.rotation !== undefined) {
 				css.rotation = this.rotation;
+				css.transformOrigin = "50% 50%";
+			}
 
 			if (opt.autoAlpha && _.isBoolean(this.visible))
 				css.autoAlpha = this.visible ? 1 : 0;

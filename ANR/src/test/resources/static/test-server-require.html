@@ -57,16 +57,25 @@
 				var hq = new CorpServer(layoutManager, { id : -3 });
 				container.addChild(hq);
 				container.addChild(new CorpServer(layoutManager, { id : -4 }));
-				container.addChild(new CorpServer(layoutManager, { id : -5 }));
+				var remote2 = new CorpServer(layoutManager, { id : -5 });
+				container.addChild(remote2);
 
 				var c = new Card(layoutManager, { url : "01083.png", faction : "corp" });
 				c.setFace(Card.FACE_DOWN);
 
+				var c1 = new Card(layoutManager, { url : "01089.png", faction : "corp" });
+
+				var c3 = new Card(layoutManager, { url : "01091.png", faction : "corp" });
+
 				hq.upgrades.addChild(new JQueryBoxSize(layoutManager, $("<div class='element' style='background-color:red;'/>")))
-				hq.upgrades.addChild(new Card(layoutManager, { url : "01091.png", faction : "corp" }));
+				hq.upgrades.addChild(c3);
 				hq.ices.addChild(c);
-				hq.ices.addChild(new Card(layoutManager, { url : "01089.png", faction : "corp" }));
+				hq.ices.addChild(c1);
 				hq.ices.addChild(new Card(layoutManager, { url : "01088.png", faction : "corp" }));
+				
+				hq.mainContainer.cards.addChild(new Card(layoutManager, { url : "01080.png", faction : "corp" }));
+
+				archives.mainContainer.cards.addChild(new Card(layoutManager, { url : "01082.png", faction : "corp" }));
 
 				var trac = new JQueryTrackingBox(layoutManager, $("<div class='element' style='background-color:cyan;'/>"));
 				trac.trackAbstractBox(hq.ices);
@@ -77,6 +86,10 @@
 
 				setTimeout(layoutManager.withinLayout(function() {
 					rd.mainContainer.setCounter(15);
+
+					rd.ices.addChild(c);
+					remote2.mainContainer.cards.addChild(c1);					
+					remote2.mainContainer.cards.addChild(c3);
 				}), 1000);
 			});
 		});
