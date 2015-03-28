@@ -4,7 +4,7 @@ function(mix, JQueryBox, TrackingScreenChangeBofLeafMixin) {
 	 * Permet de suivre un élément
 	 */
 	function JQueryTrackingBox(layoutManager, element) {
-		JQueryBox.call(this, layoutManager, element, { zIndex : true, rotation : true, autoAlpha : true, size : true, computeInitialSize : false });
+		JQueryBox.call(this, layoutManager, element, { zIndex : true, rotation : true, autoAlpha : true, size : true});
 	}
 
 	mix(JQueryTrackingBox, JQueryBox);

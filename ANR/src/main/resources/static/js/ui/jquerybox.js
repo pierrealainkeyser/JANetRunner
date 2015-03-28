@@ -1,5 +1,5 @@
-define([ "mix", "layout/abstractboxleaf", "./tweenlitesyncscreenmixin", "./jquerycomputesizemixin" ],//
-function(mix, AbstractBoxLeaf, TweenLiteSyncScreenMixin, JQueryComputeSizeMixin) {
+define([ "mix", "layout/abstractboxleaf", "./tweenlitesyncscreenmixin" ],//
+function(mix, AbstractBoxLeaf, TweenLiteSyncScreenMixin) {
 	function JQueryBox(layoutManager, element, cssTweenConfig) {
 
 		AbstractBoxLeaf.call(this, layoutManager);
@@ -17,19 +17,17 @@ function(mix, AbstractBoxLeaf, TweenLiteSyncScreenMixin, JQueryComputeSizeMixin)
 			cssTweenConfig.size = true;
 
 		this.cssTweenConfig = cssTweenConfig;
-
-		if (cssTweenConfig.computeInitialSize === null || cssTweenConfig.computeInitialSize !== false)
-			this.computeSize(this.element);
 	}
 
 	// applications des mixins
 
 	mix(JQueryBox, AbstractBoxLeaf);
+	mix(JQueryBox, TweenLiteSyncScreenMixin);
 	mix(JQueryBox, function() {
 		/**
 		 * réalise la synchronisation de base
 		 */
-		this.syncScreen = function() {			
+		this.syncScreen = function() {
 			var css = this.computeCssTween(this.cssTweenConfig);
 			var set = this.firstSyncScreen();
 			this.tweenElement(this.element, css, set);
@@ -42,8 +40,6 @@ function(mix, AbstractBoxLeaf, TweenLiteSyncScreenMixin, JQueryComputeSizeMixin)
 			this.element.remove();
 		}
 	});
-	mix(JQueryBox, TweenLiteSyncScreenMixin);
-	mix(JQueryBox, JQueryComputeSizeMixin);
 
 	return JQueryBox;
 });

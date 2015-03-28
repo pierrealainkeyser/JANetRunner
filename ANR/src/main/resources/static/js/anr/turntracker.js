@@ -1,14 +1,14 @@
-define([ "mix", "jquery", "ui/jquerybox", "ui/animateappearancecss", "geometry/size",// 
+define([ "mix", "jquery", "ui/jqueryboxsize", "ui/animateappearancecss", "geometry/size",// 
 "layout/impl/flowlayout", "layout/impl/anchorlayout", "layout/abstractboxcontainer", "ui/jquerytrackingbox" ],// 
-function(mix, $, JQueryBox, AnimateAppeareanceCss, Size,//
+function(mix, $, JQueryBoxSize, AnimateAppeareanceCss, Size,//
 FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox) {
 
 	function ActiveFactionBox(layoutManager) {
-		JQueryBox.call(this, layoutManager, $("<div class='faction icon'/>"), { zIndex : true, rotation : false, autoAlpha : true, size : true });
+		JQueryBoxSize.call(this, layoutManager, $("<div class='faction icon'/>"), { zIndex : true, rotation : false, autoAlpha : true, size : true });
 		AnimateAppeareanceCss.call(this, "rotateIn", "rotateOut");
 		this.oldClass = null;
 	}
-	mix(ActiveFactionBox, JQueryBox);
+	mix(ActiveFactionBox, JQueryBoxSize);
 	mix(ActiveFactionBox, AnimateAppeareanceCss);
 	mix(ActiveFactionBox, function() {
 
@@ -38,7 +38,7 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox) {
 	// ---------------------------------------------------
 
 	function ScoreFactionBox(layoutManager, additionnalClass) {
-		JQueryBox.call(this, layoutManager, $("<div class='faction score " + additionnalClass + "'><span class='icon'/><span class='scorearea'/></div>"), {
+		JQueryBoxSize.call(this, layoutManager, $("<div class='faction score " + additionnalClass + "'><span class='icon'/><span class='scorearea'/></div>"), {
 			zIndex : true, rotation : false, autoAlpha : true, size : true });
 		AnimateAppeareanceCss.call(this, "bounceIn", "bounceOut");
 		this.originalShadow = this.element.css("box-shadow");
@@ -47,7 +47,7 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox) {
 		this.iconArea = this.element.find(".icon");
 		this.scoreArea = this.element.find(".scorearea");
 	}
-	mix(ScoreFactionBox, JQueryBox);
+	mix(ScoreFactionBox, JQueryBoxSize);
 	mix(ScoreFactionBox, AnimateAppeareanceCss);
 	mix(ScoreFactionBox, function() {
 		/**
@@ -111,14 +111,14 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox) {
 	 */
 	function BoxClick(layoutManager) {
 
-		JQueryBox.call(this, layoutManager, $("<span class='clickcounter'><span class='clickused'><span class='click'></span></span></span>"), { zIndex : true,
+		JQueryBoxSize.call(this, layoutManager, $("<span class='clickcounter'><span class='clickused'><span class='click'></span></span></span>"), { zIndex : true,
 			rotation : false, autoAlpha : true, size : true });
 		AnimateAppeareanceCss.call(this, "bounceIn", "bounceOut");
 
 		this.click = this.element.find(".click");
 		this.active = true;
 	}
-	mix(BoxClick, JQueryBox);
+	mix(BoxClick, JQueryBoxSize);
 	mix(BoxClick, AnimateAppeareanceCss);
 	mix(BoxClick, function() {
 		/**
@@ -175,12 +175,12 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox) {
 
 	// ---------------------------------------------------
 	function GameStepBox(layoutManager, classMore) {
-		JQueryBox.call(this, layoutManager, $("<span class='gamestep " + classMore + "'></span>"), { zIndex : true, rotation : false, autoAlpha : false,
+		JQueryBoxSize.call(this, layoutManager, $("<span class='gamestep " + classMore + "'></span>"), { zIndex : true, rotation : false, autoAlpha : false,
 			size : false });
 		AnimateAppeareanceCss.call(this, "bounceIn", "bounceOut");
 		this.text = null;
 	}
-	mix(GameStepBox, JQueryBox);
+	mix(GameStepBox, JQueryBoxSize);
 	mix(GameStepBox, AnimateAppeareanceCss);
 	mix(GameStepBox, function() {
 		/**
@@ -224,9 +224,9 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox) {
 		this.addChild(this.corpScore);
 		this.addChild(this.runnerScore);
 
-		this.addChild(new JQueryBox(layoutManager, $("<span class='statusseparator left'/>")));
+		this.addChild(new JQueryBoxSize(layoutManager, $("<span class='statusseparator left'/>")));
 		this.addChild(clickWrapper);
-		this.addChild(new JQueryBox(layoutManager, $("<span class='statusseparator right'/>")));
+		this.addChild(new JQueryBoxSize(layoutManager, $("<span class='statusseparator right'/>")));
 		this.addChild(this.activeFaction);
 		this.addChild(this.gameStep);
 		this.addChild(this.gamePhase);

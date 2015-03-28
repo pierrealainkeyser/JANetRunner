@@ -1,4 +1,5 @@
-define([ "mix", "underscore", "util/observablemixin", "geometry/rectangle" ], function(mix, _, ObservableMixin, Rectangle) {
+define([ "mix", "underscore", "util/observablemixin","util/innersetmixin", "geometry/rectangle" ],
+		function(mix, _, ObservableMixin,InnerSetMixin, Rectangle) {
 	function AbstractBox(layoutManager) {
 		this.layoutManager = layoutManager;
 		this._boxId = layoutManager.createId();
@@ -42,6 +43,7 @@ define([ "mix", "underscore", "util/observablemixin", "geometry/rectangle" ], fu
 
 	// application du mixin
 	mix(AbstractBox, ObservableMixin);
+	mix(AbstractBox, InnerSetMixin);	
 	mix(AbstractBox, function() {
 
 		/**
@@ -80,20 +82,6 @@ define([ "mix", "underscore", "util/observablemixin", "geometry/rectangle" ], fu
 			this.screen.resizeTo(sizeTo);
 		}
 
-		/**
-		 * Modifie la propriété name de this et transmet un notification au nom
-		 * de la propriété
-		 */
-		this._innerSet = function(name, value) {
-			var self = this;
-			var old = self[name];
-			if (old !== value) {
-				this.performChange(name, function() {
-					self[name] = value;
-					return { oldvalue : old };
-				})
-			}
-		}
 
 		/**
 		 * Changement d'angle
