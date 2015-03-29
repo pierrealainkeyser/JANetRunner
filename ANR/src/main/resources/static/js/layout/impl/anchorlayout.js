@@ -1,4 +1,4 @@
-define([ "geometry/package" ], function(geom) {
+define([ "mix", "geometry/package", "./basiclayout" ], function(mix, geom, BasicLayout) {
 
 	function AnchorLayout(options) {
 		options = options || {}
@@ -11,6 +11,7 @@ define([ "geometry/package" ], function(geom) {
 	AnchorLayout.Vertical = { TOP : 1, MIDDLE : 2, BOTTOM : -1 };
 	AnchorLayout.Horizontal = { LEFT : -1, RIGHT : 1, MIDDLE : 2, };
 
+	mix(AnchorLayout, BasicLayout);
 	AnchorLayout.prototype.doLayout = function(boxcontainer, childs) {
 		var origin = new geom.Point();
 		var bounds = new geom.Rectangle({ point : origin, size : this.minSize });
@@ -42,6 +43,10 @@ define([ "geometry/package" ], function(geom) {
 
 			local.moveTo(point);
 		}
+
+		// mise à jour des index
+		this.handleAllZIndex(boxcontainer);
+
 		boxcontainer.local.resizeTo(bounds.size);
 	}
 	return AnchorLayout;

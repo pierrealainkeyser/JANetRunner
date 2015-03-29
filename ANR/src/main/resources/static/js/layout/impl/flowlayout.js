@@ -1,6 +1,7 @@
-define([ "underscore", "geometry/package" ], function(_, geom) {
+define([ "underscore", "mix", "geometry/package", "./basiclayout" ], function(_, mix, geom, BasicLayout) {
 	function FlowLayout(options) {
 		options = options || {};
+		BasicLayout.call(this, options);
 		this.padding = options.padding || 0;
 		this.spacing = options.spacing || 5;
 		this.align = options.align || FlowLayout.Align.FIRST;
@@ -15,6 +16,7 @@ define([ "underscore", "geometry/package" ], function(_, geom) {
 	FlowLayout.Direction = { TOP : 1, BOTTOM : -1, LEFT : -2, RIGHT : 2 };
 	FlowLayout.Align = { FIRST : -1, MIDDLE : 1, LAST : 2 };
 
+	mix(FlowLayout, BasicLayout);
 	FlowLayout.prototype.doLayout = function(boxcontainer, childs) {
 
 		// recherche de la taille maximum
@@ -81,13 +83,16 @@ define([ "underscore", "geometry/package" ], function(_, geom) {
 			// calcul de l'offset pour que les coordonnées commence
 			// à 0,0
 			var offset = new geom.Point(-bounds.point.x, -bounds.point.y);
-			
+
 			// recopie dans le point et calcul de l'enveloppement
 			_.each(childs, function(c) {
 				var to = boxToPoint[c._boxId];
 				to.add(offset);
 				c.local.moveTo(to);
 			});
+
+			//mise à jour des index
+			this.handleAllZIndex(boxcontainer);
 		}
 
 		// transmission de la taille au container
