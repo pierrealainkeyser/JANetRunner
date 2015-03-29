@@ -18,9 +18,11 @@ define([ "geometry/package" ], function(geom) {
 		bounds = bounds.grow(this.padding);
 
 		if (childs.length > 0) {
-			var local = childs[0].local;
+
+			var first = childs[0];
+			var local = first.local;
 			var size = local.size;
-			bounds = bounds.merge(local);
+			bounds = bounds.merge(new geom.Rectangle({ point : origin, size : size }));
 
 			// on centre le nouveau point
 			var point = new geom.Point();

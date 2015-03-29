@@ -63,7 +63,7 @@
 				var c = new Card(layoutManager, { url : "01083.png", faction : "corp" });
 				c.setFace(Card.FACE_DOWN);
 
-				var c1 = new Card(layoutManager, { url : "01089.png", faction : "corp" });
+				var c1 = new Card(layoutManager, { id:"debug",url : "01089.png", faction : "corp" });
 
 				var c3 = new Card(layoutManager, { url : "01091.png", faction : "corp" });
 
@@ -87,9 +87,9 @@
 				setTimeout(layoutManager.withinLayout(function() {
 					rd.mainContainer.setCounter(15);
 
-					rd.ices.addChild(c);
-					remote2.mainContainer.cards.addChild(c1);					
+					rd.mainContainer.cards.addChild(c1);					
 					remote2.mainContainer.cards.addChild(c3);
+					remote2.mainContainer.cards.addChild(c);
 				}), 1000);
 			});
 		});

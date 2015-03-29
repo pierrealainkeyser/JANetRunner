@@ -45,8 +45,8 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin) {
 			if ("mini" === cardsize)
 				size = this.layoutManager.config.card.mini;
 			else if ("zoom" === cardsize)
-				size = this.layoutManager.config.card.zoom;
-			size = size.clone();
+				size = this.layoutManager.config.card.zoom;						
+			
 
 			// si horizontal on inverse la taille pour les calculs de layout, on
 			// remettra en place avec une rotation

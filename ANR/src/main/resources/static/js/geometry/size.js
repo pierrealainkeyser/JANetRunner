@@ -15,13 +15,6 @@ define([ "mix" ], function(mix) {
 		}
 
 		/**
-		 * Permet de dupliquer la taille
-		 */
-		this.clone = function() {
-			return new Size(this.width, this.height);
-		}
-
-		/**
 		 * Inverse les coordonnées
 		 */
 		this.swap = function() {
