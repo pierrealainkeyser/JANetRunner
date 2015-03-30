@@ -13,7 +13,9 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 		this.observe(this.propagateDepth.bind(this), [ AbstractBox.DEPTH ]);
 
 		// propage les déplacements aux enfants
-		this.screen.observe(this.propagateNeedMergeToScreen.bind(this), [ Rectangle.MOVE_TO ]);
+		var needMerge=this.propagateNeedMergeToScreen.bind(this);
+		this.screen.observe(, [ Rectangle.MOVE_TO ]);
+		this.observe(needMerge, [ AbstractBox.ZINDEX ]);
 	}
 
 	mix(AbstractBoxContainer, AbstractBox);
