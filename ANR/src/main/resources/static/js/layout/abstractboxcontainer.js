@@ -20,6 +20,23 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 	mix(AbstractBoxContainer, function() {
 
 		/**
+		 * Calcul le zIndex du fils. Utilise les propriétés #addZIndex et #childZIndexFactor pour déterminer le zIndex du fils
+		 */
+		this.computeChildZIndex = function(child) {
+			var rank = child.rank;
+			var rh = this.renderingHints();
+			if (rh.addZIndex) {
+				var zIndex = this.zIndex;
+
+				if (rh.childZIndexFactor)
+					zIndex += rank * rh.childZIndexFactor;
+
+				return zIndex;
+			}
+			return null;
+		}
+
+		/**
 		 * Accède aux élements de rendu
 		 */
 		this.renderingHints = function() {
@@ -122,9 +139,13 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 		 */
 		this.doLayout = function() {
 			this.layoutFunction.doLayout(this, this.childs);
+			
+			// mise à jour du rang des enfants
+			this.eachChild(function(child, index) {
+				child.setRank(index);
+			});
 		}
 	});
-	
 
 	return AbstractBoxContainer;
 });

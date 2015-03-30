@@ -43,10 +43,7 @@ define([ "mix", "geometry/package", "./basiclayout" ], function(mix, geom, Basic
 
 			local.moveTo(point);
 		}
-
-		// mise à jour des index
-		this.handleAllZIndex(boxcontainer);
-
+		
 		boxcontainer.local.resizeTo(bounds.size);
 	}
 	return AnchorLayout;

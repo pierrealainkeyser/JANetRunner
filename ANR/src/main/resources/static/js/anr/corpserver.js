@@ -18,12 +18,12 @@ function(mix, layout, ui, AnchorLayout, FlowLayout, CardContainerBox) {
 		this.def = def;
 
 		var normal = layoutManager.config.card.normal;
-		var mainServerLayout = new FlowLayout({ direction : FlowLayout.Direction.TOP, align : FlowLayout.Align.MIDDLE, padding : 3, useZIndex : true });
-		var stackedLayout = new AnchorLayout({ useZIndex : true });
+		var mainServerLayout = new FlowLayout({ direction : FlowLayout.Direction.TOP, align : FlowLayout.Align.MIDDLE, padding : 3 });
+		var stackedLayout = new AnchorLayout({ });
 		var upgradesLayout = new FlowLayout({ padding : 0, direction : FlowLayout.Direction.RIGHT, spacing : -normal.width / 2, zIndexDelta : 1,
 			useZIndex : true });
-		var minSizeUpgradesLayout = new AnchorLayout({ padding : 3, minSize : normal, useZIndex : true });
-		var icesLayout = new FlowLayout({ direction : FlowLayout.Direction.TOP, padding : 3, useZIndex : true });
+		var minSizeUpgradesLayout = new AnchorLayout({ padding : 3, minSize : normal });
+		var icesLayout = new FlowLayout({ direction : FlowLayout.Direction.TOP, padding : 3 });
 
 		layout.AbstractBoxContainer.call(this, layoutManager, {}, mainServerLayout);
 

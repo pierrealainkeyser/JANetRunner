@@ -24,6 +24,11 @@ define([ "mix", "underscore", "util/observablemixin","util/innersetmixin", "geom
 		 * ZIndex
 		 */
 		this.zIndex = 0;
+		
+		/**
+		 * Le rank dans le parent
+		 */
+		this.rank=0;
 
 		/**
 		 * Visibilité
@@ -31,7 +36,9 @@ define([ "mix", "underscore", "util/observablemixin","util/innersetmixin", "geom
 		this.visible = true;
 
 		// un changement sur le local provoque un needToMergetoScreen
-		this.local.observe(this.needMergeToScreen.bind(this), [ Rectangle.MOVE_TO, Rectangle.RESIZE_TO ]);
+		var merge=this.needMergeToScreen.bind(this);
+		this.local.observe(merge, [ Rectangle.MOVE_TO, Rectangle.RESIZE_TO ]);
+		this.observe(merge,[AbstractBox.RANK]);
 
 	}
 	// constante
@@ -39,6 +46,7 @@ define([ "mix", "underscore", "util/observablemixin","util/innersetmixin", "geom
 	AbstractBox.CONTAINER = "container";
 	AbstractBox.ROTATION = "rotation";
 	AbstractBox.ZINDEX = "zIndex";
+	AbstractBox.RANK = "rank";
 	AbstractBox.VISIBLE = "visible";
 
 	// application du mixin
@@ -69,6 +77,18 @@ define([ "mix", "underscore", "util/observablemixin","util/innersetmixin", "geom
 				this.additionnalMergePosition(moveTo);
 			}
 		}
+		
+
+		/**
+		 * Permet de fusionner le zIndex du parent avec le zIndex courant
+		 */
+		this.mergeRank = function() {
+			if (this.container != null) {
+				var zIndex = this.container.computeChildZIndex(this);
+				if (zIndex !== null)
+					this.setZIndex(zIndex);
+			}
+		}
 
 		/**
 		 * Recopie les coordonnées de l'élement local+l'élément screen du parent
@@ -78,6 +98,7 @@ define([ "mix", "underscore", "util/observablemixin","util/innersetmixin", "geom
 			var moveTo = this.local.topLeft();
 			var sizeTo = this.local.size;
 			this.mergePosition(moveTo);
+			this.mergeRank();
 			this.screen.moveTo(moveTo);
 			this.screen.resizeTo(sizeTo);
 		}
@@ -95,6 +116,13 @@ define([ "mix", "underscore", "util/observablemixin","util/innersetmixin", "geom
 		 */
 		this.setZIndex = function(zIndex) {
 			this._innerSet(AbstractBox.ZINDEX, zIndex);
+		}
+		
+		/**
+		 * Changement de rang dans le parent
+		 */
+		this.setRank= function(rank) {
+			this._innerSet(AbstractBox.RANK, rank);
 		}
 
 		/**

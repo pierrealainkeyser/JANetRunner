@@ -5,7 +5,7 @@ function(mix, $, layout, ui, geom, AnchorLayout) {
 
 		var normal = layoutManager.config.card.normal;
 		layout.AbstractBoxContainer.call(this, layoutManager, {}, new AnchorLayout({ vertical : AnchorLayout.Vertical.TOP, padding : 8,
-			minSize : new geom.Size(normal.width, normal.height + 15), useZIndex : true }));
+			minSize : new geom.Size(normal.width, normal.height + 15)}));
 		ui.AnimateAppeareanceCss.call(this, "bounceIn", "bounceOut");
 
 		// permet de placer l'élement

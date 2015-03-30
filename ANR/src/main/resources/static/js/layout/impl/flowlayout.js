@@ -90,9 +90,6 @@ define([ "underscore", "mix", "geometry/package", "./basiclayout" ], function(_,
 				to.add(offset);
 				c.local.moveTo(to);
 			});
-
-			//mise à jour des index
-			this.handleAllZIndex(boxcontainer);
 		}
 
 		// transmission de la taille au container
