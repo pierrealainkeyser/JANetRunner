@@ -14,7 +14,7 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 
 		// propage les déplacements aux enfants
 		var needMerge=this.propagateNeedMergeToScreen.bind(this);
-		this.screen.observe(, [ Rectangle.MOVE_TO ]);
+		this.screen.observe(needMerge, [ Rectangle.MOVE_TO ]);
 		this.observe(needMerge, [ AbstractBox.ZINDEX ]);
 	}
 
