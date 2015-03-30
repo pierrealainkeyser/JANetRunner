@@ -36,9 +36,8 @@ define([ "mix", "underscore", "util/observablemixin","util/innersetmixin", "geom
 		this.visible = true;
 
 		// un changement sur le local provoque un needToMergetoScreen
-		var merge=this.needMergeToScreen.bind(this);
-		this.local.observe(merge, [ Rectangle.MOVE_TO, Rectangle.RESIZE_TO ]);
-		this.observe(merge,[AbstractBox.RANK]);
+		this.local.observe(this.needMergeToScreen.bind(this), [ Rectangle.MOVE_TO, Rectangle.RESIZE_TO ]);
+		this.observe(this.mergeRank.bind(this),[AbstractBox.RANK]);
 
 	}
 	// constante
