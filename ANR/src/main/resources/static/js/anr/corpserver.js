@@ -5,12 +5,12 @@ function(mix, layout, ui, AnchorLayout, FlowLayout, CardContainerBox) {
 	 * Permet d'apparaitre différement dans le debugger
 	 */
 	function Ices(layoutManager, icesLayout) {
-		layout.AbstractBoxContainer.call(this, layoutManager, { horizontal : true }, icesLayout);
+		layout.AbstractBoxContainer.call(this, layoutManager, { addZIndex:true, horizontal : true }, icesLayout);
 	}
 	mix(Ices, layout.AbstractBoxContainer);
 
 	function Upgrades(layoutManager, upgradesLayout) {
-		layout.AbstractBoxContainer.call(this, layoutManager, {}, upgradesLayout);
+		layout.AbstractBoxContainer.call(this, layoutManager, {addZIndex:true, childZIndexFactor:1}, upgradesLayout);
 	}
 	mix(Upgrades, layout.AbstractBoxContainer);
 
@@ -19,13 +19,12 @@ function(mix, layout, ui, AnchorLayout, FlowLayout, CardContainerBox) {
 
 		var normal = layoutManager.config.card.normal;
 		var mainServerLayout = new FlowLayout({ direction : FlowLayout.Direction.TOP, align : FlowLayout.Align.MIDDLE, padding : 3 });
-		var stackedLayout = new AnchorLayout({ });
-		var upgradesLayout = new FlowLayout({ padding : 0, direction : FlowLayout.Direction.RIGHT, spacing : -normal.width / 2, zIndexDelta : 1,
-			useZIndex : true });
+		var stackedLayout = new AnchorLayout({});
+		var upgradesLayout = new FlowLayout({ padding : 0, direction : FlowLayout.Direction.RIGHT, spacing : -normal.width / 2});
 		var minSizeUpgradesLayout = new AnchorLayout({ padding : 3, minSize : normal });
 		var icesLayout = new FlowLayout({ direction : FlowLayout.Direction.TOP, padding : 3 });
 
-		layout.AbstractBoxContainer.call(this, layoutManager, {}, mainServerLayout);
+		layout.AbstractBoxContainer.call(this, layoutManager, { addZIndex:true}, mainServerLayout);
 
 		var innerLayout = (def.id >= -3) ? stackedLayout : upgradesLayout;
 
@@ -41,7 +40,7 @@ function(mix, layout, ui, AnchorLayout, FlowLayout, CardContainerBox) {
 		this.upgrades = new Upgrades(layoutManager, upgradesLayout);
 		this.ices = new Ices(layoutManager, icesLayout);
 
-		var upgradesMinSizeContainer = new layout.AbstractBoxContainer(layoutManager, {}, minSizeUpgradesLayout);
+		var upgradesMinSizeContainer = new layout.AbstractBoxContainer(layoutManager, {addZIndex:true}, minSizeUpgradesLayout);
 		upgradesMinSizeContainer.addChild(this.upgrades);
 
 		// enchainement de tout les layouts
