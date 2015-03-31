@@ -16,23 +16,27 @@ function(Size, AnchorLayout, FlowLayout, TranslateLayout) {
 		// la position des layouts sur l'écran
 		this.corp = { layouts : {// 
 		translate : new TranslateLayout({ y : -1 }),//
-		servers : new FlowLayout({ direction : FlowLayout.Direction.RIGHT, align : FlowLayout.Align.LAST, spacing : 3, padding : 0 }) } // 
+		servers : new FlowLayout({ direction : FlowLayout.Direction.RIGHT, align : FlowLayout.Align.LAST, spacing : 2, padding : 0 }) } // 
 		}
 
 		// configuration pour les serveurs
 		this.server = { layouts : {//
 		main : new FlowLayout({ direction : FlowLayout.Direction.TOP, align : FlowLayout.Align.MIDDLE, padding : 3 }),//
 		stacked : new AnchorLayout({}),//
-		upgrades : new FlowLayout({ padding : 2, direction : FlowLayout.Direction.RIGHT, spacing : -this.card.normal.width / 2 }),//
+		upgrades : new FlowLayout({ padding : 2, direction : FlowLayout.Direction.RIGHT, spacing : -this.card.normal.width / 1.5 }),//
 		minSize : new AnchorLayout({ padding : 3, minSize : this.card.normal }),//
 		ices : new FlowLayout({ direction : FlowLayout.Direction.TOP, padding : 3 }) //
 		} };
 
-		// configuration pour la corp
-		this.corp = { layouts : {//
-		servers : new FlowLayout({ direction : FlowLayout.Direction.RIGHT, align : FlowLayout.Align.LAST, spacing : 2, padding : 0 }),//
-		translate : new TranslateLayout({ y : -1 }) //
-		} };
+		// configuration pour le runner
+		this.runner = { layouts : {//
+		stacked : new AnchorLayout({}),//
+		column : new FlowLayout({ direction : FlowLayout.Direction.BOTTOM, align : FlowLayout.Align.LAST, padding : 0, spacing : 6 }),//
+		row : new FlowLayout({ direction : FlowLayout.Direction.LEFT, align : FlowLayout.Align.FIRST, spacing : 2, padding : 0 }),//
+		resources : new FlowLayout({ direction : FlowLayout.Direction.LEFT, align : FlowLayout.Align.FIRST, spacing : 7, padding : 8 }),//
+		programsHardwares : new FlowLayout({ direction : FlowLayout.Direction.LEFT, align : FlowLayout.Align.FIRST, spacing : 7, padding : 0 }),//
+		translate : new TranslateLayout({ x : -1 }) //
+		} }
 
 		// ombrage des cartes
 		this.shadow = {//

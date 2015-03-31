@@ -4,7 +4,7 @@ function(mix, config, AbstractBoxContainer, CorpServer) {
 		var layouts = config.corp.layouts;
 		AbstractBoxContainer.call(this, layoutManager, {}, layouts.translate);
 
-		// les serveurs indéxés par id
+		// les serveurs indexés par id
 		this.servers = {};
 
 		// le container pour les servers
@@ -24,7 +24,6 @@ function(mix, config, AbstractBoxContainer, CorpServer) {
 				srv = new CorpServer(this.layoutManager, { id : id });
 				this.serversArray.addChild(srv);
 			}
-			console.log("getOrCreate", id, srv)
 			return srv;
 		}
 	});

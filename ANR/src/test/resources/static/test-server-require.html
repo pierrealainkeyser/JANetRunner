@@ -31,17 +31,32 @@
 		} //
 	});
 
-	require([ "jquery", "layout/package", "anr/corp", "ui/jquerytrackingbox", "anr/card" ],//
-	function($, layout, Corp, JQueryTrackingBox, Card) {
+	require([ "jquery", "layout/package", "anr/corp", "anr/runner", "ui/jquerytrackingbox", "anr/card", "anr/turntracker" ],//
+	function($, layout, Corp, Runner, JQueryTrackingBox, Card, TurnTracker) {
 		$(function() {
 			var layoutManager = new layout.LayoutManager($("#main"));
 
 			layoutManager.runLayout(function() {
 
-				var h = layoutManager.container.height() - 5;
+				var turnTracker = new TurnTracker(layoutManager);
+				turnTracker.local.moveTo({ x : 0, y : 0 });
+
+				turnTracker.corpScore.setFaction("nbn");
+				turnTracker.corpScore.setScore(5);
+				turnTracker.corpScore.setActive(true);
+
+				turnTracker.runnerScore.setFaction("shaper");
+				turnTracker.runnerScore.setScore(1);
+				turnTracker.runnerScore.setActive(false);
+
+				turnTracker.activeFaction.setFaction("nbn");
+				turnTracker.clicks.setClicks(3, 0);
+
+				turnTracker.gameStep.setText("machin truc");
 
 				//il faut rajouter une option pour replacer ans l'ordre sens
 				var corp = new Corp(layoutManager);
+				var runner = new Runner(layoutManager);
 
 				var archives = corp.getOrCreate(-1);
 				var rd = corp.getOrCreate(-2);
@@ -65,10 +80,22 @@
 				hq.mainContainer.cards.addChild(new Card(layoutManager, { url : "01080.png", faction : "corp" }));
 				archives.mainContainer.cards.addChild(c4);
 
-				var trac = new JQueryTrackingBox(layoutManager, $("<div class='element' style='background-color:cyan;'/>"));
-				trac.trackAbstractBox(hq.ices);
+				var c5 = new Card(layoutManager, { url : "01034.png", faction : "runner" });
+				c5.setFace(Card.FACE_DOWN);
 
-				corp.local.moveTo({ x : 5, y : h });
+				runner.grip.cards.addChild(new Card(layoutManager, { url : "01033.png", faction : "runner" }));
+				runner.stack.cards.addChild(c5);
+
+				runner.resources.addChild(new Card(layoutManager, { url : "01052.png", faction : "runner" }));
+				runner.hardwares.addChild(new Card(layoutManager, { url : "01038.png", faction : "runner" }));
+				runner.hardwares.addChild(new Card(layoutManager, { url : "01041.png", faction : "runner" }));
+				runner.programs.addChild(new Card(layoutManager, { url : "01042.png", faction : "runner" }));
+
+			// 	var trac = new JQueryTrackingBox(layoutManager, $("<div class='element' style='background-color:cyan;'/>"));
+			 //	trac.trackAbstractBox(hq.ices);
+
+				corp.local.moveTo({ x : 5, y : layoutManager.container.height() - 5 });
+				runner.local.moveTo({ x : layoutManager.container.width() - 5, y : 5 });
 
 				setTimeout(layoutManager.withinLayout(function() {
 					c3.setFace(Card.FACE_DOWN);
