@@ -10,7 +10,7 @@ function(mix, layout, ui, conf, CardContainerBox) {
 	mix(Ices, layout.AbstractBoxContainer);
 
 	function Upgrades(layoutManager, upgradesLayout) {
-		layout.AbstractBoxContainer.call(this, layoutManager, { addZIndex : true, childZIndexFactor : 1 }, upgradesLayout);
+		layout.AbstractBoxContainer.call(this, layoutManager, { addZIndex : true, childZIndexFactor : 2 }, upgradesLayout);
 	}
 	mix(Upgrades, layout.AbstractBoxContainer);
 

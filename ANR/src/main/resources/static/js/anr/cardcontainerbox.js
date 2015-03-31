@@ -5,7 +5,7 @@ function(mix, $, layout, ui, geom, AnchorLayout, config) {
 	 * Pour facilter les logs dans la console
 	 */
 	function InnerCardContainer(layoutManager, cardContainerLayout) {
-		layout.AbstractBoxContainer.call(this, layoutManager, { addZIndex : true, childZIndexFactor : 1 }, cardContainerLayout);
+		layout.AbstractBoxContainer.call(this, layoutManager, { addZIndex : true, childZIndexFactor : 2 }, cardContainerLayout);
 	}
 	mix(InnerCardContainer, layout.AbstractBoxContainer);
 
