@@ -1,11 +1,10 @@
-define([ "mix", "jquery", "layout/package", "ui/package", "geometry/package", "layout/impl/anchorlayout","./conf" ],// 
-function(mix, $, layout, ui, geom, AnchorLayout) {
+define([ "mix", "jquery", "layout/package", "ui/package", "geometry/package", "layout/impl/anchorlayout", "conf" ],// 
+function(mix, $, layout, ui, geom, AnchorLayout, config) {
 
-	function CardContainerBox(layoutManager, type, cardContainerLayout,config) {
-
+	function CardContainerBox(layoutManager, type, cardContainerLayout) {
 		var normal = config.card.normal;
-		layout.AbstractBoxContainer.call(this, layoutManager, {addZIndex:true}, new AnchorLayout({ vertical : AnchorLayout.Vertical.TOP, padding : 8,
-			minSize : new geom.Size(normal.width, normal.height + 15)}));
+		layout.AbstractBoxContainer.call(this, layoutManager, { addZIndex : true }, new AnchorLayout({ vertical : AnchorLayout.Vertical.TOP, padding : 8,
+			minSize : new geom.Size(normal.width, normal.height + 15) }));
 		ui.AnimateAppeareanceCss.call(this, "bounceIn", "bounceOut");
 
 		// permet de placer l'élement

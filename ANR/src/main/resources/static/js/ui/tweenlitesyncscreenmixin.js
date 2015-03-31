@@ -1,4 +1,4 @@
-define([ "underscore", "tweenlite" ,"animationconfig"], function(_, TweenLite, conf) {
+define([ "underscore", "tweenlite" ,"conf"], function(_, TweenLite, conf) {
 
 	var TweenLiteSyncScreenMixin = function() {
 

@@ -24,20 +24,18 @@
 		baseUrl : "../../../main/resources/static/js/",
 		paths : { jquery : "http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min",
 			underscore : "http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min",
-			tweenlite : "http://cdnjs.cloudflare.com/ajax/libs/gsap/1.16.1/TweenMax.min" },//
-			animationconfig:"anr/conf"
+			tweenlite : "http://cdnjs.cloudflare.com/ajax/libs/gsap/1.16.1/TweenMax.min",//
+			conf : "./anr/conf" },//
 		shim : {//
 		tweenlite : { exports : 'TweenLite' } // 
 		} //
 	});
 
 	require([ "jquery", "layout/package", "layout/impl/flowlayout", "anr/corpserver", "ui/jqueryboxsize", "ui/jquerytrackingbox",
-			"layout/impl/translatelayout", "anr/card", "geometry/size" ],//
-	function($, layout, FlowLayout, CorpServer, JQueryBoxSize, JQueryTrackingBox, TranslateLayout, Card, Size) {
+			"layout/impl/translatelayout", "anr/card" ],//
+	function($, layout, FlowLayout, CorpServer, JQueryBoxSize, JQueryTrackingBox, TranslateLayout, Card) {
 		$(function() {
 			var layoutManager = new layout.LayoutManager($("#main"));
-			layoutManager.config.animDuration = 0.3;
-			layoutManager.config.card = { normal : new Size(80, 111) };
 
 			layoutManager.runLayout(function() {
 
@@ -93,7 +91,7 @@
 					remote2.addToAssetsOrUpgrades(c);
 					remote2.addToAssetsOrUpgrades(c4);
 				}), 1000);
-				
+
 			});
 		});
 	});

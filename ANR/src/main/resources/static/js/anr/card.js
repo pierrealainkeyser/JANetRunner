@@ -1,5 +1,5 @@
-define([ "mix", "jquery", "layout/abstractbox", "layout/abstractboxleaf", "ui/tweenlitesyncscreenmixin" ,"anr/conf"],// 
-function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, confifg) {
+define([ "mix", "jquery", "layout/abstractbox", "layout/abstractboxleaf", "ui/tweenlitesyncscreenmixin" ,"conf"],// 
+function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, config) {
 
 	function Card(layoutManager, def) {
 		this.def = def;

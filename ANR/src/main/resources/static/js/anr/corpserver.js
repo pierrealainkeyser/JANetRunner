@@ -1,4 +1,4 @@
-define([ "mix", "layout/package", "ui/package", "./conf", "./cardcontainerBox" ],// 
+define([ "mix", "layout/package", "ui/package", "anr/conf", "./cardcontainerBox" ],// 
 function(mix, layout, ui, conf, CardContainerBox) {
 
 	/**
@@ -18,6 +18,7 @@ function(mix, layout, ui, conf, CardContainerBox) {
 		this.def = def;
 		
 		var layouts=conf.server.layouts;
+		console.log(layouts)
 		layout.AbstractBoxContainer.call(this, layoutManager, { addZIndex:true}, layouts.main);
 
 		var innerLayout = (def.id >= -3) ? layouts.stacked : layouts.upgrades;
@@ -32,7 +33,7 @@ function(mix, layout, ui, conf, CardContainerBox) {
 
 		this.mainContainer = new CardContainerBox(layoutManager, type, innerLayout);
 		this.upgrades = new Upgrades(layoutManager, layouts.upgrades);
-		this.ices = new Ices(layoutManager, layout.ices);
+		this.ices = new Ices(layoutManager, layouts.ices);
 
 		var upgradesMinSizeContainer = new layout.AbstractBoxContainer(layoutManager, {addZIndex:true}, layouts.minSize);
 		upgradesMinSizeContainer.addChild(this.upgrades);
