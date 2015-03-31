@@ -14,10 +14,12 @@ function(Size, AnchorLayout, FlowLayout, TranslateLayout) {
 		this.screen = new Size(1300, 800);
 
 		// la position des layouts sur l'écran
-		this.corp = { layouts : { translate : new TranslateLayout({ y : -1 }),
-			servers : new FlowLayout({ direction : FlowLayout.Direction.RIGHT, align : FlowLayout.Align.LAST, spacing : 3, padding : 0 }) } }
+		this.corp = { layouts : {// 
+		translate : new TranslateLayout({ y : -1 }),//
+		servers : new FlowLayout({ direction : FlowLayout.Direction.RIGHT, align : FlowLayout.Align.LAST, spacing : 3, padding : 0 }) } // 
+		}
 
-		// configuration pour le server
+		// configuration pour les serveurs
 		this.server = { layouts : {//
 		main : new FlowLayout({ direction : FlowLayout.Direction.TOP, align : FlowLayout.Align.MIDDLE, padding : 3 }),//
 		stacked : new AnchorLayout({}),//
@@ -26,6 +28,13 @@ function(Size, AnchorLayout, FlowLayout, TranslateLayout) {
 		ices : new FlowLayout({ direction : FlowLayout.Direction.TOP, padding : 3 }) //
 		} };
 
+		// configuration pour la corp
+		this.corp = { layouts : {//
+		servers : new FlowLayout({ direction : FlowLayout.Direction.RIGHT, align : FlowLayout.Align.LAST, spacing : 2, padding : 0 }),//
+		translate : new TranslateLayout({ y : -1 }) //
+		} };
+
+		// ombrage des cartes
 		this.shadow = {//
 		front : { horizontal : "2.5px -2.5px 4px 0px rgba(60, 60, 60, 0.8)", vertical : "2.5px 2.5px 4px 0px rgba(60, 60, 60, 0.8)" },//
 		back : { horizontal : "-2.5px -2.5px 4px 0px rgba(60, 60, 60, 0.8)", vertical : "-2.5px 2.5px 4px 0px rgba(60, 60, 60, 0.8)" },//
