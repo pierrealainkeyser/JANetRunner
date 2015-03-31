@@ -18,7 +18,6 @@ function(mix, layout, ui, conf, CardContainerBox) {
 		this.def = def;
 		
 		var layouts=conf.server.layouts;
-		console.log(layouts)
 		layout.AbstractBoxContainer.call(this, layoutManager, { addZIndex:true}, layouts.main);
 
 		var innerLayout = (def.id >= -3) ? layouts.stacked : layouts.upgrades;
