@@ -82,6 +82,7 @@ define([ "mix", "underscore", "util/observablemixin","util/innersetmixin", "geom
 		 * Permet de fusionner le zIndex du parent avec le zIndex courant
 		 */
 		this.mergeRank = function() {
+			
 			if (this.container != null) {
 				var zIndex = this.container.computeChildZIndex(this);
 				if (zIndex !== null)

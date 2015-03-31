@@ -5,20 +5,20 @@ function(mix, layout, ui, conf, CardContainerBox) {
 	 * Permet d'apparaitre différement dans le debugger
 	 */
 	function Ices(layoutManager, icesLayout) {
-		layout.AbstractBoxContainer.call(this, layoutManager, { addZIndex:true, horizontal : true }, icesLayout);
+		layout.AbstractBoxContainer.call(this, layoutManager, { addZIndex : true, horizontal : true }, icesLayout);
 	}
 	mix(Ices, layout.AbstractBoxContainer);
 
 	function Upgrades(layoutManager, upgradesLayout) {
-		layout.AbstractBoxContainer.call(this, layoutManager, {addZIndex:true, childZIndexFactor:1}, upgradesLayout);
+		layout.AbstractBoxContainer.call(this, layoutManager, { addZIndex : true, childZIndexFactor : 1 }, upgradesLayout);
 	}
 	mix(Upgrades, layout.AbstractBoxContainer);
 
 	function CorpServer(layoutManager, def) {
 		this.def = def;
-		
-		var layouts=conf.server.layouts;
-		layout.AbstractBoxContainer.call(this, layoutManager, { addZIndex:true}, layouts.main);
+
+		var layouts = conf.server.layouts;
+		layout.AbstractBoxContainer.call(this, layoutManager, { addZIndex : true }, layouts.main);
 
 		var innerLayout = (def.id >= -3) ? layouts.stacked : layouts.upgrades;
 
@@ -34,7 +34,7 @@ function(mix, layout, ui, conf, CardContainerBox) {
 		this.upgrades = new Upgrades(layoutManager, layouts.upgrades);
 		this.ices = new Ices(layoutManager, layouts.ices);
 
-		var upgradesMinSizeContainer = new layout.AbstractBoxContainer(layoutManager, {addZIndex:true}, layouts.minSize);
+		var upgradesMinSizeContainer = new layout.AbstractBoxContainer(layoutManager, { addZIndex : true }, layouts.minSize);
 		upgradesMinSizeContainer.addChild(this.upgrades);
 
 		// enchainement de tout les layouts

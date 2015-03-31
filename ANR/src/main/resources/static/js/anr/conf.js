@@ -18,11 +18,18 @@ function(Size, AnchorLayout, FlowLayout, TranslateLayout) {
 			servers : new FlowLayout({ direction : FlowLayout.Direction.RIGHT, align : FlowLayout.Align.LAST, spacing : 3, padding : 0 }) } }
 
 		// configuration pour le server
-		this.server = { layouts : { main : new FlowLayout({ direction : FlowLayout.Direction.TOP, align : FlowLayout.Align.MIDDLE, padding : 3 }),
-			stacked : new AnchorLayout({}),
-			upgrades : new FlowLayout({ padding : 0, direction : FlowLayout.Direction.RIGHT, spacing : -this.card.normal.width / 2 }),
-			minSize : new AnchorLayout({ padding : 3, minSize : this.card.normal }),
-			ices : new FlowLayout({ direction : FlowLayout.Direction.TOP, padding : 3 }) } };
+		this.server = { layouts : {//
+		main : new FlowLayout({ direction : FlowLayout.Direction.TOP, align : FlowLayout.Align.MIDDLE, padding : 3 }),//
+		stacked : new AnchorLayout({}),//
+		upgrades : new FlowLayout({ padding : 2, direction : FlowLayout.Direction.RIGHT, spacing : -this.card.normal.width / 2 }),//
+		minSize : new AnchorLayout({ padding : 3, minSize : this.card.normal }),//
+		ices : new FlowLayout({ direction : FlowLayout.Direction.TOP, padding : 3 }) //
+		} };
+
+		this.shadow = {//
+		front : { horizontal : "2.5px -2.5px 4px 0px rgba(60, 60, 60, 0.8)", vertical : "2.5px 2.5px 4px 0px rgba(60, 60, 60, 0.8)" },//
+		back : { horizontal : "-2.5px -2.5px 4px 0px rgba(60, 60, 60, 0.8)", vertical : "-2.5px 2.5px 4px 0px rgba(60, 60, 60, 0.8)" },//
+		};
 	}
 	var conf = new Conf();
 	return conf;

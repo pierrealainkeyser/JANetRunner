@@ -31,9 +31,8 @@
 		} //
 	});
 
-	require([ "jquery", "layout/package", "layout/impl/flowlayout", "anr/corpserver", "ui/jqueryboxsize", "ui/jquerytrackingbox",
-			"layout/impl/translatelayout", "anr/card" ],//
-	function($, layout, FlowLayout, CorpServer, JQueryBoxSize, JQueryTrackingBox, TranslateLayout, Card) {
+	require([ "jquery", "layout/package", "layout/impl/flowlayout", "anr/corpserver", "ui/jquerytrackingbox", "layout/impl/translatelayout", "anr/card" ],//
+	function($, layout, FlowLayout, CorpServer, JQueryTrackingBox, TranslateLayout, Card) {
 		$(function() {
 			var layoutManager = new layout.LayoutManager($("#main"));
 
@@ -43,7 +42,7 @@
 
 				//il faut rajouter une option pour replacer ans l'ordre sens
 				var container = new layout.AbstractBoxContainer(layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.RIGHT,
-					align : FlowLayout.Align.LAST, spacing : 3, padding : 0 }));
+					align : FlowLayout.Align.LAST, spacing : 2, padding : 0 }));
 
 				var flowlayout = new FlowLayout({});
 
@@ -64,9 +63,9 @@
 
 				var c1 = new Card(layoutManager, { id : "debug", url : "01089.png", faction : "corp" });
 				var c3 = new Card(layoutManager, { url : "01091.png", faction : "corp" });
+
 				var c4 = new Card(layoutManager, { url : "01082.png", faction : "corp" });
 
-				hq.upgrades.addChild(new JQueryBoxSize(layoutManager, $("<div class='element' style='background-color:red;'/>")))
 				hq.upgrades.addChild(c3);
 				hq.ices.addChild(c);
 				hq.ices.addChild(c1);
@@ -84,6 +83,7 @@
 				translateContainer.addChild(container);
 
 				setTimeout(layoutManager.withinLayout(function() {
+					c3.setFace(Card.FACE_DOWN);
 					rd.mainContainer.setCounter(15);
 
 					rd.addToAssetsOrUpgrades(c1);
@@ -91,7 +91,6 @@
 					remote2.addToAssetsOrUpgrades(c);
 					remote2.addToAssetsOrUpgrades(c4);
 				}), 1000);
-
 			});
 		});
 	});

@@ -1,4 +1,4 @@
-define([ "mix", "jquery", "layout/abstractbox", "layout/abstractboxleaf", "ui/tweenlitesyncscreenmixin" ,"conf"],// 
+define([ "mix", "jquery", "layout/abstractbox", "layout/abstractboxleaf", "ui/tweenlitesyncscreenmixin", "conf" ],// 
 function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, config) {
 
 	function Card(layoutManager, def) {
@@ -44,8 +44,7 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, config)
 			if ("mini" === cardsize)
 				size = config.card.mini;
 			else if ("zoom" === cardsize)
-				size = config.card.zoom;						
-			
+				size = config.card.zoom;
 
 			// si horizontal on inverse la taille pour les calculs de layout, on
 			// remettra en place avec une rotation
@@ -76,6 +75,7 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, config)
 
 				// applique la transformation du parent
 				this.mergePosition(moveTo);
+				this.mergeRank();
 			}
 			this.screen.moveTo(moveTo);
 			this.screen.resizeTo(size);
@@ -101,13 +101,26 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, config)
 		this.syncScreen = function() {
 			var shadow = "";
 			var faceup = this.face === Card.FACE_UP;
+			var horizontal = this.rotation == 90;
+
+			// gestion de l'ombre
+			if (horizontal) {
+				if (faceup)
+					shadow = config.shadow.front.horizontal;
+				else
+					shadow = config.shadow.back.horizontal;
+			} else {
+				if (faceup)
+					shadow = config.shadow.front.vertical;
+				else
+					shadow = config.shadow.back.vertical;
+			}
 
 			var frontCss = { rotationY : faceup ? 0 : -180 };
 			var backCss = _.extend(_.clone(frontCss), { boxShadow : shadow });
 			var css = this.computePrimaryCssTween();
 
 			var set = this.firstSyncScreen();
-
 			this.tweenElement(this.element, css, set);
 			this.tweenElement(this.front, frontCss, set);
 			this.tweenElement(this.back, backCss, set);

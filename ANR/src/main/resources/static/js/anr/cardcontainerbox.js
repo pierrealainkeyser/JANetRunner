@@ -1,6 +1,14 @@
 define([ "mix", "jquery", "layout/package", "ui/package", "geometry/package", "layout/impl/anchorlayout", "conf" ],// 
 function(mix, $, layout, ui, geom, AnchorLayout, config) {
 
+	/**
+	 * Pour facilter les logs dans la console
+	 */
+	function InnerCardContainer(layoutManager, cardContainerLayout) {
+		layout.AbstractBoxContainer.call(this, layoutManager, { addZIndex : true, childZIndexFactor : 1 }, cardContainerLayout);
+	}
+	mix(InnerCardContainer, layout.AbstractBoxContainer);
+
 	function CardContainerBox(layoutManager, type, cardContainerLayout) {
 		var normal = config.card.normal;
 		layout.AbstractBoxContainer.call(this, layoutManager, { addZIndex : true }, new AnchorLayout({ vertical : AnchorLayout.Vertical.TOP, padding : 8,
@@ -18,7 +26,7 @@ function(mix, $, layout, ui, geom, AnchorLayout, config) {
 		this.type = type;
 
 		// il faut rajouter les cartes dans le container
-		this.cards = new layout.AbstractBoxContainer(layoutManager, {}, cardContainerLayout);
+		this.cards = new InnerCardContainer(layoutManager, cardContainerLayout);
 		this.addChild(this.cards);
 	}
 
