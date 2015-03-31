@@ -1,12 +1,20 @@
-define([ "underscore", "mix", "util/observablemixin" ], function(_, mix, ObservableMixin) {
+define([ "underscore", "mix"], function(_, mix) {
 
 	function BasicLayout(options) {
 		options = options || {};
 		this.containers = [];
 	}
 
-	mix(BasicLayout, ObservableMixin);
 	mix(BasicLayout, function() {
+		
+		/**
+		 * Permet d'indiquer qu'il faut redessiner le composant
+		 */
+		this.fireChanged = function() {
+			_.each(this.containers, function(container) {
+				container.needLayout();
+			});
+		}
 
 		/**
 		 * Traque un container

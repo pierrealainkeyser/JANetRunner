@@ -2,6 +2,7 @@ define([ "mix", "geometry/package", "./basiclayout" ], function(mix, geom, Basic
 
 	function AnchorLayout(options) {
 		options = options || {}
+		BasicLayout.call(this,options);
 		this.padding = options.padding || 0;
 		this.vertical = options.vertical || AnchorLayout.Vertical.MIDDLE;
 		this.horizontal = options.horizontal || AnchorLayout.Horizontal.MIDDLE;

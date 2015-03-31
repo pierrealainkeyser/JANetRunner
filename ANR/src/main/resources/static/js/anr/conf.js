@@ -1,4 +1,5 @@
-define([ "geometry/size", "layout/impl/anchorlayout", "layout/impl/flowlayout" ], function(Size, AnchorLayout, FlowLayout) {
+define([ "geometry/size", "layout/impl/anchorlayout", "layout/impl/flowlayout", "layout/impl/translatelayout" ], //
+function(Size, AnchorLayout, FlowLayout, TranslateLayout) {
 
 	function Conf() {
 		var w = 80;
@@ -10,7 +11,31 @@ define([ "geometry/size", "layout/impl/anchorlayout", "layout/impl/flowlayout" ]
 			zoom : new Size(w * 2, h * 2)
 		};
 
-		//configuration pour le server
+		//la duree d'animation
+		this.animation = {
+			normal : 0.3,
+			fast : 0.15
+		}
+
+		// la taille de l'écran
+		this.screen = new Size(1300, 800);
+
+		// la position des layouts sur l'écran
+		this.corp = {
+			layouts : {
+				translate : new TranslateLayout({
+					y : -1
+				}),
+				servers : new FlowLayout({
+					direction : FlowLayout.Direction.RIGHT,
+					align : FlowLayout.Align.LAST,
+					spacing : 3,
+					padding : 0
+				})
+			}
+		}
+
+		// configuration pour le server
 		this.server = {
 			layouts : {
 				main : new FlowLayout({

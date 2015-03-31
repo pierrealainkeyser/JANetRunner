@@ -1,4 +1,4 @@
-define([ "underscore", "tweenlite" ], function(_, TweenLite) {
+define([ "underscore", "tweenlite" ,"animationconfig"], function(_, TweenLite, conf) {
 
 	var TweenLiteSyncScreenMixin = function() {
 
@@ -18,7 +18,7 @@ define([ "underscore", "tweenlite" ], function(_, TweenLite) {
 		 * Mise à au point unitaire
 		 */
 		this.tweenElement = function(element, css, set, onComplete) {
-			var animDuration = this.layoutManager.config.animDuration;
+			var animDuration = conf.animation.normal;
 
 			var anim = { css : css };
 			if (onComplete)

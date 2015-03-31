@@ -39,7 +39,6 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, confifg
 			var hints = this.container.renderingHints();
 
 			// en fonction du mode on calcul la taille
-			// TODO à déplacer dans le card manager
 			var size = config.card.normal;
 			var cardsize = hints.cardsize;
 			if ("mini" === cardsize)
