@@ -1,5 +1,5 @@
-define([ "mix", "jquery", "layout/abstractbox", "layout/abstractboxleaf", "ui/tweenlitesyncscreenmixin" ],// 
-function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin) {
+define([ "mix", "jquery", "layout/abstractbox", "layout/abstractboxleaf", "ui/tweenlitesyncscreenmixin" ,"anr/conf"],// 
+function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, confifg) {
 
 	function Card(layoutManager, def) {
 		this.def = def;
@@ -40,12 +40,12 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin) {
 
 			// en fonction du mode on calcul la taille
 			// TODO à déplacer dans le card manager
-			var size = this.layoutManager.config.card.normal;
+			var size = config.card.normal;
 			var cardsize = hints.cardsize;
 			if ("mini" === cardsize)
-				size = this.layoutManager.config.card.mini;
+				size = config.card.mini;
 			else if ("zoom" === cardsize)
-				size = this.layoutManager.config.card.zoom;						
+				size = config.card.zoom;						
 			
 
 			// si horizontal on inverse la taille pour les calculs de layout, on

@@ -1,9 +1,9 @@
-define([ "mix", "jquery", "layout/package", "ui/package", "geometry/package", "layout/impl/anchorlayout" ],// 
+define([ "mix", "jquery", "layout/package", "ui/package", "geometry/package", "layout/impl/anchorlayout","./conf" ],// 
 function(mix, $, layout, ui, geom, AnchorLayout) {
 
-	function CardContainerBox(layoutManager, type, cardContainerLayout) {
+	function CardContainerBox(layoutManager, type, cardContainerLayout,config) {
 
-		var normal = layoutManager.config.card.normal;
+		var normal = config.card.normal;
 		layout.AbstractBoxContainer.call(this, layoutManager, {addZIndex:true}, new AnchorLayout({ vertical : AnchorLayout.Vertical.TOP, padding : 8,
 			minSize : new geom.Size(normal.width, normal.height + 15)}));
 		ui.AnimateAppeareanceCss.call(this, "bounceIn", "bounceOut");
