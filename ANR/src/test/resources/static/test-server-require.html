@@ -31,8 +31,8 @@
 		} //
 	});
 
-	require([ "jquery", "layout/package", "anr/corp", "anr/runner", "ui/jquerytrackingbox", "anr/card", "anr/turntracker" ],//
-	function($, layout, Corp, Runner, JQueryTrackingBox, Card, TurnTracker) {
+	require([ "jquery", "layout/package", "anr/corp", "anr/runner", "anr/focus", "anr/card", "anr/turntracker" ],//
+	function($, layout, Corp, Runner, FocusBox, Card, TurnTracker) {
 		$(function() {
 			var layoutManager = new layout.LayoutManager($("#main"));
 
@@ -84,15 +84,15 @@
 				c5.setFace(Card.FACE_DOWN);
 
 				runner.grip.cards.addChild(new Card(layoutManager, { url : "01033.png", faction : "runner" }));
-				runner.stack.cards.addChild(c5);
+				runner.stack.cards.addChild(c3);
 
 				runner.resources.addChild(new Card(layoutManager, { url : "01052.png", faction : "runner" }));
 				runner.hardwares.addChild(new Card(layoutManager, { url : "01038.png", faction : "runner" }));
 				runner.hardwares.addChild(new Card(layoutManager, { url : "01041.png", faction : "runner" }));
 				runner.programs.addChild(new Card(layoutManager, { url : "01042.png", faction : "runner" }));
 
-			// 	var trac = new JQueryTrackingBox(layoutManager, $("<div class='element' style='background-color:cyan;'/>"));
-			 //	trac.trackAbstractBox(hq.ices);
+				var trac = new FocusBox(layoutManager);
+			 	trac.trackAbstractBox(c3);
 
 				corp.local.moveTo({ x : 5, y : layoutManager.container.height() - 5 });
 				runner.local.moveTo({ x : layoutManager.container.width() - 5, y : 5 });

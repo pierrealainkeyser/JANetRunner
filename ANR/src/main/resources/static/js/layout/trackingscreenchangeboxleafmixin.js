@@ -33,7 +33,7 @@ define(["underscore", "./abstractbox", "geometry/rectangle" ], function(_,Abstra
 
 			box.screen.observe(watchFunction, [ Rectangle.MOVE_TO, Rectangle.RESIZE_TO ]);
 			box.observe(watchFunction, [ AbstractBox.VISIBLE, AbstractBox.ZINDEX, AbstractBox.ROTATION ]);
-		};
+		}
 		
 		/**
 		 * Renvoi l'élélement sélectionner 

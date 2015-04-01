@@ -1,10 +1,14 @@
 define([ "mix", "jquery", "ui/jquerytrackingbox" ],// 
 function(mix, $, JQueryTrackingBox) {
 	function FocusBox(layoutManager) {
-		JQueryTrackingBox.call(this, $("<div class='focus'/>"));
+		JQueryTrackingBox.call(this, layoutManager, $("<div class='focus'/>"));
+		//le padding pour la mise en avant du composant de focus
+		this.paddingOffset = 3;
 	}
 
-	mix(FocusBox, JQueryTrackingBox);
+	mix(FocusBox, JQueryTrackingBox, {
+		zIndexDelta : -1
+	});
 	mix(FocusBox, function() {
 
 		/**
@@ -22,10 +26,16 @@ function(mix, $, JQueryTrackingBox) {
 					css.left += this.screen.size.height;
 				}
 			}
-			
+
+			var offset = this.paddingOffset;
+			css.left -= offset;
+			css.top -= offset;
+			css.width += offset * 2;
+			css.height += offset * 2;
+
 			var set = this.firstSyncScreen();
 			this.tweenElement(this.element, css, set);
 		}
 	});
-	return JQueryTrackingBox;
+	return FocusBox;
 });
