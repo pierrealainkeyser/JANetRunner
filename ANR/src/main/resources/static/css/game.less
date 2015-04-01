@@ -316,3 +316,15 @@ div#conf {
 	}
 }
 
+//------------------------------
+.focus {
+	@radius: 5px;
+	@light-color: rgba(222, 239, 255, 1);
+	@dark-color: rgba(152, 190, 222, 1);
+	.element ();
+	.unselectable ();
+	border-radius: @radius;
+	background: -webkit-linear-gradient(top, @light-color 0%, @dark-color 100%);
+	box-shadow: 0px 0px 1px 1px @dark-color;
+}
+

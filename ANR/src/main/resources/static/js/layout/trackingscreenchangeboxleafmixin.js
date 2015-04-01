@@ -1,4 +1,4 @@
-define([ "./abstractbox", "geometry/rectangle" ], function(AbstractBox, Rectangle) {
+define(["underscore", "./abstractbox", "geometry/rectangle" ], function(_,AbstractBox, Rectangle) {
 
 	/**
 	 * A rajouter sur le prototype d'un objet pour permettre de dupliquer les
@@ -34,6 +34,16 @@ define([ "./abstractbox", "geometry/rectangle" ], function(AbstractBox, Rectangl
 			box.screen.observe(watchFunction, [ Rectangle.MOVE_TO, Rectangle.RESIZE_TO ]);
 			box.observe(watchFunction, [ AbstractBox.VISIBLE, AbstractBox.ZINDEX, AbstractBox.ROTATION ]);
 		};
+		
+		/**
+		 * Renvoi l'élélement sélectionner 
+		 */
+		this.trackedBox = function() {
+			if (this.watchAbstractBoxBindings && !_.isEmpty(this.watchAbstractBoxBindings))
+				return _.values(this.watchAbstractBoxBindings)[0];
+			else
+				return null;
+		}
 
 		/**
 		 * Permet d'arrêter l'observation
