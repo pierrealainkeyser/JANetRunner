@@ -1,4 +1,4 @@
-define(["underscore", "./abstractbox", "geometry/rectangle" ], function(_,AbstractBox, Rectangle) {
+define([ "underscore", "./abstractbox", "geometry/rectangle" ], function(_, AbstractBox, Rectangle) {
 
 	/**
 	 * A rajouter sur le prototype d'un objet pour permettre de dupliquer les
@@ -18,10 +18,10 @@ define(["underscore", "./abstractbox", "geometry/rectangle" ], function(_,Abstra
 		 * des propriétés de visibilite sur l'object actuel
 		 */
 		this.trackAbstractBox = function(box) {
-			if (this.watchAbstractBoxBindings === undefined)
-				this.watchAbstractBoxBindings = {}
 
-				// création de la function de réplication
+			this.untrackAbstractBox();
+
+			// création de la function de réplication
 			var watchFunction = function() {
 				this.screen.copyRectangle(box.screen);
 				this.setVisible(box.visible);
@@ -29,33 +29,31 @@ define(["underscore", "./abstractbox", "geometry/rectangle" ], function(_,Abstra
 				this.setZIndex(box.zIndex + zIndexDelta);
 			}.bind(this);
 
-			this.watchAbstractBoxBindings[box._boxId] = watchFunction;
+			this.watchFunction = watchFunction;
+			this.trackedBox = box;
 
 			box.screen.observe(watchFunction, [ Rectangle.MOVE_TO, Rectangle.RESIZE_TO ]);
 			box.observe(watchFunction, [ AbstractBox.VISIBLE, AbstractBox.ZINDEX, AbstractBox.ROTATION ]);
 		}
-		
+
 		/**
-		 * Renvoi l'élélement sélectionner 
+		 * Renvoi l'élélement sélectionner
 		 */
 		this.trackedBox = function() {
-			if (this.watchAbstractBoxBindings && !_.isEmpty(this.watchAbstractBoxBindings))
-				return _.values(this.watchAbstractBoxBindings)[0];
-			else
-				return null;
+			return this.trackedBox;
 		}
 
 		/**
 		 * Permet d'arrêter l'observation
 		 */
-		this.untrackAbstractBox = function(box) {
-			if (this.watchAbstractBoxBindings) {
-				var watchFunction = this.watchAbstractBoxBindings[box._boxId];
-				if (watchFunction) {
-					box.screen.unobserve(watchFunction);
-					box.unobserve(watchFunction);
-					delete this.watchAbstractBoxBindings[box._boxId];
-				}
+		this.untrackAbstractBox = function() {
+			if (this.trackedBox) {
+
+				this.trackedBox.screen.unobserve(this.watchFunction);
+				this.trackedBox.unobserve(this.watchFunction);
+				this.trackedBox = null;
+				this.watchFunction = null;
+
 			}
 		}
 	}
