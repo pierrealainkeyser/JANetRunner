@@ -16,18 +16,17 @@ function(mix, $, JQueryTrackingBox) {
 		 */
 		this.syncScreen = function() {
 			var css = this.computeCssTween(this.cssTweenConfig);
+			var offset = this.paddingOffset;
 
 			var tracked = this.trackedBox();
 			if (tracked && tracked.container) {
 				// prévoir un mixin pour mutualiser avec la card.js
 				var hints = tracked.container.renderingHints();
 				if (true === hints.horizontal) {
-					css.transformOrigin = "top left";
-					css.left += this.screen.size.height;
+					css.left += this.screen.size.height + offset*2;
 				}
 			}
 
-			var offset = this.paddingOffset;
 			css.left -= offset;
 			css.top -= offset;
 			css.width += offset * 2;

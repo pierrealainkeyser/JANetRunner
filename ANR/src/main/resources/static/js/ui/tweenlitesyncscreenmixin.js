@@ -46,7 +46,6 @@ define([ "underscore", "tweenlite" ,"conf"], function(_, TweenLite, conf) {
 
 			if (opt.rotation && this.rotation !== undefined) {
 				css.rotation = this.rotation;
-				css.transformOrigin = "50% 50%";
 			}
 
 			if (opt.autoAlpha && _.isBoolean(this.visible))

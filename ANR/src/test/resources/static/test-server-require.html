@@ -68,14 +68,14 @@
 				c.setFace(Card.FACE_DOWN);
 
 				var c1 = new Card(layoutManager, { id : "debug", url : "01089.png", faction : "corp" });
+				var c2=new Card(layoutManager, { url : "01088.png", faction : "corp" });
 				var c3 = new Card(layoutManager, { url : "01091.png", faction : "corp" });
-
 				var c4 = new Card(layoutManager, { url : "01082.png", faction : "corp" });
 
 				hq.upgrades.addChild(c3);
 				hq.ices.addChild(c);
 				hq.ices.addChild(c1);
-				hq.ices.addChild(new Card(layoutManager, { url : "01088.png", faction : "corp" }));
+				hq.ices.addChild(c2);
 
 				hq.mainContainer.cards.addChild(new Card(layoutManager, { url : "01080.png", faction : "corp" }));
 				archives.mainContainer.cards.addChild(c4);
@@ -92,7 +92,7 @@
 				runner.programs.addChild(new Card(layoutManager, { url : "01042.png", faction : "runner" }));
 
 				var trac = new FocusBox(layoutManager);
-			 	trac.trackAbstractBox(c3);
+			 	trac.trackAbstractBox(c2);
 
 				corp.local.moveTo({ x : 5, y : layoutManager.container.height() - 5 });
 				runner.local.moveTo({ x : layoutManager.container.width() - 5, y : 5 });

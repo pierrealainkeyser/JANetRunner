@@ -89,7 +89,6 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, config)
 			var css = this.computeCssTween({ zIndex : true, rotation : true, autoAlpha : true, size : true });
 			// en cas d'affichage horizontal on corrige la position
 			if (true === hints.horizontal) {
-				css.transformOrigin = "top left";
 				css.left += this.screen.size.height;
 			}
 			return css;

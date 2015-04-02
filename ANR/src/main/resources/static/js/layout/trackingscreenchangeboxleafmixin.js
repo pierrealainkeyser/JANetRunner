@@ -30,7 +30,7 @@ define([ "underscore", "./abstractbox", "geometry/rectangle" ], function(_, Abst
 			}.bind(this);
 
 			this.watchFunction = watchFunction;
-			this.trackedBox = box;
+			this._trackedBox = box;
 
 			box.screen.observe(watchFunction, [ Rectangle.MOVE_TO, Rectangle.RESIZE_TO ]);
 			box.observe(watchFunction, [ AbstractBox.VISIBLE, AbstractBox.ZINDEX, AbstractBox.ROTATION ]);
@@ -40,20 +40,19 @@ define([ "underscore", "./abstractbox", "geometry/rectangle" ], function(_, Abst
 		 * Renvoi l'élélement sélectionner
 		 */
 		this.trackedBox = function() {
-			return this.trackedBox;
+			return this._trackedBox;
 		}
 
 		/**
 		 * Permet d'arrêter l'observation
 		 */
 		this.untrackAbstractBox = function() {
-			if (this.trackedBox) {
+			if (this._trackedBox) {
 
-				this.trackedBox.screen.unobserve(this.watchFunction);
-				this.trackedBox.unobserve(this.watchFunction);
-				this.trackedBox = null;
+				this._trackedBox.screen.unobserve(this.watchFunction);
+				this._trackedBox.unobserve(this.watchFunction);
+				this._trackedBox = null;
 				this.watchFunction = null;
-
 			}
 		}
 	}
