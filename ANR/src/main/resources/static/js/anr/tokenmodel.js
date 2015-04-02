@@ -1,4 +1,4 @@
-define([ "mix", "undescore", "util/observablemixin" ], function(mix, _, ObservableMixin) {
+define([ "mix", "underscore", "util/observablemixin" ], function(mix, _, ObservableMixin) {
 	function TokenModel() {
 		this.tokens = {};
 	}
@@ -20,17 +20,24 @@ define([ "mix", "undescore", "util/observablemixin" ], function(mix, _, Observab
 		}
 
 		/**
+		 * Permet d'appeler un traitement sur tous les tokens
+		 */
+		this.eachTokens = function(closure) {
+			_.each(this.tokens);
+		}
+
+		/**
 		 * Mise à jour des valeurs. La valeur 0 supprime le token
 		 */
 		this.setTokenValue = function(type, value) {
 
 			var ret = {
-				token : type
+				token : type,
+				value : value
 			};
 
 			if (value) {
-
-				if (this.tokens[type] !== undefined) {
+				if (this.tokens[type]) {
 					this.performChange(TokenModel.CHANGED, function() {
 						this.tokens[type] = value;
 						return ret;
