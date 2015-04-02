@@ -3,7 +3,7 @@ define([ "mix", "jquery", "ui/jqueryboxsize", "ui/animateappeareancecss" ], func
 		var innerToken = $("<span class='token " + key + "'>" + value + "</span>");
 		if (text) {
 			var wrapper = $("<div class='token-wrapper'/>");
-			var text = $("<span class='token-text'/>");
+			var text = $("<span class='token-text'>" + text + "</span>");
 			innerToken.appendTo(wrapper);
 			text.appendTo(wrapper);
 			innerToken = wrapper;
@@ -11,6 +11,9 @@ define([ "mix", "jquery", "ui/jqueryboxsize", "ui/animateappeareancecss" ], func
 		JQueryBoxSize.call(this, layoutManager, innerToken);
 		AnimateAppeareanceCss.call(this, "bounceIn", "bounceOut");
 		this.valueElement = this.element.find(".token");
+
+		// le type de token
+		this.tokenType = type;
 
 		// fait apparaitre le token
 		this.animateCss(this.element, "fadeInRight");
