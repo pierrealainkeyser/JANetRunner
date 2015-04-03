@@ -1,11 +1,15 @@
-define([ "geometry/size", "layout/impl/anchorlayout", "layout/impl/flowlayout", "layout/impl/translatelayout" ], //
-function(Size, AnchorLayout, FlowLayout, TranslateLayout) {
+define([ "geometry/size", "layout/impl/anchorlayout", "layout/impl/flowlayout", "layout/impl/translatelayout", "layout/impl/gridlayout" ], //
+function(Size, AnchorLayout, FlowLayout, TranslateLayout, GridLayout) {
 
 	function Conf() {
 		var w = 80;
 		var h = 111;
 
-		this.card = { normal : new Size(w, h), mini : new Size(w / 3, h / 3), zoom : new Size(w * 2, h * 2) };
+		// configuration pour les cartes
+		this.card = { normal : new Size(w, h), mini : new Size(w / 3, h / 3), zoom : new Size(w * 2, h * 2),
+		//	
+		layouts : { tokens : new GridLayout({ maxCols : 3, padding : 2 }) } // 
+		};
 
 		// la duree d'animation
 		this.animation = { normal : 0.3, fast : 0.15 }
