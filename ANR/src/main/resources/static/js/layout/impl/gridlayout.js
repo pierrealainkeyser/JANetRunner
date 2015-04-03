@@ -35,10 +35,11 @@ define([ "mix", "geometry/package", "./basiclayout" ], function(mix, geom, Basic
 
 				c.local.moveTo(point);
 
-				//merge de la taille
+				// merge de la taille
 				bounds = bounds.merge(c.local);
 
-				if (col++ > this.maxCols) {
+				if (++col >= this.maxCols) {
+					col = 0;
 					currentPoint.x = 0;
 					currentPoint.y += maxSize.height;
 				} else {

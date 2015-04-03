@@ -6,7 +6,7 @@
 @card-primary-action-shadow-color: rgb(50, 210, 45);
 @card-action-shadow-color: rgb(240, 173, 78);
 @token-recurring-text-color: #FFCC33;
-@token-text-border: rgba(0, 0, 0, 1);
+@token-text-border: rgba(30, 30, 30, 1);
 @token-text-color: rgba(255, 255, 255, 1);
 @font-family: sans-serif;
 @font-family-fixed: monospace;
@@ -62,8 +62,9 @@ html , body , body > div#main {
 	line-height: @token-width;
 	background-image: url(/img/tokens.png);
 	background-size: @token-width * 4 @token-width * 4;
-	-webkit-filter: drop-shadow(1px 1px 1px @color1);
+	-webkit-filter: drop-shadow(1px 1px 1px @token-text-border) contrast(1.1);
 	.text-token ();
+	text-rendering: optimizeLegibility;
 	text-align: center;
 	&.credit {
 		background-position: 0 0;
@@ -179,6 +180,7 @@ div#conf {
 	font-size: 22px;
 	line-height: @size;
 	text-align: center;
+	.text-border (@color2);
 }
 
 //------------------------------
@@ -198,6 +200,7 @@ div#conf {
 		height: 100%;
 		vertical-align: middle;
 		text-align: center;
+		.text-border (@color2);
 	}
 
 	.scorearea {
