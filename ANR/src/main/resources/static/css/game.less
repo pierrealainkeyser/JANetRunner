@@ -6,8 +6,8 @@
 @card-primary-action-shadow-color: rgb(50, 210, 45);
 @card-action-shadow-color: rgb(240, 173, 78);
 @token-recurring-text-color: #FFCC33;
-@token-text-border: #383838;
-@token-text-color: #E8E8E8;
+@token-text-border: rgba(0, 0, 0, 1);
+@token-text-color: rgba(255, 255, 255, 1);
 @font-family: sans-serif;
 @font-family-fixed: monospace;
 html , body , body > div#main {
@@ -29,7 +29,7 @@ html , body , body > div#main {
 }
 
 .text-border (@border-color) {
-	text-shadow: 2px 0px 1px @border-color, 0px 2px 0 @border-color, 0px -1px 0 @border-color, -1px 0px 0 @border-color;
+	text-shadow: 1px 0px 1px @border-color, 0px 1px 0 @border-color, 0px -1px 0 @border-color, -1px 0px 0 @border-color;
 }
 
 .unselectable {
@@ -62,6 +62,7 @@ html , body , body > div#main {
 	line-height: @token-width;
 	background-image: url(/img/tokens.png);
 	background-size: @token-width * 4 @token-width * 4;
+	-webkit-filter: drop-shadow(1px 1px 1px @color1);
 	.text-token ();
 	text-align: center;
 	&.credit {
@@ -328,5 +329,14 @@ div#conf {
 	border-radius: @radius;
 	background: -webkit-linear-gradient(top, @light-color 0%, @dark-color 100%);
 	box-shadow: 0px 0px 1px 1px @dark-color;
+}
+
+//----------------------------------
+.token {
+	@token-size: 25px;
+	.element ();
+	width: @token-size;
+	height: @token-size;
+	.inner-token (@token-size);
 }
 

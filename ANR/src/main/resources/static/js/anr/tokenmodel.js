@@ -31,28 +31,27 @@ define([ "mix", "underscore", "util/observablemixin" ], function(mix, _, Observa
 		 */
 		this.setTokenValue = function(type, value) {
 
-			var ret = {
-				token : type,
-				value : value
-			};
+			console.log("setTokenValue", type, value)
+
+			var ret = { token : type, value : value };
 
 			if (value) {
-				if (this.tokens[type]) {
-					this.performChange(TokenModel.CHANGED, function() {
-						this.tokens[type] = value;
-						return ret;
-					});
-				} else {
-					this.performChange(TokenModel.ADDED, function() {
-						this.tokens[type] = value;
-						return ret;
-					});
-				}
+				var setValue = function() {
+					this.tokens[type] = value;
+					console.log("---------", ret)
+					return ret;
+				}.bind(this);
+
+				if (this.tokens[type])
+					this.performChange(TokenModel.CHANGED, setValue);
+				else
+					this.performChange(TokenModel.ADDED, setValue);
+
 			} else {
 				this.performChange(TokenModel.REMOVED, function() {
 					delete this.tokens[type];
 					return ret;
-				})
+				}.bind(this))
 			}
 		}
 	});

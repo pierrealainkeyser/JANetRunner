@@ -1,5 +1,6 @@
-define([ "mix", "jquery", "layout/abstractbox", "layout/abstractboxleaf", "ui/tweenlitesyncscreenmixin", "conf" ],// 
-function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, config) {
+define([ "mix", "jquery", "layout/abstractbox", "layout/abstractboxleaf", "layout/impl/gridlayout", "ui/tweenlitesyncscreenmixin", "./tokenmodel",
+		"./tokencontainerbox", "conf" ],// 
+function(mix, $, AbstractBox, AbstractBoxLeaf, GridLayout, TweenLiteSyncScreenMixin, TokenModel, TokenContainerBox, config) {
 
 	function Card(layoutManager, def) {
 		this.def = def;
@@ -14,6 +15,8 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, config)
 		this.front = this.element.find("img.front");
 		this.back = this.element.find("img.back");
 		this.tokens = this.element.find("div.tokens");
+		this.tokenModel = new TokenModel();
+		this.tokensContainer = new TokenContainerBox(layoutManager, new GridLayout({ maxCols : 3, padding : 2 }), this.tokens, false, this.tokenModel);
 
 		// la rotation et la position de la carte, ainsi que la profondeur
 		this.face = Card.FACE_UP;
@@ -31,6 +34,13 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, config)
 	mix(Card, AbstractBoxLeaf);
 	mix(Card, TweenLiteSyncScreenMixin);
 	mix(Card, function() {
+
+		/**
+		 * Décorateur vers le model
+		 */
+		this.setTokensValues = function(values) {
+			this.tokenModel.setTokensValues(values);
+		}
 
 		/**
 		 * Détermine la taille

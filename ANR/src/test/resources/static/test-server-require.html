@@ -68,7 +68,7 @@
 				c.setFace(Card.FACE_DOWN);
 
 				var c1 = new Card(layoutManager, { id : "debug", url : "01089.png", faction : "corp" });
-				var c2=new Card(layoutManager, { url : "01088.png", faction : "corp" });
+				var c2 = new Card(layoutManager, { url : "01088.png", faction : "corp" });
 				var c3 = new Card(layoutManager, { url : "01091.png", faction : "corp" });
 				var c4 = new Card(layoutManager, { url : "01082.png", faction : "corp" });
 
@@ -77,7 +77,10 @@
 				hq.ices.addChild(c1);
 				hq.ices.addChild(c2);
 
-				hq.mainContainer.cards.addChild(new Card(layoutManager, { url : "01080.png", faction : "corp" }));
+				var nbn = new Card(layoutManager, { url : "01080.png", faction : "corp" });
+				nbn.setTokensValues({ credits : 2 })
+
+				hq.mainContainer.cards.addChild(nbn);
 				archives.mainContainer.cards.addChild(c4);
 
 				var c5 = new Card(layoutManager, { url : "01034.png", faction : "runner" });
@@ -85,6 +88,7 @@
 
 				runner.grip.cards.addChild(new Card(layoutManager, { url : "01033.png", faction : "runner" }));
 				runner.stack.cards.addChild(c3);
+				runner.heap.cards.addChild(c5);
 
 				runner.resources.addChild(new Card(layoutManager, { url : "01052.png", faction : "runner" }));
 				runner.hardwares.addChild(new Card(layoutManager, { url : "01038.png", faction : "runner" }));
@@ -92,7 +96,7 @@
 				runner.programs.addChild(new Card(layoutManager, { url : "01042.png", faction : "runner" }));
 
 				var trac = new FocusBox(layoutManager);
-			 	trac.trackAbstractBox(c2);
+				trac.trackAbstractBox(c5);
 
 				corp.local.moveTo({ x : 5, y : layoutManager.container.height() - 5 });
 				runner.local.moveTo({ x : layoutManager.container.width() - 5, y : 5 });
@@ -100,7 +104,10 @@
 				setTimeout(layoutManager.withinLayout(function() {
 					c3.setFace(Card.FACE_DOWN);
 					rd.mainContainer.setCounter(15);
+					
+					nbn.setTokensValues({ badpub : 2, recurring:2 });
 
+					trac.trackAbstractBox(c2);
 					rd.addToAssetsOrUpgrades(c1);
 					remote2.addToAssetsOrUpgrades(c3);
 					remote2.addToAssetsOrUpgrades(c);

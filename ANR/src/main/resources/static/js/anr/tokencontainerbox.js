@@ -1,8 +1,8 @@
-define([ "mix", "jquery", , "./tokenmodel", "layout/abstractboxcontainer", "ui/jqueryboxsize", "ui/animateappeareancecss" ],// 
-function(mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppeareanceCss) {
+define([ "mix", "jquery", "./tokenmodel", "layout/abstractboxcontainer", "ui/jqueryboxsize", "ui/animateappearancecss" ],// 
+function(mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppearanceCss) {
 
 	function TokenBox(layoutManager, container, type, value, text) {
-		var innerToken = $("<span class='token " + key + "'>" + value + "</span>");
+		var innerToken = $("<span class='token " + type + "'>" + value + "</span>");
 		if (text) {
 			var wrapper = $("<div class='token-wrapper'/>");
 			var text = $("<span class='token-text'>" + text + "</span>");
@@ -11,7 +11,7 @@ function(mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppeare
 			innerToken = wrapper;
 		}
 		JQueryBoxSize.call(this, layoutManager, innerToken);
-		AnimateAppeareanceCss.call(this, "bounceIn", "bounceOut");
+		AnimateAppearanceCss.call(this, "bounceIn", "bounceOut");
 
 		// on se rajoute dans le container et pas dans le truc du parent
 		this.element.appendTo(container);
@@ -25,11 +25,11 @@ function(mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppeare
 		this.tokenValue = value;
 
 		// fait apparaitre le token
-		this.animateCss(this.element, "fadeInRight");
+		this.animateEnter(this.element);
 	}
 
 	mix(TokenBox, JQueryBoxSize);
-	mix(TokenBox, AnimateAppeareanceCss);
+	mix(TokenBox, AnimateAppearanceCss);
 	mix(TokenBox, function() {
 		/**
 		 * Mise à jour de la valeur du token, uniquement en cas de changement
@@ -58,7 +58,7 @@ function(mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppeare
 
 		// la fonction d'écoute
 		this.watchFunction = this.syncToken.bind(this);
-		this.tokenModel.observe([ TokenModel.REMOVED, TokenModel.ADDED, TokenModel.CHANGED ], this.watchFunction);
+		this.tokenModel.observe(this.watchFunction, [ TokenModel.REMOVED, TokenModel.ADDED, TokenModel.CHANGED ]);
 	}
 
 	mix(TokenContainerBox, AbstractBoxContainer);
@@ -106,6 +106,8 @@ function(mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppeare
 		 * Synchronisation d'un evenement
 		 */
 		this.syncToken = function(event) {
+			console.log("syncToken", event)
+
 			var type = event.type;
 			var tokenType = event.token;
 			var boxToken = this.findToken(tokenType);
