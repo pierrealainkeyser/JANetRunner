@@ -13,16 +13,19 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 		this.observe(this.propagateDepth.bind(this), [ AbstractBox.DEPTH ]);
 
 		// propage les déplacements aux enfants
-		var needMerge=this.propagateNeedMergeToScreen.bind(this);
+		var needMerge = this.propagateNeedMergeToScreen.bind(this);
 		this.screen.observe(needMerge, [ Rectangle.MOVE_TO ]);
 		this.observe(needMerge, [ AbstractBox.ZINDEX ]);
 	}
+
+	AbstractBoxContainer.CHILD_COUNT = "childCount";
 
 	mix(AbstractBoxContainer, AbstractBox);
 	mix(AbstractBoxContainer, function() {
 
 		/**
-		 * Calcul le zIndex du fils. Utilise les propriétés #addZIndex et #childZIndexFactor pour déterminer le zIndex du fils
+		 * Calcul le zIndex du fils. Utilise les propriétés #addZIndex et
+		 * #childZIndexFactor pour déterminer le zIndex du fils
 		 */
 		this.computeChildZIndex = function(child) {
 			var rank = child.rank;
@@ -79,6 +82,8 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 			box.setContainer(this);
 			box.setDepth(this.depth + 1);
 
+			var size = this.size();
+
 			// suit le champ de taille des enfants
 			box.local.observe(this.bindNeedLayout, [ Rectangle.RESIZE_TO ]);
 
@@ -89,6 +94,10 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 
 			// indique que l'on a besoin d'un layout
 			this.needLayout();
+
+			this.performChange(AbstractBoxContainer.CHILD_COUNT, function() {
+				return { oldValue : size };
+			});
 		}
 
 		/**
@@ -109,8 +118,15 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 		 */
 		this.removeChild = function(box) {
 			unbindChild(box);
+
+			var size = this.size();
+
 			this.childs = _.without(this.childs, box);
 			this.needLayout();
+
+			this.performChange(AbstractBoxContainer.CHILD_COUNT, function() {
+				return { oldValue : size };
+			});
 		}
 
 		/**
@@ -120,6 +136,10 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 			this.eachChild(unbindChild.bind(this));
 			this.childs = [];
 			this.needLayout();
+
+			this.performChange(AbstractBoxContainer.CHILD_COUNT, function() {
+				return { oldValue : 0 };
+			});
 		}
 
 		/**
@@ -141,7 +161,7 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 		 */
 		this.doLayout = function() {
 			this.layoutFunction.doLayout(this, this.childs);
-			
+
 			// mise à jour du rang des enfants
 			this.eachChild(function(child, index) {
 				child.setRank(index);

@@ -41,8 +41,8 @@ define([ "mix", "underscore", "jquery" ], function(mix, _, $) {
 		/**
 		 * Joue l'animation de début
 		 */
-		this.animateEnter = function(element) {
-			this.animateCss(element, this.entranceAnimation)
+		this.animateEnter = function(element, onEnd) {
+			this.animateCss(element, this.entranceAnimation, onEnd)
 		}
 
 		/**
