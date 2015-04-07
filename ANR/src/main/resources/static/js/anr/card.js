@@ -1,6 +1,5 @@
-define([ "mix", "jquery", "layout/abstractbox", "layout/abstractboxleaf", "ui/tweenlitesyncscreenmixin", "./tokenmodel",
-		"./tokencontainerbox", "conf" ],// 
-function(mix, $, AbstractBox, AbstractBoxLeaf , TweenLiteSyncScreenMixin, TokenModel, TokenContainerBox, config) {
+define([ "mix", "jquery", "layout/abstractbox", "layout/abstractboxleaf", "ui/tweenlitesyncscreenmixin", "./tokenmodel", "./tokencontainerbox", "conf" ],// 
+function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, TokenModel, TokenContainerBox, config) {
 
 	function Card(layoutManager, def) {
 		this.def = def;
@@ -34,6 +33,13 @@ function(mix, $, AbstractBox, AbstractBoxLeaf , TweenLiteSyncScreenMixin, TokenM
 	mix(Card, AbstractBoxLeaf);
 	mix(Card, TweenLiteSyncScreenMixin);
 	mix(Card, function() {
+
+		/**
+		 * Accède à l'ID de la carte
+		 */
+		this.id = function() {
+			return def.id;
+		}
 
 		/**
 		 * Décorateur vers le model
@@ -96,7 +102,12 @@ function(mix, $, AbstractBox, AbstractBoxLeaf , TweenLiteSyncScreenMixin, TokenM
 		 */
 		this.computePrimaryCssTween = function() {
 			var hints = this.container.renderingHints();
-			var css = this.computeCssTween({ zIndex : true, rotation : true, autoAlpha : true, size : true });
+			var css = this.computeCssTween({
+				zIndex : true,
+				rotation : true,
+				autoAlpha : true,
+				size : true
+			});
 			// en cas d'affichage horizontal on corrige la position
 			if (true === hints.horizontal) {
 				css.left += this.screen.size.height;
@@ -125,8 +136,12 @@ function(mix, $, AbstractBox, AbstractBoxLeaf , TweenLiteSyncScreenMixin, TokenM
 					shadow = config.shadow.back.vertical;
 			}
 
-			var frontCss = { rotationY : faceup ? 0 : -180 };
-			var backCss = _.extend(_.clone(frontCss), { boxShadow : shadow });
+			var frontCss = {
+				rotationY : faceup ? 0 : -180
+			};
+			var backCss = _.extend(_.clone(frontCss), {
+				boxShadow : shadow
+			});
 			var css = this.computePrimaryCssTween();
 
 			var set = this.firstSyncScreen();

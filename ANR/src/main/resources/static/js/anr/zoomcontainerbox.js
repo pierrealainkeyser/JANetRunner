@@ -2,28 +2,37 @@ define([ "mix", "jquery", "layout/abstractboxcontainer", "layout/abstractbox", "
 		"ui/animateappeareancecss", "./headercontainerbox", "./tokencontainerbox" ], //
 function(mix, $, AbstractBoxContainer, AbstractBox, FlowLayout, AnchorLayout, JQueryBoxSize, AnimateAppeareanceCss, HeaderContainerBox, TokenContainerBox) {
 
+	function ZoomedDetail(layoutManager,element, zoomed){
+		AbstractBoxContainer.call(this,layoutManager, {}, new FlowLayout({}));
+		
+		var tokens = new TokenContainerBox(layoutManager, new FlowLayout({}), element, true, zoomed.tokenModel);
+		
+		var tokensHeader=new HeaderContainerBox(layoutManager, tokens, "Tokens");
+		this.addChild(tokensHeader);
+		tokensHeader.header.appendTo(element);
+	}
+	
+	mix(ZoomedDetail, AbstractBoxContainer);
+	
 	function ZoomContainerBox(layoutManager, zoomed) {
 		AbstractBoxContainer.call(this, layoutManager, {}, new FlowLayout({}));
 		AnimateAppeareanceCss.call(this, "fadeIn", "fadeOut");
 
 		this.zoomed = zoomed;
-		this.mainContainer = new AbstractBoxContainer(layoutManager, {}, new FlowLayout({}));
+		
 		this.primaryContainer = new AbstractBoxContainer(layoutManager, {}, new AnchorLayout({}));
 		this.element = $("<div class='zoombox'/>");
-		this.tokens = new TokenContainerBox(layoutManager, new FlowLayout({}), this.element, true, zoomed.tokenModel);
-
+		
+		var zoomedDetail=new ZoomedDetail(layoutManager,this.element,zoomed);
+		
 		this.addChild(this.primaryContainer);
-		this.addChild(this.mainContainer);
+		this.addChild(zoomedDetail);
 		
 		// rajout dans le main
-		this.mainContainer.addChild(new HeaderContainerBox(layoutManager, this.tokens, "Tokens"));
-		
 		this.primaryContainer.addChild(zoomed);
-		// TODO rajout du titre et des actions
 
 		this.watchContainerFunction = this.watchContainer.bind(this);
 		zoomed.observe(this.watchContainerFunction, [ AbstractBox.CONTAINER ]);
-
 	}
 
 	mix(ZoomContainerBox, AbstractBoxContainer);

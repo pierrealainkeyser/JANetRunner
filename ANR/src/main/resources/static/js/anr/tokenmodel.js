@@ -23,22 +23,17 @@ define([ "mix", "underscore", "util/observablemixin" ], function(mix, _, Observa
 		 * Permet d'appeler un traitement sur tous les tokens
 		 */
 		this.eachTokens = function(closure) {
-			_.each(this.tokens);
+			_.each(this.tokens, closure);
 		}
 
 		/**
 		 * Mise à jour des valeurs. La valeur 0 supprime le token
 		 */
 		this.setTokenValue = function(type, value) {
-
-			console.log("setTokenValue", type, value)
-
 			var ret = { token : type, value : value };
-
 			if (value) {
 				var setValue = function() {
 					this.tokens[type] = value;
-					console.log("---------", ret)
 					return ret;
 				}.bind(this);
 

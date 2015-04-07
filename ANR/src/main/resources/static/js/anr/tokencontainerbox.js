@@ -52,23 +52,31 @@ function(mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppeara
 
 	function TokenContainerBox(layoutManager, layoutFunction, elementContainer, includeText, tokenModel) {
 		AbstractBoxContainer.call(this, layoutManager, {}, layoutFunction);
-		this.tokenModel = tokenModel;
+		this.tokenModel = null;
 		this.includeText = includeText;
 		this.elementContainer = elementContainer;
 
 		// la fonction d'écoute
 		this.watchFunction = this.syncToken.bind(this);
-		this.tokenModel.observe(this.watchFunction, [ TokenModel.REMOVED, TokenModel.ADDED, TokenModel.CHANGED ]);
+		this.setTokenModel(tokenModel);
+	
 	}
 
 	mix(TokenContainerBox, AbstractBoxContainer);
 	mix(TokenContainerBox, function() {
-
+		
 		/**
-		 * Permet de ne plus regarder le model
+		 * Mise à jour du model, et suppression du binding au besoin
 		 */
-		this.unobserveModel = function() {
-			this.tokenModel.unobserve(this.watchFunction);
+		this.setTokenModel = function(tokenModel) {
+			if (this.tokenModel) {
+				this.tokenModel.unobserve(this.watchFunction);
+			}
+			this.tokenModel = tokenModel;
+			if (this.tokenModel) {
+				this.tokenModel.observe(this.watchFunction, [ TokenModel.REMOVED, TokenModel.ADDED, TokenModel.CHANGED ]);
+				this.syncFromModel();
+			}
 		}
 
 		/**
@@ -106,8 +114,6 @@ function(mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppeara
 		 * Synchronisation d'un evenement
 		 */
 		this.syncToken = function(event) {
-			console.log("syncToken", event)
-
 			var type = event.type;
 			var tokenType = event.token;
 			var boxToken = this.findToken(tokenType);
