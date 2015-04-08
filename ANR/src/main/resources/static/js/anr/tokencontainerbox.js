@@ -97,7 +97,7 @@ function(mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppeara
 		this.syncFromModel = function() {
 
 			var keepToken = [];
-			this.tokenModel.eachToken(function(value, type) {
+			this.tokenModel.eachTokens(function(value, type) {
 				keepToken.push(type);
 				var boxToken = this.findToken(type);
 				if (boxToken)
