@@ -59,24 +59,24 @@ function(mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppeara
 		// la fonction d'écoute
 		this.watchFunction = this.syncToken.bind(this);
 		this.setTokenModel(tokenModel);
-	
+
 	}
 
 	mix(TokenContainerBox, AbstractBoxContainer);
 	mix(TokenContainerBox, function() {
-		
+
 		/**
 		 * Mise à jour du model, et suppression du binding au besoin
 		 */
 		this.setTokenModel = function(tokenModel) {
-			if (this.tokenModel) {
+			if (this.tokenModel)
 				this.tokenModel.unobserve(this.watchFunction);
-			}
+
 			this.tokenModel = tokenModel;
-			if (this.tokenModel) {
+			if (this.tokenModel)
 				this.tokenModel.observe(this.watchFunction, [ TokenModel.REMOVED, TokenModel.ADDED, TokenModel.CHANGED ]);
-				this.syncFromModel();
-			}
+
+			this.syncFromModel();
 		}
 
 		/**
@@ -97,15 +97,17 @@ function(mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppeara
 		this.syncFromModel = function() {
 
 			var keepToken = [];
-			this.tokenModel.eachTokens(function(value, type) {
-				keepToken.push(type);
-				var boxToken = this.findToken(type);
-				if (boxToken)
-					boxToken.setValue(value);
-				else
-					this.createToken(type, value);
+			if (this.tokenModel) {
+				this.tokenModel.eachTokens(function(value, type) {
+					keepToken.push(type);
+					var boxToken = this.findToken(type);
+					if (boxToken)
+						boxToken.setValue(value);
+					else
+						this.createToken(type, value);
 
-			}.bind(this));
+				}.bind(this));
+			}
 
 			// TODO suppression de tous les tokenbox qui n'ont pas le bon type
 		}
