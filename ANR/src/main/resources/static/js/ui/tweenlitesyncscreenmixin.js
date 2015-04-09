@@ -30,31 +30,42 @@ define([ "underscore", "tweenlite" ,"conf"], function(_, TweenLite, conf) {
 				TweenLite.to(element, animDuration, anim);
 		}
 
+				
 		/**
-		 * Calcule le style partir de l'option screen
+		 * Calcule le style partir de l'option screen et de la boite
 		 */
-		this.computeCssTween = function(opt) {
+		this.computeCssTweenBox = function(box, opt) {
 			opt = opt || {};
-			var point = this.screen.point;
-			var css = { top : point.y, left : point.x };
+			var point = box.screen.point;
+			var css = {
+				top : point.y,
+				left : point.x
+			};
 
 			if (opt.size) {
-				var size = this.screen.size;
+				var size = box.screen.size;
 				css.width = size.width;
 				css.height = size.height;
 			}
 
-			if (opt.rotation && this.rotation !== undefined) {
-				css.rotation = this.rotation;
+			if (opt.rotation && box.rotation !== undefined) {
+				css.rotation = box.rotation;
 			}
 
-			if (opt.autoAlpha && _.isBoolean(this.visible))
-				css.autoAlpha = this.visible ? 1 : 0;
+			if (opt.autoAlpha && _.isBoolean(box.visible))
+				css.autoAlpha = box.visible ? 1 : 0;
 
-			if (opt.zIndex && this.zIndex !== undefined)
-				css.zIndex = this.zIndex;
+			if (opt.zIndex && box.zIndex !== undefined)
+				css.zIndex = box.zIndex;
 
 			return css;
+		}
+
+		/**
+		 * Calcule le style partir de l'option screen
+		 */
+		this.computeCssTween = function(opt) {
+			return this.computeCssTweenBox(this,opt);
 		}
 	}
 

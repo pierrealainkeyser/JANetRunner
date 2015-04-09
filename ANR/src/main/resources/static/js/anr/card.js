@@ -81,8 +81,8 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, TokenMo
 			var moveTo = this.local.topLeft();
 			var size = this.local.cloneSize();
 
-			if (this.container != null) {
-				var hints = this.container.renderingHints();
+			var hints = this.renderingHints();
+			if (hints) {
 				if (true === hints.horizontal) {
 					// on retransforme la bonne taille pour prendre en compte la
 					// rotation
@@ -98,19 +98,22 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, TokenMo
 		}
 
 		/**
-		 * Calcule la position principale
+		 * Calcule la position principale. Il est possible de passer une boite, sinon prendra la carte
 		 */
-		this.computePrimaryCssTween = function() {
-			var hints = this.container.renderingHints();
-			var css = this.computeCssTween({
+		this.computePrimaryCssTween = function(box) {
+			if (!box)
+				box = this;
+
+			var hints = box.renderingHints();
+			var css = this.computeCssTweenBox(box, {
 				zIndex : true,
 				rotation : true,
 				autoAlpha : true,
 				size : true
 			});
 			// en cas d'affichage horizontal on corrige la position
-			if (true === hints.horizontal) {
-				css.left += this.screen.size.height;
+			if (hints && true === hints.horizontal) {
+				css.left += box.screen.size.height;
 			}
 			return css;
 		}

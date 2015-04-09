@@ -52,6 +52,16 @@ define([ "mix", "underscore", "util/observablemixin","util/innersetmixin", "geom
 	mix(AbstractBox, ObservableMixin);
 	mix(AbstractBox, InnerSetMixin);	
 	mix(AbstractBox, function() {
+		
+		/**
+		 * Trouve les renderingHints du container ou null
+		 */
+		this.renderingHints = function() {
+			if (this.container)
+				return this.container.renderingHints();
+			else
+				return null;
+		}
 
 		/**
 		 * Indique le besoin de recopie les coordonnées local dans les

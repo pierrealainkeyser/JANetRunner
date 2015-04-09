@@ -76,6 +76,17 @@ define([ "mix", "underscore", "util/observablemixin" ], function(mix, _, Observa
 			var cards = this.cards;
 			_.each(card, this.remove.bind(this));
 		}
+		
+
+		/**
+		 * Renvoi la premiere carte trouvée
+		 */
+		this.first = function() {
+			if (this.cards.length > 0)
+				return this.cards[0];
+			else
+				return null;
+		}
 
 		/**
 		 * Permet de supprimer une carte
