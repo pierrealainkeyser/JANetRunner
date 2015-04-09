@@ -1,17 +1,14 @@
-define([ "mix", "jquery", "layout/abstractboxcontainer", "layout/impl/flowLayout", "layout/impl/anchorlayout", "ui/jqueryboxsize", "ui/animateappeareancecss", "./headercontainerbox",
-		"./tokencontainerbox", "ui/jquerytrackingbox" ], //
-function(mix, $, AbstractBoxContainer, FlowLayout, AnchorLayout, JQueryBoxSize, AnimateAppeareanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox) {
+define([ "mix", "jquery", "layout/abstractboxcontainer", "layout/impl/flowLayout", "layout/impl/anchorlayout", "ui/jqueryboxsize", "ui/animateappearancecss",//
+"./headercontainerbox", "./tokencontainerbox", "ui/jquerytrackingbox", "./cardscontainerbox", "./cardsmodel" ], //
+function(mix, $, AbstractBoxContainer, FlowLayout, AnchorLayout, JQueryBoxSize, AnimateAppearanceCss,//
+HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, CardsModel) {
 
 	function ZoomedDetail(layoutManager, element, mergeSubstractZoomed) {
-		AbstractBoxContainer.call(this, layoutManager, {}, new FlowLayout({
-			direction : FlowLayout.Direction.BOTTOM
-		}));
+		AbstractBoxContainer.call(this, layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }));
 
-		this.tokens = new TokenContainerBox(layoutManager, new FlowLayout({
-			direction : FlowLayout.Direction.BOTTOM
-		}), element, true);
+		this.tokens = new TokenContainerBox(layoutManager, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }), element, true);
 		this.tokensHeader = new HeaderContainerBox(layoutManager, tokens, "Tokens");
-		
+
 		// attache le header à l'element et ignore le deplacement
 		this.tokensHeader.additionnalMergePosition = mergeSubstractZoomed;
 		this.tokensHeader.header.appendTo(element);
@@ -35,19 +32,14 @@ function(mix, $, AbstractBoxContainer, FlowLayout, AnchorLayout, JQueryBoxSize, 
 	})
 
 	function ZoomContainerBox(layoutManager) {
-		AbstractBoxContainer.call(this, layoutManager, {}, new FlowLayout({
-			direction : FlowLayout.Direction.BOTTOM
-		}));
-		AnimateAppeareanceCss.call(this, "fadeIn", "fadeOut");
+		AbstractBoxContainer.call(this, layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }));
+		AnimateAppearanceCss.call(this, "fadeIn", "fadeOut");
 
 		// permet de ne pas merger les positions de la pointe parente pour les
 		// elements rataché à this.element
 		var mergeSubstractZoomed = function(moveTo) {
 			var topLeft = this.screen.topLeft()
-			moveTo.add({
-				x : -topLeft.x,
-				y : -topLeft.y
-			});
+			moveTo.add({ x : -topLeft.x, y : -topLeft.y });
 		}.bind(this);
 
 		// carte primaire (à gauche)
@@ -81,7 +73,7 @@ function(mix, $, AbstractBoxContainer, FlowLayout, AnchorLayout, JQueryBoxSize, 
 		this.addChild(mainRow);
 		this.addChild(this.actions);
 
-		//on corrige la position du header
+		// on corrige la position du header
 		this.header.additionnalMergePosition = mergeSubstractZoomed;
 		actionsBox.additionnalMergePosition = mergeSubstractZoomed;
 
@@ -95,7 +87,8 @@ function(mix, $, AbstractBoxContainer, FlowLayout, AnchorLayout, JQueryBoxSize, 
 		thisbox.syncScreen = function() {
 			var css = this.computeCssTween(this.cssTweenConfig);
 			var onComplete = null;
-			// il faut une position de départ, que l'on set puis que l'on déplace
+			// il faut une position de départ, que l'on set puis que l'on
+			// déplace
 			if (me.originalCssPosition) {
 				this.tweenElement(this.element, originalCssPosition, true);
 				me.originalCssPosition = null;
@@ -107,7 +100,7 @@ function(mix, $, AbstractBoxContainer, FlowLayout, AnchorLayout, JQueryBoxSize, 
 				onComplete = this.remove.bind(this);
 			}
 
-			//TODO il n'y a toujours une animation
+			// TODO il n'y a toujours une animation
 			this.tweenElement(this.element, css, false, onComplete);
 		}
 
@@ -118,7 +111,7 @@ function(mix, $, AbstractBoxContainer, FlowLayout, AnchorLayout, JQueryBoxSize, 
 	}
 
 	mix(ZoomContainerBox, AbstractBoxContainer);
-	mix(ZoomContainerBox, AnimateAppeareanceCss);
+	mix(ZoomContainerBox, AnimateAppearanceCss);
 	mix(ZoomContainerBox, function() {
 
 		/**
