@@ -7,7 +7,7 @@ HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, Car
 		AbstractBoxContainer.call(this, layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }));
 
 		this.tokens = new TokenContainerBox(layoutManager, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }), element, true);
-		this.tokensHeader = new HeaderContainerBox(layoutManager, tokens, "Tokens");
+		this.tokensHeader = new HeaderContainerBox(layoutManager, this.tokens, "Tokens");
 
 		// attache le header à l'element et ignore le deplacement
 		this.tokensHeader.additionnalMergePosition = mergeSubstractZoomed;
@@ -54,7 +54,7 @@ HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, Car
 
 		this.element = $("<div class='zoombox'/>");
 
-		this.zoomedDetail = new ZoomedDetail(layoutManager, this.element, mergeSubstractZoomed, zoomed);
+		this.zoomedDetail = new ZoomedDetail(layoutManager, this.element, mergeSubstractZoomed);
 		this.header = new JQueryBoxSize(layoutManager, $("<div class='header'>"));
 		this.header.element.appendTo(this.element);
 

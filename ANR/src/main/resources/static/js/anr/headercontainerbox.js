@@ -1,9 +1,9 @@
-define([ "mix", "jquery", "layout/abstractboxcontainer", "layout/impl/flowLayout", "ui/jqueryboxsize", "ui/animateappeareancecss" ], function(mix, $,
-		AbstractBoxContainer, FlowLayout, JQueryBoxSize, AnimateAppeareanceCss) {
+define([ "mix", "jquery", "layout/abstractboxcontainer", "layout/impl/flowLayout", "ui/jqueryboxsize", "ui/animateappearancecss" ], function(mix, $,
+		AbstractBoxContainer, FlowLayout, JQueryBoxSize, AnimateAppearanceCss) {
 
 	function HeaderContainerBox(layoutManager, container, text) {
 		AbstractBoxContainer.call(this, layoutManager, {}, new FlowLayout({}));
-		AnimateAppeareanceCss.call(this, "fadeInRight", "fadeOutRight");
+		AnimateAppearanceCss.call(this, "fadeInRight", "fadeOutRight");
 
 		this.header = new JQueryBoxSize(layoutManager, $("<span class='header'>" + text + "</span>"));
 		this.container = container;
@@ -15,7 +15,7 @@ define([ "mix", "jquery", "layout/abstractboxcontainer", "layout/impl/flowLayout
 	}
 
 	mix(HeaderContainerBox, AbstractBoxContainer);
-	mix(HeaderContainerBox, AnimateAppeareanceCss);
+	mix(HeaderContainerBox, AnimateAppearanceCss);
 	mix(HeaderContainerBox, function() {
 		/**
 		 * Calcul de la visibilte
