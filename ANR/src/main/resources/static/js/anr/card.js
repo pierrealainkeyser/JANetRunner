@@ -41,6 +41,11 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, TokenMo
 		this.unapplyGhost = function() {
 			// TODO
 		}
+		
+		this.lastGhost = function() {
+			// TODO
+			return this;
+		}
 
 		/**
 		 * Accède à l'ID de la carte

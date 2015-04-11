@@ -28,7 +28,7 @@ function(mix, $, CardsModel, AbstractBoxContainer) {
 			} else if (type === CardsModel.REMOVED) {
 				// suppression du ghost
 				if (this.applyGhost) {
-					var card = removedCard.newCard;
+					var card = event.removedCard;
 					card.unapplyGhost();
 				}
 			}

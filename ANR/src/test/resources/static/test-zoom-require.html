@@ -38,12 +38,20 @@
 
 			layoutManager.runLayout(function() {
 				var c1 = new Card(layoutManager, { id : "debug", url : "01089.png", faction : "corp" });
-				c1.setTokensValues({ credits : 2 })
+				c1.setTokensValues({ credits : 2 });
 
 				var zoom = new ZoomContainerBox(layoutManager);
 				zoom.setPrimaryCard(c1);
 				zoom.local.moveTo({ x : 200, y : 200 });
 
+				layoutManager.afterFirstMerge = zoom.afterLayoutPhase.bind(zoom);
+
+				
+				setTimeout(function(){
+					
+					zoom.setPrimaryCard(null)
+					
+				},2000);
 			});
 		});
 	});

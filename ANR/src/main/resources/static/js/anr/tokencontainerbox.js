@@ -1,5 +1,5 @@
-define([ "mix", "jquery", "./tokenmodel", "layout/abstractboxcontainer", "ui/jqueryboxsize", "ui/animateappearancecss" ],// 
-function(mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppearanceCss) {
+define([ "underscore", "mix", "jquery", "./tokenmodel", "layout/abstractboxcontainer", "ui/jqueryboxsize", "ui/animateappearancecss" ],// 
+function(_, mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppearanceCss) {
 
 	function TokenBox(layoutManager, container, type, value, text) {
 		var innerToken = $("<span class='token " + type + "'>" + value + "</span>");
@@ -31,6 +31,11 @@ function(mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppeara
 	mix(TokenBox, JQueryBoxSize);
 	mix(TokenBox, AnimateAppearanceCss);
 	mix(TokenBox, function() {
+
+		this.playRemoveAnimation = function() {
+			this.animateCompleteRemove(this.element);
+		}
+
 		/**
 		 * Mise à jour de la valeur du token, uniquement en cas de changement
 		 */
@@ -99,17 +104,24 @@ function(mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppeara
 			var keepToken = [];
 			if (this.tokenModel) {
 				this.tokenModel.eachTokens(function(value, type) {
-					keepToken.push(type);
 					var boxToken = this.findToken(type);
 					if (boxToken)
 						boxToken.setValue(value);
 					else
-						this.createToken(type, value);
+						boxToken = this.createToken(type, value);
+					keepToken.push(boxToken);
 
 				}.bind(this));
 			}
 
-			// TODO suppression de tous les tokenbox qui n'ont pas le bon type
+			// suppression de tous les tokenbox qui n'ont pas le bon type
+			this.eachChild(function(c) {
+				if (!_.contains(keepToken, c)) {
+					c.playRemoveAnimation();
+					this.removeChild(c);
+
+				}
+			}.bind(this));
 		}
 
 		/**
@@ -127,7 +139,7 @@ function(mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppeara
 					this.createToken(tokenType, event.value);
 			} else if (type === TokenModel.REMOVED) {
 				if (boxToken) {
-					boxToken.setValue(0);
+					boxToken.playRemoveAnimation();
 					this.removeChild(boxToken);
 				}
 			}
@@ -148,6 +160,7 @@ function(mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppeara
 
 			var token = new TokenBox(this.layoutManager, this.elementContainer, type, value, text);
 			this.addChild(token);
+			return token;
 		}
 	});
 	return TokenContainerBox;

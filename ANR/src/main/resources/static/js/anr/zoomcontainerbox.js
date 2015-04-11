@@ -90,7 +90,7 @@ HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, Car
 			// il faut une position de départ, que l'on set puis que l'on
 			// déplace
 			if (me.originalCssPosition) {
-				this.tweenElement(this.element, originalCssPosition, true);
+				this.tweenElement(this.element, me.originalCssPosition, true);
 				me.originalCssPosition = null;
 			}
 
