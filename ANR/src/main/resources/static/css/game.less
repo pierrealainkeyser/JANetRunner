@@ -349,20 +349,26 @@ div#conf {
 	.element ();
 	.unselectable ();
 	background: @color0;
-	box-shadow: 0px 0px 1px 1px @color1;
+	box-shadow: 0px 0px 1px 1px @color1, 1.5px 1.5px 2px 0px @color3;
 	border-radius: @radius;
 	.header {
 		.element ();
 		.unselectable ();
-	}	
+		font-style: italic;
+		font-family: @font-family-fixed;
+	}
 }
 
 //------------------------------
 .token-wrapper {
-		.element ();
-		.unselectable ();
-		.token {
-			position: static;
-		}
+	.element ();
+	.unselectable ();
+	.token {
+		position: static;
 	}
+
+	.token-text {
+		padding-left: 5px;
+	}
+}
 

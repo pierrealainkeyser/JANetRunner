@@ -60,7 +60,7 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, TokenMo
 		 * Détermine la taille
 		 */
 		this.computeFromRenderingHints = function() {
-			var hints = this.container.renderingHints();
+			var hints = this.renderingHints();
 
 			// en fonction du mode on calcul la taille
 			var size = config.card.normal;
@@ -126,9 +126,11 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, TokenMo
 		 * Mise à jour des elements graphique
 		 */
 		this.syncScreen = function() {
+			var hints = this.renderingHints();
 			var shadow = "";
 			var faceup = this.face === Card.FACE_UP;
 			var horizontal = this.rotation == 90;
+			var cardsize = hints.cardsize;
 
 			// gestion de l'ombre
 			if (horizontal) {
@@ -146,11 +148,16 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, TokenMo
 			var frontCss = { rotationY : faceup ? 0 : -180 };
 			var backCss = _.extend(_.clone(frontCss), { boxShadow : shadow });
 			var css = this.computePrimaryCssTween();
+			var tokenCss = { autoAlpha : 1 };
+
+			if ("normal" !== cardsize)
+				tokenCss.autoAlpha = 0;
 
 			var set = this.firstSyncScreen();
 			this.tweenElement(this.element, css, set);
 			this.tweenElement(this.front, frontCss, set);
 			this.tweenElement(this.back, backCss, set);
+			this.tweenElement(this.tokens, tokenCss, set);
 		}
 
 		/**

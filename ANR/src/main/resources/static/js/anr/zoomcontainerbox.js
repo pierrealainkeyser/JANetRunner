@@ -44,12 +44,12 @@ HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, Car
 
 		// carte primaire (à gauche)
 		this.primaryCardsModel = new CardsModel();
-		this.primaryCardContainer = new CardsContainerBox(layoutManager, new AnchorLayout({}), true);
+		this.primaryCardContainer = new CardsContainerBox(layoutManager, { cardsize : "zoom" }, new AnchorLayout({}), true);
 		this.primaryCardContainer.setCardsModel(this.primaryCardsModel);
 
 		// carte secondaire (à droite)
 		this.secondaryCardsModel = new CardsModel();
-		this.secondaryCardContainer = new CardsContainerBox(layoutManager, new AnchorLayout({}), true);
+		this.secondaryCardContainer = new CardsContainerBox(layoutManager, { cardsize : "zoom" }, new AnchorLayout({}), true);
 		this.secondaryCardContainer.setCardsModel(this.secondaryCardsModel);
 
 		this.element = $("<div class='zoombox'/>");
@@ -63,7 +63,7 @@ HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, Car
 		var actionsBox = new JQueryTrackingBox(layoutManager, $("<div class='actions'/>"));
 		actionsBox.element.appendTo(this.element);
 
-		var mainRow = new AbstractBoxContainer(layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.RIGHT }));
+		var mainRow = new AbstractBoxContainer(layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.RIGHT, padding : 4, spacing : 8 }));
 
 		mainRow.addChild(this.primaryCardContainer);
 		mainRow.addChild(this.zoomedDetail);

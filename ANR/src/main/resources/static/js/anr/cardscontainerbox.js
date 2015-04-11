@@ -1,8 +1,8 @@
 define([ "mix", "jquery", "./cardsmodel", "layout/abstractboxcontainer" ],// 
 function(mix, $, CardsModel, AbstractBoxContainer) {
 
-	function CardsContainerBox(layoutManager, layoutFunction, applyGhost) {
-		AbstractBoxContainer.call(this, layoutManager, {}, layoutFunction);
+	function CardsContainerBox(layoutManager, hints, layoutFunction, applyGhost) {
+		AbstractBoxContainer.call(this, layoutManager, hints, layoutFunction);
 		this.applyGhost = applyGhost || false;
 
 		this.cardsModel = null;
@@ -52,8 +52,8 @@ function(mix, $, CardsModel, AbstractBoxContainer) {
 		 * Synchronisation de l'état de toutes les cartes
 		 */
 		this.syncFromModel = function() {
-			var cardsToKeep=[];
-			
+			var cardsToKeep = [];
+
 			// TODO
 		}
 	});
