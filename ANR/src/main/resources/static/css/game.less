@@ -343,3 +343,26 @@ div#conf {
 	.inner-token (@token-size);
 }
 
+//------------------------------
+.zoombox {
+	@radius: 5px;
+	.element ();
+	.unselectable ();
+	background: @color0;
+	box-shadow: 0px 0px 1px 1px @color1;
+	border-radius: @radius;
+	.header {
+		.element ();
+		.unselectable ();
+	}	
+}
+
+//------------------------------
+.token-wrapper {
+		.element ();
+		.unselectable ();
+		.token {
+			position: static;
+		}
+	}
+

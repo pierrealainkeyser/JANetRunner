@@ -11,9 +11,9 @@ HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, Car
 
 		// attache le header à l'element et ignore le deplacement
 		this.tokensHeader.additionnalMergePosition = mergeSubstractZoomed;
-		this.tokensHeader.header.appendTo(element);
+		this.tokensHeader.header.element.appendTo(element);
 
-		this.addChild(tokensHeader);
+		this.addChild(this.tokensHeader);
 	}
 	mix(ZoomedDetail, AbstractBoxContainer);
 	mix(ZoomedDetail, function() {
@@ -23,7 +23,7 @@ HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, Car
 		 */
 		this.bindCard = function(card) {
 			if (card) {
-				this.tokens.setTokenModel(card.tokensModel);
+				this.tokens.setTokenModel(card.tokenModel);
 			} else {
 				this.tokens.setTokenModel(null);
 				// TODO suppression de tous les elements liés à la carte
@@ -63,11 +63,11 @@ HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, Car
 		var actionsBox = new JQueryTrackingBox(layoutManager, $("<div class='actions'/>"));
 		actionsBox.element.appendTo(this.element);
 
-		var mainRow = new AbstractBoxContainer(layoutManager, {}, new FlowLayout({}));
+		var mainRow = new AbstractBoxContainer(layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.RIGHT }));
 
 		mainRow.addChild(this.primaryCardContainer);
 		mainRow.addChild(this.zoomedDetail);
-		mainRow.addChild(this.secondaryCardsModel);
+		mainRow.addChild(this.secondaryCardContainer);
 
 		this.addChild(this.header);
 		this.addChild(mainRow);
@@ -156,11 +156,11 @@ HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, Car
 			if (CardsModel.ADDED === type) {
 
 				// affichage du contenu de la carte
-				this.zoomedDetail.bind(event.newCard);
+				this.zoomedDetail.bindCard(event.newCard);
 
 			} else if (CardsModel.REMOVED === type) {
 				// nettoyage du contenu de la carte
-				this.zoomedDetail.bind(null);
+				this.zoomedDetail.bindCard(null);
 			}
 		}
 

@@ -140,7 +140,7 @@ function(mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppeara
 			var text = null;
 			if (this.includeText) {
 				// gestion de la correspondance
-				if ("credit".equals(type))
+				if ("credits" === type)
 					text = "Credits";
 				else
 					text = "?";

@@ -63,7 +63,7 @@ define([ "mix", "underscore", "util/observablemixin" ], function(mix, _, Observa
 		 * Permet de rajouter une carte
 		 */
 		this.add = function(card) {
-			this.performanceChange(CardsModel.ADDED, function() {
+			this.performChange(CardsModel.ADDED, function() {
 				this.cards.push(card);
 				return { newCard : card };
 			}.bind(this));
@@ -74,7 +74,7 @@ define([ "mix", "underscore", "util/observablemixin" ], function(mix, _, Observa
 		 */
 		this.removeAll = function() {
 			var cards = this.cards;
-			_.each(card, this.remove.bind(this));
+			_.each(cards, this.remove.bind(this));
 		}
 		
 
@@ -92,7 +92,7 @@ define([ "mix", "underscore", "util/observablemixin" ], function(mix, _, Observa
 		 * Permet de supprimer une carte
 		 */
 		this.remove = function(card) {
-			this.performanceChange(CardsModel.REMOVED, function() {
+			this.performChange(CardsModel.REMOVED, function() {
 				this.cards = _.without(this.cards, card);
 				return { removedCard : card };
 			}.bind(this));

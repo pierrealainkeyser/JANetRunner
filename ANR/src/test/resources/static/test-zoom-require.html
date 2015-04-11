@@ -32,15 +32,17 @@
 	});
 
 	require([ "jquery", "layout/package", "anr/card", "anr/zoomcontainerbox" ],//
-	function($, layout,  Card, ZoomContainerBox) {
+	function($, layout, Card, ZoomContainerBox) {
 		$(function() {
 			var layoutManager = new layout.LayoutManager($("#main"));
 
 			layoutManager.runLayout(function() {
 				var c1 = new Card(layoutManager, { id : "debug", url : "01089.png", faction : "corp" });
+				c1.setTokensValues({ credits : 2 })
 
 				var zoom = new ZoomContainerBox(layoutManager);
 				zoom.setPrimaryCard(c1);
+				zoom.local.moveTo({ x : 200, y : 200 });
 
 			});
 		});

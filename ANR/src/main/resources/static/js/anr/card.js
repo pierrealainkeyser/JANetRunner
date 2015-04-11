@@ -34,6 +34,14 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, TokenMo
 	mix(Card, TweenLiteSyncScreenMixin);
 	mix(Card, function() {
 
+		this.applyGhost = function() {
+			// TODO
+		}
+
+		this.unapplyGhost = function() {
+			// TODO
+		}
+
 		/**
 		 * Accède à l'ID de la carte
 		 */
@@ -98,19 +106,15 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, TokenMo
 		}
 
 		/**
-		 * Calcule la position principale. Il est possible de passer une boite, sinon prendra la carte
+		 * Calcule la position principale. Il est possible de passer une boite,
+		 * sinon prendra la carte
 		 */
 		this.computePrimaryCssTween = function(box) {
 			if (!box)
 				box = this;
 
 			var hints = box.renderingHints();
-			var css = this.computeCssTweenBox(box, {
-				zIndex : true,
-				rotation : true,
-				autoAlpha : true,
-				size : true
-			});
+			var css = this.computeCssTweenBox(box, { zIndex : true, rotation : true, autoAlpha : true, size : true });
 			// en cas d'affichage horizontal on corrige la position
 			if (hints && true === hints.horizontal) {
 				css.left += box.screen.size.height;
@@ -139,12 +143,8 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, TokenMo
 					shadow = config.shadow.back.vertical;
 			}
 
-			var frontCss = {
-				rotationY : faceup ? 0 : -180
-			};
-			var backCss = _.extend(_.clone(frontCss), {
-				boxShadow : shadow
-			});
+			var frontCss = { rotationY : faceup ? 0 : -180 };
+			var backCss = _.extend(_.clone(frontCss), { boxShadow : shadow });
 			var css = this.computePrimaryCssTween();
 
 			var set = this.firstSyncScreen();

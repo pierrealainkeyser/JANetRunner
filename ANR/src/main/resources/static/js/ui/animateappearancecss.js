@@ -42,14 +42,16 @@ define([ "mix", "underscore", "jquery" ], function(mix, _, $) {
 		 * Joue l'animation de début
 		 */
 		this.animateEnter = function(element, onEnd) {
-			this.animateCss(element, this.entranceAnimation, onEnd)
+			element.removeClass(this.removalAnimation);			
+			this.animateCss(element, this.entranceAnimation, onEnd);
 		}
 
 		/**
 		 * Joue l'animation de fin
 		 */
 		this.animateRemove = function(element, onEnd) {
-			this.animateCss(element, this.removalAnimation, onEnd)
+			element.removeClass(this.entranceAnimation);
+			this.animateCss(element, this.removalAnimation, onEnd);
 		}
 
 		/**
