@@ -68,7 +68,7 @@ HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, Car
 		this.element = $("<div class='zoombox'/>");
 
 		this.zoomedDetail = new ZoomedDetail(layoutManager, this.element, mergeSubstractZoomed);
-		this.header = new JQueryBoxSize(layoutManager, $("<div class='header'>"));
+		this.header = new JQueryBoxSize(layoutManager, $("<div class='header'>bidule</div>"));
 		this.header.element.appendTo(this.element);
 
 		this.actions = new AbstractBoxContainer(layoutManager, {}, new FlowLayout({}));
@@ -135,13 +135,12 @@ HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, Car
 		 * Appeler à la fin de la phase de layout
 		 */
 		this.afterLayoutPhase = function() {
-			if (this.needOriginalCssPosition || this.removeAfterSyncScreen) {
+			if (this.needOriginalCssPosition) {
 				var card = this.primaryCardsModel.first();
-				if (this.needOriginalCssPosition) {
-					// on prend la position de base du dernier ghost
-					this.originalCssPosition = card.computePrimaryCssTween(card.lastGhost());
-					this.needOriginalCssPosition = false;
-				}
+
+				// on prend la position de base du dernier ghost
+				this.originalCssPosition = card.computePrimaryCssTween(card.lastGhost());
+				this.needOriginalCssPosition = false;
 			}
 			// TODO gestion du recadrage du composant
 		}
@@ -159,7 +158,6 @@ HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, Car
 				// on masque le composant
 				this.removeAfterSyncScreen = true;
 			}
-
 		}
 
 		/**
