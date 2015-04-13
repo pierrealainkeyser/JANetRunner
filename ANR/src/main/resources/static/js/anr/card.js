@@ -41,7 +41,7 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, TokenMo
 		this.unapplyGhost = function() {
 			// TODO
 		}
-		
+
 		this.lastGhost = function() {
 			// TODO
 			return this;
@@ -80,8 +80,11 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, TokenMo
 			if (true === hints.horizontal) {
 				size = size.swap();
 				this.setRotation(90.0);
-			} else
+				this.tokensContainer.setRotation(90.0);
+			} else {
 				this.setRotation(0.0);
+				this.tokensContainer.setRotation(0.0);
+			}
 
 			this.local.resizeTo(size);
 		}
@@ -155,7 +158,7 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, TokenMo
 			var css = this.computePrimaryCssTween();
 			var tokenCss = { autoAlpha : 1 };
 
-			if ("normal" !== cardsize)
+			if (cardsize === "zoom" || cardsize === "mini")
 				tokenCss.autoAlpha = 0;
 
 			var set = this.firstSyncScreen();

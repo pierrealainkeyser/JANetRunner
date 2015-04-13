@@ -4,13 +4,9 @@ function(mix, $, AbstractBoxContainer, FlowLayout, AnchorLayout, JQueryBoxSize, 
 HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, CardsModel) {
 
 	function ZoomedDetail(layoutManager, element, mergeSubstractZoomed) {
-		AbstractBoxContainer.call(this, layoutManager, {}, new FlowLayout({
-			direction : FlowLayout.Direction.BOTTOM
-		}));
+		AbstractBoxContainer.call(this, layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }));
 
-		this.tokens = new TokenContainerBox(layoutManager, new FlowLayout({
-			direction : FlowLayout.Direction.BOTTOM
-		}), element, true);
+		this.tokens = new TokenContainerBox(layoutManager, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }), element, true);
 		this.tokensHeader = new HeaderContainerBox(layoutManager, this.tokens, "Tokens");
 
 		// attache le header à l'element et ignore le deplacement
@@ -36,39 +32,30 @@ HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, Car
 	})
 
 	function ZoomContainerBox(layoutManager) {
-		AbstractBoxContainer.call(this, layoutManager, {}, new FlowLayout({
-			direction : FlowLayout.Direction.BOTTOM
-		}));
+		AbstractBoxContainer.call(this, layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }));
 		AnimateAppearanceCss.call(this, "fadeIn", "fadeOut");
 
 		// permet de ne pas merger les positions de la pointe parente pour les
 		// elements rataché à this.element
 		var mergeSubstractZoomed = function(moveTo) {
 			var topLeft = this.screen.topLeft()
-			moveTo.add({
-				x : -topLeft.x,
-				y : -topLeft.y
-			});
+			moveTo.add({ x : -topLeft.x, y : -topLeft.y });
 		}.bind(this);
 
 		// carte primaire (à gauche)
 		this.primaryCardsModel = new CardsModel();
-		this.primaryCardContainer = new CardsContainerBox(layoutManager, {
-			cardsize : "zoom"
-		}, new AnchorLayout({}), true);
+		this.primaryCardContainer = new CardsContainerBox(layoutManager, { cardsize : "zoom" }, new AnchorLayout({}), true);
 		this.primaryCardContainer.setCardsModel(this.primaryCardsModel);
 
 		// carte secondaire (à droite)
 		this.secondaryCardsModel = new CardsModel();
-		this.secondaryCardContainer = new CardsContainerBox(layoutManager, {
-			cardsize : "zoom"
-		}, new AnchorLayout({}), true);
+		this.secondaryCardContainer = new CardsContainerBox(layoutManager, { cardsize : "zoom" }, new AnchorLayout({}), true);
 		this.secondaryCardContainer.setCardsModel(this.secondaryCardsModel);
 
 		this.element = $("<div class='zoombox'/>");
 
 		this.zoomedDetail = new ZoomedDetail(layoutManager, this.element, mergeSubstractZoomed);
-		this.header = new JQueryBoxSize(layoutManager, $("<div class='header'>bidule</div>"));
+		this.header = new JQueryBoxSize(layoutManager, $("<div class='header title'>bidule</div>"));
 		this.header.element.appendTo(this.element);
 
 		this.actions = new AbstractBoxContainer(layoutManager, {}, new FlowLayout({}));
@@ -76,11 +63,7 @@ HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, Car
 		var actionsBox = new JQueryTrackingBox(layoutManager, $("<div class='actions'/>"));
 		actionsBox.element.appendTo(this.element);
 
-		var mainRow = new AbstractBoxContainer(layoutManager, {}, new FlowLayout({
-			direction : FlowLayout.Direction.RIGHT,
-			padding : 4,
-			spacing : 8
-		}));
+		var mainRow = new AbstractBoxContainer(layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.RIGHT, padding : 4, spacing : 8 }));
 
 		mainRow.addChild(this.primaryCardContainer);
 		mainRow.addChild(this.zoomedDetail);
@@ -106,25 +89,34 @@ HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, Car
 			var onComplete = null;
 			// il faut une position de départ, que l'on set puis que l'on
 			// déplace
+			var firstTime = this.firstSyncScreen();
+
 			if (me.originalCssPosition) {
 				this.tweenElement(this.element, me.originalCssPosition, true);
 				me.originalCssPosition = null;
+				firstTime = false;
 			}
 
-			// il faut supprimer l'élément à la fin du tween
-			if (me.removeAfterSyncScreen) {
+			// permet de placer une destination particuliere et de supprimer
+			// l'élément
+			if (me.destinationCssPosition) {
+				css = me.destinationCssPosition;
 				css.autoAlpha = 0;
 				onComplete = this.remove.bind(this);
+				me.destinationCssPosition = null;
+				firstTime = false;
 			}
 
-			// TODO il n'y a toujours une animation
-			this.tweenElement(this.element, css, false, onComplete);
+			this.tweenElement(this.element, css, firstTime, onComplete);
 		}
 
 		// suivi de l'état
 		this.needOriginalCssPosition = false;
 		this.originalCssPosition = null;
-		this.removeAfterSyncScreen = false;
+		this.destinationCssPosition = null;
+		this.removedCard = null;
+
+		this.setVisible(false);
 	}
 
 	mix(ZoomContainerBox, AbstractBoxContainer);
@@ -141,6 +133,9 @@ HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, Car
 				// on prend la position de base du dernier ghost
 				this.originalCssPosition = card.computePrimaryCssTween(card.lastGhost());
 				this.needOriginalCssPosition = false;
+			} else if (this.removedCard) {
+				this.destinationCssPosition = this.removedCard.computePrimaryCssTween(this.removedCard);
+				this.removedCard = null;
 			}
 			// TODO gestion du recadrage du composant
 		}
@@ -149,14 +144,16 @@ HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, Car
 		 * Mise en place ou suppression de la carte primaire
 		 */
 		this.setPrimaryCard = function(card) {
+			var removed = this.primaryCardsModel.first();
 			this.primaryCardsModel.removeAll();
 			if (card) {
 				// on rajoute la carte
 				this.primaryCardsModel.add(card);
 				this.needOriginalCssPosition = true;
-			} else {
+				this.setVisible(true);
+			} else if (removed) {
 				// on masque le composant
-				this.removeAfterSyncScreen = true;
+				this.removedCard = removed;
 			}
 		}
 

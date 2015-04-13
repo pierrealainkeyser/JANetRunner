@@ -22,49 +22,50 @@
 <script type="text/javascript">
 	require.config({
 		baseUrl : "../../../main/resources/static/js/",
-		paths : {
-			jquery : "http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min",
+		paths : { jquery : "http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min",
 			underscore : "http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min",
 			tweenlite : "http://cdnjs.cloudflare.com/ajax/libs/gsap/1.16.1/TweenMax.min",//
-			conf : "./anr/conf"
-		},//
+			conf : "./anr/conf" },//
 		shim : {//
-			tweenlite : {
-				exports : 'TweenLite'
-			}
+		tweenlite : { exports : 'TweenLite' }
 		// 
 		}
 	//
 	});
 
-	require([ "jquery", "layout/package", "anr/card", "anr/zoomcontainerbox" ],//
-	function($, layout, Card, ZoomContainerBox) {
+	require([ "jquery", "layout/package", "anr/card", "anr/zoomcontainerbox", "layout/impl/flowlayout" ],//
+	function($, layout, Card, ZoomContainerBox, FlowLayout) {
 		$(function() {
 			var layoutManager = new layout.LayoutManager($("#main"));
 
 			layoutManager.runLayout(function() {
-				var c1 = new Card(layoutManager, {
-					id : "debug",
-					url : "01089.png",
-					faction : "corp"
-				});
-				c1.setTokensValues({
-					credits : 2
-				});
+
+				var cont = new layout.AbstractBoxContainer(layoutManager, { horizontal : true }, new FlowLayout({}));
+
+				var c1 = new Card(layoutManager, { id : "debug", url : "01089.png", faction : "corp" });
+				c1.setTokensValues({ advance : 2 });
+				c1.setFace(Card.FACE_DOWN);
+				cont.addChild(c1);
+				cont.local.moveTo({ x : 50, y : 1 });
 
 				var zoom = new ZoomContainerBox(layoutManager);
-				zoom.setPrimaryCard(c1);
-				zoom.local.moveTo({
-					x : 200,
-					y : 200
-				});
+				zoom.local.moveTo({ x : 200, y : 200 });
 
 				layoutManager.afterFirstMerge = zoom.afterLayoutPhase.bind(zoom);
 
-				setTimeout(layoutManager.withinLayout(function() {
-					zoom.setPrimaryCard(null)
+				if (true)
+					setTimeout(layoutManager.withinLayout(function() {
+						zoom.setPrimaryCard(c1);
+						c1.setFace(Card.FACE_UP);
+						//c1.setTokensValues({ credits : 3, advance : 1 });
 
-				}), 2000);
+					}), 2000);
+
+				if (false)
+					setTimeout(layoutManager.withinLayout(function() {
+						zoom.setPrimaryCard(null)
+
+					}), 3000);
 			});
 		});
 	});

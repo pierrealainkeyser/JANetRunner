@@ -1,5 +1,5 @@
-define([ "underscore", "mix", "jquery", "./tokenmodel", "layout/abstractboxcontainer", "ui/jqueryboxsize", "ui/animateappearancecss" ],// 
-function(_, mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppearanceCss) {
+define([ "underscore", "mix", "jquery", "./tokenmodel", "layout/abstractboxcontainer", "layout/abstractbox", "ui/jqueryboxsize", "ui/animateappearancecss" ],// 
+function(_, mix, $, TokenModel, AbstractBoxContainer, AbstractBox, JQueryBoxSize, AnimateAppearanceCss) {
 
 	function TokenBox(layoutManager, container, type, value, text) {
 		var innerToken = $("<span class='token " + type + "'>" + value + "</span>");
@@ -61,6 +61,15 @@ function(_, mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppe
 		// la fonction d'écoute
 		this.watchFunction = this.syncToken.bind(this);
 		this.setTokenModel(tokenModel);
+
+		var me = this;
+		this.observe(function() {
+			var rotated = me.rotation === 90;
+			if (rotated)
+				me.elementContainer.addClass("rotated");
+			else
+				me.elementContainer.removeClass("rotated");
+		}, [ AbstractBox.ROTATION ]);
 
 	}
 
@@ -148,6 +157,8 @@ function(_, mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppe
 				// gestion de la correspondance
 				if ("credits" === type)
 					text = "Credits";
+				else if ("advance" === type)
+					text = "Advancements";
 				else
 					text = "?";
 			}

@@ -20,17 +20,17 @@ define([ "mix", "jquery", "layout/abstractboxcontainer", "layout/impl/flowLayout
 		/**
 		 * Calcul de la visibilte
 		 */
-		this.updateVisibility = function() {
+		this.updateVisibility = function(evt) {
 			var childCount = this.childContainer.size();
 			if (childCount === 0) {
 				this.animateRemove(this.header.element, function() {
-					//on reverifie pour les PB de concurrence
+					// on reverifie pour les PB de concurrence
 					if (this.childContainer.size() === 0) {
 						this.header.element.hide();
 						this.removeChild(this.header);
 					}
 				}.bind(this));
-			} else {
+			} else if (evt.oldValue === 0) {
 				this.header.element.show();
 				this.addChild(this.header, 0);
 				this.animateEnter(this.header.element);
