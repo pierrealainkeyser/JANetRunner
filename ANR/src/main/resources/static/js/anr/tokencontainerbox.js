@@ -32,10 +32,6 @@ function(_, mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppe
 	mix(TokenBox, AnimateAppearanceCss);
 	mix(TokenBox, function() {
 
-		this.playRemoveAnimation = function() {
-			this.animateCompleteRemove(this.element);
-		}
-
 		/**
 		 * Mise à jour de la valeur du token, uniquement en cas de changement
 		 */
@@ -44,6 +40,7 @@ function(_, mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppe
 				this.tokenValue = value;
 				if (!value) {
 					// suppression de l'élement
+					this.setContainer(null);
 					this.animateRemove(this.element, this.remove.bind(this));
 				} else {
 					// changement de la valeur
@@ -117,8 +114,7 @@ function(_, mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppe
 			// suppression de tous les tokenbox qui n'ont pas le bon type
 			this.eachChild(function(c) {
 				if (!_.contains(keepToken, c)) {
-					c.playRemoveAnimation();
-					this.removeChild(c);
+					c.setValue(0);
 
 				}
 			}.bind(this));
@@ -138,10 +134,8 @@ function(_, mix, $, TokenModel, AbstractBoxContainer, JQueryBoxSize, AnimateAppe
 				else
 					this.createToken(tokenType, event.value);
 			} else if (type === TokenModel.REMOVED) {
-				if (boxToken) {
-					boxToken.playRemoveAnimation();
-					this.removeChild(boxToken);
-				}
+				if (boxToken)
+					boxToken.setValue(0);
 			}
 		}
 
