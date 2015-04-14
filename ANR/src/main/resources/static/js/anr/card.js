@@ -1,5 +1,5 @@
-define([ "mix", "jquery", "layout/abstractbox", "layout/abstractboxleaf", "ui/tweenlitesyncscreenmixin", "./tokenmodel", "./tokencontainerbox", "conf" ],// 
-function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, TokenModel, TokenContainerBox, config) {
+define([ "mix", "underscore", "jquery", "layout/abstractbox", "layout/abstractboxleaf", "ui/tweenlitesyncscreenmixin", "ui/animateappearancecss", "./tokenmodel", "./tokencontainerbox", "conf" ],// 
+function(mix, _, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, AnimateAppearanceCss, TokenModel, TokenContainerBox, config) {
 
 	function Card(layoutManager, def) {
 		this.def = def;
@@ -16,6 +16,9 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, TokenMo
 		this.tokens = this.element.find("div.tokens");
 		this.tokenModel = new TokenModel();
 		this.tokensContainer = new TokenContainerBox(layoutManager, config.card.layouts.tokens, this.tokens, false, this.tokenModel);
+
+		// le tableau des ghost
+		this.ghosts = [];
 
 		// la rotation et la position de la carte, ainsi que la profondeur
 		this.face = Card.FACE_UP;
@@ -34,17 +37,32 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, TokenMo
 	mix(Card, TweenLiteSyncScreenMixin);
 	mix(Card, function() {
 
+		/**
+		 * Création de la carte fantome
+		 */
 		this.applyGhost = function() {
-			// TODO
+			var ghost = new GhostCard(this.layoutManager, this);
+			this.ghosts.push(ghost);
+			this.container.replaceChild(this, ghost);
 		}
 
+		/**
+		 * Suppression du fantome
+		 */
 		this.unapplyGhost = function() {
-			// TODO
+			var ghost = this.ghosts.pop();
+			ghost.container.replaceChild(ghost, this);
+			ghost.unwatchCard();
 		}
 
+		/**
+		 * Accés au dernier fantome
+		 */
 		this.lastGhost = function() {
-			// TODO
-			return this;
+			if (_.isEmpty(this.ghosts))
+				return this;
+			else
+				return this.ghosts[this.ghosts.length - 1];
 		}
 
 		/**
@@ -80,10 +98,12 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, TokenMo
 			if (true === hints.horizontal) {
 				size = size.swap();
 				this.setRotation(90.0);
-				this.tokensContainer.setRotation(90.0);
+				if (this.tokensContainer)
+					this.tokensContainer.setRotation(90.0);
 			} else {
 				this.setRotation(0.0);
-				this.tokensContainer.setRotation(0.0);
+				if (this.tokensContainer)
+					this.tokensContainer.setRotation(0.0);
 			}
 
 			this.local.resizeTo(size);
@@ -122,7 +142,12 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, TokenMo
 				box = this;
 
 			var hints = box.renderingHints();
-			var css = this.computeCssTweenBox(box, { zIndex : true, rotation : true, autoAlpha : true, size : true });
+			var css = this.computeCssTweenBox(box, {
+				zIndex : true,
+				rotation : true,
+				autoAlpha : true,
+				size : true
+			});
 			// en cas d'affichage horizontal on corrige la position
 			if (hints && true === hints.horizontal) {
 				css.left += box.screen.size.height;
@@ -135,10 +160,11 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, TokenMo
 		 */
 		this.syncScreen = function() {
 			var hints = this.renderingHints();
-			var shadow = "";
-			var faceup = this.face === Card.FACE_UP;
-			var horizontal = this.rotation == 90;
 			var cardsize = hints.cardsize;
+			var zoomed = cardsize === "zoom" || cardsize === "mini";
+			var shadow = "";
+			var faceup = (zoomed ? this.zoomable : this.face) === Card.FACE_UP;
+			var horizontal = this.rotation == 90;
 
 			// gestion de l'ombre
 			if (horizontal) {
@@ -153,19 +179,27 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, TokenMo
 					shadow = config.shadow.back.vertical;
 			}
 
-			var frontCss = { rotationY : faceup ? 0 : -180 };
-			var backCss = _.extend(_.clone(frontCss), { boxShadow : shadow });
+			var frontCss = {
+				rotationY : faceup ? 0 : -180
+			};
+			var backCss = _.extend(_.clone(frontCss), {
+				boxShadow : shadow
+			});
 			var css = this.computePrimaryCssTween();
-			var tokenCss = { autoAlpha : 1 };
+			var tokenCss = {
+				autoAlpha : 1
+			};
 
-			if (cardsize === "zoom" || cardsize === "mini")
+			if (zoomed)
 				tokenCss.autoAlpha = 0;
 
 			var set = this.firstSyncScreen();
 			this.tweenElement(this.element, css, set);
 			this.tweenElement(this.front, frontCss, set);
 			this.tweenElement(this.back, backCss, set);
-			this.tweenElement(this.tokens, tokenCss, set);
+
+			if (this.tokens)
+				this.tweenElement(this.tokens, tokenCss, set);
 		}
 
 		/**
@@ -173,6 +207,61 @@ function(mix, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, TokenMo
 		 */
 		this.setFace = function(face) {
 			this._innerSet("face", face);
+		}
+
+		/**
+		 * Affichage du coté zoom
+		 */
+		this.setZoomable = function(zoomable) {
+			this._innerSet("zoomable", zoomable);
+		}
+	});
+
+	function GhostCard(layoutManager, card) {
+		AbstractBoxLeaf.call(this, layoutManager);
+		AnimateAppearanceCss.call(this, "fadeIn", "fadeOut");
+
+		var createdDiv = $("<div class='ghost card " + card.def.faction + "'>" + //
+		"<img class='back'/>" + //
+		"<img class='front' src='/card-img/" + card.def.url + "'/>" + // 
+		"<div class='tokens'/></div>");
+		this.element = layoutManager.append(createdDiv);
+		this.front = this.element.find("img.front");
+		this.back = this.element.find("img.back");
+
+		// l'aspect de la carte
+		this.face = Card.FACE_UP;
+
+		// permet de montrer le mode de zoom up, down et null
+		this.zoomable = Card.FACE_UP;
+
+		// en cas de changement de parent redétermine la taille
+		this.observe(this.computeFromRenderingHints.bind(this), [ AbstractBox.CONTAINER ]);
+
+		this.setFace(card.face);
+
+		this.card = card;
+		this.watchCard = this.syncFromCard.bind(this);
+		this.card.observe(this.watchCard, [ "face" ]);
+	}
+
+	mix(GhostCard, Card);
+	mix(GhostCard, AnimateAppearanceCss);
+	mix(GhostCard, function() {
+
+		/**
+		 * Permet de désincrire l'état
+		 */
+		this.unwatchCard = function() {
+			this.card.unobserve(this.watchCard);
+			this.animateCompleteRemove(this.element);
+		}
+
+		/**
+		 * Mise à jour de la face
+		 */
+		this.syncFromCard = function() {
+			this.setFace(this.card.face);
 		}
 	});
 

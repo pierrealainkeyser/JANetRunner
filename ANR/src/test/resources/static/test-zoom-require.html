@@ -45,6 +45,7 @@
 				var c1 = new Card(layoutManager, { id : "debug", url : "01089.png", faction : "corp" });
 				c1.setTokensValues({ advance : 2 });
 				c1.setFace(Card.FACE_DOWN);
+				c1.setZoomable(Card.FACE_UP);
 				cont.addChild(c1);
 				cont.local.moveTo({ x : 50, y : 1 });
 
@@ -56,16 +57,12 @@
 				if (true)
 					setTimeout(layoutManager.withinLayout(function() {
 						zoom.setPrimaryCard(c1);
-						c1.setFace(Card.FACE_UP);
-						//c1.setTokensValues({ credits : 3, advance : 1 });
+					}), 1000);
 
-					}), 2000);
-
-				if (false)
+				if (true)
 					setTimeout(layoutManager.withinLayout(function() {
 						zoom.setPrimaryCard(null)
-
-					}), 3000);
+					}), 2500);
 			});
 		});
 	});
