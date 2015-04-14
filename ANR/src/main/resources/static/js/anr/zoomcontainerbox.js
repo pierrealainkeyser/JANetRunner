@@ -134,7 +134,7 @@ HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, Car
 				this.originalCssPosition = card.computePrimaryCssTween(card.lastGhost());
 				this.needOriginalCssPosition = false;
 			} else if (this.removedCard) {
-				this.destinationCssPosition = this.removedCard.computePrimaryCssTween(this.removedCard);
+				this.destinationCssPosition = this.removedCard.computePrimaryCssTween(this.removedCard.lastGhost());
 				this.removedCard = null;
 			}
 			// TODO gestion du recadrage du composant
@@ -143,7 +143,7 @@ HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, Car
 		/**
 		 * Mise en place ou suppression de la carte primaire
 		 */
-		this.setPrimaryCard = function(card) {
+		this.setPrimary = function(card) {
 			var removed = this.primaryCardsModel.first();
 			this.primaryCardsModel.removeAll();
 			if (card) {
@@ -154,6 +154,19 @@ HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, Car
 			} else if (removed) {
 				// on masque le composant
 				this.removedCard = removed;
+				this.setSecondary(null);
+			}
+		}
+		
+		/**
+		 * Mise en place de la carte secondaire
+		 */
+		this.setSecondary = function(card) {
+			var removed = this.secondaryCardsModel.first();
+			this.secondaryCardsModel.removeAll();
+			if (card) {
+				// on rajoute la carte
+				this.secondaryCardsModel.add(card);
 			}
 		}
 

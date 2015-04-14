@@ -33,36 +33,46 @@
 	//
 	});
 
-	require([ "jquery", "layout/package", "anr/card", "anr/zoomcontainerbox", "layout/impl/flowlayout" ],//
-	function($, layout, Card, ZoomContainerBox, FlowLayout) {
+	require([ "jquery", "layout/package", "anr/corp", "anr/card", "anr/zoomcontainerbox" ],//
+	function($, layout, Corp, Card, ZoomContainerBox) {
 		$(function() {
 			var layoutManager = new layout.LayoutManager($("#main"));
 
 			layoutManager.runLayout(function() {
 
-				var cont = new layout.AbstractBoxContainer(layoutManager, { horizontal : true }, new FlowLayout({}));
+
+				var corp = new Corp(layoutManager);
+				corp.local.moveTo({ x : 5, y : layoutManager.container.height() - 5 });
+				
+				var hq = corp.getOrCreate(-3);
 
 				var c1 = new Card(layoutManager, { id : "debug", url : "01089.png", faction : "corp" });
+				var c2 = new Card(layoutManager, { url : "01088.png", faction : "corp" });
 				c1.setTokensValues({ advance : 2 });
 				c1.setFace(Card.FACE_DOWN);
 				c1.setZoomable(Card.FACE_UP);
-				cont.addChild(c1);
-				cont.local.moveTo({ x : 50, y : 1 });
+				hq.ices.addChild(c1);
+				hq.ices.addChild(c2);
 
 				var zoom = new ZoomContainerBox(layoutManager);
 				zoom.local.moveTo({ x : 200, y : 200 });
 
 				layoutManager.afterFirstMerge = zoom.afterLayoutPhase.bind(zoom);
 
-				if (true)
-					setTimeout(layoutManager.withinLayout(function() {
-						zoom.setPrimaryCard(c1);
-					}), 1000);
+				setTimeout(layoutManager.withinLayout(function() {
+					zoom.setPrimary(hq.mainContainer.view);
+				}), 1000);
 
-				if (true)
-					setTimeout(layoutManager.withinLayout(function() {
-						zoom.setPrimaryCard(null)
-					}), 2500);
+				if(false)
+					return;
+				
+				setTimeout(layoutManager.withinLayout(function() {
+					zoom.setSecondary(c2);
+				}), 2500);
+
+				setTimeout(layoutManager.withinLayout(function() {
+					zoom.setPrimary(null)
+				}), 4000);
 			});
 		});
 	});

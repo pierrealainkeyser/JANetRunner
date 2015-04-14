@@ -17,6 +17,7 @@ function(mix, AbstractBoxLeaf, TweenLiteSyncScreenMixin) {
 			cssTweenConfig.size = false;
 
 		this.cssTweenConfig = cssTweenConfig;
+		this.afterSyncCompleted = null;
 	}
 
 	// applications des mixins
@@ -30,7 +31,12 @@ function(mix, AbstractBoxLeaf, TweenLiteSyncScreenMixin) {
 		this.syncScreen = function() {
 			var css = this.computeCssTween(this.cssTweenConfig);
 			var set = this.firstSyncScreen();
-			this.tweenElement(this.element, css, set);
+
+			var onComplete = null;
+			if (this.afterSyncCompleted)
+				onComplete = this.afterSyncCompleted;
+
+			this.tweenElement(this.element, css, set, onComplete);
 		}
 
 		/**

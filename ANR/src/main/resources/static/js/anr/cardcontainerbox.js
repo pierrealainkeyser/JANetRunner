@@ -9,6 +9,60 @@ function(mix, $, layout, ui, geom, AnchorLayout, config) {
 	}
 	mix(InnerCardContainer, layout.AbstractBoxContainer);
 
+	/**
+	 * La vision du composant
+	 */
+	function CardContainerView(box) {
+		layout.AbstractBoxLeaf.call(this, box.layoutManager)
+		this.box = box;
+		this.trackingBox = null;
+
+		var normal = config.card.zoom;
+		this.local.resizeTo(normal);
+	}
+	mix(CardContainerView, layout.AbstractBoxLeaf);
+	mix(CardContainerView, function() {
+
+		/**
+		 * Calcul la taille de base
+		 */
+		this.computePrimaryCssTween = function(box) {
+			box = box || this;
+			return this.trackingBox.computeCssTweenBox(box, { zIndex : true, rotation : true, autoAlpha : true, size : true });
+		}
+
+		/**
+		 * Applique le fantome
+		 */
+		this.applyGhost = function() {
+			this.trackingBox = new ui.JQueryTrackingBox(this.layoutManager, $("<div class='cardcontainer zoomed'><div class='innertext'>" + this.box.type
+					+ "</div></div>"));
+			this.trackingBox.firstSyncScreen();
+			this.trackingBox.trackAbstractBox(this);
+		}
+
+		/**
+		 * Supprime le fantom
+		 */
+		this.unapplyGhost = function() {
+			var me = this;
+			this.trackingBox.trackAbstractBox(this.box);
+			this.trackingBox.setVisible(false);
+			this.trackingBox.afterSyncCompleted = function() {
+				me.trackingBox.untrackAbstractBox(me.box);
+				me.trackingBox.remove();
+				me.trackingBox = null;
+			};
+		}
+
+		/**
+		 * Renvoi la boite
+		 */
+		this.lastGhost = function() {
+			return this.box;
+		}
+	});
+
 	function CardContainerBox(layoutManager, type, cardContainerLayout) {
 		var normal = config.card.normal;
 		layout.AbstractBoxContainer.call(this, layoutManager, { addZIndex : true }, new AnchorLayout({ vertical : AnchorLayout.Vertical.TOP, padding : 8,
@@ -28,6 +82,9 @@ function(mix, $, layout, ui, geom, AnchorLayout, config) {
 		// il faut rajouter les cartes dans le container
 		this.cards = new InnerCardContainer(layoutManager, cardContainerLayout);
 		this.addChild(this.cards);
+
+		// place la vue du composant
+		this.view = new CardContainerView(this);
 	}
 
 	mix(CardContainerBox, layout.AbstractBoxContainer);

@@ -279,6 +279,18 @@ div#conf {
 	.unselectable ();
 	border-radius: 5px;
 	border: 1.5px dashed @color4;
+	&.zoomed {
+		border-radius: 12px;
+		border: 2.5px dashed @color4;
+		.innertext {
+			font-size: 25px;
+			top: 40%;
+			.text-border (@token-text-color);
+			font-style: normal;
+			font-weight: bold;
+		}
+	}
+
 	.innertext {
 		position: absolute;
 		width: 100%;
@@ -301,11 +313,10 @@ div#conf {
 	.element ();
 	.unselectable ();
 	transform-origin: top left;
-	
-	&.ghost{
-		opacity:0.5 !important; 
+	&.ghost {
+		opacity: 0.5 ! important;
 	}
-	
+
 	&.corp img.back {
 		content: url(/img/back-corp.png);
 	}
