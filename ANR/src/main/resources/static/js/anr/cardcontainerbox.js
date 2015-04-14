@@ -28,7 +28,7 @@ function(mix, $, layout, ui, geom, AnchorLayout, config) {
 		 */
 		this.computePrimaryCssTween = function(box) {
 			box = box || this;
-			return this.trackingBox.computeCssTweenBox(box, { zIndex : true, rotation : true, autoAlpha : true, size : true });
+			return this.trackingBox.computeCssTweenBox(box, { zIndex : true, rotation : false, autoAlpha : true, size : true });
 		}
 
 		/**
@@ -37,12 +37,16 @@ function(mix, $, layout, ui, geom, AnchorLayout, config) {
 		this.applyGhost = function() {
 			this.trackingBox = new ui.JQueryTrackingBox(this.layoutManager, $("<div class='cardcontainer zoomed'><div class='innertext'>" + this.box.type
 					+ "</div></div>"));
-			this.trackingBox.firstSyncScreen();
 			this.trackingBox.trackAbstractBox(this);
+
+			
+			//on place l'élement tout de suite
+			var css = this.computePrimaryCssTween(this.box);
+			this.trackingBox.tweenElement(this.trackingBox.element, css, this.trackingBox.firstSyncScreen());
 		}
 
 		/**
-		 * Supprime le fantom
+		 * Supprime le fantome
 		 */
 		this.unapplyGhost = function() {
 			var me = this;
