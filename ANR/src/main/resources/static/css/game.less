@@ -408,6 +408,21 @@ div#conf {
 .action {
 	.element ();
 	.unselectable ();
+	&.btn {
+		padding: 3px 6px;
+	}
+
+	&.disabled {
+		span {
+			text-decoration: line-through;
+		}
+	}
+
+	.cost:not(:empty) {
+		&:after {
+			content: " : ";
+		}
+	}
 }
 
 //------------------------------
