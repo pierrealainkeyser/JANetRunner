@@ -53,6 +53,8 @@
 				c1.setZoomable(Card.FACE_UP);
 				hq.ices.addChild(c1);
 				hq.ices.addChild(c2);
+				
+				c2.actionModel.add([{cost:"{1:click}", text:"Truc trop cool"}]);
 
 				var zoom = new ZoomContainerBox(layoutManager);
 				zoom.local.moveTo({ x : 200, y : 200 });

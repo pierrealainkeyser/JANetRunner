@@ -1,5 +1,7 @@
-define([ "mix", "underscore", "jquery", "layout/abstractbox", "layout/abstractboxleaf", "ui/tweenlitesyncscreenmixin", "ui/animateappearancecss", "./tokenmodel", "./tokencontainerbox", "conf" ],// 
-function(mix, _, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, AnimateAppearanceCss, TokenModel, TokenContainerBox, config) {
+define([ "mix", "underscore", "jquery", "layout/abstractbox", "layout/abstractboxleaf", "ui/tweenlitesyncscreenmixin", "ui/animateappearancecss", //
+"./tokenmodel", "./actionmodel", "./tokencontainerbox", "conf" ],// 
+function(mix, _, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, AnimateAppearanceCss, //
+TokenModel, ActionModel, TokenContainerBox, config) {
 
 	function Card(layoutManager, def) {
 		this.def = def;
@@ -15,6 +17,7 @@ function(mix, _, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, Anim
 		this.back = this.element.find("img.back");
 		this.tokens = this.element.find("div.tokens");
 		this.tokenModel = new TokenModel();
+		this.actionModel = new ActionModel();
 		this.tokensContainer = new TokenContainerBox(layoutManager, config.card.layouts.tokens, this.tokens, false, this.tokenModel);
 
 		// le tableau des ghost
@@ -28,6 +31,10 @@ function(mix, _, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, Anim
 
 		// en cas de changement de parent redétermine la taille
 		this.observe(this.computeFromRenderingHints.bind(this), [ AbstractBox.CONTAINER ]);
+
+		// pour changer l'apparence de la bordule
+		var syncScreen = this.needSyncScreen.bind(this);
+		this.actionModel.observe(syncScreen, [ ActionModel.ADDED, ActionModel.REMOVED ])
 	}
 
 	Card.FACE_UP = "up";
@@ -161,7 +168,8 @@ function(mix, _, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, Anim
 		this.syncScreen = function() {
 			var hints = this.renderingHints();
 			var cardsize = hints.cardsize;
-			var zoomed = cardsize === "zoom" || cardsize === "mini";
+			var maxed = cardsize === "zoom";
+			var zoomed = maxed || cardsize === "mini";
 			var shadow = "";
 			var faceup = (zoomed ? this.zoomable : this.face) === Card.FACE_UP;
 			var horizontal = this.rotation == 90;
@@ -177,6 +185,13 @@ function(mix, _, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, Anim
 					shadow = config.shadow.front.vertical;
 				else
 					shadow = config.shadow.back.vertical;
+			}
+
+			// il y a une action dans le model
+			if (!maxed) {
+				if (this.actionModel.hasAction()) {
+					shadow = config.shadow.action;
+				}
 			}
 
 			var frontCss = {
