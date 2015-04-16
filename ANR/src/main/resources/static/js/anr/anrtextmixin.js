@@ -1,9 +1,9 @@
 define([ "mix" ], function(mix) {
-	function AnrText() {
+	function AnrTextMixin() {
 
 	}
 
-	mix(AnrText, function() {
+	mix(AnrTextMixin, function() {
 
 		/**
 		 * Interpolation des caracteres ANR
@@ -22,8 +22,8 @@ define([ "mix" ], function(mix) {
 				else if ('click' === str) {
 					var a = [];
 					for (var i = 0; i < nb; i++)
-						a.push("<span class='icon icon-click'>");
-					return a.join(", ");
+						a.push("<span class='icon icon-click'/>");
+					return a.join(",");
 				}
 
 				return "";
@@ -36,5 +36,5 @@ define([ "mix" ], function(mix) {
 		}
 	});
 
-	return AnrText;
+	return AnrTextMixin;
 })

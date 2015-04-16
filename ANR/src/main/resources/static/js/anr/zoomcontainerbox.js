@@ -1,9 +1,9 @@
 define(
 		[ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/impl/flowLayout", "layout/impl/anchorlayout", "ui/jqueryboxsize",//
 		"ui/animateappearancecss", "./headercontainerbox", "./tokencontainerbox", "ui/jquerytrackingbox", "./cardscontainerbox", "./cardsmodel",
-				"./actionmodel", "./anrtext" ], //
+				"./actionmodel", "./anrtextmixin" ], //
 		function(mix, _, $, AbstractBoxContainer, FlowLayout, AnchorLayout, JQueryBoxSize,//
-		AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, CardsModel, ActionModel, AnrTest) {
+		AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, CardsModel, ActionModel, AnrTextMixin) {
 
 			/**
 			 * Represente une action graphique
@@ -24,7 +24,7 @@ define(
 
 			mix(ActionBox, JQueryBoxSize);
 			mix(ActionBox, AnimateAppearanceCss);
-			mix(ActionBox, AnrTest);
+			mix(ActionBox, AnrTextMixin);
 			mix(ActionBox, function() {
 
 				/**

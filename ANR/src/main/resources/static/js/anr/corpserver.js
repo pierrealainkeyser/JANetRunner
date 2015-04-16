@@ -49,6 +49,13 @@ function(mix, layout, ui, conf, CardContainerBox) {
 	mix(CorpServer, function() {
 
 		/**
+		 * Délégue à la vue du conteneur principal
+		 */
+		this.setActions = function(actions) {
+			this.mainContainer.view.actionModel.set(actions);
+		}
+
+		/**
 		 * Rajoute l'élément dans le container
 		 */
 		this.addToAssetsOrUpgrades = function(card, index) {

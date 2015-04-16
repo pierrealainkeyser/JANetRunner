@@ -1,5 +1,5 @@
-define([ "mix", "jquery", "layout/package", "ui/package", "geometry/package", "layout/impl/anchorlayout","./actionmodel", "conf" ],// 
-function(mix, $, layout, ui, geom, AnchorLayout,ActionModel, config) {
+define([ "mix", "jquery", "layout/package", "ui/package", "geometry/package", "layout/impl/anchorlayout", "./actionmodel", "conf" ],// 
+function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, config) {
 
 	/**
 	 * Pour facilter les logs dans la console
@@ -40,8 +40,7 @@ function(mix, $, layout, ui, geom, AnchorLayout,ActionModel, config) {
 					+ "</div></div>"));
 			this.trackingBox.trackAbstractBox(this);
 
-			
-			//on place l'élement tout de suite
+			// on place l'élement tout de suite
 			var css = this.computePrimaryCssTween(this.box);
 			this.trackingBox.tweenElement(this.trackingBox.element, css, this.trackingBox.firstSyncScreen());
 		}
@@ -79,6 +78,18 @@ function(mix, $, layout, ui, geom, AnchorLayout,ActionModel, config) {
 				+ " / <span class='counter'>0</span></div></div>"));
 		this.trackingBox.trackAbstractBox(this);
 
+		var me = this;
+		// prise en compte de l'ombraque
+		this.trackingBox.computeCssTween = function(box) {
+			var css = ui.JQueryTrackingBox.prototype.computeCssTween.call(this, box);
+			var shadow = "";
+			if (me.view.actionModel.hasAction())
+				shadow = config.shadow.action;
+
+			css.boxShadow = shadow;
+			return css;
+		}
+
 		this.innertext = this.trackingBox.element.find(".innertext");
 		this.counter = this.trackingBox.element.find(".counter");
 		this.oldCounter = 0;
@@ -90,6 +101,10 @@ function(mix, $, layout, ui, geom, AnchorLayout,ActionModel, config) {
 
 		// place la vue du composant
 		this.view = new CardContainerView(this);
+
+		// synchronisation sur les actions
+		var syncScreen = this.trackingBox.needSyncScreen.bind(this.trackingBox);
+		this.view.actionModel.observe(syncScreen, [ ActionModel.ADDED, ActionModel.REMOVED ])
 	}
 
 	mix(CardContainerBox, layout.AbstractBoxContainer);

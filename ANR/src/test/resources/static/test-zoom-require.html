@@ -53,7 +53,7 @@
 				hq.ices.addChild(c1);
 				hq.ices.addChild(c2);
 
-				c2.actionModel.add([ { cost : "{1:click}", text : "Truc trop cool" } ]);
+				c2.setActions([ { cost : "{1:click}", text : "Truc trop cool" } ]);
 
 				var zoom = new ZoomContainerBox(layoutManager);
 				zoom.local.moveTo({ x : 200, y : 200 });
@@ -69,20 +69,18 @@
 				}), 1000);
 
 				setTimeout(layoutManager.withinLayout(function() {
-					hq.mainContainer.view.actionModel.add([ { cost : "{1:click}", text : "Sur le container" } ]);
+					hq.setActions([ { cost : "{1:click}", text : "Sur le container" } ]);
 				}), 2000);
 
-				if (true)
-					return;
 
 				setTimeout(layoutManager.withinLayout(function() {
-					c2.actionModel.removeAll();
+					hq.setActions([ { cost : "{2:click}", text : "rien" } ]);
 				}), 3000);
 
 				setTimeout(layoutManager.withinLayout(function() {
 					//	zoom.setPrimary(null)
+					c2.setActions();
 					zoom.setSecondary(null);
-					hq.mainContainer.view.actionModel.removeAll();
 				}), 4000);
 			});
 		});

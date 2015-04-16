@@ -80,7 +80,14 @@ TokenModel, ActionModel, TokenContainerBox, config) {
 		}
 
 		/**
-		 * Décorateur vers le model
+		 * Décorateur vers le model d'action
+		 */
+		this.setActions = function(actions) {
+			this.actionModel.set(actions);
+		}
+
+		/**
+		 * Décorateur vers le model de token
 		 */
 		this.setTokensValues = function(values) {
 			this.tokenModel.setTokensValues(values);
@@ -149,12 +156,7 @@ TokenModel, ActionModel, TokenContainerBox, config) {
 				box = this;
 
 			var hints = box.renderingHints();
-			var css = this.computeCssTweenBox(box, {
-				zIndex : true,
-				rotation : true,
-				autoAlpha : true,
-				size : true
-			});
+			var css = this.computeCssTweenBox(box, { zIndex : true, rotation : true, autoAlpha : true, size : true });
 			// en cas d'affichage horizontal on corrige la position
 			if (hints && true === hints.horizontal) {
 				css.left += box.screen.size.height;
@@ -194,16 +196,10 @@ TokenModel, ActionModel, TokenContainerBox, config) {
 				}
 			}
 
-			var frontCss = {
-				rotationY : faceup ? 0 : -180
-			};
-			var backCss = _.extend(_.clone(frontCss), {
-				boxShadow : shadow
-			});
+			var frontCss = { rotationY : faceup ? 0 : -180 };
+			var backCss = _.extend(_.clone(frontCss), { boxShadow : shadow });
 			var css = this.computePrimaryCssTween();
-			var tokenCss = {
-				autoAlpha : 1
-			};
+			var tokenCss = { autoAlpha : 1 };
 
 			if (zoomed)
 				tokenCss.autoAlpha = 0;
@@ -259,8 +255,8 @@ TokenModel, ActionModel, TokenContainerBox, config) {
 		this.actionModel = card.actionModel;
 		this.watchCard = this.syncFromCard.bind(this);
 		this.card.observe(this.watchCard, [ "face" ]);
-		
-		//on ecoute les changements dans le model
+
+		// on ecoute les changements dans le model
 		this.watchSyncScreen = this.needSyncScreen.bind(this);
 		this.actionModel.observe(this.watchSyncScreen, [ ActionModel.ADDED, ActionModel.REMOVED ])
 	}

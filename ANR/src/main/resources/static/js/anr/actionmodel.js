@@ -11,6 +11,15 @@ define([ "mix", "underscore", "util/observablemixin" ], function(mix, _, Observa
 	mix(ActionModel, function() {
 
 		/**
+		 * Changement dans les actions
+		 */
+		this.set = function(actions) {
+			this.removeAll();
+			if (actions)
+				this.add(actions);
+		}
+
+		/**
 		 * Permet de rajouter le tableau d'action
 		 */
 		this.add = function(actions) {
@@ -20,10 +29,7 @@ define([ "mix", "underscore", "util/observablemixin" ], function(mix, _, Observa
 					actions = [ actions ];
 
 				this.actions = this.actions.concat(actions);
-				return {
-					newActions : actions,
-					size : this.actions.length
-				};
+				return { newActions : actions, size : this.actions.length };
 			}.bind(this));
 		}
 
@@ -35,10 +41,7 @@ define([ "mix", "underscore", "util/observablemixin" ], function(mix, _, Observa
 				this.performChange(ActionModel.REMOVED, function() {
 					var removed = this.actions;
 					this.actions = [];
-					return {
-						removedActions : removed,
-						size : this.actions.length
-					};
+					return { removedActions : removed, size : this.actions.length };
 				}.bind(this));
 			}
 		}
