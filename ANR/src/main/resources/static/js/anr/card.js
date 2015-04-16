@@ -256,8 +256,13 @@ TokenModel, ActionModel, TokenContainerBox, config) {
 		this.setFace(card.face);
 
 		this.card = card;
+		this.actionModel = card.actionModel;
 		this.watchCard = this.syncFromCard.bind(this);
 		this.card.observe(this.watchCard, [ "face" ]);
+		
+		//on ecoute les changements dans le model
+		this.watchSyncScreen = this.needSyncScreen.bind(this);
+		this.actionModel.observe(this.watchSyncScreen, [ ActionModel.ADDED, ActionModel.REMOVED ])
 	}
 
 	mix(GhostCard, Card);
@@ -270,6 +275,7 @@ TokenModel, ActionModel, TokenContainerBox, config) {
 		this.unwatchCard = function() {
 			this.card.unobserve(this.watchCard);
 			this.animateCompleteRemove(this.element);
+			this.actionModel.unobserve(this.watchSyncScreen);
 		}
 
 		/**

@@ -1,5 +1,5 @@
-define([ "mix", "jquery", "layout/package", "ui/package", "geometry/package", "layout/impl/anchorlayout", "conf" ],// 
-function(mix, $, layout, ui, geom, AnchorLayout, config) {
+define([ "mix", "jquery", "layout/package", "ui/package", "geometry/package", "layout/impl/anchorlayout","./actionmodel", "conf" ],// 
+function(mix, $, layout, ui, geom, AnchorLayout,ActionModel, config) {
 
 	/**
 	 * Pour facilter les logs dans la console
@@ -16,6 +16,7 @@ function(mix, $, layout, ui, geom, AnchorLayout, config) {
 		layout.AbstractBoxLeaf.call(this, box.layoutManager)
 		this.box = box;
 		this.trackingBox = null;
+		this.actionModel = new ActionModel();
 
 		var normal = config.card.zoom;
 		this.local.resizeTo(normal);

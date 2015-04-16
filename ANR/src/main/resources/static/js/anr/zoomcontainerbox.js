@@ -1,8 +1,90 @@
-define([ "mix", "jquery", "layout/abstractboxcontainer", "layout/impl/flowLayout", "layout/impl/anchorlayout", "ui/jqueryboxsize", "ui/animateappearancecss",//
-"./headercontainerbox", "./tokencontainerbox", "ui/jquerytrackingbox", "./cardscontainerbox", "./cardsmodel" ], //
-function(mix, $, AbstractBoxContainer, FlowLayout, AnchorLayout, JQueryBoxSize, AnimateAppearanceCss,//
-HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, CardsModel) {
+define([ "mix","underscore", "jquery", "layout/abstractboxcontainer", "layout/impl/flowLayout", "layout/impl/anchorlayout", "ui/jqueryboxsize", "ui/animateappearancecss",//
+"./headercontainerbox", "./tokencontainerbox", "ui/jquerytrackingbox", "./cardscontainerbox", "./cardsmodel" ,"./actionmodel"], //
+function(mix,_, $, AbstractBoxContainer, FlowLayout, AnchorLayout, JQueryBoxSize, AnimateAppearanceCss,//
+HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, CardsModel, ActionModel) {
 
+	/**
+	 * Represente une action graphique
+	 */
+	function ActionBox(layoutManager, action) {
+		JQueryBoxSize.call(this, layoutManager, $("<div class='action'><span class='cost'/><span class='text'>"+action.text+"</span></div>"));
+		AnimateAppearanceCss.call(this, "bounceIn", "bounceOut");
+		this.cost = this.element.find(".cost");
+		this.text = this.element.find(".text");
+		this.action = action;
+		this.setZIndex(50);
+		
+		// fait apparaitre l'action joliment
+		this.animateEnter(this.element);
+	}
+	mix(ActionBox, JQueryBoxSize);
+	mix(ActionBox, AnimateAppearanceCss);
+	mix(ActionBox, function() {
+
+	});
+	
+
+	/**
+	 * Les actions
+	 */
+	function ActionsBoxContainer(layoutManager) {
+		AbstractBoxContainer.call(this, layoutManager, {}, new FlowLayout({
+			direction : FlowLayout.Direction.RIGHT
+		}));
+
+		this.watchFunction = this.syncFromEvent.bind(this);
+		this.actionModel = null;
+	}
+
+	mix(ActionsBoxContainer, AbstractBoxContainer);
+	mix(ActionsBoxContainer, function() {
+
+		/**
+		 * Mise en place du model
+		 */
+		this.setActionModel = function(actionModel) {
+			if (this.actionModel) {
+				this.actionModel.unobserve(this.watchFunction);
+				this.removeAllActions();
+			}
+			this.actionModel = actionModel;
+			if (this.actionModel) {
+				this.actionModel.observe(this.watchFunction, [ ActionModel.ADDED, ActionModel.REMOVED ]);
+				this.actionModel.eachActions(this.createActionBox.bind(this));
+			}
+		}
+
+		/**
+		 * Création d'une action
+		 */
+		this.createActionBox = function(action) {
+			var ab = new ActionBox(this.layoutManager, action);
+			this.addChild(ab);
+		}
+
+		/**
+		 * Suppression de toutes les actions
+		 */
+		this.removeAllActions = function() {
+			var me = this;
+			this.eachChild(function(ab) {
+				ab.animateRemove(ab.element, ab.remove.bind(ab));
+				me.removeChild(ab);
+			})
+		}
+
+		/**
+		 * Rajout les evenements
+		 */
+		this.syncFromEvent = function(evt) {
+			if (ActionModel.ADDED === evt.type) {
+				_.each(evt.newActions, this.createActionBox.bind(this));
+			} else {
+				this.removeAllActions();
+			}
+		}
+	});
+	
 	function ZoomedDetail(layoutManager, element, mergeSubstractZoomed) {
 		AbstractBoxContainer.call(this, layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }));
 
@@ -19,11 +101,11 @@ HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, Car
 	mix(ZoomedDetail, function() {
 
 		/**
-		 * Affiche de la carte
+		 * Affichage de l'objet primaire
 		 */
-		this.bindCard = function(card) {
-			if (card) {
-				this.tokens.setTokenModel(card.tokenModel);
+		this.bindPrimary = function(obj) {
+			if (obj) {
+				this.tokens.setTokenModel(obj.tokenModel);
 			} else {
 				this.tokens.setTokenModel(null);
 				// TODO suppression de tous les elements liés à la carte
@@ -41,16 +123,25 @@ HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, Car
 			var topLeft = this.screen.topLeft()
 			moveTo.add({ x : -topLeft.x, y : -topLeft.y });
 		}.bind(this);
+		
+		var mergeAddedZoomed = function(moveTo) {
+			var topLeft = this.screen.topLeft()
+			moveTo.add(topLeft);
+		}.bind(this)
 
 		// carte primaire (à gauche)
 		this.primaryCardsModel = new CardsModel();
 		this.primaryCardContainer = new CardsContainerBox(layoutManager, { cardsize : "zoom" }, new AnchorLayout({}), true);
 		this.primaryCardContainer.setCardsModel(this.primaryCardsModel);
+		this.primaryActions = new ActionsBoxContainer(layoutManager);
+		this.primaryActions.additionnalMergePosition = mergeAddedZoomed;
 
 		// carte secondaire (à droite)
 		this.secondaryCardsModel = new CardsModel();
 		this.secondaryCardContainer = new CardsContainerBox(layoutManager, { cardsize : "zoom" }, new AnchorLayout({}), true);
 		this.secondaryCardContainer.setCardsModel(this.secondaryCardsModel);
+		this.secondaryActions = new ActionsBoxContainer(layoutManager);
+		this.secondaryActions.additionnalMergePosition = mergeAddedZoomed;
 
 		this.element = $("<div class='zoombox'/>");
 
@@ -58,27 +149,31 @@ HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, Car
 		this.header = new JQueryBoxSize(layoutManager, $("<div class='header title'>bidule</div>"));
 		this.header.element.appendTo(this.element);
 
-		this.actions = new AbstractBoxContainer(layoutManager, {}, new FlowLayout({}));
-
+		var actionsRow = new AbstractBoxContainer(layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.RIGHT, padding : 3}));
+		actionsRow.addChild(this.primaryActions);
+		actionsRow.addChild(this.secondaryActions);
+		actionsRow.setZIndex(10);
+		
 		var actionsBox = new JQueryTrackingBox(layoutManager, $("<div class='actions'/>"));
 		actionsBox.element.appendTo(this.element);
+		actionsBox.trackAbstractBox(actionsRow);
 
 		var mainRow = new AbstractBoxContainer(layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.RIGHT, padding : 4, spacing : 8 }));
-
 		mainRow.addChild(this.primaryCardContainer);
 		mainRow.addChild(this.zoomedDetail);
 		mainRow.addChild(this.secondaryCardContainer);
 
 		this.addChild(this.header);
 		this.addChild(mainRow);
-		this.addChild(this.actions);
+		this.addChild(actionsRow);
 
 		// on corrige la position du header
 		this.header.additionnalMergePosition = mergeSubstractZoomed;
-		actionsBox.additionnalMergePosition = mergeSubstractZoomed;
+		actionsRow.additionnalMergePosition = mergeSubstractZoomed;
 
 		// on on ecoute les changments du model de la carte primaire
 		this.primaryCardsModel.observe(this.updatePrimaryCard.bind(this), [ CardsModel.ADDED, CardsModel.REMOVED ]);
+		this.secondaryCardsModel.observe(this.updateSecondaryCard.bind(this), [ CardsModel.ADDED, CardsModel.REMOVED ]);
 
 		var me = this;
 		// la box de suivi qui fera l'effet graphique
@@ -178,14 +273,30 @@ HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, Car
 			if (CardsModel.ADDED === type) {
 
 				// affichage du contenu de la carte
-				this.zoomedDetail.bindCard(event.newCard);
+				var obj = event.newCard;
+				this.zoomedDetail.bindPrimary(obj);
+				this.primaryActions.setActionModel(obj.actionModel);
 
 			} else if (CardsModel.REMOVED === type) {
 				// nettoyage du contenu de la carte
-				this.zoomedDetail.bindCard(null);
+				this.zoomedDetail.bindPrimary(null);
+				this.primaryActions.setActionModel(null);
 			}
 		}
 
+		/**
+		 * Fonction de callback du model de la carte secondaire
+		 */
+		this.updateSecondaryCard = function(event) {
+			var type = event.type;
+			if (CardsModel.ADDED === type) {
+				// rajout des actions
+				var obj = event.newCard;
+				this.secondaryActions.setActionModel(obj.actionModel);
+			} else if (CardsModel.REMOVED === type) {
+				this.secondaryActions.setActionModel(null);
+			}
+		}
 	});
 
 	return ZoomContainerBox;
