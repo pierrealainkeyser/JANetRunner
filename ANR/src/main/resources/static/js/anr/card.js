@@ -1,7 +1,7 @@
 define([ "mix", "underscore", "jquery", "layout/abstractbox", "layout/abstractboxleaf", "ui/tweenlitesyncscreenmixin", "ui/animateappearancecss", //
-"./tokenmodel", "./actionmodel", "./tokencontainerbox", "conf" ],// 
+"./tokenmodel", "./actionmodel","./submodel", "./tokencontainerbox", "conf" ],// 
 function(mix, _, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, AnimateAppearanceCss, //
-TokenModel, ActionModel, TokenContainerBox, config) {
+TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 
 	function Card(layoutManager, def) {
 		this.def = def;
@@ -18,6 +18,7 @@ TokenModel, ActionModel, TokenContainerBox, config) {
 		this.tokens = this.element.find("div.tokens");
 		this.tokenModel = new TokenModel();
 		this.actionModel = new ActionModel();
+		this.subModel = new SubModel();
 		this.tokensContainer = new TokenContainerBox(layoutManager, config.card.layouts.tokens, this.tokens, false, this.tokenModel);
 
 		// le tableau des ghost
@@ -91,6 +92,17 @@ TokenModel, ActionModel, TokenContainerBox, config) {
 		 */
 		this.setTokensValues = function(values) {
 			this.tokenModel.setTokensValues(values);
+		}
+
+				
+		/**
+		 * Décorateur vers le model de sous-routines
+		 */
+		this.setSubs = function(subs) {
+			if (_.isEmpty(subs))
+				this.subModel.removeAll();
+			else
+				this.subModel.update(subs);
 		}
 
 		/**

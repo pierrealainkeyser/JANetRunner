@@ -159,6 +159,8 @@ function(_, mix, $, TokenModel, AbstractBoxContainer, AbstractBox, JQueryBoxSize
 					text = "Credits";
 				else if ("advance" === type)
 					text = "Advancements";
+				else if ("power" === type)
+					text = "Power counters";
 				else
 					text = "?";
 			}

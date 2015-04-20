@@ -1,15 +1,118 @@
 define(
 		[ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/impl/flowLayout", "layout/impl/anchorlayout", "ui/jqueryboxsize",//
 		"ui/animateappearancecss", "./headercontainerbox", "./tokencontainerbox", "ui/jquerytrackingbox", "./cardscontainerbox", "./cardsmodel",
-				"./actionmodel", "./anrtextmixin" ], //
+				"./actionmodel", "./submodel", "./anrtextmixin" ], //
 		function(mix, _, $, AbstractBoxContainer, FlowLayout, AnchorLayout, JQueryBoxSize,//
-		AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, CardsModel, ActionModel, AnrTextMixin) {
+		AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, CardsModel, ActionModel, SubModel, AnrTextMixin) {
 
+			function SubBox(parent, sub) {
+				JQueryBoxSize.call(this, parent.layoutManager, $("<label class='sub'><input type='checkbox' tabIndex='-1'/>" + this.interpolateString(sub.text) + "</label>"));
+				AnimateAppearanceCss.call(this, "bounceIn", "bounceOut");
+				this.setZIndex(50);
+				this._checkbox = this.element.find("[type='checkbox']");
+				// fait apparaitre l'action joliment
+				this.animateEnter(this.element);
+		
+				this.parent = parent;
+				this._checkbox.change(function() {
+					this.parent.subChanged(this);
+				});
+				this._checkbox.focus(function(){
+					$(this).blur();
+				})
+			}
+			
+			mix(SubBox, JQueryBoxSize);
+			mix(SubBox, AnimateAppearanceCss);
+			mix(SubBox, AnrTextMixin);
+			mix(SubBox, function() {
+				
+				/**
+				 * Indique que la routine est selectionnée
+				 */
+				this.isChecked = function() {
+					return this.checkbox.is(':checked');
+				}
+				
+				this.setBroken=function(broken){
+					
+				}
+			});
+			
+			/**
+			 * Les sous-routines
+			 */
+			function SubsBoxContainer(parent, mergeAddedZoomed) {
+				AbstractBoxContainer.call(this, parent.layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }));
+
+				this.watchFunction = this.syncFromEvent.bind(this);
+				this.subModel = null;
+				this._parent = parent;
+				this.mergeAddedZoomed = mergeAddedZoomed;
+			}
+			
+			mix(SubsBoxContainer, AbstractBoxContainer);
+			mix(SubsBoxContainer, function() {
+				this.createSubBox = function(sub) {
+					var box = new SubBox(this, sub);
+					box.additionnalMergePosition = this.mergeAddedZoomed;
+					this.addChild(box);
+				}
+		
+				/**
+				 * Attachement du model
+				 */
+				this.setSubModel = function(subModel) {
+					if (this.subModel) {
+						this.subModel.unobserve(this.watchFunction);
+						this.removeAllActions();
+					}
+					this.subModel = subModel;
+					if (this.subModel) {
+						this.subModel.observe(this.watchFunction, [ SubModel.BROKEN, SubModel.ADDED, SubModel.REMOVED ]);
+						this.subModel.eachSubs(this.createSubBox.bind(this));
+					}
+				}
+		
+				/**
+				 * Suppression de toutes les sous routine
+				 */
+				this.removeAllSubs = function() {
+					var me = this;
+					this.eachChild(function(ab) {
+						ab.animateRemove(ab.element, ab.remove.bind(ab));
+						me.removeChild(ab);
+					})
+				}
+		
+				/**
+				 * TODO
+				 */
+				this.subChanged = function(subbox) {
+				}
+		
+				/**
+				 * Synchronisation depuis un evenemt
+				 */
+				this.syncFromEvent = function(evt) {
+					if (evt.type === SubModel.BROKEN) {
+		
+						_.each(evt.newSubs, function(s) {
+							// TODO metre à jour la boite graphique correspondante
+						}.bind(this));
+					} else if (evt.type === SubModel.ADDED)
+						_.each(evt.newSubs, this.createSubBox.bind(this));
+					else if (evt.type === SubModel.REMOVED)
+						this.removeAllSubs();
+				}
+			});
+			
+			
 			/**
 			 * Represente une action graphique
 			 */
 			function ActionBox(layoutManager, action) {
-				JQueryBoxSize.call(this, layoutManager, $("<a class='action btn btn-default'><span class='cost'/><span class='text'>" + action.text
+				JQueryBoxSize.call(this, layoutManager, $("<a class='action btn btn-default'><span class='cost'/><span class='text'>" + this.interpolateString( action.text)
 						+ "</span></div>"));
 				AnimateAppearanceCss.call(this, "bounceIn", "bounceOut");
 				this._cost = this.element.find(".cost");
@@ -117,7 +220,7 @@ define(
 				}
 			});
 
-			function ZoomedDetail(layoutManager, element, mergeSubstractZoomed) {
+			function ZoomedDetail(layoutManager, element, mergeSubstractZoomed, mergeAddedZoomed) {
 				AbstractBoxContainer.call(this, layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }));
 
 				this.tokens = new TokenContainerBox(layoutManager, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }), element, true);
@@ -127,10 +230,18 @@ define(
 				this.tokensHeader.additionnalMergePosition = mergeSubstractZoomed;
 				this.tokensHeader.header.element.appendTo(element);
 
+				//todo il faut prevoir la version de merge inverse
+				this.subs = new SubsBoxContainer(this, mergeAddedZoomed);
+				this.subsHeader = new HeaderContainerBox(layoutManager, this.subs, "Subroutines");
+				this.subsHeader.additionnalMergePosition = mergeSubstractZoomed;
+				this.subsHeader.header.element.appendTo(element);
+		
+				this.addChild(this.subsHeader);
 				this.addChild(this.tokensHeader);
 			}
 			mix(ZoomedDetail, AbstractBoxContainer);
 			mix(ZoomedDetail, function() {
+				
 
 				/**
 				 * Affichage de l'objet primaire
@@ -138,8 +249,10 @@ define(
 				this.bindPrimary = function(obj) {
 					if (obj) {
 						this.tokens.setTokenModel(obj.tokenModel);
+						this.subs.setSubModel(obj.subModel);
 					} else {
 						this.tokens.setTokenModel(null);
+						this.subs.setSubModel(null);
 						// TODO suppression de tous les elements liés à la carte
 					}
 				};
@@ -178,7 +291,7 @@ define(
 
 				this.element = $("<div class='zoombox'/>");
 
-				this.zoomedDetail = new ZoomedDetail(layoutManager, this.element, mergeSubstractZoomed);
+				this.zoomedDetail = new ZoomedDetail(layoutManager, this.element, mergeSubstractZoomed, mergeAddedZoomed);
 				this.header = new JQueryBoxSize(layoutManager, $("<div class='header title'>bidule</div>"));
 				this.header.element.appendTo(this.element);
 
