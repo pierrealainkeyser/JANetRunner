@@ -6,8 +6,13 @@ define([ "underscore", "tweenlite" ,"conf"], function(_, TweenLite, conf) {
 		 * Permet de savoir s'il y a deja une synchronisation à l'écran
 		 */
 		this.firstSyncScreen = function(reset) {
-			if (this._firstSyncScreen === undefined || reset)
+			if(this._firstSyncScreen === undefined )
 				this._firstSyncScreen = true;
+			
+			if (reset){
+				this._firstSyncScreen = true;
+				return;
+			}
 
 			var old = this._firstSyncScreen;
 			this._firstSyncScreen = false;

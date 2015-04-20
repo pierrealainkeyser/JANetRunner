@@ -59,18 +59,20 @@
 				zoom.local.moveTo({ x : 200, y : 200 });
 
 				layoutManager.afterFirstMerge = zoom.afterLayoutPhase.bind(zoom);
-				
 
 				setTimeout(layoutManager.withinLayout(function() {
 					c2.setActions([ { cost : "{1:click},{2:credit}", text : "Pas cher" } ]);
-					c2.setSubs([ { id : 1, text : "{3:trace} If successful, place 1 power counter on |Data Raven|" } ] );
-					c2.setTokensValues({power:1});
+
+					c2.setTokensValues({ power : 1 });
 					zoom.setPrimary(c2);
 				}), 500);
-				
-				if(true)
-					return;
 
+				setTimeout(layoutManager.withinLayout(function() {
+					c2.setSubs([ { id : 1, text : "{3:trace} If successful, place 1 power counter on |Data Raven|" } ]);
+				}), 1000);
+
+				if (true)
+					return;
 
 				setTimeout(layoutManager.withinLayout(function() {
 					zoom.setPrimary(hq.mainContainer.view);
@@ -84,7 +86,6 @@
 					hq.setActions([ { cost : "{1:click}", text : "Sur le container" } ]);
 				}), 2000);
 
-
 				setTimeout(layoutManager.withinLayout(function() {
 					hq.setActions([ { cost : "{2:click}", text : "rien" } ]);
 				}), 3000);
@@ -93,7 +94,7 @@
 					//	zoom.setPrimary(null)
 					c2.setActions();
 					c1.setActions([ { cost : "{1:click},{2:credit}", text : "Pas cher" } ]);
-					c1.setSubs([ { id : 1, text : "{3:trace} If successful, place 1 power counter on |Data Raven|" } ] );
+					c1.setSubs([ { id : 1, text : "{3:trace} If successful, place 1 power counter on |Data Raven|" } ]);
 					zoom.setPrimary(c1);
 				}), 4000);
 			});

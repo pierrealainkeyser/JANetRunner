@@ -16,7 +16,7 @@ define(
 				this.parent = parent;
 				this._checkbox.change(function() {
 					this.parent.subChanged(this);
-				});
+				}.bind(this));
 				this._checkbox.focus(function(){
 					$(this).blur();
 				})

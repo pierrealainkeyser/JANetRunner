@@ -11,29 +11,40 @@ define([ "mix", "jquery", "layout/abstractboxcontainer", "layout/impl/flowLayout
 
 		this.addChild(this.header);
 		this.addChild(childContainer);
-		this.updateVisibility();
+		this.removeHeaderIfNeeded();
 	}
 
 	mix(HeaderContainerBox, AbstractBoxContainer);
 	mix(HeaderContainerBox, AnimateAppearanceCss);
 	mix(HeaderContainerBox, function() {
+
 		/**
-		 * Calcul de la visibilte
+		 * Supprime le header si pas disponible
+		 */
+		this.removeHeaderIfNeeded = function() {
+			// on reverifie pour les PB de concurrence
+			if (this.childContainer.size() === 0) {
+				this.header.element.hide();
+				this.removeChild(this.header);
+			}
+		}
+
+		/**
+		 * Calcul de la visibilite
 		 */
 		this.updateVisibility = function(evt) {
 			var childCount = this.childContainer.size();
 			if (childCount === 0) {
-				this.animateRemove(this.header.element, function() {
-					// on reverifie pour les PB de concurrence
-					if (this.childContainer.size() === 0) {
-						this.header.element.hide();
-						this.removeChild(this.header);
-					}
-				}.bind(this));
+				this.animateRemove(this.header.element, this.removeHeaderIfNeeded.bind(this));
 			} else if (evt.oldValue === 0) {
 				this.header.element.show();
-				this.addChild(this.header, 0);
+				this.header.needMergeToScreen();
+				this.header.firstSyncScreen(true);
+				
+				this.addChild(this.header, 0);				
 				this.animateEnter(this.header.element);
+				
+				
 			}
 		}
 	});
