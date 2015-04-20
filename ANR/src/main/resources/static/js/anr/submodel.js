@@ -21,7 +21,7 @@ define([ "mix", "underscore", "util/observablemixin" ], function(mix, _, Observa
 				} else
 					added.push(s);
 			}.bind(this));
-
+			
 			if (!_.isEmpty(added))
 				this.performChange(SubModel.ADDED, function() {
 					var me = this;

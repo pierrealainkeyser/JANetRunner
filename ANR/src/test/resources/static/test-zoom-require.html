@@ -71,6 +71,10 @@
 					c2.setSubs([ { id : 1, text : "{3:trace} If successful, place 1 power counter on |Data Raven|" } ]);
 				}), 1000);
 
+				setTimeout(layoutManager.withinLayout(function() {
+					c2.setSubs([ { id : 1, broken : true } ]);
+				}), 1500);
+
 				if (true)
 					return;
 
