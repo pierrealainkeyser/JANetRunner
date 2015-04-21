@@ -25,7 +25,7 @@ define([ "mix", "jquery", "layout/abstractboxcontainer", "layout/impl/flowLayout
 			// on reverifie pour les PB de concurrence
 			if (this.childContainer.size() === 0) {
 				this.header.element.hide();
-				this.removeChild(this.header);
+				this.header.setContainer(null);
 			}
 		}
 
@@ -38,13 +38,10 @@ define([ "mix", "jquery", "layout/abstractboxcontainer", "layout/impl/flowLayout
 				this.animateRemove(this.header.element, this.removeHeaderIfNeeded.bind(this));
 			} else if (evt.oldValue === 0) {
 				this.header.element.show();
-				this.header.needMergeToScreen();
 				this.header.firstSyncScreen(true);
 				
 				this.addChild(this.header, 0);				
 				this.animateEnter(this.header.element);
-				
-				
 			}
 		}
 	});
