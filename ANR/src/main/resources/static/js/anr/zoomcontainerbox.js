@@ -32,7 +32,7 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 		 * Indique que la routine est selectionnée
 		 */
 		this.isChecked = function() {
-			return this.checkbox.is(':checked');
+			return this._checkbox.is(':checked');
 		}
 
 		/**
@@ -75,6 +75,17 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 		}
 
 		/**
+		 * Compte le nombre d'élément sélectionné
+		 */
+		this.selectedCount = function() {
+			var selected = 0
+			this.eachChild(function(sub) {
+				selected += sub.isChecked();
+			});
+			return selected;
+		}
+
+		/**
 		 * Attachement du model
 		 */
 		this.setSubModel = function(subModel) {
@@ -102,10 +113,10 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 		}
 
 		/**
-		 * TODO
+		 * Une sub a change
 		 */
 		this.subChanged = function(subbox) {
-			console.log("subChanged", subbox)
+			this._parent.subChanged(subbox);
 		}
 
 		/**
@@ -138,17 +149,35 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 		this._cost = this.element.find(".cost");
 		this.action = action;
 		this.setZIndex(50);
+		this.actionType = action.type || ActionBox.DEFAULT_TYPE;
 
 		// fait apparaitre l'action joliment
 		this.animateEnter(this.element);
 		if (action.cost)
 			this.cost(action.cost, true);
+
+		this.variableCosts = action.costs || [];
+		this.disabled = false;
 	}
+
+	ActionBox.DEFAULT_TYPE = "default";
+	ActionBox.BREAK_TYPE = "break";
 
 	mix(ActionBox, JQueryBoxSize);
 	mix(ActionBox, AnimateAppearanceCss);
 	mix(ActionBox, AnrTextMixin);
 	mix(ActionBox, function() {
+
+		/**
+		 * Mise à jour du cout variable
+		 */
+		this.updateVariableCost = function(nb) {
+			if (nb >= 0 && nb < this.variableCosts.length) {
+				var variable = this.variableCosts[nb];
+				this.cost(variable.cost || '');
+				this.disable(!variable.enabled);
+			}
+		}
 
 		/**
 		 * Mise à jour du cout
@@ -163,7 +192,7 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 
 			var inner = this._cost.html();
 			if (cost != inner) {
-				this.animateSwap(this.cost, this.layoutManager.withinLayout(function() {
+				this.animateSwap(this._cost, this.layoutManager.withinLayout(function() {
 					this._cost.html(cost);
 					this.computeSize(this.element);
 				}.bind(this)));
@@ -174,10 +203,16 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 		 * Gestion de l'affichage de la sélection ou non
 		 */
 		this.disable = function(disabled) {
-			if (disabled)
-				this.element.addClass("disabled");
-			else
-				this.element.removeClass("disabled");
+			var changed = this.disabled !== disabled;
+			this.disabled = disabled;
+			if (changed) {
+				this.animateSwap(this.element, function() {
+					if (disabled)
+						this.element.addClass("disabled");
+					else
+						this.element.removeClass("disabled")
+				}.bind(this));
+			}
 		}
 	});
 
@@ -191,8 +226,21 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 		this.actionModel = null;
 	}
 
+	ActionsBoxContainer.ACTIONBOX_ADDED = "actionBoxAdded";
+
 	mix(ActionsBoxContainer, AbstractBoxContainer);
 	mix(ActionsBoxContainer, function() {
+
+		/**
+		 * Mise à jour des couts variables
+		 */
+		this.updateVariableCosts = function(actionType, nb) {
+			this.eachChild(function(ab) {
+				if (ab.actionType === actionType) {
+					ab.updateVariableCost(nb);
+				}
+			});
+		}
 
 		/**
 		 * Mise en place du model
@@ -215,6 +263,9 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 		this.createActionBox = function(action) {
 			var ab = new ActionBox(this.layoutManager, action);
 			this.addChild(ab);
+			this.performChange(ActionsBoxContainer.ACTIONBOX_ADDED, function() {
+				return { action : ab }
+			})
 		}
 
 		/**
@@ -240,9 +291,11 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 		}
 	});
 
-	function ZoomedDetail(layoutManager, element, mergeSubstractZoomed, mergeAddedZoomed) {
+	function ZoomedDetail(parent, element, mergeSubstractZoomed, mergeAddedZoomed) {
+		var layoutManager = parent.layoutManager;
 		AbstractBoxContainer.call(this, layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }));
 
+		this._parent = parent;
 		this.tokens = new TokenContainerBox(layoutManager, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }), element, true);
 		this.tokensHeader = new HeaderContainerBox(layoutManager, this.tokens, "Tokens");
 
@@ -261,6 +314,13 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 	}
 	mix(ZoomedDetail, AbstractBoxContainer);
 	mix(ZoomedDetail, function() {
+
+		/**
+		 * Une sub a change
+		 */
+		this.subChanged = function(subbox) {
+			this._parent.subChanged(this.subs.selectedCount());
+		}
 
 		/**
 		 * Affichage de l'objet primaire
@@ -294,12 +354,15 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 			moveTo.add(topLeft);
 		}.bind(this)
 
+		var postProcessAction = this.postProcessAction.bind(this);
+
 		// carte primaire (à gauche)
 		this.primaryCardsModel = new CardsModel();
 		this.primaryCardContainer = new CardsContainerBox(layoutManager, { cardsize : "zoom" }, new AnchorLayout({}), true);
 		this.primaryCardContainer.setCardsModel(this.primaryCardsModel);
 		this.primaryActions = new ActionsBoxContainer(layoutManager);
 		this.primaryActions.additionnalMergePosition = mergeAddedZoomed;
+		this.primaryActions.observe(postProcessAction, [ ActionsBoxContainer.ACTIONBOX_ADDED ]);
 
 		// carte secondaire (à droite)
 		this.secondaryCardsModel = new CardsModel();
@@ -307,10 +370,13 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 		this.secondaryCardContainer.setCardsModel(this.secondaryCardsModel);
 		this.secondaryActions = new ActionsBoxContainer(layoutManager);
 		this.secondaryActions.additionnalMergePosition = mergeAddedZoomed;
+		this.secondaryActions.observe(postProcessAction, [ ActionsBoxContainer.ACTIONBOX_ADDED ]);
+
+		// TODO écoute des nouveaux enfants
 
 		this.element = $("<div class='zoombox'/>");
 
-		this.zoomedDetail = new ZoomedDetail(layoutManager, this.element, mergeSubstractZoomed, mergeAddedZoomed);
+		this.zoomedDetail = new ZoomedDetail(this, this.element, mergeSubstractZoomed, mergeAddedZoomed);
 		this.header = new JQueryBoxSize(layoutManager, $("<div class='header title'>bidule</div>"));
 		this.header.element.appendTo(this.element);
 
@@ -384,6 +450,25 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 	mix(ZoomContainerBox, AbstractBoxContainer);
 	mix(ZoomContainerBox, AnimateAppearanceCss);
 	mix(ZoomContainerBox, function() {
+
+		/**
+		 * Gestion des actions
+		 */
+		this.postProcessAction = function(evt) {
+			var actionBox = evt.action;
+			if (actionBox.actionType == ActionBox.BREAK_TYPE) {
+				var nb = this.zoomedDetail.subs.selectedCount();
+				actionBox.updateVariableCost(nb);
+			}
+		}
+
+		/**
+		 * La sélection du sous-routine à changer
+		 */
+		this.subChanged = function(selectedSubsCount) {
+			this.primaryActions.updateVariableCosts(ActionBox.BREAK_TYPE, selectedSubsCount);
+			this.secondaryActions.updateVariableCosts(ActionBox.BREAK_TYPE, selectedSubsCount);
+		}
 
 		/**
 		 * Appeler à la fin de la phase de layout

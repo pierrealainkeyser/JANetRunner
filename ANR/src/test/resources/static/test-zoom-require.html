@@ -61,15 +61,13 @@
 				layoutManager.afterFirstMerge = zoom.afterLayoutPhase.bind(zoom);
 
 				setTimeout(layoutManager.withinLayout(function() {
-					c2.setActions([ { cost : "{1:click},{2:credit}", text : "Pas cher" } ]);
-
-					c2.setTokensValues({ power : 1 });
 					zoom.setPrimary(c2);
-				}), 500);
-
-				setTimeout(layoutManager.withinLayout(function() {
 					c2.setSubs([ { id : 1, text : "{3:trace} If successful, place 1 power counter on |Data Raven|" } ]);
-				}), 1000);
+					c2.setActions([ { type : 'break', costs : [ { enabled : false }, { cost : "{3:credit}", enabled : true } ], text : "Break selected" } ]);
+				}), 20);
+
+				if (true)
+					return;
 
 				setTimeout(layoutManager.withinLayout(function() {
 					c2.setSubs([ { id : 1, broken : true } ]);
