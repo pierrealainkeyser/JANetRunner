@@ -33,13 +33,17 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel, config
 		 */
 		this.trackCardBoxChanged = function(evt) {
 			
-			//on supprime l'evenement pour les changements
+			//on supprime l'evenement pour les changements avec replaceChild de AbstractBoxContainer
 			if(evt.replaceChild)
 				return;			
 						
 			if (evt.type === layout.AbstractBoxContainer.CHILD_ADDED) {
+				//TODO gestion du filtrage
+				
 				this.cardsModel.add(evt.added);
 			} else if (evt.type === layout.AbstractBoxContainer.CHILD_REMOVED) {
+				//TODO gestion du filtrage
+				
 				this.cardsModel.remove(evt.removed);
 			}
 		}

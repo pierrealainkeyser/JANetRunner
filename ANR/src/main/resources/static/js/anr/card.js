@@ -35,7 +35,9 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 
 		// pour changer l'apparence de la bordule
 		var syncScreen = this.needSyncScreen.bind(this);
-		this.actionModel.observe(syncScreen, [ ActionModel.ADDED, ActionModel.REMOVED ])
+		this.actionModel.observe(syncScreen, [ ActionModel.ADDED, ActionModel.REMOVED ]);
+		
+		//TODO gestion de l'intégration dans le zoom des cardscontainerbox
 	}
 
 	Card.FACE_UP = "up";
