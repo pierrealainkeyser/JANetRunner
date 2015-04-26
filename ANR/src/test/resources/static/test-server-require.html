@@ -31,8 +31,8 @@
 		} //
 	});
 
-	require([ "jquery", "layout/package", "anr/corp", "anr/runner", "anr/focus", "anr/card", "anr/turntracker" ],//
-	function($, layout, Corp, Runner, FocusBox, Card, TurnTracker) {
+	require([ "jquery", "layout/package", "anr/corp", "anr/runner", "anr/focus", "anr/card", "anr/turntracker", "anr/zoomcontainerbox" ],//
+	function($, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomContainerBox) {
 		$(function() {
 			var layoutManager = new layout.LayoutManager($("#main"));
 
@@ -100,19 +100,32 @@
 
 				corp.local.moveTo({ x : 5, y : layoutManager.container.height() - 5 });
 				runner.local.moveTo({ x : layoutManager.container.width() - 5, y : 5 });
+				
+				var zoom = new ZoomContainerBox(layoutManager);
+				zoom.local.moveTo({ x : 200, y : 200 });
+				zoom.setZIndex(75);
+				layoutManager.afterFirstMerge = zoom.afterLayoutPhase.bind(zoom);
 
 				setTimeout(layoutManager.withinLayout(function() {
 					c3.setFace(Card.FACE_DOWN);
 					rd.mainContainer.setCounter(15);
-					
-					nbn.setTokensValues({ badpub : 2, recurring:2,brain:3,hability:2 });
+
+					nbn.setTokensValues({ badpub : 2, recurring : 2, brain : 3, hability : 2 });
 
 					trac.trackAbstractBox(c2);
 					rd.addToAssetsOrUpgrades(c1);
-					remote2.addToAssetsOrUpgrades(c3);
+					
 					remote2.addToAssetsOrUpgrades(c);
 					remote2.addToAssetsOrUpgrades(c4);
-				}), 1000);
+					
+				}), 750);
+				
+				setTimeout(layoutManager.withinLayout(function() {
+					zoom.setPrimary(remote2.mainContainer.view);
+					
+					remote2.addToAssetsOrUpgrades(c3);
+					
+				}), 1250);
 			});
 		});
 	});

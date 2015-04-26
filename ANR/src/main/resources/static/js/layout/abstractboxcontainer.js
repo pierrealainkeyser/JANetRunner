@@ -20,6 +20,8 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 
 	AbstractBoxContainer.CHILD_ADDED = "childAdded";
 	AbstractBoxContainer.CHILD_REMOVED = "childRemoved";
+	AbstractBoxContainer.ALL_CHILDS_REMOVED = "allChildsRemoved";
+	
 
 	mix(AbstractBoxContainer, AbstractBox);
 	mix(AbstractBoxContainer, function() {
@@ -97,7 +99,7 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 			this.needLayout();
 
 			this.performChange(AbstractBoxContainer.CHILD_ADDED, function() {
-				return { oldValue : size, added : box };
+				return { oldSize : size, added : box };
 			});
 		}
 
@@ -126,20 +128,22 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 			this.needLayout();
 
 			this.performChange(AbstractBoxContainer.CHILD_REMOVED, function() {
-				return { oldValue : size, removed : box };
+				return { oldSize : size, removed : box };
 			});
 		}
 
 		/**
-		 * Supprime tous les enfantts
+		 * Supprime tous les enfants
 		 */
 		this.removeAllChilds = function() {
+			var size = this.size();
+			
 			this.eachChild(unbindChild.bind(this));
 			this.childs = [];
 			this.needLayout();
 
-			this.performChange(AbstractBoxContainer.CHILD_COUNT, function() {
-				return { oldValue : 0 };
+			this.performChange(AbstractBoxContainer.ALL_CHILDS_REMOVED, function() {
+				return { oldSize : size };
 			});
 		}
 

@@ -57,7 +57,6 @@
 
 				var zoom = new ZoomContainerBox(layoutManager);
 				zoom.local.moveTo({ x : 200, y : 200 });
-
 				layoutManager.afterFirstMerge = zoom.afterLayoutPhase.bind(zoom);
 
 				setTimeout(layoutManager.withinLayout(function() {

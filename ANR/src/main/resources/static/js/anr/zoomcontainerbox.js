@@ -1,7 +1,8 @@
-define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/impl/flowLayout", "layout/impl/anchorlayout", "ui/jqueryboxsize",//
-"ui/animateappearancecss", "./headercontainerbox", "./tokencontainerbox", "ui/jquerytrackingbox", "./cardscontainerbox", "./cardsmodel", "./actionmodel",
-		"./submodel", "./anrtextmixin" ], //
-function(mix, _, $, AbstractBoxContainer, FlowLayout, AnchorLayout, JQueryBoxSize,//
+define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/impl/flowLayout", "layout/impl/anchorlayout", "layout/impl/gridlayout",
+		"ui/jqueryboxsize",//
+		"ui/animateappearancecss", "./headercontainerbox", "./tokencontainerbox", "ui/jquerytrackingbox", "./cardscontainerbox", "./cardsmodel",
+		"./actionmodel", "./submodel", "./anrtextmixin" ], //
+function(mix, _, $, AbstractBoxContainer, FlowLayout, AnchorLayout, GridLayout, JQueryBoxSize,//
 AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, CardsModel, ActionModel, SubModel, AnrTextMixin) {
 
 	function SubBox(parent, sub) {
@@ -226,7 +227,6 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 		this.actionModel = null;
 	}
 
-
 	mix(ActionsBoxContainer, AbstractBoxContainer);
 	mix(ActionsBoxContainer, function() {
 
@@ -299,14 +299,19 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 		this.tokensHeader.additionnalMergePosition = mergeSubstractZoomed;
 		this.tokensHeader.header.element.appendTo(element);
 
-		// todo il faut prevoir la version de merge inverse
 		this.subs = new SubsBoxContainer(this, mergeAddedZoomed);
 		this.subsHeader = new HeaderContainerBox(layoutManager, this.subs, "Subroutines");
 		this.subsHeader.additionnalMergePosition = mergeSubstractZoomed;
 		this.subsHeader.header.element.appendTo(element);
 
+		this.cardsContainer = new CardsContainerBox(layoutManager, { cardsize : "mini", inMiniDetail : true }, new GridLayout({ maxCols : 6 }), true);
+		this.cardsHeader = new HeaderContainerBox(layoutManager, this.cardsContainer, "Cards");
+		this.cardsHeader.additionnalMergePosition = mergeSubstractZoomed;
+		this.cardsHeader.header.element.appendTo(element);
+
 		this.addChild(this.subsHeader);
 		this.addChild(this.tokensHeader);
+		this.addChild(this.cardsHeader);
 	}
 	mix(ZoomedDetail, AbstractBoxContainer);
 	mix(ZoomedDetail, function() {
@@ -325,16 +330,18 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 			if (obj) {
 				this.tokens.setTokenModel(obj.tokenModel);
 				this.subs.setSubModel(obj.subModel);
+				this.cardsContainer.setCardsModel(obj.cardsModel);
 			} else {
 				this.tokens.setTokenModel(null);
 				this.subs.setSubModel(null);
+				this.cardsContainer.setCardsModel(null);
 				// TODO suppression de tous les elements liés à la carte
 			}
 		};
 	})
 
 	function ZoomContainerBox(layoutManager) {
-		AbstractBoxContainer.call(this, layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }));
+		AbstractBoxContainer.call(this, layoutManager, { addZIndex : true }, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }));
 		AnimateAppearanceCss.call(this, "fadeIn", "fadeOut");
 
 		// permet de ne pas merger les positions de la pointe parente
@@ -354,7 +361,7 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 
 		// carte primaire (à gauche)
 		this.primaryCardsModel = new CardsModel();
-		this.primaryCardContainer = new CardsContainerBox(layoutManager, { cardsize : "zoom" }, new AnchorLayout({}), true);
+		this.primaryCardContainer = new CardsContainerBox(layoutManager, { cardsize : "zoom", addZIndex : true }, new AnchorLayout({}), true);
 		this.primaryCardContainer.setCardsModel(this.primaryCardsModel);
 		this.primaryActions = new ActionsBoxContainer(layoutManager);
 		this.primaryActions.additionnalMergePosition = mergeAddedZoomed;
@@ -362,7 +369,7 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 
 		// carte secondaire (à droite)
 		this.secondaryCardsModel = new CardsModel();
-		this.secondaryCardContainer = new CardsContainerBox(layoutManager, { cardsize : "zoom" }, new AnchorLayout({}), true);
+		this.secondaryCardContainer = new CardsContainerBox(layoutManager, { cardsize : "zoom", addZIndex : true }, new AnchorLayout({}), true);
 		this.secondaryCardContainer.setCardsModel(this.secondaryCardsModel);
 		this.secondaryActions = new ActionsBoxContainer(layoutManager);
 		this.secondaryActions.additionnalMergePosition = mergeAddedZoomed;
@@ -385,7 +392,7 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 		actionsBox.element.appendTo(this.element);
 		actionsBox.trackAbstractBox(actionsRow);
 
-		var mainRow = new AbstractBoxContainer(layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.RIGHT, padding : 4, spacing : 8 }));
+		var mainRow = new AbstractBoxContainer(layoutManager, { addZIndex : true }, new FlowLayout({ direction : FlowLayout.Direction.RIGHT, padding : 4, spacing : 8 }));
 		mainRow.addChild(this.primaryCardContainer);
 		mainRow.addChild(this.zoomedDetail);
 		mainRow.addChild(this.secondaryCardContainer);

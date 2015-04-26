@@ -36,7 +36,7 @@ define([ "mix", "jquery", "layout/abstractboxcontainer", "layout/impl/flowLayout
 			var childCount = this.childContainer.size();
 			if (childCount === 0) {
 				this.animateRemove(this.header.element, this.removeHeaderIfNeeded.bind(this));
-			} else if (evt.oldValue === 0) {
+			} else if (evt.oldSize === 0) {
 				this.header.element.show();
 				this.header.firstSyncScreen(true);
 

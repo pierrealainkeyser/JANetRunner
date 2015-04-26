@@ -1,5 +1,5 @@
-define([ "mix", "jquery", "layout/package", "ui/package", "geometry/package", "layout/impl/anchorlayout", "./actionmodel", "conf" ],// 
-function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, config) {
+define([ "mix", "jquery", "layout/package", "ui/package", "geometry/package", "layout/impl/anchorlayout", "./actionmodel", "./cardsmodel", "conf" ],// 
+function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel, config) {
 
 	/**
 	 * Pour facilter les logs dans la console
@@ -17,12 +17,28 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, config) {
 		this.box = box;
 		this.trackingBox = null;
 		this.actionModel = new ActionModel();
+		this.cardsModel = new CardsModel();
 
 		var normal = config.card.zoom;
 		this.local.resizeTo(normal);
+
+		// permet d'observer les cartes dans le container
+		box.cards.observe(this.trackCardBoxChanged.bind(this), [ layout.AbstractBoxContainer.CHILD_ADDED, layout.AbstractBoxContainer.CHILD_REMOVED ]);
 	}
 	mix(CardContainerView, layout.AbstractBoxLeaf);
 	mix(CardContainerView, function() {
+
+		/**
+		 * Suivi des cartes rajoutés dans le container interne
+		 */
+		this.trackCardBoxChanged = function(evt) {
+			console.log("trackCardBoxChanged", evt, this);
+			if (evt.type === layout.AbstractBoxContainer.CHILD_ADDED) {
+				this.cardsModel.add(evt.added);
+			} else if (evt.type === layout.AbstractBoxContainer.CHILD_REMOVED) {
+				this.cardsModel.remove(evt.removed);
+			}
+		}
 
 		/**
 		 * Calcul la taille de base
