@@ -7,7 +7,7 @@ define([ "mix", "jquery", "layout/abstractboxcontainer", "layout/impl/flowLayout
 
 		this.header = new JQueryBoxSize(layoutManager, $("<span class='header'>" + text + "</span>"));
 		this.childContainer = childContainer;
-		this.childContainer.observe(this.updateVisibility.bind(this), [ AbstractBoxContainer.CHILD_COUNT ]);
+		this.childContainer.observe(this.updateVisibility.bind(this), [ AbstractBoxContainer.CHILD_ADDED, AbstractBoxContainer.CHILD_REMOVED ]);
 
 		this.addChild(this.header);
 		this.addChild(childContainer);
@@ -39,8 +39,8 @@ define([ "mix", "jquery", "layout/abstractboxcontainer", "layout/impl/flowLayout
 			} else if (evt.oldValue === 0) {
 				this.header.element.show();
 				this.header.firstSyncScreen(true);
-				
-				this.addChild(this.header, 0);				
+
+				this.addChild(this.header, 0);
 				this.animateEnter(this.header.element);
 			}
 		}

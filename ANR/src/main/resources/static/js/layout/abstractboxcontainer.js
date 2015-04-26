@@ -18,7 +18,8 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 		this.observe(needMerge, [ AbstractBox.ZINDEX ]);
 	}
 
-	AbstractBoxContainer.CHILD_COUNT = "childCount";
+	AbstractBoxContainer.CHILD_ADDED = "childAdded";
+	AbstractBoxContainer.CHILD_REMOVED = "childRemoved";
 
 	mix(AbstractBoxContainer, AbstractBox);
 	mix(AbstractBoxContainer, function() {
@@ -95,8 +96,8 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 			// indique que l'on a besoin d'un layout
 			this.needLayout();
 
-			this.performChange(AbstractBoxContainer.CHILD_COUNT, function() {
-				return { oldValue : size };
+			this.performChange(AbstractBoxContainer.CHILD_ADDED, function() {
+				return { oldValue : size, added : box };
 			});
 		}
 
@@ -124,8 +125,8 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 			this.childs = _.without(this.childs, box);
 			this.needLayout();
 
-			this.performChange(AbstractBoxContainer.CHILD_COUNT, function() {
-				return { oldValue : size };
+			this.performChange(AbstractBoxContainer.CHILD_REMOVED, function() {
+				return { oldValue : size, removed : box };
 			});
 		}
 

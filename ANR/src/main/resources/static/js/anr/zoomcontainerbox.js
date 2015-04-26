@@ -226,7 +226,6 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 		this.actionModel = null;
 	}
 
-	ActionsBoxContainer.ACTIONBOX_ADDED = "actionBoxAdded";
 
 	mix(ActionsBoxContainer, AbstractBoxContainer);
 	mix(ActionsBoxContainer, function() {
@@ -263,9 +262,6 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 		this.createActionBox = function(action) {
 			var ab = new ActionBox(this.layoutManager, action);
 			this.addChild(ab);
-			this.performChange(ActionsBoxContainer.ACTIONBOX_ADDED, function() {
-				return { action : ab }
-			})
 		}
 
 		/**
@@ -362,7 +358,7 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 		this.primaryCardContainer.setCardsModel(this.primaryCardsModel);
 		this.primaryActions = new ActionsBoxContainer(layoutManager);
 		this.primaryActions.additionnalMergePosition = mergeAddedZoomed;
-		this.primaryActions.observe(postProcessAction, [ ActionsBoxContainer.ACTIONBOX_ADDED ]);
+		this.primaryActions.observe(postProcessAction, [ AbstractBoxContainer.CHILD_ADDED ]);
 
 		// carte secondaire (à droite)
 		this.secondaryCardsModel = new CardsModel();
@@ -370,7 +366,7 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 		this.secondaryCardContainer.setCardsModel(this.secondaryCardsModel);
 		this.secondaryActions = new ActionsBoxContainer(layoutManager);
 		this.secondaryActions.additionnalMergePosition = mergeAddedZoomed;
-		this.secondaryActions.observe(postProcessAction, [ ActionsBoxContainer.ACTIONBOX_ADDED ]);
+		this.secondaryActions.observe(postProcessAction, [ AbstractBoxContainer.CHILD_ADDED ]);
 
 		// TODO écoute des nouveaux enfants
 
@@ -455,7 +451,7 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 		 * Gestion des actions
 		 */
 		this.postProcessAction = function(evt) {
-			var actionBox = evt.action;
+			var actionBox = evt.added;
 			if (actionBox.actionType == ActionBox.BREAK_TYPE) {
 				var nb = this.zoomedDetail.subs.selectedCount();
 				actionBox.updateVariableCost(nb);
