@@ -32,7 +32,11 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel, config
 		 * Suivi des cartes rajoutés dans le container interne
 		 */
 		this.trackCardBoxChanged = function(evt) {
-			console.log("trackCardBoxChanged", evt, this);
+			
+			//on supprime l'evenement pour les changements
+			if(evt.replaceChild)
+				return;			
+						
 			if (evt.type === layout.AbstractBoxContainer.CHILD_ADDED) {
 				this.cardsModel.add(evt.added);
 			} else if (evt.type === layout.AbstractBoxContainer.CHILD_REMOVED) {

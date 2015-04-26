@@ -4,6 +4,7 @@ define([ "mix", "geometry/package", "./basiclayout" ], function(mix, geom, Basic
 		options = options || {}
 		BasicLayout.call(this, options);
 		this.padding = options.padding || 0;
+		this.spacing = options.spacing || 3;
 		this.maxCols = options.maxCols || 3;
 	}
 
@@ -41,9 +42,9 @@ define([ "mix", "geometry/package", "./basiclayout" ], function(mix, geom, Basic
 				if (++col >= this.maxCols) {
 					col = 0;
 					currentPoint.x = 0;
-					currentPoint.y += maxSize.height;
+					currentPoint.y += maxSize.height + this.spacing;
 				} else {
-					currentPoint.x += c.local.size.width;
+					currentPoint.x += c.local.size.width + this.spacing;
 				}
 
 			}.bind(this));

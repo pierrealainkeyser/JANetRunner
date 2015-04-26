@@ -289,7 +289,7 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 
 	function ZoomedDetail(parent, element, mergeSubstractZoomed, mergeAddedZoomed) {
 		var layoutManager = parent.layoutManager;
-		AbstractBoxContainer.call(this, layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }));
+		AbstractBoxContainer.call(this, layoutManager, { addZIndex : true }, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }));
 
 		this._parent = parent;
 		this.tokens = new TokenContainerBox(layoutManager, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }), element, true);
@@ -304,10 +304,13 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 		this.subsHeader.additionnalMergePosition = mergeSubstractZoomed;
 		this.subsHeader.header.element.appendTo(element);
 
-		this.cardsContainer = new CardsContainerBox(layoutManager, { cardsize : "mini", inMiniDetail : true }, new GridLayout({ maxCols : 6 }), true);
+		this.cardsContainer = new CardsContainerBox(layoutManager, { cardsize : "mini", inMiniDetail : true, addZIndex : true }, new GridLayout({ maxCols : 6,
+			spacing : 5 }), true);
 		this.cardsHeader = new HeaderContainerBox(layoutManager, this.cardsContainer, "Cards");
 		this.cardsHeader.additionnalMergePosition = mergeSubstractZoomed;
 		this.cardsHeader.header.element.appendTo(element);
+		this.cardsContainer.additionnalMergePosition = mergeAddedZoomed;
+		this.cardsContainer.setCardsModel(new CardsModel());
 
 		this.addChild(this.subsHeader);
 		this.addChild(this.tokensHeader);
@@ -330,12 +333,11 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 			if (obj) {
 				this.tokens.setTokenModel(obj.tokenModel);
 				this.subs.setSubModel(obj.subModel);
-				this.cardsContainer.setCardsModel(obj.cardsModel);
+				this.cardsContainer.cardsModel.setBoundedModel(obj.cardsModel);
 			} else {
 				this.tokens.setTokenModel(null);
 				this.subs.setSubModel(null);
-				this.cardsContainer.setCardsModel(null);
-				// TODO suppression de tous les elements liés à la carte
+				this.cardsContainer.cardsModel.setBoundedModel(null);
 			}
 		};
 	})
@@ -392,7 +394,8 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 		actionsBox.element.appendTo(this.element);
 		actionsBox.trackAbstractBox(actionsRow);
 
-		var mainRow = new AbstractBoxContainer(layoutManager, { addZIndex : true }, new FlowLayout({ direction : FlowLayout.Direction.RIGHT, padding : 4, spacing : 8 }));
+		var mainRow = new AbstractBoxContainer(layoutManager, { addZIndex : true }, new FlowLayout({ direction : FlowLayout.Direction.RIGHT, padding : 4,
+			spacing : 8 }));
 		mainRow.addChild(this.primaryCardContainer);
 		mainRow.addChild(this.zoomedDetail);
 		mainRow.addChild(this.secondaryCardContainer);

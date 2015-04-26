@@ -2,7 +2,7 @@ define([ "mix", "jquery", "layout/abstractboxcontainer", "layout/impl/flowLayout
 		AbstractBoxContainer, FlowLayout, JQueryBoxSize, AnimateAppearanceCss) {
 
 	function HeaderContainerBox(layoutManager, childContainer, text) {
-		AbstractBoxContainer.call(this, layoutManager, {}, new FlowLayout({}));
+		AbstractBoxContainer.call(this, layoutManager, { addZIndex : true }, new FlowLayout({}));
 		AnimateAppearanceCss.call(this, "lightSpeedIn", "lightSpeedOut");
 
 		this.header = new JQueryBoxSize(layoutManager, $("<span class='header'>" + text + "</span>"));

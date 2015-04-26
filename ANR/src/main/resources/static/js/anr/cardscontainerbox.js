@@ -45,16 +45,6 @@ function(mix, $, CardsModel, AbstractBoxContainer) {
 			if (this.cardsModel)
 				this.cardsModel.observe(this.watchFunction, [ CardsModel.REMOVED, CardsModel.ADDED ]);
 
-			this.syncFromModel();
-		}
-
-		/**
-		 * Synchronisation de l'état de toutes les cartes
-		 */
-		this.syncFromModel = function() {
-			var cardsToKeep = [];
-
-			// TODO
 		}
 	});
 

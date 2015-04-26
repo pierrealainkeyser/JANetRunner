@@ -63,10 +63,12 @@ define([ "mix", "underscore", "util/observablemixin" ], function(mix, _, Observa
 		 * Permet de rajouter une carte
 		 */
 		this.add = function(card) {
-			this.performChange(CardsModel.ADDED, function() {
-				this.cards.push(card);
-				return { newCard : card };
-			}.bind(this));
+			if (!_.contains(this.cards, card)) {
+				this.performChange(CardsModel.ADDED, function() {
+					this.cards.push(card);
+					return { newCard : card };
+				}.bind(this));
+			}
 		}
 
 		/**
@@ -76,7 +78,6 @@ define([ "mix", "underscore", "util/observablemixin" ], function(mix, _, Observa
 			var cards = this.cards;
 			_.each(cards, this.remove.bind(this));
 		}
-		
 
 		/**
 		 * Renvoi la premiere carte trouvée
@@ -92,10 +93,12 @@ define([ "mix", "underscore", "util/observablemixin" ], function(mix, _, Observa
 		 * Permet de supprimer une carte
 		 */
 		this.remove = function(card) {
-			this.performChange(CardsModel.REMOVED, function() {
-				this.cards = _.without(this.cards, card);
-				return { removedCard : card };
-			}.bind(this));
+			if (_.contains(this.cards, card)) {
+				this.performChange(CardsModel.REMOVED, function() {
+					this.cards = _.without(this.cards, card);
+					return { removedCard : card };
+				}.bind(this));
+			}
 		}
 
 		/**

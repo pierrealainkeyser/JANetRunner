@@ -21,7 +21,6 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 	AbstractBoxContainer.CHILD_ADDED = "childAdded";
 	AbstractBoxContainer.CHILD_REMOVED = "childRemoved";
 	AbstractBoxContainer.ALL_CHILDS_REMOVED = "allChildsRemoved";
-	
 
 	mix(AbstractBoxContainer, AbstractBox);
 	mix(AbstractBoxContainer, function() {
@@ -80,27 +79,32 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 		/**
 		 * Rajoute un enfant
 		 */
-		this.addChild = function(box, index) {
-			// regle le container et le parent
-			box.setContainer(this);
-			box.setDepth(this.depth + 1);
+		this.addChild = function(box, index, replace) {
+			if (!_.contains(this.childs, box)) {
+				// regle le container et le parent
+				box.setContainer(this);
+				box.setDepth(this.depth + 1);
 
-			var size = this.size();
+				var size = this.size();
 
-			// suit le champ de taille des enfants
-			box.local.observe(this.bindNeedLayout, [ Rectangle.RESIZE_TO ]);
+				// suit le champ de taille des enfants
+				box.local.observe(this.bindNeedLayout, [ Rectangle.RESIZE_TO ]);
 
-			if (index !== undefined)
-				this.childs.splice(index, 0, box);
-			else
-				this.childs.push(box);
+				if (index !== undefined)
+					this.childs.splice(index, 0, box);
+				else
+					this.childs.push(box);
 
-			// indique que l'on a besoin d'un layout
-			this.needLayout();
+				// indique que l'on a besoin d'un layout
+				this.needLayout();
 
-			this.performChange(AbstractBoxContainer.CHILD_ADDED, function() {
-				return { oldSize : size, added : box };
-			});
+				this.performChange(AbstractBoxContainer.CHILD_ADDED, function() {
+					var ret = { oldSize : size, added : box };
+					if (replace)
+						ret.replaceChild = true;
+					return ret;
+				});
+			}
 		}
 
 		/**
@@ -108,8 +112,8 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 		 */
 		this.replaceChild = function(remove, add) {
 			var index = _.indexOf(this.childs, remove);
-			this.addChild(add, index);
-			this.removeChild(remove);
+			this.addChild(add, index, true);
+			this.removeChild(remove, true);
 		}
 
 		var unbindChild = function(box) {
@@ -119,17 +123,22 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 		/**
 		 * Suppression d'un enfant
 		 */
-		this.removeChild = function(box) {
-			unbindChild(box);
+		this.removeChild = function(box, replace) {
+			if (_.contains(this.childs, box)) {
+				unbindChild(box);
 
-			var size = this.size();
+				var size = this.size();
 
-			this.childs = _.without(this.childs, box);
-			this.needLayout();
+				this.childs = _.without(this.childs, box);
+				this.needLayout();
 
-			this.performChange(AbstractBoxContainer.CHILD_REMOVED, function() {
-				return { oldSize : size, removed : box };
-			});
+				this.performChange(AbstractBoxContainer.CHILD_REMOVED, function() {
+					var ret = { oldSize : size, removed : box };
+					if (replace)
+						ret.replaceChild = true;
+					return ret;
+				});
+			}
 		}
 
 		/**
@@ -137,7 +146,7 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 		 */
 		this.removeAllChilds = function() {
 			var size = this.size();
-			
+
 			this.eachChild(unbindChild.bind(this));
 			this.childs = [];
 			this.needLayout();
