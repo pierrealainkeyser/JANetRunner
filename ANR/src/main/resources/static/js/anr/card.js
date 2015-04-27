@@ -29,6 +29,10 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 
 		// permet de montrer le mode de zoom up, down et null
 		this.zoomable = Card.FACE_UP;
+		
+		// permet de savoir si la carte est visible dans la partie
+		// "cards" d'une cardcontainerbox
+		this.accessible = false;
 
 		// en cas de changement de parent redétermine la taille
 		this.observe(this.computeFromRenderingHints.bind(this), [ AbstractBox.CONTAINER ]);
@@ -36,12 +40,13 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 		// pour changer l'apparence de la bordule
 		var syncScreen = this.needSyncScreen.bind(this);
 		this.actionModel.observe(syncScreen, [ ActionModel.ADDED, ActionModel.REMOVED ]);
-		
-		//TODO gestion de l'intégration dans le zoom des cardscontainerbox
 	}
 
 	Card.FACE_UP = "up";
 	Card.FACE_DOWN = "down";
+	Card.ACCESSIBLE = "accessible";
+	Card.ZOOMABLE = "zoomable";
+	Card.FACE = "face";
 
 	mix(Card, AbstractBoxLeaf);
 	mix(Card, TweenLiteSyncScreenMixin);
@@ -231,14 +236,21 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 		 * Changement de la face de la carte
 		 */
 		this.setFace = function(face) {
-			this._innerSet("face", face);
+			this._innerSet(Card.FACE, face);
 		}
 
 		/**
 		 * Affichage du coté zoom
 		 */
 		this.setZoomable = function(zoomable) {
-			this._innerSet("zoomable", zoomable);
+			this._innerSet(Card.ZOOMABLE, zoomable);
+		}
+
+		/**
+		 * Activation de l'accessbilité ou non
+		 */
+		this.setAccessible = function(accessible) {
+			this._innerSet(Card.ACCESSIBLE, "accessible");
 		}
 	});
 
@@ -259,6 +271,8 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 
 		// permet de montrer le mode de zoom up, down et null
 		this.zoomable = Card.FACE_UP;
+	
+		this.accessible = card.accessible;
 
 		// en cas de changement de parent redétermine la taille
 		this.observe(this.computeFromRenderingHints.bind(this), [ AbstractBox.CONTAINER ]);
@@ -268,7 +282,7 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 		this.card = card;
 		this.actionModel = card.actionModel;
 		this.watchCard = this.syncFromCard.bind(this);
-		this.card.observe(this.watchCard, [ "face" ]);
+		this.card.observe(this.watchCard, [ Card.FACE]);
 
 		// on ecoute les changements dans le model
 		this.watchSyncScreen = this.needSyncScreen.bind(this);

@@ -1,5 +1,5 @@
-define([ "mix", "jquery", "layout/package", "ui/package", "geometry/package", "layout/impl/anchorlayout", "./actionmodel", "./cardsmodel", "conf" ],// 
-function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel, config) {
+define([ "mix", "jquery", "layout/package", "ui/package", "geometry/package", "layout/impl/anchorlayout", "./actionmodel", "./cardsmodel","./card", "conf" ],// 
+function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel,Card, config) {
 
 	/**
 	 * Pour facilter les logs dans la console
@@ -22,28 +22,55 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel, config
 		var normal = config.card.zoom;
 		this.local.resizeTo(normal);
 
+		this.trackCardBoxChangedWatch = this.trackCardBoxChanged.bind(this);
+		this.trackAccessibleWatch = this.trackAccessible.bind(this);
+
 		// permet d'observer les cartes dans le container
-		box.cards.observe(this.trackCardBoxChanged.bind(this), [ layout.AbstractBoxContainer.CHILD_ADDED, layout.AbstractBoxContainer.CHILD_REMOVED ]);
+		this.watchContainer(box.cards);
 	}
 	mix(CardContainerView, layout.AbstractBoxLeaf);
 	mix(CardContainerView, function() {
+		
+
+		/**
+		 * Permet de suivi l'ajout ou la suppression de carte dans le
+		 * container
+		 */
+		this.watchContainer = function(container) {
+			container.observe(this.trackCardBoxChangedWatch, [ layout.AbstractBoxContainer.CHILD_ADDED, layout.AbstractBoxContainer.CHILD_REMOVED ]);
+		}
+
+		/**
+		 * Suivi de l'accessibilite d'une carte
+		 */
+		this.trackAccessible = function(evt) {
+			var card = evt.source;
+			if (card.accessible) {
+				this.cardsModel.add(card);
+			} else {
+				this.cardsModel.remove(card);
+			}
+		}
 
 		/**
 		 * Suivi des cartes rajoutés dans le container interne
 		 */
 		this.trackCardBoxChanged = function(evt) {
-			
-			//on supprime l'evenement pour les changements avec replaceChild de AbstractBoxContainer
-			if(evt.replaceChild)
-				return;			
-						
+
+			// on supprime l'evenement pour les changements avec replaceChild de
+			// AbstractBoxContainer
+			if (evt.replaceChild)
+				return;
+
 			if (evt.type === layout.AbstractBoxContainer.CHILD_ADDED) {
-				//TODO gestion du filtrage
-				
-				this.cardsModel.add(evt.added);
+				// on ne rajoute la carte que si elle est accessible
+				evt.added.observe(this.trackAccessibleWatch, [ Card.ACCESSIBLE ]);
+				this.trackAccessible({
+					source : evt.added
+				});
 			} else if (evt.type === layout.AbstractBoxContainer.CHILD_REMOVED) {
-				//TODO gestion du filtrage
-				
+				// suppression de l'observation
+				evt.removed.unobserve(this.trackAccessibleWatch);
 				this.cardsModel.remove(evt.removed);
 			}
 		}
@@ -134,6 +161,13 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel, config
 	mix(CardContainerBox, layout.AbstractBoxContainer);
 	mix(CardContainerBox, ui.AnimateAppeareanceCss);
 	mix(CardContainerBox, function() {
+		
+		/**
+		 * Permet de suivre un container pour l'accessibilité des cartes
+		 */
+		this.watchContainer = function(container) {
+			this.view.watchContainer(container);
+		}
 
 		/**
 		 * Mise à jour du compteur
