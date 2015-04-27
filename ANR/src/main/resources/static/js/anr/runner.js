@@ -31,6 +31,29 @@ function(mix, config, AbstractBoxContainer, CardContainerBox) {
 
 	mix(Runner, AbstractBoxContainer)
 	mix(Runner, function() {
+		this.addToGrip = function(card, index) {
+			this.grip.cards.addChild(card, index);
+		}
+
+		this.addToStack = function(card, index) {
+			this.stack.cards.addChild(card, index);
+		}
+
+		this.addToHeap = function(card, index) {
+			this.heap.cards.addChild(card, index);
+		}
+
+		this.addToResources = function(card, index) {
+			this.resources.addChild(card, index);
+		}
+
+		this.addToHardwares = function(card, index) {
+			this.hardwares.addChild(card, index);
+		}
+
+		this.addToPrograms = function(card, index) {
+			this.programs.addChild(card, index);
+		}
 
 	});
 

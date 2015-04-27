@@ -72,28 +72,28 @@
 				var c3 = new Card(layoutManager, { url : "01091.png", faction : "corp" });
 				var c4 = new Card(layoutManager, { url : "01082.png", faction : "corp" });
 
-				hq.upgrades.addChild(c3);
-				hq.ices.addChild(c);
-				hq.ices.addChild(c1);
-				hq.ices.addChild(c2);
+				hq.addToUpgrades(c3);
+				hq.addToIces(c);
+				hq.addToIces(c1);
+				hq.addToIces(c2);
 
 				var nbn = new Card(layoutManager, { url : "01080.png", faction : "corp" });
 				nbn.setTokensValues({ credits : 2 })
 
-				hq.mainContainer.cards.addChild(nbn);
-				archives.mainContainer.cards.addChild(c4);
+				hq.addToAssetsOrUpgrades(nbn);
+				archives.addToAssetsOrUpgrades(c4);
 
 				var c5 = new Card(layoutManager, { url : "01034.png", faction : "runner" });
 				c5.setFace(Card.FACE_DOWN);
 
-				runner.grip.cards.addChild(new Card(layoutManager, { url : "01033.png", faction : "runner" }));
-				runner.stack.cards.addChild(c3);
-				runner.heap.cards.addChild(c5);
+				runner.addToGrip(new Card(layoutManager, { url : "01033.png", faction : "runner" }));
+				runner.addToStack(c3);
+				runner.addToHeap(c5);
 
-				runner.resources.addChild(new Card(layoutManager, { url : "01052.png", faction : "runner" }));
-				runner.hardwares.addChild(new Card(layoutManager, { url : "01038.png", faction : "runner" }));
-				runner.hardwares.addChild(new Card(layoutManager, { url : "01041.png", faction : "runner" }));
-				runner.programs.addChild(new Card(layoutManager, { url : "01042.png", faction : "runner" }));
+				runner.addToResources(new Card(layoutManager, { url : "01052.png", faction : "runner" }));
+				runner.addToHardwares(new Card(layoutManager, { url : "01038.png", faction : "runner" }));
+				runner.addToHardwares(new Card(layoutManager, { url : "01041.png", faction : "runner" }));
+				runner.addToPrograms(new Card(layoutManager, { url : "01042.png", faction : "runner" }));
 
 				var trac = new FocusBox(layoutManager);
 				trac.trackAbstractBox(c5);
@@ -108,7 +108,7 @@
 
 				setTimeout(layoutManager.withinLayout(function() {
 					c3.setFace(Card.FACE_DOWN);
-					rd.mainContainer.setCounter(15);
+					rd.setCounter(15);
 
 					nbn.setTokensValues({ badpub : 2, recurring : 2, brain : 3, hability : 2 });
 
@@ -122,7 +122,7 @@
 				
 				setTimeout(layoutManager.withinLayout(function() {
 					remote2.addToAssetsOrUpgrades(c3);
-					zoom.setPrimary(remote2.mainContainer.view);
+					zoom.setPrimary(remote2.getServerView());
 					c3.setAccessible(true);
 				
 				}), 1250);

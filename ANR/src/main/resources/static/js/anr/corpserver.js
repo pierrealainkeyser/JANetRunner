@@ -47,6 +47,14 @@ function(mix, layout, ui, conf, CardContainerBox) {
 
 	mix(CorpServer, layout.AbstractBoxContainer);
 	mix(CorpServer, function() {
+		
+
+		/**
+		 * Renvoi la vue du server utilisable pour les zooms
+		 */
+		this.getServerView = function() {
+			return this.mainContainer.view;
+		}
 
 		/**
 		 * Délégue à la vue du conteneur principal
@@ -54,12 +62,33 @@ function(mix, layout, ui, conf, CardContainerBox) {
 		this.setActions = function(actions) {
 			this.mainContainer.view.actionModel.set(actions);
 		}
+		
+		/**
+		 * Délégue à la vue du conteneur principal
+		 */
+		this.setCounter=function(counter){
+			this.mainContainer.setCounter(counter);
+		}
 
 		/**
 		 * Rajoute l'élément dans le container
 		 */
 		this.addToAssetsOrUpgrades = function(card, index) {
 			this.mainContainer.cards.addChild(card, index);
+		}
+		
+		/**
+		 * Rajoute aux glaces
+		 */
+		this.addToIces = function(card, index) {
+			this.ices.addChild(card, index);
+		}
+
+		/**
+		 * Rajoute aux upgrades
+		 */
+		this.addToUpgrades = function(card, index) {
+			this.upgrades.addChild(card, index);
 		}
 	});
 

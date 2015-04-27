@@ -4,7 +4,7 @@ define([ "mix", "geometry/package", "./basiclayout" ], function(mix, geom, Basic
 		options = options || {}
 		BasicLayout.call(this, options);
 		this.padding = options.padding || 0;
-		this.spacing = options.spacing || 3;
+		this.spacing = options.spacing || 0;
 		this.maxCols = options.maxCols || 3;
 	}
 
