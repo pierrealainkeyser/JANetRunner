@@ -37,6 +37,13 @@
 				var kate = board.card({ id : 60, url : "01033.png", faction : "runner" });
 				board.runner.addToGrip(kate);
 
+				board.consumeMsg({//
+				factions : { corp : 'nbn', runner : 'shaper' },//
+				clicks : { active : 3, used : 0 },//
+				turn : { phase : "Action", player : "runner" },//
+				score : { corp : 0, runner : 0 }, //
+				});
+
 				setTimeout(layoutManager.withinLayout(function() {
 					var rd = board.server({ id : -2 });
 					board.setPrimary(rd);

@@ -27,6 +27,34 @@ function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomConta
 	mix(BoardState, function() {
 
 		/**
+		 * Gestion du message
+		 */
+		this.consumeMsg = function(msg) {
+			console.log("consumeMsg", msg);
+			var factions = msg.factions;
+			if (factions) {
+				this.turnTracker.corpScore.setFaction(factions.corp);
+				this.turnTracker.runnerScore.setFaction(factions.runner);
+			}
+			var score = msg.score;
+			if (score) {
+				this.turnTracker.corpScore.setScore(score.corp);
+				this.turnTracker.runnerScore.setScore(score.runner);
+			}
+			var clicks = msg.clicks;
+			if (clicks) {
+				this.turnTracker.clicks.setClicks(clicks.active, clicks.used);
+			}
+
+			var turn = msg.turn;
+			if (turn) {
+				//TODO gestion du tour en prenant en compte la faction
+				this.turnTracker.activeFaction.setFaction("nbn");
+				this.turnTracker.gameStep.setText(turn.phase);
+			}
+		}
+
+		/**
 		 * Accède ou créer la carte correspondante à la définition
 		 */
 		this.card = function(def) {
