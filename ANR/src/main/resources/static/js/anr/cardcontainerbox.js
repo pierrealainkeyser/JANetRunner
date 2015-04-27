@@ -44,7 +44,7 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel,Card, c
 		 * Suivi de l'accessibilite d'une carte
 		 */
 		this.trackAccessible = function(evt) {
-			var card = evt.source;
+			var card = evt.object;
 			if (card.accessible) {
 				this.cardsModel.add(card);
 			} else {
@@ -64,14 +64,16 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel,Card, c
 
 			if (evt.type === layout.AbstractBoxContainer.CHILD_ADDED) {
 				// on ne rajoute la carte que si elle est accessible
-				evt.added.observe(this.trackAccessibleWatch, [ Card.ACCESSIBLE ]);
+				var card = evt.added;
+				card.observe(this.trackAccessibleWatch, [ Card.ACCESSIBLE ]);
 				this.trackAccessible({
-					source : evt.added
+					object : evt.added
 				});
 			} else if (evt.type === layout.AbstractBoxContainer.CHILD_REMOVED) {
 				// suppression de l'observation
-				evt.removed.unobserve(this.trackAccessibleWatch);
-				this.cardsModel.remove(evt.removed);
+				var card = evt.removed;
+				card.unobserve(this.trackAccessibleWatch);
+				this.cardsModel.remove(card);
 			}
 		}
 

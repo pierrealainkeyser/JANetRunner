@@ -44,7 +44,7 @@ define([], function() {
 		this.unobserve = function(listener) {
 			if (this._listeners) {
 				this._listeners = _.filter(this._listeners, function(listen) {
-					return listen.func === listener;
+					return listen.func !== listener;
 				});
 			}
 		}

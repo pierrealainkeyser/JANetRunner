@@ -121,10 +121,10 @@
 				}), 750);
 				
 				setTimeout(layoutManager.withinLayout(function() {
-					zoom.setPrimary(remote2.mainContainer.view);
-					
 					remote2.addToAssetsOrUpgrades(c3);
-					
+					zoom.setPrimary(remote2.mainContainer.view);
+					c3.setAccessible(true);
+				
 				}), 1250);
 			});
 		});
