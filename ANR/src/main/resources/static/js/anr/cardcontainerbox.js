@@ -1,5 +1,5 @@
-define([ "mix", "jquery", "layout/package", "ui/package", "geometry/package", "layout/impl/anchorlayout", "./actionmodel", "./cardsmodel","./card", "conf" ],// 
-function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel,Card, config) {
+define([ "mix", "jquery", "layout/package", "ui/package", "geometry/package", "layout/impl/anchorlayout", "./actionmodel", "./cardsmodel", "./card", "conf" ],// 
+function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel, Card, config) {
 
 	/**
 	 * Pour facilter les logs dans la console
@@ -27,14 +27,14 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel,Card, c
 
 		// permet d'observer les cartes dans le container
 		this.watchContainer(box.cards);
+		
+		this.setVisible(false);
 	}
 	mix(CardContainerView, layout.AbstractBoxLeaf);
 	mix(CardContainerView, function() {
-		
 
 		/**
-		 * Permet de suivi l'ajout ou la suppression de carte dans le
-		 * container
+		 * Permet de suivi l'ajout ou la suppression de carte dans le container
 		 */
 		this.watchContainer = function(container) {
 			container.observe(this.trackCardBoxChangedWatch, [ layout.AbstractBoxContainer.CHILD_ADDED, layout.AbstractBoxContainer.CHILD_REMOVED ]);
@@ -66,9 +66,7 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel,Card, c
 				// on ne rajoute la carte que si elle est accessible
 				var card = evt.added;
 				card.observe(this.trackAccessibleWatch, [ Card.ACCESSIBLE ]);
-				this.trackAccessible({
-					object : evt.added
-				});
+				this.trackAccessible({ object : evt.added });
 			} else if (evt.type === layout.AbstractBoxContainer.CHILD_REMOVED) {
 				// suppression de l'observation
 				var card = evt.removed;
@@ -95,6 +93,7 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel,Card, c
 
 			// on place l'élement tout de suite
 			var css = this.computePrimaryCssTween(this.box);
+			this.setVisible(true);
 			this.trackingBox.tweenElement(this.trackingBox.element, css, this.trackingBox.firstSyncScreen());
 		}
 
@@ -105,6 +104,7 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel,Card, c
 			var me = this;
 			this.trackingBox.trackAbstractBox(this.box);
 			this.trackingBox.setVisible(false);
+			this.setVisible(false);
 			this.trackingBox.afterSyncCompleted = function() {
 				me.trackingBox.untrackAbstractBox(me.box);
 				me.trackingBox.remove();
@@ -163,7 +163,7 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel,Card, c
 	mix(CardContainerBox, layout.AbstractBoxContainer);
 	mix(CardContainerBox, ui.AnimateAppeareanceCss);
 	mix(CardContainerBox, function() {
-		
+
 		/**
 		 * Permet de suivre un container pour l'accessibilité des cartes
 		 */

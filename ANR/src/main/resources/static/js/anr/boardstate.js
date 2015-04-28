@@ -186,15 +186,17 @@ function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomConta
 			var point = tracked.screen.point;
 
 			var collect = function(collections) {
-				_.each(collections, function(card) {
-					var other = card.screen.point;
-					if (point.isAbovePlane(plane, other)) {
-						var distance = point.distance(other);
-						if (min === null || distance < min) {
-							min = distance;
-							possibles = [ card ];
-						} else if (distance === min)
-							possibles.push(card);
+				_.each(collections, function(box) {
+					if (box.visible) {
+						var other = box.screen.point;
+						if (point.isAbovePlane(plane, other)) {
+							var distance = point.distance(other);
+							if (min === null || distance < min) {
+								min = distance;
+								possibles = [ box ];
+							} else if (distance === min)
+								possibles.push(box);
+						}
 					}
 				});
 			};
@@ -202,11 +204,13 @@ function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomConta
 			var servers = [];
 			this.corp.eachServer(function(srv) {
 				servers.push(srv.mainContainer);
+				servers.push(srv.mainContainer.view);
 			});
 
 			var containers = [];
 			this.runner.eachContainer(function(ctn) {
 				containers.push(ctn);
+				containers.push(ctn.view);
 			});
 
 			collect(_.values(this.cards));
