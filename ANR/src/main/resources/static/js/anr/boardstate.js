@@ -5,7 +5,10 @@ function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomConta
 		this.layoutManager = layoutManager;
 
 		this.turnTracker = new TurnTracker(layoutManager);
-		this.turnTracker.local.moveTo({ x : 0, y : 0 });
+		this.turnTracker.local.moveTo({
+			x : 0,
+			y : 0
+		});
 
 		this.corp = new Corp(layoutManager);
 		this.runner = new Runner(layoutManager);
@@ -27,10 +30,9 @@ function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomConta
 	mix(BoardState, function() {
 
 		/**
-		 * Gestion du message
+		 * Consomme les messages dédiés au turntracker
 		 */
-		this.consumeMsg = function(msg) {
-			console.log("consumeMsg", msg);
+		this.consumeTurnTracker = function(msg) {
 			var factions = msg.factions;
 			if (factions) {
 				this.turnTracker.corpScore.setFaction(factions.corp);
@@ -45,13 +47,24 @@ function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomConta
 			if (clicks) {
 				this.turnTracker.clicks.setClicks(clicks.active, clicks.used);
 			}
-
 			var turn = msg.turn;
 			if (turn) {
-				//TODO gestion du tour en prenant en compte la faction
-				this.turnTracker.activeFaction.setFaction("nbn");
+				var player = turn.player;
+				if ('corp' === player)
+					this.turnTracker.activeFaction.setFaction(this.turnTracker.corpScore.faction);
+				else if ('runner' === player)
+					this.turnTracker.activeFaction.setFaction(this.turnTracker.runnerScore.faction);
+
 				this.turnTracker.gameStep.setText(turn.phase);
 			}
+		}
+
+		/**
+		 * Gestion du message
+		 */
+		this.consumeMsg = function(msg) {
+			console.log("consumeMsg", msg);
+			this.consumeTurnTracker(msg);
 		}
 
 		/**
@@ -86,7 +99,10 @@ function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomConta
 		 */
 		this.setPrimary = function(cardOrServer) {
 			var zoom = new ZoomContainerBox(this.layoutManager);
-			zoom.local.moveTo({ x : 200, y : 200 });
+			zoom.local.moveTo({
+				x : 200,
+				y : 200
+			});
 			zoom.setZIndex(75);
 
 			var id = cardOrServer.def.id;
@@ -112,8 +128,14 @@ function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomConta
 		 */
 		this.updateLocalPositions = function() {
 			var container = this.layoutManager.container;
-			this.corp.local.moveTo({ x : 5, y : container.height() - 5 });
-			this.runner.local.moveTo({ x : container.width() - 5, y : 5 });
+			this.corp.local.moveTo({
+				x : 5,
+				y : container.height() - 5
+			});
+			this.runner.local.moveTo({
+				x : container.width() - 5,
+				y : 5
+			});
 		}
 	});
 

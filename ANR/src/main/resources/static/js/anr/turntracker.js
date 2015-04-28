@@ -46,6 +46,7 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox) {
 		this.active = false;
 		this.iconArea = this.element.find(".icon");
 		this.scoreArea = this.element.find(".scorearea");
+		this.faction = null;
 	}
 	mix(ScoreFactionBox, JQueryBoxSize);
 	mix(ScoreFactionBox, AnimateAppeareanceCss);
@@ -64,6 +65,7 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox) {
 		 * Regle la faction
 		 */
 		this.setFaction = function(faction) {
+			this.faction = faction;
 			this.iconArea.addClass("icon-" + faction + " " + faction);
 		}
 
