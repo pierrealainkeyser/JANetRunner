@@ -2,13 +2,11 @@ define([ "mix", "jquery", "ui/jquerytrackingbox" ],//
 function(mix, $, JQueryTrackingBox) {
 	function FocusBox(layoutManager) {
 		JQueryTrackingBox.call(this, layoutManager, $("<div class='focus'/>"));
-		//le padding pour la mise en avant du composant de focus
+		// le padding pour la mise en avant du composant de focus
 		this.paddingOffset = 3;
 	}
 
-	mix(FocusBox, JQueryTrackingBox, {
-		zIndexDelta : -1
-	});
+	mix(FocusBox, JQueryTrackingBox, { zIndexDelta : -2 });
 	mix(FocusBox, function() {
 
 		/**
@@ -23,7 +21,7 @@ function(mix, $, JQueryTrackingBox) {
 				// prévoir un mixin pour mutualiser avec la card.js
 				var hints = tracked.container.renderingHints();
 				if (true === hints.horizontal) {
-					css.left += this.screen.size.height + offset*2;
+					css.left += this.screen.size.height + offset * 2;
 				}
 			}
 

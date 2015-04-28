@@ -170,10 +170,53 @@ function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomConta
 		}
 
 		/**
+		 * Renvoi l'élément avec le focus
+		 */
+		this.focused = function() {
+			var focused = this.focus.trackedBox();
+			return focused;
+		}
+
+		/**
 		 * Cherche les éléments focusables
 		 */
-		this.collectFocusable = function(plane) {
+		this.findClosest = function(tracked, plane) {
+			var min = null;
+			var possibles = [];
+			var point = tracked.screen.point;
 
+			var collect = function(collections) {
+				_.each(collections, function(card) {
+					var other = card.screen.point;
+					if (point.isAbovePlane(plane, other)) {
+						var distance = point.distance(other);
+						if (min === null || distance < min) {
+							min = distance;
+							possibles = [ card ];
+						} else if (distance === min)
+							possibles.push(card);
+					}
+				});
+			};
+
+			var servers = [];
+			this.corp.eachServer(function(srv) {
+				servers.push(srv.mainContainer);
+			});
+
+			var containers = [];
+			this.runner.eachContainer(function(ctn) {
+				containers.push(ctn);
+			});
+
+			collect(_.values(this.cards));
+			collect(servers);
+			collect(containers);
+
+			if (!_.isEmpty(possibles))
+				return possibles[0];
+			else
+				return null;
 		}
 	});
 

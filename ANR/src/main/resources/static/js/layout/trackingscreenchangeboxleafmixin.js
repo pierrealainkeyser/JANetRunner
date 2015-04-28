@@ -34,6 +34,8 @@ define([ "underscore", "./abstractbox", "geometry/rectangle" ], function(_, Abst
 
 			box.screen.observe(watchFunction, [ Rectangle.MOVE_TO, Rectangle.RESIZE_TO ]);
 			box.observe(watchFunction, [ AbstractBox.VISIBLE, AbstractBox.ZINDEX, AbstractBox.ROTATION ]);
+			
+			this.watchFunction();
 		}
 
 		/**

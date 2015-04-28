@@ -36,7 +36,13 @@ define([ "mix", "mousetrap", "geometry/point" ], function(mix, Mousetrap, Point)
 		}
 
 		this.changeFocus = function(plane) {
-			var focusables = this.boardstate.collectFocusable(plane);
+			var focused = this.boardstate.focused();
+			var newfocus = this.boardstate.findClosest(focused, plane);
+			if (newfocus) {
+				this.boardstate.layoutManager.runLayout(function() {
+					this.boardstate.changeFocus(newfocus);
+				}.bind(this));
+			}
 		}
 	});
 	return InputManager;

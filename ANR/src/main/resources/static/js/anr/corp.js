@@ -16,6 +16,13 @@ function(mix, config, AbstractBoxContainer, CorpServer) {
 	mix(Corp, function() {
 
 		/**
+		 * Parcours tout les serveurs
+		 */
+		this.eachServer = function(closure) {
+			this.serversArray.eachChild(closure);
+		}
+
+		/**
 		 * Accéde ou créer le server
 		 */
 		this.getOrCreate = function(id) {

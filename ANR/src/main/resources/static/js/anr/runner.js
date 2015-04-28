@@ -31,6 +31,16 @@ function(mix, config, AbstractBoxContainer, CardContainerBox) {
 
 	mix(Runner, AbstractBoxContainer)
 	mix(Runner, function() {
+
+		/**
+		 * Choisi le container
+		 */
+		this.eachContainer = function(closure) {
+			closure(this.grip);
+			closure(this.stack);
+			closure(this.heap);
+		}
+
 		this.addToGrip = function(card, index) {
 			this.grip.cards.addChild(card, index);
 		}
