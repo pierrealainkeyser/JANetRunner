@@ -5,13 +5,13 @@ function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomConta
 		this.layoutManager = layoutManager;
 
 		this.turnTracker = new TurnTracker(layoutManager);
-		this.turnTracker.local.moveTo({
-			x : 0,
-			y : 0
-		});
+		this.turnTracker.local.moveTo({ x : 0, y : 0 });
 
 		this.corp = new Corp(layoutManager);
 		this.runner = new Runner(layoutManager);
+		this.local = null;
+
+		this.focus = new FocusBox(layoutManager);
 
 		layoutManager.afterFirstMerge = this.afterLayoutPhase.bind(this);
 		this.updateLocalPositions();
@@ -30,9 +30,23 @@ function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomConta
 	mix(BoardState, function() {
 
 		/**
+		 * Gestion du message
+		 */
+		this.consumeMsg = function(msg) {
+			console.log("consumeMsg", msg);
+			this.consumeTurnTracker(msg);
+			this.prepareCardsAndServer(msg);
+			this.updateCards(msg);
+		}
+
+		/**
 		 * Consomme les messages dédiés au turntracker
 		 */
 		this.consumeTurnTracker = function(msg) {
+
+			if (this.local === null && msg.local)
+				this.local = msg.local;
+
 			var factions = msg.factions;
 			if (factions) {
 				this.turnTracker.corpScore.setFaction(factions.corp);
@@ -60,11 +74,22 @@ function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomConta
 		}
 
 		/**
-		 * Gestion du message
+		 * Préparation des cartes et des servers
 		 */
-		this.consumeMsg = function(msg) {
-			console.log("consumeMsg", msg);
-			this.consumeTurnTracker(msg);
+		this.prepareCardsAndServer = function(msg) {
+			_.each(msg.cards, this.card.bind(this));
+			_.each(msg.servers, this.server.bind(this));
+		}
+
+		/**
+		 * Mise à jour de toutes les cartes
+		 */
+		this.updateCards = function(msg) {
+			_.each(msg.cards, function(input) {
+				var id = input.def.id;
+				var card = this.cards[id];
+
+			}.bind(this));
 		}
 
 		/**
@@ -75,7 +100,12 @@ function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomConta
 			var card = this.cards[id];
 			if (!card) {
 				card = new Card(this.layoutManager, def);
-				this.cards[id] = card;
+				// on traque la premiere id à la création
+				if ("id" === def.type && this.local === def.faction) {
+					this.changeFocus(card);
+				}
+
+				this.cards[card.id()] = card;
 			}
 			return card;
 		}
@@ -95,14 +125,18 @@ function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomConta
 		}
 
 		/**
+		 * Sélection du focus
+		 */
+		this.changeFocus = function(box) {
+			this.focus.trackAbstractBox(box);
+		}
+
+		/**
 		 * Affichage d'une carte ou d'un server
 		 */
 		this.setPrimary = function(cardOrServer) {
 			var zoom = new ZoomContainerBox(this.layoutManager);
-			zoom.local.moveTo({
-				x : 200,
-				y : 200
-			});
+			zoom.local.moveTo({ x : 200, y : 200 });
 			zoom.setZIndex(75);
 
 			var id = cardOrServer.def.id;
@@ -128,14 +162,18 @@ function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomConta
 		 */
 		this.updateLocalPositions = function() {
 			var container = this.layoutManager.container;
-			this.corp.local.moveTo({
-				x : 5,
-				y : container.height() - 5
-			});
-			this.runner.local.moveTo({
-				x : container.width() - 5,
-				y : 5
-			});
+
+			this.turnTracker.local.moveTo({ x : 0, y : 0 });
+
+			this.corp.local.moveTo({ x : 5, y : container.height() - 5 });
+			this.runner.local.moveTo({ x : container.width() - 5, y : 5 });
+		}
+
+		/**
+		 * Cherche les éléments focusables
+		 */
+		this.collectFocusable = function(plane) {
+
 		}
 	});
 

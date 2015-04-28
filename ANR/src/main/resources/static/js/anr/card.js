@@ -84,7 +84,7 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 		 * Accède à l'ID de la carte
 		 */
 		this.id = function() {
-			return def.id;
+			return this.def.id;
 		}
 
 		/**

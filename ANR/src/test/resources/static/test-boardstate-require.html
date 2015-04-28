@@ -14,35 +14,39 @@
 		paths : { jquery : "http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min",
 			underscore : "http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min",
 			tweenlite : "http://cdnjs.cloudflare.com/ajax/libs/gsap/1.16.1/TweenMax.min",//
+			mousetrap : "http://cdnjs.cloudflare.com/ajax/libs/mousetrap/1.4.6/mousetrap.min",//
 			conf : "./anr/conf" },//
 		shim : {//
-		tweenlite : { exports : 'TweenLite' } // 
+		tweenlite : { exports : 'TweenLite' }, //
+		mousetrap : { exports : 'Mousetrap' }, //
 		} //
 	});
 
-	require([ "jquery", "layout/package", "anr/boardstate" ],//
-	function($, layout, BoardState) {
+	require([ "jquery", "layout/package", "anr/boardstate", "anr/inputmanager" ],//
+	function($, layout, BoardState, InputManager) {
 		$(function() {
 			var layoutManager = new layout.LayoutManager($("#main"));
 			layoutManager.runLayout(function() {
 				var board = new BoardState(layoutManager);
-
-				board.server({ id : -1 });
-				board.server({ id : -2 });
-				var hq = board.server({ id : -3 });
-
-				var nbn = board.card({ id : 0, url : "01080.png", faction : "corp" });
-				hq.addToAssetsOrUpgrades(nbn);
-
-				var kate = board.card({ id : 60, url : "01033.png", faction : "runner" });
-				board.runner.addToGrip(kate);
+				var im = new InputManager(board);
 
 				board.consumeMsg({//
+				local : 'runner',//
 				factions : { corp : 'nbn', runner : 'shaper' },//
 				clicks : { active : 3, used : 0 },//
 				turn : { phase : "Action", player : "corp" },//
 				score : { corp : 0, runner : 0 }, //
 				});
+
+				board.server({ id : -1 });
+				board.server({ id : -2 });
+				var hq = board.server({ id : -3 });
+
+				var nbn = board.card({ id : 0, url : "01080.png", faction : "corp", type : "id" });
+				hq.addToAssetsOrUpgrades(nbn);
+
+				var kate = board.card({ id : 60, url : "01033.png", faction : "runner", type : "id" });
+				board.runner.addToGrip(kate);
 
 				setTimeout(layoutManager.withinLayout(function() {
 					var rd = board.server({ id : -2 });
