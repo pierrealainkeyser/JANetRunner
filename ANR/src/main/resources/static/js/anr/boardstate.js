@@ -141,6 +141,7 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 						
 			var id = null;
 			var primary = null;
+			
 			if (cocs instanceof Card) {
 				primary = cocs;
 				id = cocs.id();
@@ -158,18 +159,24 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 					id = cocs.type;
 				}
 			}
-			
 
-			//fermeture des zooms
+						
+			// TODO si le focus existe il faut le déplacer sur un server
+
+			var exists = false;
+			// fermeture des zooms
 			_.each(this.zooms, function(zoom) {
+				if (zoom.id === id)
+					exists = true;
 				zoom.setPrimary(null);
 			});
-			
-			var zoom = new ZoomContainerBox(this.layoutManager);
-			zoom.setZIndex(75);
-			zoom.id = id;
-			zoom.setPrimary(primary),
-			this.zooms[id] = zoom;
+
+			if (!exists) {
+				var zoom = new ZoomContainerBox(this.layoutManager);
+				zoom.setZIndex(75);
+				zoom.id = id;
+				zoom.setPrimary(primary), this.zooms[id] = zoom;
+			}
 		}
 
 		/**
@@ -262,10 +269,7 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 		this.activate = function(box) {
 			console.log("activate",box)
 			if (box instanceof Card) {
-				var id = box.id();
-				
 				this.setPrimary(box);
-				
 			} else if (box instanceof ZoomContainerBox.SubBox) {
 				box.activate();
 			} else if (box instanceof ZoomContainerBox.ActionBox) {

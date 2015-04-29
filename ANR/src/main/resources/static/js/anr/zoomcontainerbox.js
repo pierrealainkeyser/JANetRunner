@@ -456,7 +456,6 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 			if (me.destinationCssPosition) {
 				css = me.destinationCssPosition;
 				css.autoAlpha = 0;
-				console.log("syncScreen remove", me, this)
 				onComplete = this.remove.bind(this);
 				me.destinationCssPosition = null;
 				firstTime = false;
