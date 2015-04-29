@@ -452,6 +452,11 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 
 		this.setVisible(false);
 	}
+	
+
+	//export d'autre classe
+	ZoomContainerBox.SubBox = SubBox;
+	ZoomContainerBox.ActionBox = ActionBox;
 
 	mix(ZoomContainerBox, AbstractBoxContainer);
 	mix(ZoomContainerBox, AnimateAppearanceCss);

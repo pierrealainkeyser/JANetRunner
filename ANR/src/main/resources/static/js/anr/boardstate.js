@@ -5,7 +5,10 @@ function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomConta
 		this.layoutManager = layoutManager;
 
 		this.turnTracker = new TurnTracker(layoutManager);
-		this.turnTracker.local.moveTo({ x : 0, y : 0 });
+		this.turnTracker.local.moveTo({
+			x : 0,
+			y : 0
+		});
 
 		this.corp = new Corp(layoutManager);
 		this.runner = new Runner(layoutManager);
@@ -136,7 +139,10 @@ function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomConta
 		 */
 		this.setPrimary = function(cardOrServer) {
 			var zoom = new ZoomContainerBox(this.layoutManager);
-			zoom.local.moveTo({ x : 200, y : 200 });
+			zoom.local.moveTo({
+				x : 200,
+				y : 200
+			});
 			zoom.setZIndex(75);
 
 			var id = cardOrServer.def.id;
@@ -163,10 +169,19 @@ function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomConta
 		this.updateLocalPositions = function() {
 			var container = this.layoutManager.container;
 
-			this.turnTracker.local.moveTo({ x : 0, y : 0 });
+			this.turnTracker.local.moveTo({
+				x : 0,
+				y : 0
+			});
 
-			this.corp.local.moveTo({ x : 5, y : container.height() - 5 });
-			this.runner.local.moveTo({ x : container.width() - 5, y : 5 });
+			this.corp.local.moveTo({
+				x : 5,
+				y : container.height() - 5
+			});
+			this.runner.local.moveTo({
+				x : container.width() - 5,
+				y : 5
+			});
 		}
 
 		/**
@@ -201,26 +216,37 @@ function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomConta
 				});
 			};
 
-			var servers = [];
-			this.corp.eachServer(function(srv) {
-				servers.push(srv.mainContainer);
-				servers.push(srv.mainContainer.view);
-			});
-
 			var containers = [];
+			this.corp.eachServer(function(srv) {
+				containers.push(srv.mainContainer);
+				containers.push(srv.mainContainer.view);
+			});
 			this.runner.eachContainer(function(ctn) {
 				containers.push(ctn);
 				containers.push(ctn.view);
 			});
 
 			collect(_.values(this.cards));
-			collect(servers);
 			collect(containers);
 
 			if (!_.isEmpty(possibles))
 				return possibles[0];
 			else
 				return null;
+		}
+
+		/**
+		 * Gestion de l'activation d'un composant
+		 */
+		this.activate = function(box) {
+			if (box instanceof Card) {
+				var id = box.id();
+
+			} else if (box instanceof ZoomContainerBox.SubBox) {
+
+			} else if (box instanceof ZoomContainerBox.ActionBox) {
+
+			}
 		}
 	});
 

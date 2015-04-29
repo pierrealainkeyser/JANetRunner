@@ -28,7 +28,12 @@ define([ "mix", "mousetrap", "geometry/point" ], function(mix, Mousetrap, Point)
 		}
 
 		this.space = function() {
-
+			var focused = this.boardstate.focused();
+			if(focused){
+				this.runLayout(function() {
+					this.boardstate.activate(focused);
+				}.bind(this));
+			}
 		}
 
 		this.escape = function() {
@@ -39,10 +44,14 @@ define([ "mix", "mousetrap", "geometry/point" ], function(mix, Mousetrap, Point)
 			var focused = this.boardstate.focused();
 			var newfocus = this.boardstate.findClosest(focused, plane);
 			if (newfocus) {
-				this.boardstate.layoutManager.runLayout(function() {
+				this.runLayout(function() {
 					this.boardstate.changeFocus(newfocus);
 				}.bind(this));
 			}
+		}
+		
+		this.runLayout=function(closure){
+			this.boardstate.layoutManager.runLayout(closure);
 		}
 	});
 	return InputManager;
