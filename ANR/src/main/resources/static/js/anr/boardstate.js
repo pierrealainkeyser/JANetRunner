@@ -1,5 +1,5 @@
-define([ "mix", "jquery", "underscore", "layout/package", "anr/corp", "anr/runner", "anr/focus", "anr/card", "anr/turntracker", "anr/zoomcontainerbox" ,"anr/cardcontainerbox" ],//
-function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomContainerBox, CardContainerBox) {
+define([ "mix", "jquery", "underscore", "layout/package", "anr/corp", "anr/runner","anr/corpserver", "anr/focus", "anr/card", "anr/turntracker", "anr/zoomcontainerbox" ,"anr/cardcontainerbox" ],//
+function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracker, ZoomContainerBox, CardContainerBox) {
 
 	function BoardState(layoutManager) {
 		this.layoutManager = layoutManager;
@@ -135,22 +135,37 @@ function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomConta
 		}
 
 		/**
-		 * Affichage d'une carte ou d'un server
+		 * Affichage d'une carte, d'un server ou d'un conteneur de carte en tant que zone primaire
 		 */
-		this.setPrimary = function(cardOrServer) {
+		this.setPrimary = function(cocs) {
 			var zoom = new ZoomContainerBox(this.layoutManager);
+			
+			//TODO demande de positionnnement à prendre en compte
 			zoom.local.moveTo({
 				x : 200,
 				y : 200
 			});
 			zoom.setZIndex(75);
 
-			var id = cardOrServer.id();
-			if (id < 0)
-				zoom.setPrimary(cardOrServer.getServerView());
-			else
-				zoom.setPrimary(cardOrServer);
-
+			var id = null;
+			if (cocs instanceof Card) {
+				zoom.setPrimary(cocs);
+				id = cocs.id();
+			} else if (cocs instanceof CorpServer) {
+				zoom.setPrimary(cocs.getServerView());
+				id = cocs.id();
+			} else if (cocs instanceof CardContainerBox) {
+				if (cocs.container instanceof CorpServer) {
+					var server = cocs.container;
+					zoom.setPrimary(server.getServerView());
+					id = server.id();
+				} else {
+					// conteneur du runner
+					zoom.setPrimary(cocs.view);
+					id = cocs.type;
+				}
+			}
+			zoom.id = id;
 			this.zooms[id] = zoom;
 		}
 
@@ -239,7 +254,7 @@ function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomConta
 		 * Gestion de l'activation d'un composant
 		 */
 		this.activate = function(box) {
-			console.log("activate",box,(box instanceof CardContainerBox))
+			console.log("activate",box)
 			if (box instanceof Card) {
 				var id = box.id();
 				
@@ -250,15 +265,7 @@ function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomConta
 			} else if (box instanceof ZoomContainerBox.ActionBox) {
 				box.activate();
 			}else if (box instanceof CardContainerBox){
-				
-				//TODO à mutualiser avec .setPrimary
-				var zoom = new ZoomContainerBox(this.layoutManager);
-				zoom.local.moveTo({
-					x : 200,
-					y : 200
-				});
-				zoom.setZIndex(75);
-				zoom.setPrimary(box.view)
+				this.setPrimary(box);
 			}
 			
 		}
