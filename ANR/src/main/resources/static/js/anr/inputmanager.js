@@ -37,7 +37,9 @@ define([ "mix", "mousetrap", "geometry/point" ], function(mix, Mousetrap, Point)
 		}
 
 		this.escape = function() {
-
+			this.runLayout(function() {
+				this.boardstate.closeAllZooms();
+			}.bind(this));
 		}
 
 		this.changeFocus = function(plane) {

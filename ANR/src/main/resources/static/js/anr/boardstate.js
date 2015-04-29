@@ -163,20 +163,26 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 						
 			// TODO si le focus existe il faut le déplacer sur un server
 
-			var exists = false;
-			// fermeture des zooms
-			_.each(this.zooms, function(zoom) {
-				if (zoom.id === id)
-					exists = true;
-				zoom.setPrimary(null);
-			});
-
+			var exists = this.closeAllZooms(id);
 			if (!exists) {
 				var zoom = new ZoomContainerBox(this.layoutManager);
 				zoom.setZIndex(75);
 				zoom.id = id;
 				zoom.setPrimary(primary), this.zooms[id] = zoom;
 			}
+		}
+		
+		/**
+		 * Fermeture des tous les zooms renvoi vrai si le zoom associé à l'id est présent
+		 */
+		this.closeAllZooms=function(id){
+			var exists = false;
+			_.each(this.zooms, function(zoom) {
+				if (zoom.id === id)
+					exists = true;
+				zoom.setPrimary(null);
+			});
+			return exists;
 		}
 
 		/**
@@ -245,15 +251,7 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 			};
 
 			var containers = [];
-			this.corp.eachServer(function(srv) {
-				containers.push(srv.mainContainer);
-				containers.push(srv.mainContainer.view);
-			});
-			this.runner.eachContainer(function(ctn) {
-				containers.push(ctn);
-				containers.push(ctn.view);
-			});
-
+			this.eachContainerOrView(containers.push.bind(containers));
 			collect(_.values(this.cards));
 			collect(containers);
 
@@ -261,6 +259,20 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 				return possibles[0];
 			else
 				return null;
+		}
+		
+		/**
+		 * Boucle sur tous les container et vue
+		 */
+		this.eachContainerOrView = function(closure) {
+			this.corp.eachServer(function(srv) {
+				closure(srv.mainContainer);
+				closure(srv.mainContainer.view);
+			});
+			this.runner.eachContainer(function(ctn) {
+				closure(ctn);
+				closure(ctn.view);
+			});
 		}
 
 		/**
