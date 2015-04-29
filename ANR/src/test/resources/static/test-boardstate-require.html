@@ -47,11 +47,6 @@
 
 				var kate = board.card({ id : 60, url : "01033.png", faction : "runner", type : "id" });
 				board.runner.addToGrip(kate);
-
-				setTimeout(layoutManager.withinLayout(function() {
-					var rd = board.server({ id : -2 });
-					board.setPrimary(rd);
-				}), 750);
 			});
 		});
 	});

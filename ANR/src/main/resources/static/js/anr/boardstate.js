@@ -1,5 +1,5 @@
-define([ "mix", "jquery", "underscore", "layout/package", "anr/corp", "anr/runner", "anr/focus", "anr/card", "anr/turntracker", "anr/zoomcontainerbox" ],//
-function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomContainerBox) {
+define([ "mix", "jquery", "underscore", "layout/package", "anr/corp", "anr/runner", "anr/focus", "anr/card", "anr/turntracker", "anr/zoomcontainerbox" ,"anr/cardcontainerbox" ],//
+function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomContainerBox, CardContainerBox) {
 
 	function BoardState(layoutManager) {
 		this.layoutManager = layoutManager;
@@ -145,7 +145,7 @@ function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomConta
 			});
 			zoom.setZIndex(75);
 
-			var id = cardOrServer.def.id;
+			var id = cardOrServer.id();
 			if (id < 0)
 				zoom.setPrimary(cardOrServer.getServerView());
 			else
@@ -239,14 +239,28 @@ function(mix, $, _, layout, Corp, Runner, FocusBox, Card, TurnTracker, ZoomConta
 		 * Gestion de l'activation d'un composant
 		 */
 		this.activate = function(box) {
+			console.log("activate",box,(box instanceof CardContainerBox))
 			if (box instanceof Card) {
 				var id = box.id();
-
+				
+				this.setPrimary(box);
+				
 			} else if (box instanceof ZoomContainerBox.SubBox) {
-
+				box.activate();
 			} else if (box instanceof ZoomContainerBox.ActionBox) {
-
+				box.activate();
+			}else if (box instanceof CardContainerBox){
+				
+				//TODO à mutualiser avec .setPrimary
+				var zoom = new ZoomContainerBox(this.layoutManager);
+				zoom.local.moveTo({
+					x : 200,
+					y : 200
+				});
+				zoom.setZIndex(75);
+				zoom.setPrimary(box.view)
 			}
+			
 		}
 	});
 

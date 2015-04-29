@@ -1,4 +1,4 @@
-define([ "mix", "layout/package", "ui/package", "anr/conf", "./cardcontainerBox" ],// 
+define([ "mix", "layout/package", "ui/package", "anr/conf", "./cardcontainerbox" ],// 
 function(mix, layout, ui, conf, CardContainerBox) {
 
 	/**
@@ -48,6 +48,12 @@ function(mix, layout, ui, conf, CardContainerBox) {
 	mix(CorpServer, layout.AbstractBoxContainer);
 	mix(CorpServer, function() {
 		
+		/**
+		 * Renvoi l'ID du server
+		 */
+		this.id = function() {
+			return this.def.id;
+		}
 
 		/**
 		 * Renvoi la vue du server utilisable pour les zooms

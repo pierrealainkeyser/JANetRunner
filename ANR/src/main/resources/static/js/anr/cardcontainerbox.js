@@ -190,5 +190,9 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel, Card, 
 		}
 	});
 
+		
+	// export de la sous classe
+	CardContainerBox.CardContainerView = CardContainerView;
+
 	return CardContainerBox;
 });

@@ -28,6 +28,16 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 	mix(SubBox, AnimateAppearanceCss);
 	mix(SubBox, AnrTextMixin);
 	mix(SubBox, function() {
+		
+
+		/**
+		 * Gestion de l'activation programmatique
+		 */
+		this.activate = function() {
+			if (!this._checkbox.attr("disabled")) {
+				this._checkbox.click();
+			}
+		}
 
 		/**
 		 * Indique que la routine est selectionnée
@@ -159,6 +169,8 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 
 		this.variableCosts = action.costs || [];
 		this.disabled = false;
+		
+		//TODO gestion de l'activation du bouon
 	}
 
 	ActionBox.DEFAULT_TYPE = "default";
@@ -168,6 +180,14 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 	mix(ActionBox, AnimateAppearanceCss);
 	mix(ActionBox, AnrTextMixin);
 	mix(ActionBox, function() {
+		
+		/**
+		 * Gestion de l'activation programmatique
+		 */
+		this.activate = function() {
+			if (!this.element.prop("disabled"))
+				this.element.click();
+		}
 
 		/**
 		 * Mise à jour du cout variable
