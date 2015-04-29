@@ -138,44 +138,50 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 		 * Affichage d'une carte, d'un server ou d'un conteneur de carte en tant que zone primaire
 		 */
 		this.setPrimary = function(cocs) {
-			var zoom = new ZoomContainerBox(this.layoutManager);
-			
-			//TODO demande de positionnnement à prendre en compte
-			zoom.local.moveTo({
-				x : 200,
-				y : 200
-			});
-			zoom.setZIndex(75);
-
+						
 			var id = null;
+			var primary = null;
 			if (cocs instanceof Card) {
-				zoom.setPrimary(cocs);
+				primary = cocs;
 				id = cocs.id();
 			} else if (cocs instanceof CorpServer) {
-				zoom.setPrimary(cocs.getServerView());
+				primary = cocs.getServerView();
 				id = cocs.id();
 			} else if (cocs instanceof CardContainerBox) {
 				if (cocs.container instanceof CorpServer) {
 					var server = cocs.container;
-					zoom.setPrimary(server.getServerView());
+					primary = server.getServerView();
 					id = server.id();
 				} else {
 					// conteneur du runner
-					zoom.setPrimary(cocs.view);
+					primary = cocs.view;
 					id = cocs.type;
 				}
 			}
+			
+
+			//fermeture des zooms
+			_.each(this.zooms, function(zoom) {
+				zoom.setPrimary(null);
+			});
+			
+			var zoom = new ZoomContainerBox(this.layoutManager);
+			zoom.setZIndex(75);
 			zoom.id = id;
+			zoom.setPrimary(primary),
 			this.zooms[id] = zoom;
 		}
 
 		/**
-		 * Mise à jour de la position des zooms
+		 * Mise à jour de la position des zooms, et suppression des zooms à nettoyer
 		 */
 		this.afterLayoutPhase = function() {
 			_.each(_.values(this.zooms), function(zoom) {
-				zoom.afterLayoutPhase();
-			});
+				var removeThis = zoom.afterLayoutPhase();
+				if (removeThis) {
+					delete this.zooms[zoom.id];
+				}
+			}.bind(this));
 		}
 
 		/**

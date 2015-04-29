@@ -502,20 +502,29 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 		}
 
 		/**
-		 * Appeler à la fin de la phase de layout
+		 * Appeler à la fin de la phase de layout. Renvoi vrai le composant doit être supprimé du conteneur
 		 */
 		this.afterLayoutPhase = function() {
+			var removeThis = false;
 			if (this.needOriginalCssPosition) {
 				var card = this.primaryCardsModel.first();
 
 				// on prend la position de base du dernier ghost
-				this.originalCssPosition = card.computePrimaryCssTween(card.lastGhost());
+				var lastGhost = card.lastGhost();
+				this.originalCssPosition = card.computePrimaryCssTween(lastGhost);
+
+				// TODO prise en compte d'un nouvelle position plus judicieuse
+				// de l'agrandissement
+				this.screen.moveTo(lastGhost.screen.point);
 				this.needOriginalCssPosition = false;
 			} else if (this.removedCard) {
 				this.destinationCssPosition = this.removedCard.computePrimaryCssTween(this.removedCard.lastGhost());
 				this.removedCard = null;
+				removeThis = true;
 			}
 			// TODO gestion du recadrage du composant
+
+			return removeThis;
 		}
 
 		/**
