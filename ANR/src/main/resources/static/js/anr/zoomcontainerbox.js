@@ -456,6 +456,7 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 			if (me.destinationCssPosition) {
 				css = me.destinationCssPosition;
 				css.autoAlpha = 0;
+				console.log("syncScreen remove", me, this)
 				onComplete = this.remove.bind(this);
 				me.destinationCssPosition = null;
 				firstTime = false;
@@ -506,6 +507,7 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 		 */
 		this.afterLayoutPhase = function() {
 			var removeThis = false;
+			
 			if (this.needOriginalCssPosition) {
 				var card = this.primaryCardsModel.first();
 
@@ -539,9 +541,10 @@ AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, 
 				this.needOriginalCssPosition = true;
 				this.setVisible(true);
 			} else if (removed) {
-				// on masque le composant
+				// on masque le composant et on le rend invisibible pour forcer un syncScreen
 				this.removedCard = removed;
 				this.setSecondary(null);
+				this.setVisible(false);
 			}
 		}
 
