@@ -35,6 +35,9 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 			if (rh.addZIndex) {
 				var zIndex = this.zIndex;
 
+				if (rh.flatZIndex)
+					zIndex += rh.flatZIndex;
+
 				if (rh.childZIndexFactor)
 					zIndex += rank * rh.childZIndexFactor;
 

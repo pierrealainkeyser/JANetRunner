@@ -179,6 +179,13 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			mix(ActionBox, AnimateAppearanceCss);
 			mix(ActionBox, AnrTextMixin);
 			mix(ActionBox, function() {
+				
+				/**
+				 * Renvoi le composant à focused si celui-ci devient invisible
+				 */
+				this.getNewFocused = function() {
+					return this.container.zoomContainer.primaryCardsModel.first();;
+				}
 
 				/**
 				 * Gestion de l'activation programmatique
@@ -239,15 +246,19 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			/**
 			 * Les actions
 			 */
-			function ActionsBoxContainer(layoutManager) {
-				AbstractBoxContainer.call(this, layoutManager, { addZIndex : true }, new FlowLayout({ direction : FlowLayout.Direction.RIGHT }));
+			function ActionsBoxContainer(zoomContainer) {
+				var layoutManager = zoomContainer.layoutManager;
+				AbstractBoxContainer
+						.call(this, layoutManager, { addZIndex : true, flatZIndex : 5 }, new FlowLayout({ direction : FlowLayout.Direction.RIGHT }));
 
 				this.actionWatchFunction = this.syncFromEvent.bind(this);
 				this.actionModel = null;
+				this.zoomContainer = zoomContainer;
 			}
 
 			mix(ActionsBoxContainer, AbstractBoxContainer);
 			mix(ActionsBoxContainer, function() {
+				
 
 				/**
 				 * Mise à jour des couts variables
@@ -362,7 +373,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			})
 
 			function ZoomContainerBox(layoutManager) {
-				var me = this;
+
 				AbstractBoxContainer.call(this, layoutManager, { addZIndex : true }, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }));
 				AnimateAppearanceCss.call(this, "fadeIn", "fadeOut");
 
@@ -385,17 +396,15 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				this.primaryCardsModel = new CardsModel();
 				this.primaryCardContainer = new CardsContainerBox(layoutManager, { cardsize : "zoom", addZIndex : true }, new AnchorLayout({}), true);
 				this.primaryCardContainer.setCardsModel(this.primaryCardsModel);
-				this.primaryActions = new ActionsBoxContainer(layoutManager);
+				this.primaryActions = new ActionsBoxContainer(this);
 				this.primaryActions.observe(postProcessAction, [ AbstractBoxContainer.CHILD_ADDED ]);
 
 				// carte secondaire (à droite)
 				this.secondaryCardsModel = new CardsModel();
 				this.secondaryCardContainer = new CardsContainerBox(layoutManager, { cardsize : "zoom", addZIndex : true }, new AnchorLayout({}), true);
 				this.secondaryCardContainer.setCardsModel(this.secondaryCardsModel);
-				this.secondaryActions = new ActionsBoxContainer(layoutManager);
+				this.secondaryActions = new ActionsBoxContainer(this);
 				this.secondaryActions.observe(postProcessAction, [ AbstractBoxContainer.CHILD_ADDED ]);
-
-				// TODO écoute des nouveaux enfants
 
 				this.element = $("<div class='zoombox'/>");
 
@@ -411,14 +420,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				var actionsBox = new JQueryTrackingBox(layoutManager, $("<div class='actions'/>"));
 				actionsBox.element.appendTo(this.element);
 				actionsBox.trackAbstractBox(actionsRow);
-				var oldTween = actionsBox.computeCssTween.bind(actionsBox);
-				actionsBox.computeCssTween = function(box) {
-					var topLeft = me.screen.topLeft()
-					var css = oldTween(box);
-					css.top -= topLeft.y;
-					css.left -= topLeft.x;
-					return css;
-				};
+				this.updateCssTweening(actionsBox);
 
 				var mainRow = new AbstractBoxContainer(layoutManager, { addZIndex : true }, new FlowLayout({ direction : FlowLayout.Direction.RIGHT,
 					padding : 4, spacing : 8 }));
@@ -483,6 +485,29 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			mix(ZoomContainerBox, AbstractBoxContainer);
 			mix(ZoomContainerBox, AnimateAppearanceCss);
 			mix(ZoomContainerBox, function() {
+
+				/**
+				 * Parcours toutes les actions
+				 */
+				this.eachActions = function(closure) {
+					this.primaryActions.eachChild(closure);
+					this.secondaryActions.eachChild(closure);
+				}
+
+				/**
+				 * Correction de la position à l'écran
+				 */
+				this.updateCssTweening = function(box) {
+					var me = this;
+					var oldTween = box.computeCssTween.bind(box);
+					box.computeCssTween = function(box) {
+						var topLeft = me.screen.topLeft()
+						var css = oldTween(box);
+						css.top -= topLeft.y;
+						css.left -= topLeft.x;
+						return css;
+					};
+				}
 
 				/**
 				 * Gestion des actions

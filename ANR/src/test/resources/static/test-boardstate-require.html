@@ -45,6 +45,7 @@
 				var nbn = board.card({ id : 0, url : "01080.png", faction : "corp", type : "id" });
 				hq.addToAssetsOrUpgrades(nbn);
 				hq.setActions([ { cost : "{1:click}", text : "Run" } ]);
+				nbn.setTokensValues({credits:5})
 
 				var kate = board.card({ id : 60, url : "01033.png", faction : "runner", type : "id" });
 				board.runner.addToGrip(kate);

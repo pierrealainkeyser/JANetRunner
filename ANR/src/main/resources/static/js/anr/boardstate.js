@@ -245,8 +245,18 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 
 			var containers = [];
 			this.eachContainerOrView(containers.push.bind(containers));
+			
+			_.each(this.zooms, function(zoom) {
+				zoom.eachActions(function( a){
+					console.log("eachActions",a)
+					containers.push(a);
+				});
+			});
+			
 			collect(_.values(this.cards));
 			collect(containers);
+			
+			
 
 			if (!_.isEmpty(possibles))
 				return possibles[0];
