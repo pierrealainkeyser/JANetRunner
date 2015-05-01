@@ -1,13 +1,28 @@
-define([ "mix", "jquery", "ui/jquerytrackingbox" ],// 
-function(mix, $, JQueryTrackingBox) {
+define([ "mix", "jquery", "ui/jquerytrackingbox", "layout/abstractbox" ],// 
+function(mix, $, JQueryTrackingBox, AbstractBox) {
 	function FocusBox(layoutManager) {
 		JQueryTrackingBox.call(this, layoutManager, $("<div class='focus'/>"));
 		// le padding pour la mise en avant du composant de focus
 		this.paddingOffset = 3;
+
+		this.observe(this.handleVisible.bind(this), [ AbstractBox.VISIBLE ]);
 	}
 
 	mix(FocusBox, JQueryTrackingBox, { zIndexDelta : -2 });
 	mix(FocusBox, function() {
+
+		/**
+		 * Gestion de la visibilte. On recupere le composant parent
+		 */
+		this.handleVisible = function(evt) {
+			if (!evt.object.visible) {
+				var tracked = this.trackedBox();
+				if (tracked && tracked.getNewFocused) {
+					var focused = tracked.getNewFocused();
+					this.trackAbstractBox(focused);
+				}
+			}
+		}
 
 		/**
 		 * réalise la synchronisation de base

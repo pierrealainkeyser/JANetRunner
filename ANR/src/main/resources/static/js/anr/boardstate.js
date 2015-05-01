@@ -1,14 +1,12 @@
-define([ "mix", "jquery", "underscore", "layout/package", "anr/corp", "anr/runner","anr/corpserver", "anr/focus", "anr/card", "anr/turntracker", "anr/zoomcontainerbox" ,"anr/cardcontainerbox" ],//
+define([ "mix", "jquery", "underscore", "layout/package", "anr/corp", "anr/runner", "anr/corpserver", "anr/focus", "anr/card", "anr/turntracker",
+		"anr/zoomcontainerbox", "anr/cardcontainerbox" ],//
 function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracker, ZoomContainerBox, CardContainerBox) {
 
 	function BoardState(layoutManager) {
 		this.layoutManager = layoutManager;
 
 		this.turnTracker = new TurnTracker(layoutManager);
-		this.turnTracker.local.moveTo({
-			x : 0,
-			y : 0
-		});
+		this.turnTracker.local.moveTo({ x : 0, y : 0 });
 
 		this.corp = new Corp(layoutManager);
 		this.runner = new Runner(layoutManager);
@@ -135,13 +133,14 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 		}
 
 		/**
-		 * Affichage d'une carte, d'un server ou d'un conteneur de carte en tant que zone primaire
+		 * Affichage d'une carte, d'un server ou d'un conteneur de carte en tant
+		 * que zone primaire
 		 */
-		this.setPrimary = function(cocs) {
-						
+		this.useAsPrimary = function(cocs) {
+
 			var id = null;
 			var primary = null;
-			
+
 			if (cocs instanceof Card) {
 				primary = cocs;
 				id = cocs.id();
@@ -158,24 +157,26 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 					primary = cocs.view;
 					id = cocs.type;
 				}
+				primary.setVisible(true);				
+				if (cocs === this.focused())
+					this.changeFocus(primary);
 			}
-
-						
-			// TODO si le focus existe il faut le déplacer sur un server
 
 			var exists = this.closeAllZooms(id);
 			if (!exists) {
 				var zoom = new ZoomContainerBox(this.layoutManager);
 				zoom.setZIndex(75);
 				zoom.id = id;
-				zoom.setPrimary(primary), this.zooms[id] = zoom;
+				zoom.setPrimary(primary);
+				this.zooms[id] = zoom;				
 			}
 		}
-		
+
 		/**
-		 * Fermeture des tous les zooms renvoi vrai si le zoom associé à l'id est présent
+		 * Fermeture des tous les zooms renvoi vrai si le zoom associé à l'id
+		 * est présent
 		 */
-		this.closeAllZooms=function(id){
+		this.closeAllZooms = function(id) {
 			var exists = false;
 			_.each(this.zooms, function(zoom) {
 				if (zoom.id === id)
@@ -186,7 +187,8 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 		}
 
 		/**
-		 * Mise à jour de la position des zooms, et suppression des zooms à nettoyer
+		 * Mise à jour de la position des zooms, et suppression des zooms à
+		 * nettoyer
 		 */
 		this.afterLayoutPhase = function() {
 			_.each(_.values(this.zooms), function(zoom) {
@@ -203,19 +205,10 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 		this.updateLocalPositions = function() {
 			var container = this.layoutManager.container;
 
-			this.turnTracker.local.moveTo({
-				x : 0,
-				y : 0
-			});
+			this.turnTracker.local.moveTo({ x : 0, y : 0 });
 
-			this.corp.local.moveTo({
-				x : 5,
-				y : container.height() - 5
-			});
-			this.runner.local.moveTo({
-				x : container.width() - 5,
-				y : 5
-			});
+			this.corp.local.moveTo({ x : 5, y : container.height() - 5 });
+			this.runner.local.moveTo({ x : container.width() - 5, y : 5 });
 		}
 
 		/**
@@ -260,7 +253,7 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 			else
 				return null;
 		}
-		
+
 		/**
 		 * Boucle sur tous les container et vue
 		 */
@@ -279,17 +272,19 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 		 * Gestion de l'activation d'un composant
 		 */
 		this.activate = function(box) {
-			console.log("activate",box)
+			console.log("activate", box)
 			if (box instanceof Card) {
-				this.setPrimary(box);
+				this.useAsPrimary(box);
 			} else if (box instanceof ZoomContainerBox.SubBox) {
 				box.activate();
 			} else if (box instanceof ZoomContainerBox.ActionBox) {
 				box.activate();
-			}else if (box instanceof CardContainerBox){
-				this.setPrimary(box);
+			} else if (box instanceof CardContainerBox) {
+				this.useAsPrimary(box);
+			} else if (box instanceof CardContainerBox.CardContainerView) {
+				this.closeAllZooms();
 			}
-			
+
 		}
 	});
 

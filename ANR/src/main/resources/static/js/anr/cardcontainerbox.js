@@ -27,11 +27,18 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel, Card, 
 
 		// permet d'observer les cartes dans le container
 		this.watchContainer(box.cards);
-		
+
 		this.setVisible(false);
 	}
 	mix(CardContainerView, layout.AbstractBoxLeaf);
 	mix(CardContainerView, function() {
+
+		/**
+		 * Renvoi le composant à focused si celui-ci devient invisible
+		 */
+		this.getNewFocused = function() {
+			return this.box;
+		}
 
 		/**
 		 * Permet de suivi l'ajout ou la suppression de carte dans le container
@@ -190,7 +197,6 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel, Card, 
 		}
 	});
 
-		
 	// export de la sous classe
 	CardContainerBox.CardContainerView = CardContainerView;
 

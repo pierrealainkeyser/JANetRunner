@@ -22,11 +22,11 @@ define([ "underscore", "./abstractbox", "geometry/rectangle" ], function(_, Abst
 			this.untrackAbstractBox();
 
 			// création de la function de réplication
-			var watchFunction = function() {
-				this.screen.copyRectangle(box.screen);
-				this.setVisible(box.visible);
-				this.setRotation(box.rotation);
-				this.setZIndex(box.zIndex + zIndexDelta);
+			var watchFunction = function(evt) {
+				this.screen.copyRectangle(this._trackedBox.screen);
+				this.setVisible(this._trackedBox.visible);
+				this.setRotation(this._trackedBox.rotation);
+				this.setZIndex(this._trackedBox.zIndex + zIndexDelta);
 			}.bind(this);
 
 			this.watchFunction = watchFunction;
@@ -34,7 +34,7 @@ define([ "underscore", "./abstractbox", "geometry/rectangle" ], function(_, Abst
 
 			box.screen.observe(watchFunction, [ Rectangle.MOVE_TO, Rectangle.RESIZE_TO ]);
 			box.observe(watchFunction, [ AbstractBox.VISIBLE, AbstractBox.ZINDEX, AbstractBox.ROTATION ]);
-			
+
 			this.watchFunction();
 		}
 
@@ -50,7 +50,6 @@ define([ "underscore", "./abstractbox", "geometry/rectangle" ], function(_, Abst
 		 */
 		this.untrackAbstractBox = function() {
 			if (this._trackedBox) {
-
 				this._trackedBox.screen.unobserve(this.watchFunction);
 				this._trackedBox.unobserve(this.watchFunction);
 				this._trackedBox = null;
