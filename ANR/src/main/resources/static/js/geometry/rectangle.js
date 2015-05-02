@@ -97,6 +97,49 @@ define([ "mix", "util/observablemixin", "./point", "./size" ], function(mix, Obs
 			r.size.add(new Size(radius * 2, radius * 2));
 			return r;
 		}
+		
+
+		/**
+		 * Renvoi le point qui permet de faire rentrer bounds dans le container. ie.
+		 * pour avoir this.contains(bounds)===true
+		 */
+		this.getMatchingPoint = function(bounds) {
+			var tl0 = this.topLeft();
+			var br0 = this.bottomRight();
+
+			var tl1 = bounds.topLeft();
+			var br1 = bounds.bottomRight();
+
+			var x = tl1.x;
+			var y = tl1.y;
+
+			if (tl0.x > x)
+				x = tl0.x;
+
+			if (tl0.y > y)
+				y = tl0.y;
+
+			if (br0.x < br1.x)
+				x -= br1.x - br0.x;
+
+			if (br0.y < br1.y)
+				y -= br1.y - br0.y;
+
+			return new Point(x, y);
+		}
+
+		/**
+		 * Renvoi vrai si la boite bounds est contenu dans celle-ci
+		 */
+		this.contains = function(bounds) {
+			var tl0 = this.topLeft();
+			var br0 = this.bottomRight();
+
+			var tl1 = bounds.topLeft();
+			var br1 = bounds.bottomRight();
+
+			return (tl0.x <= tl1.x && tl0.y <= tl1.y) && (br0.x >= br1.x && br0.y >= br1.y);
+		}
 	});
 
 	Rectangle.MOVE_TO = "moveTo";

@@ -1,6 +1,6 @@
 define([ "mix", "jquery", "underscore", "layout/package", "anr/corp", "anr/runner", "anr/corpserver", "anr/focus", "anr/card", "anr/turntracker",
-		"anr/zoomcontainerbox", "anr/cardcontainerbox" ],//
-function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracker, ZoomContainerBox, CardContainerBox) {
+		"anr/zoomcontainerbox", "anr/cardcontainerbox", "geometry/rectangle" ],//
+function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracker, ZoomContainerBox, CardContainerBox, Rectangle) {
 
 	function BoardState(layoutManager) {
 		this.layoutManager = layoutManager;
@@ -15,7 +15,6 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 		this.focus = new FocusBox(layoutManager);
 
 		layoutManager.afterFirstMerge = this.afterLayoutPhase.bind(this);
-		this.updateLocalPositions();
 
 		// les niveaux de zoom
 		this.zooms = {};
@@ -24,8 +23,13 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 		this.servers = {};
 		this.cards = {};
 
+		// la taille de la zone de jeu
+		this.bounds = null;
+
 		// mise à jour des positions
 		$(window).resize(layoutManager.withinLayout(this.updateLocalPositions.bind(this)));
+		this.updateLocalPositions();
+
 	}
 
 	mix(BoardState, function() {
@@ -157,7 +161,7 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 					primary = cocs.view;
 					id = cocs.type;
 				}
-				primary.setVisible(true);				
+				primary.setVisible(true);
 				if (cocs === this.focused())
 					this.changeFocus(primary);
 			}
@@ -168,7 +172,7 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 				zoom.setZIndex(75);
 				zoom.id = id;
 				zoom.setPrimary(primary);
-				this.zooms[id] = zoom;				
+				this.zooms[id] = zoom;
 			}
 		}
 
@@ -192,7 +196,7 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 		 */
 		this.afterLayoutPhase = function() {
 			_.each(_.values(this.zooms), function(zoom) {
-				var removeThis = zoom.afterLayoutPhase();
+				var removeThis = zoom.afterLayoutPhase(this.bounds);
 				if (removeThis) {
 					delete this.zooms[zoom.id];
 				}
@@ -209,6 +213,9 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 
 			this.corp.local.moveTo({ x : 5, y : container.height() - 5 });
 			this.runner.local.moveTo({ x : container.width() - 5, y : 5 });
+
+			var r = new Rectangle({ size : { width : container.width(), height : container.height() } });
+			this.bounds = r.grow(-10);
 		}
 
 		/**
@@ -245,18 +252,16 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 
 			var containers = [];
 			this.eachContainerOrView(containers.push.bind(containers));
-			
+
 			_.each(this.zooms, function(zoom) {
-				zoom.eachActions(function( a){
-					console.log("eachActions",a)
+				zoom.eachActions(function(a) {
+					console.log("eachActions", a)
 					containers.push(a);
 				});
 			});
-			
+
 			collect(_.values(this.cards));
 			collect(containers);
-			
-			
 
 			if (!_.isEmpty(possibles))
 				return possibles[0];

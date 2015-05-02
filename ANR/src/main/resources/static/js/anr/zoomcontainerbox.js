@@ -526,7 +526,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				 * Appeler à la fin de la phase de layout. Renvoi vrai le
 				 * composant doit être supprimé du conteneur
 				 */
-				this.afterLayoutPhase = function() {
+				this.afterLayoutPhase = function(bounds) {
 					var removeThis = false;
 
 					if (this.needOriginalCssPosition) {
@@ -536,9 +536,12 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 						var lastGhost = card.lastGhost();
 						this.originalCssPosition = card.computePrimaryCssTween(lastGhost);
 
-						// TODO prise en compte d'un nouvelle position plus
 						// judicieuse de l'agrandissement
-						this.local.moveTo(lastGhost.screen.point);
+						// prise en compte d'un nouvelle position plus
+						var point = lastGhost.screen.topLeft();
+						var mySize = this.local.size;
+						var ghostSize = lastGhost.screen.size;
+						this.local.moveTo({ x : (point.x - (mySize.width - ghostSize.width) / 2), y : (point.y - (mySize.height - ghostSize.height) / 2) });
 
 						this.needOriginalCssPosition = false;
 					} else if (this.removedCard) {
@@ -547,6 +550,13 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 						removeThis = true;
 					}
 					// TODO gestion du recadrage du composant
+					if (bounds) {
+						if (!bounds.contains(this.screen)) {
+							var point = bounds.getMatchingPoint(this.screen);
+							point.add(this.local.point);
+							this.local.moveTo(point);
+						}
+					}
 
 					return removeThis;
 				}
