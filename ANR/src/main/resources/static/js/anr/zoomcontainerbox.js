@@ -65,13 +65,13 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			/**
 			 * Les sous-routines
 			 */
-			function SubsBoxContainer(parent, mergeAddedZoomed) {
-				AbstractBoxContainer.call(this, parent.layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }));
+			function SubsBoxContainer(parent) {
+				AbstractBoxContainer.call(this, parent.layoutManager, { addZIndex : true, flatZIndex : 5 }, new FlowLayout(
+						{ direction : FlowLayout.Direction.BOTTOM }));
 
 				this.watchFunction = this.syncFromEvent.bind(this);
 				this.subModel = null;
 				this._parent = parent;
-				this.mergeAddedZoomed = mergeAddedZoomed;
 				this.boxSubs = {};
 			}
 
@@ -79,7 +79,6 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			mix(SubsBoxContainer, function() {
 				this.createSubBox = function(sub) {
 					var box = new SubBox(this, sub);
-					box.additionnalMergePosition = this.mergeAddedZoomed;
 					this.addChild(box);
 					this.boxSubs[sub.id] = box;
 				}
@@ -179,12 +178,13 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			mix(ActionBox, AnimateAppearanceCss);
 			mix(ActionBox, AnrTextMixin);
 			mix(ActionBox, function() {
-				
+
 				/**
 				 * Renvoi le composant à focused si celui-ci devient invisible
 				 */
 				this.getNewFocused = function() {
-					return this.container.zoomContainer.primaryCardsModel.first();;
+					return this.container.zoomContainer.primaryCardsModel.first();
+					;
 				}
 
 				/**
@@ -258,7 +258,6 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 
 			mix(ActionsBoxContainer, AbstractBoxContainer);
 			mix(ActionsBoxContainer, function() {
-				
 
 				/**
 				 * Mise à jour des couts variables
@@ -317,7 +316,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				}
 			});
 
-			function ZoomedDetail(parent, element, mergeSubstractZoomed, mergeAddedZoomed) {
+			function ZoomedDetail(parent, element, mergeSubstractZoomed) {
 				var layoutManager = parent.layoutManager;
 				AbstractBoxContainer.call(this, layoutManager, { addZIndex : true }, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }));
 
@@ -326,20 +325,20 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				this.tokensHeader = new HeaderContainerBox(layoutManager, this.tokens, "Tokens");
 
 				// attache le header à l'element et ignore le deplacement
-				this.tokensHeader.additionnalMergePosition = mergeSubstractZoomed;
 				this.tokensHeader.header.element.appendTo(element);
+				this.tokensHeader.additionnalMergePosition = mergeSubstractZoomed;
 
-				this.subs = new SubsBoxContainer(this, mergeAddedZoomed);
+				this.subs = new SubsBoxContainer(this, parent);
 				this.subsHeader = new HeaderContainerBox(layoutManager, this.subs, "Subroutines");
-				this.subsHeader.additionnalMergePosition = mergeSubstractZoomed;
 				this.subsHeader.header.element.appendTo(element);
+				parent.updateCssTweening(this.subsHeader.header);
 
 				this.cardsContainer = new CardsContainerBox(layoutManager, { cardsize : "mini", inMiniDetail : true, addZIndex : true }, new GridLayout({
 					maxCols : 6, spacing : 5 }), true);
 				this.cardsHeader = new HeaderContainerBox(layoutManager, this.cardsContainer, "Cards");
-				this.cardsHeader.additionnalMergePosition = mergeSubstractZoomed;
+
+				parent.updateCssTweening(this.cardsHeader.header);
 				this.cardsHeader.header.element.appendTo(element);
-				this.cardsContainer.additionnalMergePosition = mergeAddedZoomed;
 				this.cardsContainer.setCardsModel(new CardsModel());
 
 				this.addChild(this.subsHeader);
@@ -385,11 +384,6 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 					moveTo.add({ x : -topLeft.x, y : -topLeft.y });
 				}.bind(this);
 
-				var mergeAddedZoomed = function(moveTo) {
-					var topLeft = this.screen.topLeft()
-					moveTo.add(topLeft);
-				}.bind(this);
-
 				var postProcessAction = this.postProcessAction.bind(this);
 
 				// carte primaire (à gauche)
@@ -408,7 +402,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 
 				this.element = $("<div class='zoombox'/>");
 
-				this.zoomedDetail = new ZoomedDetail(this, this.element, mergeSubstractZoomed, mergeAddedZoomed);
+				this.zoomedDetail = new ZoomedDetail(this, this.element, mergeSubstractZoomed);
 				this.header = new JQueryBoxSize(layoutManager, $("<div class='header title'>bidule</div>"));
 				this.header.element.appendTo(this.element);
 

@@ -54,9 +54,10 @@
 				hq.ices.addChild(c2);
 
 				c2.setActions([ { cost : "{1:click}", text : "Truc trop cool" } ]);
+				c2.setTokensValues({ power : 1 });
 
 				var zoom = new ZoomContainerBox(layoutManager);
-				zoom.local.moveTo({ x : 200, y : 200 });
+				zoom.setZIndex(75);
 				layoutManager.afterFirstMerge = zoom.afterLayoutPhase.bind(zoom);
 
 				setTimeout(layoutManager.withinLayout(function() {
