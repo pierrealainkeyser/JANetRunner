@@ -549,11 +549,11 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 						this.removedCard = null;
 						removeThis = true;
 					}
-					// TODO gestion du recadrage du composant
+					
+					//  gestion du recadrage du composant
 					if (bounds) {
-						if (!bounds.contains(this.screen)) {
-							var point = bounds.getMatchingPoint(this.screen);
-							point.add(this.local.point);
+						if (!bounds.contains(this.local)) {
+							var point = bounds.getMatchingPoint(this.local);
 							this.local.moveTo(point);
 						}
 					}
