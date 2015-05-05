@@ -267,9 +267,6 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 				collect(zoomeds);
 				if (!_.isEmpty(possibles))
 					return possibles[0];
-
-				while (possibles.length)
-					possibles.pop();
 			}
 			collect(alls);
 			if (!_.isEmpty(possibles))
