@@ -8,7 +8,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			function SubBox(parent, sub) {
 				JQueryBoxSize.call(this, parent.layoutManager, $("<label class='sub'><input type='checkbox' tabIndex='-1'/>" + this.interpolateString(sub.text)
 						+ "</label>"));
-				AnimateAppearanceCss.call(this, "bounceIn", "bounceOut");
+				AnimateAppearanceCss.call(this, "lightSpeedIn", "lightSpeedOut");
 				this.setZIndex(50);
 				this._checkbox = this.element.find("[type='checkbox']");
 				// fait apparaitre l'action joliment
@@ -66,7 +66,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			 * Les sous-routines
 			 */
 			function SubsBoxContainer(parent) {
-				AbstractBoxContainer.call(this, parent.layoutManager, { addZIndex : true, flatZIndex : 5 }, new FlowLayout(
+				AbstractBoxContainer.call(this, parent.layoutManager, { addZIndex : true, flatZIndex : 5, IsZoomed : true }, new FlowLayout(
 						{ direction : FlowLayout.Direction.BOTTOM }));
 
 				this.watchFunction = this.syncFromEvent.bind(this);
@@ -154,7 +154,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			function ActionBox(layoutManager, action) {
 				JQueryBoxSize.call(this, layoutManager, $("<a class='action btn btn-default'><span class='cost'/><span class='text'>"
 						+ this.interpolateString(action.text) + "</span></div>"));
-				AnimateAppearanceCss.call(this, "bounceIn", "bounceOut");
+				AnimateAppearanceCss.call(this, "lightSpeedIn", "lightSpeedOut");
 				this._cost = this.element.find(".cost");
 				this.action = action;
 				this.setZIndex(50);
@@ -184,7 +184,6 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				 */
 				this.getNewFocused = function() {
 					return this.container.zoomContainer.primaryCardsModel.first();
-					;
 				}
 
 				/**
@@ -248,8 +247,8 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			 */
 			function ActionsBoxContainer(zoomContainer) {
 				var layoutManager = zoomContainer.layoutManager;
-				AbstractBoxContainer
-						.call(this, layoutManager, { addZIndex : true, flatZIndex : 5 }, new FlowLayout({ direction : FlowLayout.Direction.RIGHT }));
+				AbstractBoxContainer.call(this, layoutManager, { addZIndex : true, flatZIndex : 5, IsZoomed : true }, new FlowLayout(
+						{ direction : FlowLayout.Direction.RIGHT }));
 
 				this.actionWatchFunction = this.syncFromEvent.bind(this);
 				this.actionModel = null;
@@ -333,8 +332,8 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				this.subsHeader.header.element.appendTo(element);
 				parent.updateCssTweening(this.subsHeader.header);
 
-				this.cardsContainer = new CardsContainerBox(layoutManager, { cardsize : "mini", inMiniDetail : true, addZIndex : true }, new GridLayout({
-					maxCols : 6, spacing : 5 }), true);
+				this.cardsContainer = new CardsContainerBox(layoutManager, { cardsize : "mini", inMiniDetail : true, addZIndex : true, IsZoomed : true },
+						new GridLayout({ maxCols : 6, spacing : 5 }), true);
 				this.cardsHeader = new HeaderContainerBox(layoutManager, this.cardsContainer, "Cards");
 
 				parent.updateCssTweening(this.cardsHeader.header);
@@ -347,6 +346,13 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			}
 			mix(ZoomedDetail, AbstractBoxContainer);
 			mix(ZoomedDetail, function() {
+
+				/**
+				 * Parcours toutes les sous routines
+				 */
+				this.eachSubs = function(closure) {
+					this.subs.eachChild(closure);
+				}
 
 				/**
 				 * Une sub a change
@@ -388,14 +394,16 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 
 				// carte primaire (à gauche)
 				this.primaryCardsModel = new CardsModel();
-				this.primaryCardContainer = new CardsContainerBox(layoutManager, { cardsize : "zoom", addZIndex : true }, new AnchorLayout({}), true);
+				this.primaryCardContainer = new CardsContainerBox(layoutManager, { cardsize : "zoom", addZIndex : true, IsZoomed : true },
+						new AnchorLayout({}), true);
 				this.primaryCardContainer.setCardsModel(this.primaryCardsModel);
 				this.primaryActions = new ActionsBoxContainer(this);
 				this.primaryActions.observe(postProcessAction, [ AbstractBoxContainer.CHILD_ADDED ]);
 
 				// carte secondaire (à droite)
 				this.secondaryCardsModel = new CardsModel();
-				this.secondaryCardContainer = new CardsContainerBox(layoutManager, { cardsize : "zoom", addZIndex : true }, new AnchorLayout({}), true);
+				this.secondaryCardContainer = new CardsContainerBox(layoutManager, { cardsize : "zoom", addZIndex : true, IsZoomed : true }, new AnchorLayout(
+						{}), true);
 				this.secondaryCardContainer.setCardsModel(this.secondaryCardsModel);
 				this.secondaryActions = new ActionsBoxContainer(this);
 				this.secondaryActions.observe(postProcessAction, [ AbstractBoxContainer.CHILD_ADDED ]);
@@ -475,10 +483,22 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			// export d'autre classe
 			ZoomContainerBox.SubBox = SubBox;
 			ZoomContainerBox.ActionBox = ActionBox;
+			ZoomContainerBox.IsZoomed = "IsZoomed";
 
 			mix(ZoomContainerBox, AbstractBoxContainer);
 			mix(ZoomContainerBox, AnimateAppearanceCss);
 			mix(ZoomContainerBox, function() {
+
+				/**
+				 * Renvoi vrai la carte est zoomée
+				 */
+				this.isZoomed = function(box) {
+					if (box.renderingHints) {
+						var hints = box.renderingHints()
+						return hints !== null && hints[ZoomContainerBox.IsZoomed] === true;
+					} else
+						return false;
+				}
 
 				/**
 				 * Parcours toutes les actions
@@ -486,6 +506,13 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				this.eachActions = function(closure) {
 					this.primaryActions.eachChild(closure);
 					this.secondaryActions.eachChild(closure);
+				}
+
+				/**
+				 * Parcours toutes les sousroutines
+				 */
+				this.eachSubs = function(closure) {
+					this.zoomedDetail.eachSubs(closure);
 				}
 
 				/**
@@ -549,8 +576,8 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 						this.removedCard = null;
 						removeThis = true;
 					}
-					
-					//  gestion du recadrage du composant
+
+					// gestion du recadrage du composant
 					if (bounds) {
 						if (!bounds.contains(this.local)) {
 							var point = bounds.getMatchingPoint(this.local);

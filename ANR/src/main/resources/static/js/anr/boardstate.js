@@ -251,18 +251,27 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 			};
 
 			var containers = [];
-			this.eachContainerOrView(containers.push.bind(containers));
+			var pushToContainers = containers.push.bind(containers);
+			this.eachContainerOrView(pushToContainers);
 
 			_.each(this.zooms, function(zoom) {
-				zoom.eachActions(function(a) {
-					console.log("eachActions", a)
-					containers.push(a);
-				});
+				zoom.eachActions(pushToContainers);
+				zoom.eachSubs(pushToContainers);
 			});
 
-			collect(_.values(this.cards));
-			collect(containers);
+			var alls = _.values(this.cards).concat(containers);
 
+			var z = _.first(_.values(this.zooms));
+			if (z && z.isZoomed(tracked)) {
+				var zoomeds = _.filter(alls, z.isZoomed);
+				collect(zoomeds);
+				if (!_.isEmpty(possibles))
+					return possibles[0];
+
+				while (possibles.length)
+					possibles.pop();
+			}
+			collect(alls);
 			if (!_.isEmpty(possibles))
 				return possibles[0];
 			else
