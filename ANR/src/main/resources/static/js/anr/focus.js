@@ -17,9 +17,13 @@ function(mix, $, JQueryTrackingBox, AbstractBox) {
 		this.handleVisible = function(evt) {
 			if (!evt.object.visible) {
 				var tracked = this.trackedBox();
-				if (tracked && tracked.getNewFocused) {
+				while (tracked && tracked.getNewFocused) {
 					var focused = tracked.getNewFocused();
-					this.trackAbstractBox(focused);
+					if (focused && focused.visible) {
+						this.trackAbstractBox(focused);
+						break;
+					} else
+						tracked = focused;
 				}
 			}
 		}

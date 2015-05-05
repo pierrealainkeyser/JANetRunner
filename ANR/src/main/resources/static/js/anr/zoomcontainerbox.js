@@ -30,6 +30,14 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			mix(SubBox, function() {
 
 				/**
+				 * Gestion du focus
+				 */
+				this.getNewFocused = function() {
+					var first = this.parent._parent._parent.getPrimary();
+					return first;
+				}
+
+				/**
 				 * Gestion de l'activation programmatique
 				 */
 				this.activate = function() {
@@ -116,6 +124,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 					var me = this;
 					this.boxSubs = {};
 					this.eachChild(function(ab) {
+						ab.setVisible(false);
 						ab.animateRemove(ab.element, ab.remove.bind(ab));
 						me.removeChild(ab);
 					})
@@ -183,7 +192,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				 * Renvoi le composant à focused si celui-ci devient invisible
 				 */
 				this.getNewFocused = function() {
-					return this.container.zoomContainer.primaryCardsModel.first();
+					return this.container.zoomContainer.getPrimary();
 				}
 
 				/**
@@ -298,6 +307,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				this.removeAllActions = function() {
 					var me = this;
 					this.eachChild(function(ab) {
+						ab.setVisible(false);
 						ab.animateRemove(ab.element, ab.remove.bind(ab));
 						me.removeChild(ab);
 					})
@@ -589,6 +599,13 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				}
 
 				/**
+				 * Renvoi la carte primaire
+				 */
+				this.getPrimary = function() {
+					return this.primary;
+				}
+
+				/**
 				 * Mise en place ou suppression de la carte primaire
 				 */
 				this.setPrimary = function(card) {
@@ -597,6 +614,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 					if (card) {
 						// on rajoute la carte
 						this.primaryCardsModel.add(card);
+						this.primary = card;
 						this.needOriginalCssPosition = true;
 						this.setVisible(true);
 					} else if (removed) {
