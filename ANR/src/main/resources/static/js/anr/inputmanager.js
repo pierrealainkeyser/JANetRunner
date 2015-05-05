@@ -8,6 +8,7 @@ define([ "mix", "mousetrap", "geometry/point" ], function(mix, Mousetrap, Point)
 		Mousetrap.bind("right", this.right.bind(this));
 		Mousetrap.bind("space", this.space.bind(this));
 		Mousetrap.bind("escape", this.escape.bind(this));
+		Mousetrap.bind("tab", this.tab.bind(this));
 	}
 
 	mix(InputManager, function() {
@@ -29,9 +30,25 @@ define([ "mix", "mousetrap", "geometry/point" ], function(mix, Mousetrap, Point)
 
 		this.space = function() {
 			var focused = this.boardstate.focused();
-			if(focused){
+			if (focused) {
 				this.runLayout(function() {
 					this.boardstate.activate(focused);
+				}.bind(this));
+			}
+		}
+
+		this.tab = function(e) {
+			if (e.preventDefault) {
+				e.preventDefault();
+			} else {
+				// internet explorer
+				e.returnValue = false;
+			}
+
+			var focused = this.boardstate.focused();
+			if (focused) {
+				this.runLayout(function() {
+					this.boardstate.focusNextAction(focused);
 				}.bind(this));
 			}
 		}
@@ -51,8 +68,8 @@ define([ "mix", "mousetrap", "geometry/point" ], function(mix, Mousetrap, Point)
 				}.bind(this));
 			}
 		}
-		
-		this.runLayout=function(closure){
+
+		this.runLayout = function(closure) {
 			this.boardstate.layoutManager.runLayout(closure);
 		}
 	});

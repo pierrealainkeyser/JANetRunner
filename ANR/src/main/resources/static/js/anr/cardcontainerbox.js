@@ -87,7 +87,10 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel, Card, 
 		 */
 		this.computePrimaryCssTween = function(box) {
 			box = box || this;
-			return this.trackingBox.computeCssTweenBox(box, { zIndex : true, rotation : false, autoAlpha : true, size : true });
+			if (this.trackingBox)
+				return this.trackingBox.computeCssTweenBox(box, { zIndex : true, rotation : false, autoAlpha : true, size : true });
+			else
+				return {};
 		}
 
 		/**
@@ -109,14 +112,16 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel, Card, 
 		 */
 		this.unapplyGhost = function() {
 			var me = this;
-			this.trackingBox.trackAbstractBox(this.box);
-			this.trackingBox.setVisible(false);
-			this.setVisible(false);
-			this.trackingBox.afterSyncCompleted = function() {
-				me.trackingBox.untrackAbstractBox(me.box);
-				me.trackingBox.remove();
-				me.trackingBox = null;
-			};
+			if (this.trackingBox) {
+				this.trackingBox.trackAbstractBox(this.box);
+				this.trackingBox.setVisible(false);
+				this.setVisible(false);
+				this.trackingBox.afterSyncCompleted = function() {
+					me.trackingBox.untrackAbstractBox(me.box);
+					me.trackingBox.remove();
+					me.trackingBox = null;
+				};
+			}
 		}
 
 		/**

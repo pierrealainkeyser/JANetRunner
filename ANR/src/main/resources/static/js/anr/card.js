@@ -1,5 +1,5 @@
 define([ "mix", "underscore", "jquery", "layout/abstractbox", "layout/abstractboxleaf", "ui/tweenlitesyncscreenmixin", "ui/animateappearancecss", //
-"./tokenmodel", "./actionmodel","./submodel", "./tokencontainerbox", "conf" ],// 
+"./tokenmodel", "anr/actionmodel","./submodel", "./tokencontainerbox", "conf" ],// 
 function(mix, _, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, AnimateAppearanceCss, //
 TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 

@@ -1,6 +1,6 @@
 define([ "mix", "jquery", "underscore", "layout/package", "anr/corp", "anr/runner", "anr/corpserver", "anr/focus", "anr/card", "anr/turntracker",
-		"anr/zoomcontainerbox", "anr/cardcontainerbox", "geometry/rectangle" ],//
-function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracker, ZoomContainerBox, CardContainerBox, Rectangle) {
+		"anr/zoomcontainerbox", "anr/cardcontainerbox", "geometry/rectangle", "anr/actionmodel" ],//
+function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracker, ZoomContainerBox, CardContainerBox, Rectangle, ActionModel) {
 
 	function BoardState(layoutManager) {
 		this.layoutManager = layoutManager;
@@ -134,6 +134,51 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 		 */
 		this.changeFocus = function(box) {
 			this.focus.trackAbstractBox(box);
+		}
+
+		/**
+		 * Donne le focus à l'action suivante
+		 */
+		this.focusNextAction = function(focused) {
+			var withActions = [];
+			this.eachContainerOrView(withActions.push.bind(withActions));
+			withActions = _.values(this.cards).concat(withActions);
+
+			withActions = _.filter(withActions, function(b) {
+				return b.actionModel instanceof ActionModel && b.actionModel.hasAction();
+			});
+
+			withActions.sort(function(o1, o2) {
+				var p1 = o1.screen.point;
+				var p2 = o2.screen.point;
+
+				if (p1.y < p2.y)
+					return 1;
+				if (p1.x < p2.x)
+					return 1;
+				if (p1.y === p2.y && p1.x === p2.x)
+					return 0;
+				return -1;
+			});
+
+			if (!_.isEmpty(withActions)) {
+				var index = _.indexOf(withActions, focused);
+				if (index >= 0)
+					index = (index + 1) % withActions.length;
+				else
+					index = 0;
+
+				var target = withActions[index];
+				this.changeFocus(target);
+
+				// permet de rendre le parametre visible
+				if (target instanceof CardContainerBox.CardContainerView)
+					target = target.box;
+
+				this.useAsPrimary(target);
+				console.log(target);
+
+			}
 		}
 
 		/**
