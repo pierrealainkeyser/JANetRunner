@@ -48,10 +48,17 @@
 				nbn.setTokensValues({ credits : 5 })
 
 				var dataraven = board.card({ id : 1, url : "01088.png", faction : "corp" });
-				hq.addToIces(dataraven);
+				hq.addToIces(dataraven);								
 				dataraven.setTokensValues({ power : 1 });
 				dataraven.setSubs([ { id : 1, text : "{3:trace} If successful, place 1 power counter on |Data Raven|" } ]);
 				dataraven.setActions([ { type : 'break', costs : [ { enabled : false }, { cost : "{3:credit}", enabled : true } ], text : "Break selected" } ]);
+				
+				
+				var matrixanalyser = board.card({ id : 2, url : "01089.png", faction : "corp" });
+				board.hand.addChild(matrixanalyser);
+				
+				var matrixanalyser = board.card({ id : 3, url : "01091.png", faction : "corp" });
+				board.hand.addChild(matrixanalyser);
 
 				var kate = board.card({ id : 60, url : "01033.png", faction : "runner", type : "id" });
 				board.runner.addToGrip(kate);

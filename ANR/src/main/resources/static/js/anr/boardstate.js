@@ -1,6 +1,6 @@
-define([ "mix", "jquery", "underscore", "layout/package", "anr/corp", "anr/runner", "anr/corpserver", "anr/focus", "anr/card", "anr/turntracker",
-		"anr/zoomcontainerbox", "anr/cardcontainerbox", "geometry/rectangle", "anr/actionmodel" ],//
-function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracker, ZoomContainerBox, CardContainerBox, Rectangle, ActionModel) {
+define([ "mix", "jquery", "underscore", "layout/package", "layout/impl/handlayout", "anr/corp", "anr/runner", "anr/corpserver", "anr/focus", "anr/card",
+		"anr/turntracker", "anr/zoomcontainerbox", "anr/cardcontainerbox", "geometry/rectangle", "anr/actionmodel" ],//
+function(mix, $, _, layout, HandLayout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracker, ZoomContainerBox, CardContainerBox, Rectangle, ActionModel) {
 
 	function BoardState(layoutManager) {
 		this.layoutManager = layoutManager;
@@ -22,6 +22,10 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 		// les cartes et les servers
 		this.servers = {};
 		this.cards = {};
+
+		// les cartes en main
+		this.hand = new layout.AbstractBoxContainer(layoutManager, { addZIndex : true }, new HandLayout());
+		this.hand.setZIndex(50);
 
 		// la taille de la zone de jeu
 		this.bounds = null;
@@ -176,7 +180,6 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 					target = target.box;
 
 				this.useAsPrimary(target);
-				console.log(target);
 
 			}
 		}
@@ -261,6 +264,9 @@ function(mix, $, _, layout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracke
 
 			var r = new Rectangle({ size : { width : container.width(), height : container.height() } });
 			this.bounds = r.grow(-10);
+
+			var hsize = this.hand.layoutFunction.bounds;
+			this.hand.local.moveTo({ x : container.width() - hsize.width - 5, y : container.height() - hsize.height - 5 });
 		}
 
 		/**
