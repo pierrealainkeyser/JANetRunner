@@ -1,6 +1,9 @@
-define([ "mix", "jquery", "underscore", "layout/package", "layout/impl/handlayout", "anr/corp", "anr/runner", "anr/corpserver", "anr/focus", "anr/card",
-		"anr/turntracker", "anr/zoomcontainerbox", "anr/cardcontainerbox", "geometry/rectangle", "anr/actionmodel" ],//
-function(mix, $, _, layout, HandLayout, Corp, Runner, CorpServer, FocusBox, Card, TurnTracker, ZoomContainerBox, CardContainerBox, Rectangle, ActionModel) {
+define([ "mix", "jquery", "underscore", "conf", "layout/package", "layout/impl/handlayout", "anr/corp", "anr/runner", "anr/corpserver", "anr/focus",
+		"anr/card", "anr/turntracker", "anr/zoomcontainerbox", "anr/cardcontainerbox", "geometry/rectangle", "anr/actionmodel",//
+		"anr/runbox" ],//
+function(mix, $, _, config, layout, HandLayout, Corp, Runner, CorpServer, FocusBox, Card,// 
+TurnTracker, ZoomContainerBox, CardContainerBox, Rectangle, ActionModel, //
+RunBox) {
 
 	function BoardState(layoutManager) {
 		this.layoutManager = layoutManager;
@@ -16,8 +19,11 @@ function(mix, $, _, layout, HandLayout, Corp, Runner, CorpServer, FocusBox, Card
 
 		layoutManager.afterFirstMerge = this.afterLayoutPhase.bind(this);
 
-		// les niveaux de zoom
+		// les zones de zoom
 		this.zooms = {};
+
+		// les zones de run
+		this.runs = {};
 
 		// les cartes et les servers
 		this.servers = {};
@@ -25,7 +31,7 @@ function(mix, $, _, layout, HandLayout, Corp, Runner, CorpServer, FocusBox, Card
 
 		// les cartes en main
 		this.hand = new layout.AbstractBoxContainer(layoutManager, { addZIndex : true }, new HandLayout());
-		this.hand.setZIndex(50);
+		this.hand.setZIndex(config.zindex.card);
 
 		// la taille de la zone de jeu
 		this.bounds = null;
@@ -46,6 +52,7 @@ function(mix, $, _, layout, HandLayout, Corp, Runner, CorpServer, FocusBox, Card
 			this.consumeTurnTracker(msg);
 			this.prepareCardsAndServer(msg);
 			this.updateCards(msg);
+			this.updateRuns(msg);
 		}
 
 		/**
@@ -99,6 +106,34 @@ function(mix, $, _, layout, HandLayout, Corp, Runner, CorpServer, FocusBox, Card
 				var card = this.cards[id];
 
 			}.bind(this));
+		}
+
+		/**
+		 * Mise à jour des runs
+		 */
+		this.updateRuns = function(msg) {
+
+			_.each(msg.runs, function(run) {
+
+				var id = run.id;
+				var r = this.runs[id];
+				if ("remove" === run.operation) {
+					if (r) {
+						// suppression du run
+						r.destroy();
+						delete this.runs[id];
+						return;
+					}
+				} else if (!r) {
+					r = new RunBox(this.layoutManager);
+					this.runs[id] = r;
+				}
+
+				var s = this.server({ id : run.server });
+				r.trackAbstractBox(s);
+
+			}.bind(this));
+
 		}
 
 		/**
@@ -217,7 +252,7 @@ function(mix, $, _, layout, HandLayout, Corp, Runner, CorpServer, FocusBox, Card
 			var exists = this.closeAllZooms(id);
 			if (!exists) {
 				var zoom = new ZoomContainerBox(this.layoutManager);
-				zoom.setZIndex(75);
+				zoom.setZIndex(config.zindex.zoom);
 				zoom.id = id;
 				zoom.setPrimary(primary);
 				this.zooms[id] = zoom;

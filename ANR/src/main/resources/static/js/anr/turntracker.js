@@ -1,6 +1,6 @@
-define([ "mix", "jquery", "ui/jqueryboxsize", "ui/animateappearancecss", "geometry/size",// 
+define([ "mix", "jquery", "conf", "ui/jqueryboxsize", "ui/animateappearancecss", "geometry/size",// 
 "layout/impl/flowlayout", "layout/impl/anchorlayout", "layout/abstractboxcontainer", "ui/jquerytrackingbox" ],// 
-function(mix, $, JQueryBoxSize, AnimateAppeareanceCss, Size,//
+function(mix, $, config, JQueryBoxSize, AnimateAppeareanceCss, Size,//
 FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox) {
 
 	function ActiveFactionBox(layoutManager) {
@@ -113,8 +113,8 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox) {
 	 */
 	function BoxClick(layoutManager) {
 
-		JQueryBoxSize.call(this, layoutManager, $("<span class='clickcounter'><span class='clickused'><span class='click'></span></span></span>"), { zIndex : true,
-			rotation : false, autoAlpha : true, size : true });
+		JQueryBoxSize.call(this, layoutManager, $("<span class='clickcounter'><span class='clickused'><span class='click'></span></span></span>"), {
+			zIndex : true, rotation : false, autoAlpha : true, size : true });
 		AnimateAppeareanceCss.call(this, "bounceIn", "bounceOut");
 
 		this.click = this.element.find(".click");
@@ -142,7 +142,7 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox) {
 	 * Permet d'afficher des clicks
 	 */
 	function ClickContainer(layoutManager) {
-		AbstractBoxContainer.call(this, layoutManager, {}, new FlowLayout({ direction : FlowLayout.Direction.RIGHT, spacing : 3 }));
+		AbstractBoxContainer.call(this, layoutManager, { addZIndex : true }, new FlowLayout({ direction : FlowLayout.Direction.RIGHT, spacing : 3 }));
 	}
 	mix(ClickContainer, AbstractBoxContainer);
 	mix(ClickContainer, function() {
@@ -207,8 +207,8 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox) {
 
 	// ---------------------------------------------------
 	function TurnTracker(layoutManager) {
-		AbstractBoxContainer.call(this, layoutManager, {}, new FlowLayout({ align : FlowLayout.Align.MIDDLE, direction : FlowLayout.Direction.RIGHT,
-			spacing : 2, padding : 1 }));
+		AbstractBoxContainer.call(this, layoutManager, { addZIndex : true }, new FlowLayout({ align : FlowLayout.Align.MIDDLE,
+			direction : FlowLayout.Direction.RIGHT, spacing : 2, padding : 1 }));
 
 		this.corpScore = new ScoreFactionBox(layoutManager, "left");
 		this.runnerScore = new ScoreFactionBox(layoutManager, "right");
@@ -220,7 +220,7 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox) {
 		var trackingBox = new JQueryTrackingBox(layoutManager, $("<div class='statusrow'/>"));
 		trackingBox.trackAbstractBox(this);
 
-		var clickWrapper = new AbstractBoxContainer(layoutManager, {}, new AnchorLayout({ minSize : new Size(130, 30) }));
+		var clickWrapper = new AbstractBoxContainer(layoutManager, { addZIndex : true }, new AnchorLayout({ minSize : new Size(130, 30) }));
 		clickWrapper.addChild(this.clicks);
 
 		this.addChild(this.corpScore);
@@ -232,6 +232,8 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox) {
 		this.addChild(this.activeFaction);
 		this.addChild(this.gameStep);
 		this.addChild(this.gamePhase);
+
+		this.setZIndex(config.zindex.status);
 	}
 	mix(TurnTracker, AbstractBoxContainer)
 

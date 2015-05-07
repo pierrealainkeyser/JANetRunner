@@ -1,4 +1,4 @@
-@color0: rgba(230, 230, 230, 0.5);
+@color0: rgba(230, 230, 230, 0.75);
 @color1: rgba(0, 0, 0, 0.35);
 @color2: rgba(255, 255, 255, 1);
 @color3: rgba(30, 30, 30, 0.9);
@@ -9,6 +9,8 @@
 @token-recurring-text-color: #FFCC33;
 @token-text-border: rgba(30, 30, 30, 1);
 @token-text-color: rgba(255, 255, 255, 1);
+@run-light-color: #FF9933;
+@run-dark-color: #FF3300;
 @font-family: sans-serif;
 @font-family-fixed: monospace;
 html , body , body > div#main {
@@ -425,15 +427,13 @@ div#conf {
 	}
 }
 
-
 //------------------------------
 .sub {
 	.element ();
 	.unselectable ();
 	max-width: 240px;
 	font-weight: normal;
-	
-	&.broken{
+	&.broken {
 		text-decoration: line-through;
 	}
 }
@@ -450,5 +450,14 @@ div#conf {
 	.token-text {
 		padding-left: 7px;
 	}
+}
+
+//------------------------------
+.run {
+	.element ();
+	.unselectable ();
+	position: absolute;
+	background: -webkit-linear-gradient(top, @run-light-color 0%, @run-dark-color 100%);
+	box-shadow: 0px 0px 1px 1px @run-dark-color;
 }
 

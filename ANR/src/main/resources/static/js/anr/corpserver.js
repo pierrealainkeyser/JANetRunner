@@ -1,4 +1,4 @@
-define([ "mix", "layout/package", "ui/package", "anr/conf", "./cardcontainerbox" ],// 
+define([ "mix", "layout/package", "ui/package", "conf", "./cardcontainerbox" ],// 
 function(mix, layout, ui, conf, CardContainerBox) {
 
 	/**
@@ -42,7 +42,7 @@ function(mix, layout, ui, conf, CardContainerBox) {
 		this.addChild(this.mainContainer);
 		this.addChild(this.ices);
 
-		this.setZIndex(50);
+		this.setZIndex(conf.zindex.card);
 	}
 
 	mix(CorpServer, layout.AbstractBoxContainer);
