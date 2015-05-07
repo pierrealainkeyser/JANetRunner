@@ -166,7 +166,6 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				AnimateAppearanceCss.call(this, "lightSpeedIn", "lightSpeedOut");
 				this._cost = this.element.find(".cost");
 				this.action = action;
-				this.setZIndex(50);
 				this.actionType = action.type || ActionBox.DEFAULT_TYPE;
 
 				// fait apparaitre l'action joliment
@@ -175,9 +174,12 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 					this.cost(action.cost, true);
 
 				this.variableCosts = action.costs || [];
+				this.variableSelection = null;
 				this.disabled = false;
 
-				// TODO gestion de l'activation du bouton
+				this.element.on('click', layoutManager.withinLayout(function() {
+					this.container.activateAction(this);
+				}.bind(this)));
 			}
 
 			ActionBox.DEFAULT_TYPE = "default";
@@ -199,7 +201,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				 * Gestion de l'activation programmatique
 				 */
 				this.activate = function() {
-					if (!this.element.prop("disabled"))
+					if (!this.disabled)
 						this.element.click();
 				}
 
@@ -209,6 +211,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				this.updateVariableCost = function(nb) {
 					if (nb >= 0 && nb < this.variableCosts.length) {
 						var variable = this.variableCosts[nb];
+						this.variableSelection = nb;
 						this.cost(variable.cost || '');
 						this.disable(!variable.enabled);
 					}
@@ -266,6 +269,13 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 
 			mix(ActionsBoxContainer, AbstractBoxContainer);
 			mix(ActionsBoxContainer, function() {
+
+				/**
+				 * Activation d'une action
+				 */
+				this.activateAction = function(action) {
+					this.zoomContainer.activateAction(action);
+				}
 
 				/**
 				 * Mise à jour des couts variables
@@ -387,7 +397,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				};
 			})
 
-			function ZoomContainerBox(layoutManager) {
+			function ZoomContainerBox(layoutManager, actionListener) {
 
 				AbstractBoxContainer.call(this, layoutManager, { addZIndex : true }, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }));
 				AnimateAppearanceCss.call(this, "fadeIn", "fadeOut");
@@ -457,6 +467,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				thisbox.trackAbstractBox(this);
 				thisbox.syncScreen = function() {
 					var css = this.computeCssTween(this.cssTweenConfig);
+					css.zIndex = me.zIndex - 5;
 					var onComplete = null;
 					// il faut une position de départ, que l'on set puis que
 					// l'on déplace
@@ -488,6 +499,8 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				this.removedCard = null;
 
 				this.setVisible(false);
+
+				this.actionListener = actionListener;
 			}
 
 			// export d'autre classe
@@ -498,6 +511,14 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			mix(ZoomContainerBox, AbstractBoxContainer);
 			mix(ZoomContainerBox, AnimateAppearanceCss);
 			mix(ZoomContainerBox, function() {
+
+				/**
+				 * Activation d'une action
+				 */
+				this.activateAction = function(action) {
+					if (this.actionListener)
+						this.actionListener(action);
+				}
 
 				/**
 				 * Renvoi vrai la carte est zoomée

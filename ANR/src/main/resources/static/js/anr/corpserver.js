@@ -47,7 +47,7 @@ function(mix, layout, ui, conf, CardContainerBox) {
 
 	mix(CorpServer, layout.AbstractBoxContainer);
 	mix(CorpServer, function() {
-		
+
 		/**
 		 * Renvoi l'ID du server
 		 */
@@ -68,11 +68,11 @@ function(mix, layout, ui, conf, CardContainerBox) {
 		this.setActions = function(actions) {
 			this.mainContainer.view.actionModel.set(actions);
 		}
-		
+
 		/**
 		 * Délégue à la vue du conteneur principal
 		 */
-		this.setCounter=function(counter){
+		this.setCounter = function(counter) {
 			this.mainContainer.setCounter(counter);
 		}
 
@@ -82,7 +82,7 @@ function(mix, layout, ui, conf, CardContainerBox) {
 		this.addToAssetsOrUpgrades = function(card, index) {
 			this.mainContainer.cards.addChild(card, index);
 		}
-		
+
 		/**
 		 * Rajoute aux glaces
 		 */

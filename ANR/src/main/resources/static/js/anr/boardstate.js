@@ -45,13 +45,25 @@ RunBox) {
 	mix(BoardState, function() {
 
 		/**
+		 * Activation d'une action
+		 */
+		this.activateAction = function(actionbox) {
+			console.log("activateAction", actionbox);
+			var alls = _.values(this.servers).concat(_.values(this.cards));
+			_.each(alls, function(cos) {
+				// suppression des toutes les actions
+				cos.setActions();
+			});
+		}
+
+		/**
 		 * Gestion du message
 		 */
 		this.consumeMsg = function(msg) {
 			console.log("consumeMsg", msg);
 			this.consumeTurnTracker(msg);
 			this.prepareCardsAndServer(msg);
-			this.updateCards(msg);
+			this.updateCardsAndServers(msg);
 			this.updateRuns(msg);
 		}
 
@@ -100,11 +112,16 @@ RunBox) {
 		/**
 		 * Mise à jour de toutes les cartes
 		 */
-		this.updateCards = function(msg) {
-			_.each(msg.cards, function(input) {
-				var id = input.def.id;
-				var card = this.cards[id];
+		this.updateCardsAndServers = function(msg) {
+			_.each(msg.cards, function(def) {
+				var card = this.card(def);
 
+				// TODO gestion des actions
+
+			}.bind(this));
+
+			_.each(msg.servers, function(def) {
+				var server = this.server(def);
 			}.bind(this));
 		}
 
@@ -251,7 +268,7 @@ RunBox) {
 
 			var exists = this.closeAllZooms(id);
 			if (!exists) {
-				var zoom = new ZoomContainerBox(this.layoutManager);
+				var zoom = new ZoomContainerBox(this.layoutManager, this.activateAction.bind(this));
 				zoom.setZIndex(config.zindex.zoom);
 				zoom.id = id;
 				zoom.setPrimary(primary);
@@ -379,7 +396,6 @@ RunBox) {
 		 * Gestion de l'activation d'un composant
 		 */
 		this.activate = function(box) {
-			console.log("activate", box)
 			if (box instanceof Card) {
 				this.useAsPrimary(box);
 			} else if (box instanceof ZoomContainerBox.SubBox) {
