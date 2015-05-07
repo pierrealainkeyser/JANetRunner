@@ -26,8 +26,11 @@ function(mix, $, config, JQueryTrackingBox) {
 			css.zIndex = config.zindex.run;
 			css.top = 0;
 
+			var onComplete = null;
+
 			if (this.destroyed) {
 				css.height = 0;
+				onComplete = this.remove.bind(this);
 			} else {
 				var set = this.firstSyncScreen();
 				if (set) {
@@ -37,7 +40,7 @@ function(mix, $, config, JQueryTrackingBox) {
 				css.height = h;
 			}
 
-			this.tweenElement(this.element, css, false);
+			this.tweenElement(this.element, css, false, onComplete);
 		}
 	});
 	return RunBox;
