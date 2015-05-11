@@ -29,6 +29,7 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel, Card, 
 		this.watchContainer(box.cards);
 
 		this.setVisible(false);
+
 	}
 	mix(CardContainerView, layout.AbstractBoxLeaf);
 	mix(CardContainerView, function() {
@@ -100,6 +101,9 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel, Card, 
 			this.trackingBox = new ui.JQueryTrackingBox(this.layoutManager, $("<div class='cardcontainer zoomed'><div class='innertext'>" + this.box.type
 					+ "</div></div>"));
 			this.trackingBox.trackAbstractBox(this);
+			
+			// ecoute des clicks pour fermer le composant
+			this.trackingBox.element.on('click', this.layoutManager.withinLayout(this.box.activateContainer.bind(this.box)));
 
 			// on place l'élement tout de suite
 			var css = this.computePrimaryCssTween(this.box);
@@ -132,7 +136,7 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel, Card, 
 		}
 	});
 
-	function CardContainerBox(layoutManager, type, cardContainerLayout) {
+	function CardContainerBox(layoutManager, type, cardContainerLayout, actionListener) {
 		var normal = config.card.normal;
 		layout.AbstractBoxContainer.call(this, layoutManager, { addZIndex : true }, new AnchorLayout({ vertical : AnchorLayout.Vertical.TOP, padding : 8,
 			minSize : new geom.Size(normal.width, normal.height + 15) }));
@@ -167,14 +171,27 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel, Card, 
 		// place la vue du composant
 		this.view = new CardContainerView(this);
 
+		this.trackingBox.element.on('click', layoutManager.withinLayout(this.activateContainer.bind(this)));
+
 		// synchronisation sur les actions
 		var syncScreen = this.trackingBox.needSyncScreen.bind(this.trackingBox);
-		this.view.actionModel.observe(syncScreen, [ ActionModel.ADDED, ActionModel.REMOVED ])
+		this.view.actionModel.observe(syncScreen, [ ActionModel.ADDED, ActionModel.REMOVED ]);
+
+		// l'ecouteur d'activation
+		this.actionListener = actionListener;
 	}
 
 	mix(CardContainerBox, layout.AbstractBoxContainer);
 	mix(CardContainerBox, ui.AnimateAppeareanceCss);
 	mix(CardContainerBox, function() {
+
+		/**
+		 * Activation du container
+		 */
+		this.activateContainer = function() {
+			if (this.actionListener)
+				this.actionListener(this);
+		}
 
 		/**
 		 * Permet de suivre un container pour l'accessibilité des cartes

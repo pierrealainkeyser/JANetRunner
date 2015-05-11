@@ -14,7 +14,7 @@ function(mix, layout, ui, conf, CardContainerBox) {
 	}
 	mix(Upgrades, layout.AbstractBoxContainer);
 
-	function CorpServer(layoutManager, def) {
+	function CorpServer(layoutManager, def, actionListener) {
 		this.def = def;
 
 		var layouts = conf.server.layouts;
@@ -30,7 +30,7 @@ function(mix, layout, ui, conf, CardContainerBox) {
 		else if (def.id === -3)
 			type = "HQ";
 
-		this.mainContainer = new CardContainerBox(layoutManager, type, innerLayout);
+		this.mainContainer = new CardContainerBox(layoutManager, type, innerLayout, actionListener);
 		this.upgrades = new Upgrades(layoutManager, layouts.upgrades);
 		this.ices = new Ices(layoutManager, layouts.ices);
 

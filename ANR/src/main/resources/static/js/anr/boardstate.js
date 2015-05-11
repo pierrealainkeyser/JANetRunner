@@ -11,8 +11,10 @@ RunBox) {
 		this.turnTracker = new TurnTracker(layoutManager);
 		this.turnTracker.local.moveTo({ x : 0, y : 0 });
 
-		this.corp = new Corp(layoutManager);
-		this.runner = new Runner(layoutManager);
+		var showPrimary = this.useAsPrimary.bind(this);
+
+		this.corp = new Corp(layoutManager, showPrimary);
+		this.runner = new Runner(layoutManager, showPrimary);
 		this.local = null;
 
 		this.focus = new FocusBox(layoutManager);
@@ -208,7 +210,8 @@ RunBox) {
 			var id = def.id;
 			var card = this.cards[id];
 			if (!card) {
-				card = new Card(this.layoutManager, def);
+				card = new Card(this.layoutManager, def, this.useAsPrimary.bind(this));
+
 				// on traque la premiere id à la création
 				if ("id" === def.type && this.local === def.faction) {
 					this.changeFocus(card);

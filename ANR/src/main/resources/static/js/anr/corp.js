@@ -1,6 +1,6 @@
 define([ "mix", "conf", "layout/abstractboxcontainer", "./corpserver" ], //
 function(mix, config, AbstractBoxContainer, CorpServer) {
-	function Corp(layoutManager) {
+	function Corp(layoutManager, actionListener) {
 		var layouts = config.corp.layouts;
 		AbstractBoxContainer.call(this, layoutManager, {}, layouts.translate);
 
@@ -10,6 +10,9 @@ function(mix, config, AbstractBoxContainer, CorpServer) {
 		// le container pour les servers
 		this.serversArray = new AbstractBoxContainer(layoutManager, {}, layouts.servers);
 		this.addChild(this.serversArray);
+
+		// l'ecouteur d'affichage du container
+		this.actionListener = actionListener;
 	}
 
 	mix(Corp, AbstractBoxContainer)
@@ -28,7 +31,7 @@ function(mix, config, AbstractBoxContainer, CorpServer) {
 		this.getOrCreate = function(id) {
 			var srv = this.servers[id];
 			if (!srv) {
-				srv = new CorpServer(this.layoutManager, { id : id });
+				srv = new CorpServer(this.layoutManager, { id : id }, this.actionListener);
 				this.serversArray.addChild(srv);
 			}
 			return srv;
