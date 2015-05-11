@@ -116,13 +116,61 @@ RunBox) {
 			_.each(msg.cards, function(def) {
 				var card = this.card(def);
 
-				// TODO gestion des actions
+				if (def.location)
+					this.addToContainer(def.location, card);
+
+				if (def.tokens)
+					card.setTokensValues(def.tokens);
+
+				if (def.actions)
+					card.setActions(def.actions);
+
+				if (def.subs)
+					card.setSubs(def.subs);
 
 			}.bind(this));
 
 			_.each(msg.servers, function(def) {
 				var server = this.server(def);
+
+				if (def.actions)
+					server.setActions(def.actions);
+
 			}.bind(this));
+		}
+
+		/**
+		 * Trouve le conteneur associe
+		 */
+		this.addToContainer = function(path, card) {
+			var first = path.primary.toLowerCase();
+			if ("server" === first) {
+				var server = this.server({ id : path.serverIndex });
+				var key = path.secondary.toLowerCase();
+				if ("ices" == key)
+					server.addToIces(card, path.index);
+				else if ("assetorupgrades" === key || "stack" === key)
+					server.addToAssetsOrUpgrades(card, path.index);
+				else if ("upgrades" === key)
+					server.addToUpgrades(card, path.index);
+			} else if ("card" === first) {
+				// TODO
+				return null;
+				// return this.card({ id : path.serverIndex });
+			} else if ("resource" === first)
+				this.runner.addToResource(card, path.index);
+			else if ("hardware" === first)
+				this.runner.addToHardwares(card, path.index);
+			else if ("program" === first)
+				this.runner.addToPrograms(card, path.index);
+			else if ("grip" === first)
+				this.runner.addToGrip(card, path.index);
+			else if ("stack" === first)
+				this.runner.addToStack(card, path.index);
+			else if ("heap" === first)
+				this.runner.addToHeap(card, path.index);
+			else if ("hand" === first)
+				this.hand.addChild(card, path.index);
 		}
 
 		/**

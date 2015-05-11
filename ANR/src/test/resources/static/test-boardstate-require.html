@@ -26,61 +26,59 @@
 	function($, layout, BoardState, InputManager) {
 		$(function() {
 			var layoutManager = new layout.LayoutManager($("#main"));
-			layoutManager
-					.runLayout(function() {
-						var board = new BoardState(layoutManager);
-						var im = new InputManager(board);
+			layoutManager.runLayout(function() {
+				var board = new BoardState(layoutManager);
+				var im = new InputManager(board);
 
-						board.consumeMsg({//
-						local : 'runner',//
-						factions : { corp : 'nbn', runner : 'shaper' },//
-						clicks : { active : 3, used : 0 },//
-						turn : { phase : "Action", player : "corp" },//
-						score : { corp : 0, runner : 0 }, //
+				board.consumeMsg({//
+				local : 'runner',//
+				factions : { corp : 'nbn', runner : 'shaper' },//
+				clicks : { active : 3, used : 0 },//
+				turn : { phase : "Action", player : "corp" },//
+				score : { corp : 0, runner : 0 }, //
+				servers : [ { id : -1 }, { id : -2 }, { id : -3, actions : [ { cost : "{1:click}", text : "Run" } ] } ], });
+
+				var hq = board.server({ id : -3 });
+				board
+						.consumeMsg({//
+						cards : [//
+								{ id : 0, url : "01080.png", faction : "corp", type : "id",
+									location : { primary : "server", serverIndex : -3, secondary : "stack", index : 0 }, tokens : { credits : 5 } },//
+								{ id : 60, url : "01033.png", faction : "runner", type : "id", location : { primary : "grip", index : 0 } },//
+
+								{
+									id : 1,
+									url : "01088.png",
+									faction : "corp",
+									location : { primary : "server", serverIndex : -3, secondary : "ices", index : 0 },
+									tokens : { power : 1 },//
+									actions : [ { type : 'break', costs : [ { enabled : false }, { cost : "{3:credit}", enabled : true } ],
+										text : "Break selected" } ] },//
+								{ id : 2, url : "01089.png", faction : "corp", location : { primary : "hand", index : 0 } },//
+								{ id : 3, url : "01091.png", faction : "corp", location : { primary : "hand", index : 1 } } //
+						] //
 						});
 
-						board.server({ id : -1 });
-						board.server({ id : -2 });
-						var hq = board.server({ id : -3 });
+				var dataraven = board.card({ id : 1 });
+				dataraven.setSubs([ { id : 1, text : "{3:trace} If successful, place 1 power counter on |Data Raven|" } ]);
 
-						var nbn = board.card({ id : 0, url : "01080.png", faction : "corp", type : "id" });
-						hq.addToAssetsOrUpgrades(nbn);
-						hq.setActions([ { cost : "{1:click}", text : "Run" } ]);
-						nbn.setTokensValues({ credits : 5 })
+				board.consumeMsg({//
+				runs : [ { id : 0, server : -1 } ] //
+				});
 
-						var dataraven = board.card({ id : 1, url : "01088.png", faction : "corp" });
-						hq.addToIces(dataraven);
-						dataraven.setTokensValues({ power : 1 });
-						dataraven.setSubs([ { id : 1, text : "{3:trace} If successful, place 1 power counter on |Data Raven|" } ]);
-						dataraven.setActions([ { type : 'break', costs : [ { enabled : false }, { cost : "{3:credit}", enabled : true } ],
-							text : "Break selected" } ]);
-
-						var matrixanalyser = board.card({ id : 2, url : "01089.png", faction : "corp" });
-						board.hand.addChild(matrixanalyser);
-
-						var matrixanalyser = board.card({ id : 3, url : "01091.png", faction : "corp" });
-						board.hand.addChild(matrixanalyser);
-
-						var kate = board.card({ id : 60, url : "01033.png", faction : "runner", type : "id" });
-						board.runner.addToGrip(kate);
-
-						board.consumeMsg({//
-						runs : [ { id : 0, server : -1 } ] //
-						});
-
-						setTimeout(layoutManager.withinLayout(function() {
-							board.consumeMsg({//
-							runs : [ { id : 0, server : -3 } ] //
-							});
-						}), 1000);
-
-						setTimeout(layoutManager.withinLayout(function() {
-							board.consumeMsg({//
-							runs : [ { id : 0, operation : "remove" } ] //
-							});
-						}), 2000);
-
+				setTimeout(layoutManager.withinLayout(function() {
+					board.consumeMsg({//
+					runs : [ { id : 0, server : -3 } ] //
 					});
+				}), 1000);
+
+				setTimeout(layoutManager.withinLayout(function() {
+					board.consumeMsg({//
+					runs : [ { id : 0, operation : "remove" } ] //
+					});
+				}), 2000);
+
+			});
 		});
 	});
 </script>
