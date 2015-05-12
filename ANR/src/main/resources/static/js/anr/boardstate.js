@@ -33,7 +33,7 @@ RunBox) {
 		this.cards = {};
 
 		// les cartes en main
-		this.hand = new layout.AbstractBoxContainer(layoutManager, { addZIndex : true, childZIndexFactor : 2 }, new HandLayout());
+		this.hand = new layout.AbstractBoxContainer(layoutManager, { addZIndex : true, childZIndexFactor : 3 }, new HandLayout());
 		this.hand.setZIndex(config.zindex.card);
 
 		// la taille de la zone de jeu
@@ -292,7 +292,7 @@ RunBox) {
 				if (target instanceof CardContainerBox.CardContainerView)
 					target = target.box;
 
-				this.showElement(target);
+				this.displayElement(target);
 
 			}
 		}
