@@ -94,7 +94,6 @@ define([ "mix", "underscore", "util/observablemixin", "util/innersetmixin", "geo
 				 * courant
 				 */
 				this.mergeRank = function() {
-
 					if (this.container != null) {
 						var zIndex = this.container.computeChildZIndex(this);
 						if (zIndex !== null)

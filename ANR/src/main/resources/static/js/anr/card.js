@@ -238,6 +238,10 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 			if (zoomed)
 				tokenCss.autoAlpha = 0;
 
+			// todo en fonction du container
+			if (hints.invisibleWhenGtZero === true && this.rank > 0)
+				css.autoAlpha = 0;
+
 			var set = this.firstSyncScreen();
 			this.tweenElement(this.element, css, set);
 			this.tweenElement(this.front, frontCss, set);
@@ -265,7 +269,7 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 		 * Activation de l'accessbilité ou non
 		 */
 		this.setAccessible = function(accessible) {
-			this._innerSet(Card.ACCESSIBLE, "accessible");
+			this._innerSet(Card.ACCESSIBLE, accessible);
 		}
 	});
 

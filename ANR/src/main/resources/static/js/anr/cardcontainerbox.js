@@ -5,7 +5,12 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel, Card, 
 	 * Pour facilter les logs dans la console
 	 */
 	function InnerCardContainer(layoutManager, cardContainerLayout) {
-		layout.AbstractBoxContainer.call(this, layoutManager, { addZIndex : true, childZIndexFactor : 2 }, cardContainerLayout);
+
+		var hints = { addZIndex : true, childZIndexFactor : 2 };
+		if (cardContainerLayout instanceof AnchorLayout)
+			hints.invisibleWhenGtZero = true;
+
+		layout.AbstractBoxContainer.call(this, layoutManager, hints, cardContainerLayout);
 	}
 	mix(InnerCardContainer, layout.AbstractBoxContainer);
 
@@ -101,7 +106,7 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel, Card, 
 			this.trackingBox = new ui.JQueryTrackingBox(this.layoutManager, $("<div class='cardcontainer zoomed'><div class='innertext'>" + this.box.type
 					+ "</div></div>"));
 			this.trackingBox.trackAbstractBox(this);
-			
+
 			// ecoute des clicks pour fermer le composant
 			this.trackingBox.element.on('click', this.layoutManager.withinLayout(this.box.activateContainer.bind(this.box)));
 
@@ -138,6 +143,7 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel, Card, 
 
 	function CardContainerBox(layoutManager, type, cardContainerLayout, actionListener) {
 		var normal = config.card.normal;
+
 		layout.AbstractBoxContainer.call(this, layoutManager, { addZIndex : true }, new AnchorLayout({ vertical : AnchorLayout.Vertical.TOP, padding : 8,
 			minSize : new geom.Size(normal.width, normal.height + 15) }));
 		ui.AnimateAppeareanceCss.call(this, "bounceIn", "bounceOut");
