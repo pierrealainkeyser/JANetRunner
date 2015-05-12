@@ -33,7 +33,7 @@ RunBox) {
 		this.cards = {};
 
 		// les cartes en main
-		this.hand = new layout.AbstractBoxContainer(layoutManager, { addZIndex : true }, new HandLayout());
+		this.hand = new layout.AbstractBoxContainer(layoutManager, { addZIndex : true, childZIndexFactor : 2 }, new HandLayout());
 		this.hand.setZIndex(config.zindex.card);
 
 		// la taille de la zone de jeu
@@ -305,10 +305,10 @@ RunBox) {
 				if (this.activeZoom) {
 					var id = cocs.id();
 					if (this.activeZoom.id !== id) {
-						
-						
-						//TODO il faut savoir si le zoom actif est primaire ou si il this.activeZoom.isZoomed(cocs)
-						
+
+						// TODO il faut savoir si le zoom actif est primaire ou
+						// si il this.activeZoom.isZoomed(cocs)
+
 						if (this.activeZoom.secondaryId !== id) {
 							// affichage en zone secondaire
 							this.activeZoom.setSecondary(cocs);
