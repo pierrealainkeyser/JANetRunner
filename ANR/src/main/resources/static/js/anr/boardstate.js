@@ -11,10 +11,10 @@ RunBox) {
 		this.turnTracker = new TurnTracker(layoutManager);
 		this.turnTracker.local.moveTo({ x : 0, y : 0 });
 
-		var showPrimary = this.useAsPrimary.bind(this);
+		var showElement = this.displayElement.bind(this);
 
-		this.corp = new Corp(layoutManager, showPrimary);
-		this.runner = new Runner(layoutManager, showPrimary);
+		this.corp = new Corp(layoutManager, showElement);
+		this.runner = new Runner(layoutManager, showElement);
 		this.local = null;
 
 		this.focus = new FocusBox(layoutManager);
@@ -23,6 +23,7 @@ RunBox) {
 
 		// les zones de zoom
 		this.zooms = {};
+		this.activeZoom = null;
 
 		// les zones de run
 		this.runs = {};
@@ -130,6 +131,15 @@ RunBox) {
 				if (def.subs)
 					card.setSubs(def.subs);
 
+				if (def.face)
+					card.setFace(def.face);
+
+				if (def.zoomable)
+					card.setZoomable(def.zoomable);
+
+				if (def.accessible)
+					card.setAccessible(def.accessible);
+
 			}.bind(this));
 
 			_.each(msg.servers, function(def) {
@@ -210,7 +220,7 @@ RunBox) {
 			var id = def.id;
 			var card = this.cards[id];
 			if (!card) {
-				card = new Card(this.layoutManager, def, this.useAsPrimary.bind(this));
+				card = new Card(this.layoutManager, def, this.displayElement.bind(this));
 
 				// on traque la premiere id à la création
 				if ("id" === def.type && this.local === def.faction) {
@@ -282,9 +292,37 @@ RunBox) {
 				if (target instanceof CardContainerBox.CardContainerView)
 					target = target.box;
 
-				this.useAsPrimary(target);
+				this.showElement(target);
 
 			}
+		}
+
+		/**
+		 * Permet d'afficher un element
+		 */
+		this.displayElement = function(cocs) {
+			if (cocs instanceof Card) {
+				if (this.activeZoom) {
+					var id = cocs.id();
+					if (this.activeZoom.id !== id) {
+						
+						
+						//TODO il faut savoir si le zoom actif est primaire ou si il this.activeZoom.isZoomed(cocs)
+						
+						if (this.activeZoom.secondaryId !== id) {
+							// affichage en zone secondaire
+							this.activeZoom.setSecondary(cocs);
+							this.activeZoom.secondaryId = id;
+						} else {
+							this.activeZoom.setSecondary(null);
+							this.activeZoom.secondaryId = null;
+						}
+						return;
+					}
+				}
+				this.useAsPrimary(cocs);
+			} else
+				this.useAsPrimary(cocs);
 		}
 
 		/**
@@ -323,6 +361,7 @@ RunBox) {
 				zoom.setZIndex(config.zindex.zoom);
 				zoom.id = id;
 				zoom.setPrimary(primary);
+				this.activeZoom = zoom;
 				this.zooms[id] = zoom;
 			}
 		}
@@ -349,6 +388,10 @@ RunBox) {
 			_.each(_.values(this.zooms), function(zoom) {
 				var removeThis = zoom.afterLayoutPhase(this.bounds);
 				if (removeThis) {
+
+					if (this.activeZoom === this.zooms[zoom.id])
+						this.activeZoom = null;
+
 					delete this.zooms[zoom.id];
 				}
 			}.bind(this));
@@ -415,7 +458,7 @@ RunBox) {
 
 			var alls = _.values(this.cards).concat(containers);
 
-			var z = _.first(_.values(this.zooms));
+			var z = this.activeZoom;
 			if (z && z.isZoomed(tracked)) {
 				var zoomeds = _.filter(alls, z.isZoomed);
 				collect(zoomeds);
@@ -448,13 +491,13 @@ RunBox) {
 		 */
 		this.activate = function(box) {
 			if (box instanceof Card) {
-				this.useAsPrimary(box);
+				this.displayElement(box);
 			} else if (box instanceof ZoomContainerBox.SubBox) {
 				box.activate();
 			} else if (box instanceof ZoomContainerBox.ActionBox) {
 				box.activate();
 			} else if (box instanceof CardContainerBox) {
-				this.useAsPrimary(box);
+				this.displayElement(box);
 			} else if (box instanceof CardContainerBox.CardContainerView) {
 				this.closeAllZooms();
 			}

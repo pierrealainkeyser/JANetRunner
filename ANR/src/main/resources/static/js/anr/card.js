@@ -40,6 +40,7 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 		// pour changer l'apparence de la bordule
 		var syncScreen = this.needSyncScreen.bind(this);
 		this.actionModel.observe(syncScreen, [ ActionModel.ADDED, ActionModel.REMOVED ]);
+		this.observe(syncScreen, [ Card.FACE, Card.ZOOMABLE, Card.ACCESSIBLE ]);
 
 		// l'écouteur de sélection
 		this.actionListener = actionListener;
@@ -281,10 +282,10 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 		this.back = this.element.find("img.back");
 
 		// l'aspect de la carte
-		this.face = Card.FACE_UP;
+		this.face = card.face;
 
 		// permet de montrer le mode de zoom up, down et null
-		this.zoomable = Card.FACE_UP;
+		this.zoomable = card.zoomable;
 
 		this.accessible = card.accessible;
 
