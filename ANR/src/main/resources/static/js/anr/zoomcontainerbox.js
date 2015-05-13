@@ -397,7 +397,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				};
 			})
 
-			function ZoomContainerBox(layoutManager, actionListener) {
+			function ZoomContainerBox(layoutManager, actionListener, headerText) {
 
 				AbstractBoxContainer.call(this, layoutManager, { addZIndex : true }, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }));
 				AnimateAppearanceCss.call(this, "fadeIn", "fadeOut");
@@ -431,7 +431,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				this.element = $("<div class='zoombox'/>");
 
 				this.zoomedDetail = new ZoomedDetail(this, this.element, mergeSubstractZoomed);
-				this.header = new JQueryBoxSize(layoutManager, $("<div class='header title'>bidule</div>"));
+				this.header = new JQueryBoxSize(layoutManager, $("<div class='header title'></div>"));
 				this.header.element.appendTo(this.element);
 
 				var actionsRow = new AbstractBoxContainer(layoutManager, { addZIndex : true }, new FlowLayout({ direction : FlowLayout.Direction.RIGHT,
@@ -499,6 +499,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				this.removedCard = null;
 
 				this.setVisible(false);
+				this.setHeaderText(headerText);
 
 				this.actionListener = actionListener;
 			}
@@ -511,6 +512,15 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			mix(ZoomContainerBox, AbstractBoxContainer);
 			mix(ZoomContainerBox, AnimateAppearanceCss);
 			mix(ZoomContainerBox, function() {
+				
+
+				/**
+				 * Mise en place du texte d'entete de la boite
+				 */
+				this.setHeaderText = function(text) {
+					this.header.element.text(text || "");
+					this.header.computeSize(this.header.element);
+				}
 
 				/**
 				 * Activation d'une action

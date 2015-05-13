@@ -40,7 +40,7 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 		// pour changer l'apparence de la bordule
 		var syncScreen = this.needSyncScreen.bind(this);
 		this.actionModel.observe(syncScreen, [ ActionModel.ADDED, ActionModel.REMOVED ]);
-		this.observe(syncScreen, [ Card.FACE, Card.ZOOMABLE, Card.ACCESSIBLE ]);
+		this.observe(syncScreen, [ Card.FACE, Card.ZOOMABLE]);
 
 		// l'écouteur de sélection
 		this.actionListener = actionListener;
