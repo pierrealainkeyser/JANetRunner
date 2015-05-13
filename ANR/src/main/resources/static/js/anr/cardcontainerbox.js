@@ -8,7 +8,7 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel, Card, 
 
 		var hints = { addZIndex : true, childZIndexFactor : 2 };
 		if (cardContainerLayout instanceof AnchorLayout)
-			hints.invisibleWhenGtZero = true;
+			hints.invisibleWhenNotLast = true;
 
 		layout.AbstractBoxContainer.call(this, layoutManager, hints, cardContainerLayout);
 	}

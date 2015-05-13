@@ -239,8 +239,10 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 				tokenCss.autoAlpha = 0;
 
 			// todo en fonction du container
-			if (hints.invisibleWhenGtZero === true && this.rank > 0)
-				css.autoAlpha = 0;
+			if (hints.invisibleWhenNotLast === true){
+				if(this.container && this.container.size() < this.rank-1)
+					css.autoAlpha = 0;
+			}
 
 			var set = this.firstSyncScreen();
 			this.tweenElement(this.element, css, set);
