@@ -70,15 +70,17 @@ define([ "mix", "underscore" ], function(mix, _) {
 			console.debug("<runLayout>")
 			this.layoutCycle = { layout : {}, merge : {}, sync : {} }
 			closure();
+			//on réalise plusieurs passe de layouts
 			layoutPhase(this.layoutCycle);
-
-			// 2 phases de merge pour pouvoir appeler une fonction
-			// afterFirstMerge
 			mergePhase(this.layoutCycle);
 			if (_.isFunction(this.afterFirstMerge))
 				this.afterFirstMerge();
+
 			layoutPhase(this.layoutCycle);
 			mergePhase(this.layoutCycle);
+			if (_.isFunction(this.afterSecondMerge))
+				this.afterSecondMerge();
+			
 			syncPhase(this.layoutCycle);
 
 			console.debug("</runLayout>")
