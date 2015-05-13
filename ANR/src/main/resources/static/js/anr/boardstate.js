@@ -4,6 +4,51 @@ define([ "mix", "jquery", "underscore", "conf", "layout/package", "layout/impl/h
 function(mix, $, _, config, layout, HandLayout, Corp, Runner, CorpServer, FocusBox, Card,// 
 TurnTracker, ZoomContainerBox, CardContainerBox, Rectangle, ActionModel, //
 RunBox) {
+	
+
+	/**
+	 * Gestion de l'information de sélection
+	 */
+	function PrimaryZoomInfo(boardstate) {
+		this.id = null;
+		this.text = null;
+		this.boardstate = boardstate;
+		this.pop=false;
+	}
+	mix(PrimaryZoomInfo,function(){
+		this.isPrimaryZoom=function(zoom){
+			return zoom.id===this.id;
+		}
+		
+		this.update=function(primary){
+			this.id=primary.id;
+			this.text=primary.text;
+			
+			//TODO a faire après le layout
+			var zoom=this.boardstate.activeZoom;
+			this.pop=true;
+			if(zoom){
+				if(this.isPrimaryZoom(zoom)){
+					zoom.setHeaderText(text);
+					this.pop=false;
+				}
+			}
+		}
+		
+
+		this.afterLayoutPhase = function() {
+			if (this.pop) {
+				var cocs = null;
+				if (this.id < 0)
+					cocs = this.boardstate.server(this);
+				else
+					cocs = this.boardstate.card(this);
+
+				this.boardstate.useAsPrimary(cocs);
+				this.pop = false;
+			}
+		}
+	});
 
 	function BoardState(layoutManager) {
 		this.layoutManager = layoutManager;
@@ -24,6 +69,9 @@ RunBox) {
 		// les zones de zoom
 		this.zooms = {};
 		this.activeZoom = null;
+		
+		//les informations de zoom
+		this.zoomInfo=new PrimaryZoomInfo(this);
 
 		// les zones de run
 		this.runs = {};
@@ -149,6 +197,10 @@ RunBox) {
 					server.setActions(def.actions);
 
 			}.bind(this));
+			
+			//gestion de la zone primaire
+			if(msg.primary)
+				this.zoomInfo.update(msg.primary);
 		}
 
 		/**
@@ -305,19 +357,19 @@ RunBox) {
 				if (this.activeZoom) {
 					var id = cocs.id();
 					if (this.activeZoom.id !== id) {
-
-						// TODO il faut savoir si le zoom actif est primaire ou
-						// si il this.activeZoom.isZoomed(cocs)
-
-						if (this.activeZoom.secondaryId !== id) {
-							// affichage en zone secondaire
-							this.activeZoom.setSecondary(cocs);
-							this.activeZoom.secondaryId = id;
-						} else {
-							this.activeZoom.setSecondary(null);
-							this.activeZoom.secondaryId = null;
+						// le zoom actuellement en place est primaire, ou il
+						// s'agit d'un carte en détail
+						if (this.zoomInfo.isPrimaryZoom(this.activeZoom) || this.activeZoom.isZoomed(cocs)) {
+							if (this.activeZoom.secondaryId !== id) {
+								// affichage en zone secondaire
+								this.activeZoom.setSecondary(cocs);
+								this.activeZoom.secondaryId = id;
+							} else {
+								this.activeZoom.setSecondary(null);
+								this.activeZoom.secondaryId = null;
+							}
+							return;
 						}
-						return;
 					}
 				}
 				this.useAsPrimary(cocs);
@@ -361,6 +413,10 @@ RunBox) {
 				zoom.setZIndex(config.zindex.zoom);
 				zoom.id = id;
 				zoom.setPrimary(primary);
+				
+				if(this.zoomInfo.isPrimaryZoom(zoom))
+					zoom.setHeaderText(this.zoomInfo.text);
+				
 				this.activeZoom = zoom;
 				this.zooms[id] = zoom;
 			}
@@ -395,6 +451,8 @@ RunBox) {
 					delete this.zooms[zoom.id];
 				}
 			}.bind(this));
+			
+			this.zoomInfo.afterLayoutPhase();
 		}
 
 		/**
