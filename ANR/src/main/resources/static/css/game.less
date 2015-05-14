@@ -436,8 +436,19 @@ div#conf {
 		position: static;
 	}
 
-	input {
-		width: 45px;
+	input[type=range] {
+		width: 70px;
+		display: inline;
+		vertical-align: middle;
+		&:before {
+			left: 0em;
+			content: attr(min);
+		}
+
+		&:after {
+			right: 0em;
+			content: attr(max);
+		}
 	}
 }
 
