@@ -188,6 +188,10 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 					this.element = $("<span class='tracecontainer'>Trace <input type='number' onclick='this.select();' min='0' max='" + action.max + "'/></span>");
 					this.number = this.element.find("input");
 					this.number.keydown(function(e) {
+						
+						if(e.keyCode===9)
+							return;
+						
 						if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
 							e.preventDefault();
 						}
