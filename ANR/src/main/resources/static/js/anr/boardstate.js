@@ -64,7 +64,8 @@ RunBox) {
 
 		this.focus = new FocusBox(layoutManager);
 
-		layoutManager.afterFirstMerge = this.afterLayoutPhase.bind(this);
+		layoutManager.afterFirstMerge = this.afterFirstMerge.bind(this);
+		layoutManager.afterSecondMerge = this.afterSecondMerge.bind(this);
 
 		// les zones de zoom
 		this.zooms = {};
@@ -436,11 +437,19 @@ RunBox) {
 			return exists;
 		}
 
+		
+		/**
+		 * Affichage possible de premier zoom
+		 */
+		this.afterFirstMerge = function() {			
+			this.zoomInfo.afterLayoutPhase();
+		}
+		
 		/**
 		 * Mise à jour de la position des zooms, et suppression des zooms à
 		 * nettoyer
 		 */
-		this.afterLayoutPhase = function() {
+		this.afterSecondMerge=function(){
 			_.each(_.values(this.zooms), function(zoom) {
 				var removeThis = zoom.afterLayoutPhase(this.bounds);
 				if (removeThis) {
@@ -451,8 +460,6 @@ RunBox) {
 					delete this.zooms[zoom.id];
 				}
 			}.bind(this));
-			
-			this.zoomInfo.afterLayoutPhase();
 		}
 
 		/**

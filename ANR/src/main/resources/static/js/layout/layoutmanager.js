@@ -80,6 +80,7 @@ define([ "mix", "underscore" ], function(mix, _) {
 			mergePhase(this.layoutCycle);
 			if (_.isFunction(this.afterSecondMerge))
 				this.afterSecondMerge();
+			mergePhase(this.layoutCycle);
 			
 			syncPhase(this.layoutCycle);
 
