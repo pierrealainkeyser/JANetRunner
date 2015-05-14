@@ -4,7 +4,6 @@ define([ "mix", "jquery", "underscore", "conf", "layout/package", "layout/impl/h
 function(mix, $, _, config, layout, HandLayout, Corp, Runner, CorpServer, FocusBox, Card,// 
 TurnTracker, ZoomContainerBox, CardContainerBox, Rectangle, ActionModel, //
 RunBox) {
-	
 
 	/**
 	 * Gestion de l'information de sélection
@@ -13,28 +12,27 @@ RunBox) {
 		this.id = null;
 		this.text = null;
 		this.boardstate = boardstate;
-		this.pop=false;
+		this.pop = false;
 	}
-	mix(PrimaryZoomInfo,function(){
-		this.isPrimaryZoom=function(zoom){
-			return zoom.id===this.id;
+	mix(PrimaryZoomInfo, function() {
+		this.isPrimaryZoom = function(zoom) {
+			return zoom.id === this.id;
 		}
-		
-		this.update=function(primary){
-			this.id=primary.id;
-			this.text=primary.text;
-			
-			//TODO a faire après le layout
-			var zoom=this.boardstate.activeZoom;
-			this.pop=true;
-			if(zoom){
-				if(this.isPrimaryZoom(zoom)){
+
+		this.update = function(primary) {
+			this.id = primary.id;
+			this.text = primary.text;
+
+			//  a faire après le layout
+			var zoom = this.boardstate.activeZoom;
+			this.pop = true;
+			if (zoom) {
+				if (this.isPrimaryZoom(zoom)) {
 					zoom.setHeaderText(text);
-					this.pop=false;
+					this.pop = false;
 				}
 			}
 		}
-		
 
 		this.afterLayoutPhase = function() {
 			if (this.pop) {
@@ -70,9 +68,9 @@ RunBox) {
 		// les zones de zoom
 		this.zooms = {};
 		this.activeZoom = null;
-		
-		//les informations de zoom
-		this.zoomInfo=new PrimaryZoomInfo(this);
+
+		// les informations de zoom
+		this.zoomInfo = new PrimaryZoomInfo(this);
 
 		// les zones de run
 		this.runs = {};
@@ -198,9 +196,9 @@ RunBox) {
 					server.setActions(def.actions);
 
 			}.bind(this));
-			
-			//gestion de la zone primaire
-			if(msg.primary)
+
+			// gestion de la zone primaire
+			if (msg.primary)
 				this.zoomInfo.update(msg.primary);
 		}
 
@@ -414,10 +412,10 @@ RunBox) {
 				zoom.setZIndex(config.zindex.zoom);
 				zoom.id = id;
 				zoom.setPrimary(primary);
-				
-				if(this.zoomInfo.isPrimaryZoom(zoom))
+
+				if (this.zoomInfo.isPrimaryZoom(zoom))
 					zoom.setHeaderText(this.zoomInfo.text);
-				
+
 				this.activeZoom = zoom;
 				this.zooms[id] = zoom;
 			}
@@ -437,19 +435,18 @@ RunBox) {
 			return exists;
 		}
 
-		
 		/**
 		 * Affichage possible de premier zoom
 		 */
-		this.afterFirstMerge = function() {			
+		this.afterFirstMerge = function() {
 			this.zoomInfo.afterLayoutPhase();
 		}
-		
+
 		/**
 		 * Mise à jour de la position des zooms, et suppression des zooms à
 		 * nettoyer
 		 */
-		this.afterSecondMerge=function(){
+		this.afterSecondMerge = function() {
 			_.each(_.values(this.zooms), function(zoom) {
 				var removeThis = zoom.afterLayoutPhase(this.bounds);
 				if (removeThis) {

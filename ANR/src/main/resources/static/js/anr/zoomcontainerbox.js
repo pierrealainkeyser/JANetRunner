@@ -177,18 +177,52 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				this.variableSelection = null;
 				this.disabled = false;
 
-				this.element.on('click', layoutManager.withinLayout(function() {
+				this.getButton().on('click', layoutManager.withinLayout(function() {
 					this.container.activateAction(this);
 				}.bind(this)));
+
+				if (ActionBox.TRACE_TYPE === this.actionType) {
+					var button = this.element;
+					var parent = button.parent();
+
+					this.element = $("<span class='tracecontainer'>Trace <input type='number' onclick='this.select();' min='0' max='" + action.max + "'/></span>");
+					this.number = this.element.find("input");
+					this.number.keydown(function(e) {
+						if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+							e.preventDefault();
+						}
+					});
+					button.appendTo(this.element);
+
+					this.element.appendTo(parent);
+					this.computeSize(this.element);
+
+					this.number.on('change', this.syncTraceCost.bind(this));
+					this.number.val(0);
+					this.syncTraceCost();
+				}
 			}
 
 			ActionBox.DEFAULT_TYPE = "default";
 			ActionBox.BREAK_TYPE = "break";
+			ActionBox.TRACE_TYPE = "trace";
 
 			mix(ActionBox, JQueryBoxSize);
 			mix(ActionBox, AnimateAppearanceCss);
 			mix(ActionBox, AnrTextMixin);
 			mix(ActionBox, function() {
+
+				this.syncTraceCost = function() {
+					var value = parseInt(this.number.val());
+					this.cost("{" + value + ":credit}");
+				}
+
+				/**
+				 * Renvoi le boutton
+				 */
+				this.getButton = function() {
+					return this.element;
+				}
 
 				/**
 				 * Renvoi le composant à focused si celui-ci devient invisible
@@ -202,7 +236,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				 */
 				this.activate = function() {
 					if (!this.disabled)
-						this.element.click();
+						this.getButton().click();
 				}
 
 				/**
@@ -246,9 +280,9 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 					if (changed) {
 						this.animateSwap(this.element, function() {
 							if (disabled)
-								this.element.addClass("disabled");
+								this.getButton().addClass("disabled");
 							else
-								this.element.removeClass("disabled")
+								this.getButton().removeClass("disabled")
 						}.bind(this));
 					}
 				}
@@ -512,7 +546,6 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			mix(ZoomContainerBox, AbstractBoxContainer);
 			mix(ZoomContainerBox, AnimateAppearanceCss);
 			mix(ZoomContainerBox, function() {
-				
 
 				/**
 				 * Mise en place du texte d'entete de la boite
