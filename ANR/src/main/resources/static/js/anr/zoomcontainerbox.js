@@ -177,25 +177,33 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				this.variableSelection = null;
 				this.disabled = false;
 
-				this.getButton().on('click', layoutManager.withinLayout(function() {
-					this.container.activateAction(this);
-				}.bind(this)));
 
 				if (ActionBox.TRACE_TYPE === this.actionType) {
 					var button = this.element;
 					var parent = button.parent();
 
 					this.element = $("<span class='tracecontainer'>Trace <input type='range' min='0' max='" + action.max + "'/></span>");
-					this.number = this.element.find("input");					
+					this.traceInput = this.element.find("input");
+					this.button=button;
 					button.appendTo(this.element);
 
 					this.element.appendTo(parent);
 					this.computeSize(this.element);
 
-					this.number.on('change', this.syncTraceCost.bind(this));
-					this.number.val(0);
+					this.traceInput.on('change', this.syncTraceCost.bind(this));
+					this.traceInput.val(0);
+					
+					this.traceInput.focus(function() {
+						$(this).blur();
+					})
+					
 					this.syncTraceCost();
 				}
+				
+
+				this.getButton().on('click', layoutManager.withinLayout(function() {
+					this.container.activateAction(this);
+				}.bind(this)));
 			}
 
 			ActionBox.DEFAULT_TYPE = "default";
@@ -208,7 +216,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			mix(ActionBox, function() {
 
 				this.syncTraceCost = function() {
-					var value = parseInt(this.number.val());
+					var value = parseInt(this.traceInput.val());
 					this.cost("{" + value + ":credit}");
 				}
 
@@ -216,6 +224,9 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				 * Renvoi le boutton
 				 */
 				this.getButton = function() {
+					if (ActionBox.TRACE_TYPE === this.actionType)
+						return this.button;
+					
 					return this.element;
 				}
 
