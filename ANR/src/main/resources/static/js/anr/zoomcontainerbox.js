@@ -437,8 +437,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 						this.subs.setSubModel(obj.subModel);
 						this.cardsContainer.cardsModel.setBoundedModel(obj.cardsModel);
 						if (obj.order) {
-							this.cardsOrderContainer.cardsModel.addAll(obj.order.cards);
-							this._parent.setHeaderText(obj.order.text);
+							this.cardsOrderContainer.cardsModel.addAll(obj.order);
 						}
 
 					} else {

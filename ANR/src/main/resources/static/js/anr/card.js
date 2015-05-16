@@ -72,7 +72,7 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 		 */
 		this.setCardsOrder = function(order) {
 			if (order) {
-				this.order = { cards : order.cards, text : order.event };
+				this.order = order;
 			} else
 				this.order = null;
 		}

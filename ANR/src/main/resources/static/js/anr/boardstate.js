@@ -188,8 +188,7 @@ RunBox) {
 					card.setAccessible(def.accessible);
 
 				if (def.ordering) {
-					var ordering = def.ordering;
-					ordering.cards = _.map(ordering.cards, function(c) {
+					var ordering = _.map(def.ordering, function(c) {
 						return this.card({ id : c });
 					}.bind(this));					
 					card.setCardsOrder(ordering);					
