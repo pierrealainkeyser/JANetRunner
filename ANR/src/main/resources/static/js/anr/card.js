@@ -154,7 +154,7 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 			var size = config.card.normal;
 			var cardsize = hints.cardsize;
 			if (this.selected && hints.inSelectionCtx)
-				size = config.card.zoom;
+				size = config.card.selected;
 			else if ("mini" === cardsize)
 				size = config.card.mini;
 			else if ("zoom" === cardsize)

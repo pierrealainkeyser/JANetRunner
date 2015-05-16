@@ -5,13 +5,14 @@ define([ "mix", "jquery", "layout/abstractboxcontainer", "layout/impl/flowLayout
 		AbstractBoxContainer.call(this, layoutManager, { addZIndex : true }, new FlowLayout({}));
 		AnimateAppearanceCss.call(this, "lightSpeedIn", "lightSpeedOut");
 
-		this.header = new JQueryBoxSize(layoutManager, $("<span class='header'>" + text + "</span>"));
+		this.header = new JQueryBoxSize(layoutManager, $("<span class='header'></span>"));
 		this.childContainer = childContainer;
 		this.childContainer.observe(this.updateVisibility.bind(this), [ AbstractBoxContainer.CHILD_ADDED, AbstractBoxContainer.CHILD_REMOVED ]);
 
 		this.addChild(this.header);
 		this.addChild(childContainer);
 		this.removeHeaderIfNeeded();
+		this.setHeaderText(text);
 	}
 
 	mix(HeaderContainerBox, AbstractBoxContainer);
@@ -22,7 +23,7 @@ define([ "mix", "jquery", "layout/abstractboxcontainer", "layout/impl/flowLayout
 		 * Changement du header
 		 */
 		this.setHeaderText = function(text) {
-			this.header.element.text(text);
+			this.header.element.html(text);
 			this.header.computeSize(this.header.element);
 		}
 

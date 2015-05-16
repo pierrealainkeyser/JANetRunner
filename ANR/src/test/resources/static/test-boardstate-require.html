@@ -68,7 +68,7 @@
 				board.consumeMsg({//
 				runs : [ { id : 0, server : -1 } ], //
 				primary : { id : 60, text : "Begining of turn" },//
-				cards : [ { id : 60, ordering : [ 2, 3 ]  , actions : [ { id : 10, text : "Done" } ] } ],//
+				cards : [ { id : 60, ordering : [ 2, 3 ], actions : [ { id : 10, type : 'ordering', text : "Done" } ] } ],//
 				});
 
 				setTimeout(layoutManager.withinLayout(function() {

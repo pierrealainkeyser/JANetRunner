@@ -1,9 +1,9 @@
 define([ "mix", "jquery", "underscore", "conf", "layout/package", "layout/impl/handlayout", "anr/corp", "anr/runner", "anr/corpserver", "anr/focus",
 		"anr/card", "anr/turntracker", "anr/zoomcontainerbox", "anr/cardcontainerbox", "geometry/rectangle", "anr/actionmodel",//
-		"anr/runbox" ],//
+		"anr/runbox", "geometry/point" ],//
 function(mix, $, _, config, layout, HandLayout, Corp, Runner, CorpServer, FocusBox, Card,// 
 TurnTracker, ZoomContainerBox, CardContainerBox, Rectangle, ActionModel, //
-RunBox) {
+RunBox, Point) {
 
 	/**
 	 * Gestion de l'information de sélection
@@ -93,6 +93,10 @@ RunBox) {
 	}
 
 	mix(BoardState, function() {
+
+		var inSelectionCtx = function(box) {
+			return box.renderingHints().inSelectionCtx;
+		}
 
 		/**
 		 * Activation d'une action
@@ -190,8 +194,8 @@ RunBox) {
 				if (def.ordering) {
 					var ordering = _.map(def.ordering, function(c) {
 						return this.card({ id : c });
-					}.bind(this));					
-					card.setCardsOrder(ordering);					
+					}.bind(this));
+					card.setCardsOrder(ordering);
 				} else
 					card.setCardsOrder(null);
 
@@ -303,6 +307,42 @@ RunBox) {
 			}
 
 			return server;
+		}
+
+		/**
+		 * Prise en compte de la commande
+		 */
+		this.selectFocused = function(newfocused, oldfocused, plane) {
+			if (inSelectionCtx(oldfocused)) {
+				if (oldfocused.selected) {
+					var parent = oldfocused.container;
+					if (Point.PLANE_LEFT === plane) {
+						var index = parent.indexOf(oldfocused);
+						if (index > 0) {
+							parent.swapChild(index, index - 1);
+						}
+						return;
+					} else if (Point.PLANE_RIGHT === plane) {
+						var index = parent.indexOf(oldfocused);
+						if (index < parent.size() - 1) {
+							parent.swapChild(index, index + 1);
+						}
+						return;
+					}
+				}
+			} else if (oldfocused instanceof ZoomContainerBox.ActionBox) {
+				if (oldfocused.isTraceAction()) {
+					if (Point.PLANE_LEFT === plane) {
+						oldfocused.changeTraceValue(-1);
+						return;
+					} else if (Point.PLANE_RIGHT === plane) {
+						oldfocused.changeTraceValue(1);
+						return;
+					}
+				}
+			}
+
+			this.changeFocus(newfocused);
 		}
 
 		/**
@@ -556,18 +596,24 @@ RunBox) {
 			});
 		}
 
+		var handleOrderSelection = function(card) {
+			// activation de la carte
+			card.setSelected(!card.selected);
+
+			card.container.eachChild(function(c) {
+				if (c !== card)
+					c.setSelected(false);
+			});
+		}
+
 		/**
 		 * Gestion de l'activation d'un composant
 		 */
 		this.activate = function(box) {
 			if (box instanceof Card) {
-				if(box.renderingHints().inSelectionCtx){
-					
-					//activation de la carte
-					box.setSelected(!box.selected);
-					
-				}
-				else				
+				if (inSelectionCtx(box)) {
+					handleOrderSelection(box);
+				} else
 					this.displayElement(box);
 			} else if (box instanceof ZoomContainerBox.SubBox) {
 				box.activate();

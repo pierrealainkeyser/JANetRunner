@@ -114,9 +114,32 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 		 * Remplace un element parent un autre
 		 */
 		this.replaceChild = function(remove, add) {
-			var index = _.indexOf(this.childs, remove);
+			var index = this.indexOf(remove);
 			this.addChild(add, index, true);
 			this.removeChild(remove, true);
+		}
+
+		/**
+		 * Inverse 2 enfants en se basant sur l'index
+		 */
+		this.swapChild = function(index1, index2) {
+			var i1 = this.childs[index1];
+			var i2 = this.childs[index2];
+			this.childs[index1] = i2;
+			this.childs[index2] = i1;
+
+			this.needLayout();
+			i1.needMergeToScreen();
+			i2.needMergeToScreen();
+
+		}
+
+		/**
+		 * Renvoi l'index du composant
+		 */
+		this.indexOf = function(box) {
+			var index = _.indexOf(this.childs, box);
+			return index;
 		}
 
 		var unbindChild = function(box) {

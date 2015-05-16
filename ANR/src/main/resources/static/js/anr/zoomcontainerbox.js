@@ -207,12 +207,34 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			ActionBox.DEFAULT_TYPE = "default";
 			ActionBox.BREAK_TYPE = "break";
 			ActionBox.TRACE_TYPE = "trace";
+			ActionBox.ORDERING_TYPE = "ordering";
 
 			mix(ActionBox, JQueryBoxSize);
 			mix(ActionBox, AnimateAppearanceCss);
 			mix(ActionBox, AnrTextMixin);
 			mix(ActionBox, function() {
 
+				/**
+				 * Renvoi vrai si l'action est une action de trace
+				 */
+				this.isTraceAction = function() {
+					return ActionBox.TRACE_TYPE === this.actionType;
+				}
+
+				/**
+				 * Change la valeur du curseur
+				 */
+				this.changeTraceValue = function(inc) {
+					var value = parseInt(this.traceInput.val()) + inc;
+					if (value >= 0 && value <= this.action.max) {
+						this.traceInput.val(value);
+						this.syncTraceCost();
+					}
+				}
+
+				/**
+				 * Synchronisation du cout de la trace
+				 */
 				this.syncTraceCost = function() {
 					var value = parseInt(this.traceInput.val());
 					this.cost("{" + value + ":credit}");
@@ -222,7 +244,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				 * Renvoi le boutton
 				 */
 				this.getButton = function() {
-					if (ActionBox.TRACE_TYPE === this.actionType)
+					if (this.isTraceAction())
 						return this.button;
 
 					return this.element;
@@ -400,7 +422,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 
 				this.cardsOrderContainer = new CardsContainerBox(layoutManager, { inSelectionCtx : true, addZIndex : true, IsZoomed : true }, new GridLayout({
 					maxCols : 6, spacing : 5 }), true);
-				this.cardsOrderHeader = new HeaderContainerBox(layoutManager, this.cardsOrderContainer, "Order cards");
+				this.cardsOrderHeader = new HeaderContainerBox(layoutManager, this.cardsOrderContainer, "Ordering <small>(left is first)</small>");
 
 				parent.updateCssTweening(this.cardsOrderHeader.header);
 				this.cardsOrderHeader.header.element.appendTo(element);
@@ -437,6 +459,9 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 						this.subs.setSubModel(obj.subModel);
 						this.cardsContainer.cardsModel.setBoundedModel(obj.cardsModel);
 						if (obj.order) {
+							_.each(obj.order, function(card) {
+								card.setSelected(false);
+							});
 							this.cardsOrderContainer.cardsModel.addAll(obj.order);
 						}
 
