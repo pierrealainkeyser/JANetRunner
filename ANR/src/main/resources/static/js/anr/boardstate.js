@@ -23,7 +23,7 @@ RunBox) {
 			this.id = primary.id;
 			this.text = primary.text;
 
-			//  a faire après le layout
+			// a faire après le layout
 			var zoom = this.boardstate.activeZoom;
 			this.pop = true;
 			if (zoom) {
@@ -54,7 +54,7 @@ RunBox) {
 		this.turnTracker = new TurnTracker(layoutManager);
 		this.turnTracker.local.moveTo({ x : 0, y : 0 });
 
-		var showElement = this.displayElement.bind(this);
+		var showElement = this.activate.bind(this);
 
 		this.corp = new Corp(layoutManager, showElement);
 		this.runner = new Runner(layoutManager, showElement);
@@ -187,6 +187,15 @@ RunBox) {
 				if (def.accessible)
 					card.setAccessible(def.accessible);
 
+				if (def.ordering) {
+					var ordering = def.ordering;
+					ordering.cards = _.map(ordering.cards, function(c) {
+						return this.card({ id : c });
+					}.bind(this));					
+					card.setCardsOrder(ordering);					
+				} else
+					card.setCardsOrder(null);
+
 			}.bind(this));
 
 			_.each(msg.servers, function(def) {
@@ -271,7 +280,7 @@ RunBox) {
 			var id = def.id;
 			var card = this.cards[id];
 			if (!card) {
-				card = new Card(this.layoutManager, def, this.displayElement.bind(this));
+				card = new Card(this.layoutManager, def, this.activate.bind(this));
 
 				// on traque la premiere id à la création
 				if ("id" === def.type && this.local === def.faction) {
@@ -553,7 +562,14 @@ RunBox) {
 		 */
 		this.activate = function(box) {
 			if (box instanceof Card) {
-				this.displayElement(box);
+				if(box.renderingHints().inSelectionCtx){
+					
+					//activation de la carte
+					box.setSelected(!box.selected);
+					
+				}
+				else				
+					this.displayElement(box);
 			} else if (box instanceof ZoomContainerBox.SubBox) {
 				box.activate();
 			} else if (box instanceof ZoomContainerBox.ActionBox) {

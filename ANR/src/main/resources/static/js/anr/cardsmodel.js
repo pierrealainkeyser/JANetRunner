@@ -60,6 +60,13 @@ define([ "mix", "underscore", "util/observablemixin" ], function(mix, _, Observa
 		}
 
 		/**
+		 * Rajoute toutes les cartes dans le model
+		 */
+		this.addAll = function(cards) {
+			_.each(cards, this.add.bind(this));
+		}
+
+		/**
 		 * Permet de rajouter une carte
 		 */
 		this.add = function(card) {

@@ -34,13 +34,19 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 		// "cards" d'une cardcontainerbox
 		this.accessible = false;
 
+		// les cartes à ordonnées
+		this.order = null;
+
+		// indiquer la sélection
+		this.selected = false;
+
 		// en cas de changement de parent redétermine la taille
-		this.observe(this.computeFromRenderingHints.bind(this), [ AbstractBox.CONTAINER ]);
+		this.observe(this.computeFromRenderingHints.bind(this), [ AbstractBox.CONTAINER, Card.SELECTED ]);
 
 		// pour changer l'apparence de la bordule
 		var syncScreen = this.needSyncScreen.bind(this);
 		this.actionModel.observe(syncScreen, [ ActionModel.ADDED, ActionModel.REMOVED ]);
-		this.observe(syncScreen, [ Card.FACE, Card.ZOOMABLE]);
+		this.observe(syncScreen, [ Card.FACE, Card.ZOOMABLE ]);
 
 		// l'écouteur de sélection
 		this.actionListener = actionListener;
@@ -55,10 +61,21 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 	Card.ACCESSIBLE = "accessible";
 	Card.ZOOMABLE = "zoomable";
 	Card.FACE = "face";
+	Card.SELECTED = "selected";
 
 	mix(Card, AbstractBoxLeaf);
 	mix(Card, TweenLiteSyncScreenMixin);
 	mix(Card, function() {
+
+		/**
+		 * Place les cartes à ordonner
+		 */
+		this.setCardsOrder = function(order) {
+			if (order) {
+				this.order = { cards : order.cards, text : order.event };
+			} else
+				this.order = null;
+		}
 
 		/**
 		 * Activation d'une carte
@@ -136,7 +153,9 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 			// en fonction du mode on calcul la taille
 			var size = config.card.normal;
 			var cardsize = hints.cardsize;
-			if ("mini" === cardsize)
+			if (this.selected && hints.inSelectionCtx)
+				size = config.card.zoom;
+			else if ("mini" === cardsize)
 				size = config.card.mini;
 			else if ("zoom" === cardsize)
 				size = config.card.zoom;
@@ -205,7 +224,7 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 			var hints = this.renderingHints();
 			var cardsize = hints.cardsize;
 			var maxed = cardsize === "zoom";
-			var zoomed = maxed || cardsize === "mini";
+			var zoomed = maxed || cardsize === "mini" || (this.selected && hints.inSelectionCtx);
 			var shadow = "";
 			var faceup = (zoomed ? this.zoomable : this.face) === Card.FACE_UP;
 			var horizontal = this.rotation == 90;
@@ -239,8 +258,8 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 				tokenCss.autoAlpha = 0;
 
 			// todo en fonction du container
-			if (hints.invisibleWhenNotLast === true){
-				if(this.container && this.container.size() < this.rank-1)
+			if (hints.invisibleWhenNotLast === true) {
+				if (this.container && this.container.size() < this.rank - 1)
 					css.autoAlpha = 0;
 			}
 
@@ -272,6 +291,13 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 		 */
 		this.setAccessible = function(accessible) {
 			this._innerSet(Card.ACCESSIBLE, accessible);
+		}
+
+		/**
+		 * Activation de la sélection ou non
+		 */
+		this.setSelected = function(selected) {
+			this._innerSet(Card.SELECTED, selected);
 		}
 	});
 

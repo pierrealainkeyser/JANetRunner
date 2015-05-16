@@ -19,6 +19,14 @@ define([ "mix", "jquery", "layout/abstractboxcontainer", "layout/impl/flowLayout
 	mix(HeaderContainerBox, function() {
 
 		/**
+		 * Changement du header
+		 */
+		this.setHeaderText = function(text) {
+			this.header.element.text(text);
+			this.header.computeSize(this.header.element);
+		}
+
+		/**
 		 * Supprime le header si pas disponible
 		 */
 		this.removeHeaderIfNeeded = function() {

@@ -177,14 +177,13 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				this.variableSelection = null;
 				this.disabled = false;
 
-
 				if (ActionBox.TRACE_TYPE === this.actionType) {
 					var button = this.element;
 					var parent = button.parent();
 
 					this.element = $("<span class='tracecontainer'>Trace <input type='range' min='0' max='" + action.max + "'/></span>");
 					this.traceInput = this.element.find("input");
-					this.button=button;
+					this.button = button;
 					button.appendTo(this.element);
 
 					this.element.appendTo(parent);
@@ -192,14 +191,13 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 
 					this.traceInput.on('change', this.syncTraceCost.bind(this));
 					this.traceInput.val(0);
-					
+
 					this.traceInput.focus(function() {
 						$(this).blur();
 					})
-					
+
 					this.syncTraceCost();
 				}
-				
 
 				this.getButton().on('click', layoutManager.withinLayout(function() {
 					this.container.activateAction(this);
@@ -226,7 +224,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				this.getButton = function() {
 					if (ActionBox.TRACE_TYPE === this.actionType)
 						return this.button;
-					
+
 					return this.element;
 				}
 
@@ -400,9 +398,18 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				this.cardsHeader.header.element.appendTo(element);
 				this.cardsContainer.setCardsModel(new CardsModel());
 
+				this.cardsOrderContainer = new CardsContainerBox(layoutManager, { inSelectionCtx : true, addZIndex : true, IsZoomed : true }, new GridLayout({
+					maxCols : 6, spacing : 5 }), true);
+				this.cardsOrderHeader = new HeaderContainerBox(layoutManager, this.cardsOrderContainer, "Order cards");
+
+				parent.updateCssTweening(this.cardsOrderHeader.header);
+				this.cardsOrderHeader.header.element.appendTo(element);
+				this.cardsOrderContainer.setCardsModel(new CardsModel());
+
 				this.addChild(this.subsHeader);
 				this.addChild(this.tokensHeader);
 				this.addChild(this.cardsHeader);
+				this.addChild(this.cardsOrderHeader);
 			}
 			mix(ZoomedDetail, AbstractBoxContainer);
 			mix(ZoomedDetail, function() {
@@ -429,10 +436,16 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 						this.tokens.setTokenModel(obj.tokenModel);
 						this.subs.setSubModel(obj.subModel);
 						this.cardsContainer.cardsModel.setBoundedModel(obj.cardsModel);
+						if (obj.order) {
+							this.cardsOrderContainer.cardsModel.addAll(obj.order.cards);
+							this._parent.setHeaderText(obj.order.text);
+						}
+
 					} else {
 						this.tokens.setTokenModel(null);
 						this.subs.setSubModel(null);
 						this.cardsContainer.cardsModel.setBoundedModel(null);
+						this.cardsOrderContainer.cardsModel.removeAll();
 					}
 				};
 			})
