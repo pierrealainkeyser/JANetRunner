@@ -53,7 +53,10 @@
 								tokens : { power : 1 },//
 								actions : [
 										{ type : 'break', costs : [ { enabled : false }, { cost : "{3:credit}", enabled : true } ], text : "Break selected" },
-										{ type : 'trace', base : 0, max : 5, text : "Bid" } ],//
+										{ type : 'selection' },//
+										{ type : 'trace', base : 0, max : 5, text : "Bid" } //
+
+								],//
 								subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on |Data Raven|" } ] //
 							},//
 							{ id : 2, url : "01089.png", faction : "corp", location : { primary : "hand", index : 0 } },//

@@ -45,11 +45,11 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 						this._checkbox.click();
 					}
 				}
-				
+
 				/**
 				 * Renvoi l'ID de la sub
 				 */
-				this.subId=function(){
+				this.subId = function() {
 					return this.sub.id;
 				}
 
@@ -169,7 +169,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			 */
 			function ActionBox(layoutManager, action) {
 				JQueryBoxSize.call(this, layoutManager, $("<a class='action btn btn-default'><span class='cost'/><span class='text'>"
-						+ this.interpolateString(action.text) + "</span></div>"));
+						+ this.interpolateString(action.text || "") + "</span></div>"));
 				AnimateAppearanceCss.call(this, "lightSpeedIn", "lightSpeedOut");
 				this._cost = this.element.find(".cost");
 				this.action = action;
@@ -184,7 +184,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				this.variableSelection = null;
 				this.disabled = false;
 
-				if (ActionBox.TRACE_TYPE === this.actionType) {
+				if (this.isTraceAction()) {
 					var button = this.element;
 					var parent = button.parent();
 
@@ -206,8 +206,29 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 					this.syncTraceCost();
 				}
 
+				if (this.isSelectionAction()) {
+					var old = this.element;
+					var parent = old.parent();
+
+					this.element = $("<label class='action'><input type='checkbox' tabIndex='-1'/>Select</label>");
+					this.checkedInput = this.element.find("input");
+					old.remove();
+
+					this.element.appendTo(parent);
+					this.computeSize(this.element);
+					this.checkedInput.prop("checked", this.action.selected || false);
+
+					this.element.focus(function() {
+						$(this).blur();
+					})
+				}
+
 				this.getButton().on('click', layoutManager.withinLayout(function() {
-					this.container.activateAction(this);
+					if (this.isSelectionAction()) {
+						this.action.selected = this.checkedInput.is(':checked');
+					} else
+						this.container.activateAction(this);
+
 				}.bind(this)));
 			}
 
@@ -215,13 +236,14 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			ActionBox.BREAK_TYPE = "break";
 			ActionBox.TRACE_TYPE = "trace";
 			ActionBox.ORDERING_TYPE = "ordering";
+			ActionBox.SELECTION_TYPE = "selection";
 
 			mix(ActionBox, JQueryBoxSize);
 			mix(ActionBox, AnimateAppearanceCss);
 			mix(ActionBox, AnrTextMixin);
 			mix(ActionBox, function() {
-				
-				this.traceStrength = function() {
+
+				var traceStrength = function() {
 					return parseInt(this.traceInput.val());
 				}
 
@@ -229,17 +251,22 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				 * Encodage de la réponse
 				 */
 				this.encodeResponse = function() {
-					var response = {
-						rid : this.action.id
-					};
-					if (this.isTraceAction()) 
-						response.object={trace:this.traceStrength()};
-					else if(ActionBox.BREAK_TYPE === this.actionType)
-						response.object={subs:this.container.getSelectedSubs()};
-					else if(ActionBox.ORDERING_TYPE === this.actionType)
-						response.object={order:this.container.getSelectedOrder()};
-					
+					var response = { rid : this.action.id };
+					if (this.isTraceAction())
+						response.object = { trace : traceStrength.call(this) };
+					else if (ActionBox.BREAK_TYPE === this.actionType)
+						response.object = { subs : this.container.getSelectedSubs() };
+					else if (ActionBox.ORDERING_TYPE === this.actionType)
+						response.object = { order : this.container.getSelectedOrder() };
+
 					return response;
+				}
+
+				/**
+				 * Renvoi vrai si l'action est une action de selection
+				 */
+				this.isSelectionAction = function() {
+					return ActionBox.SELECTION_TYPE === this.actionType;
 				}
 
 				/**
@@ -253,7 +280,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				 * Change la valeur du curseur
 				 */
 				this.changeTraceValue = function(inc) {
-					var value = this.traceStrength() + inc;
+					var value = traceStrength.call(this) + inc;
 					if (value >= 0 && value <= this.action.max) {
 						this.traceInput.val(value);
 						this.syncTraceCost();
@@ -264,7 +291,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				 * Synchronisation du cout de la trace
 				 */
 				this.syncTraceCost = function() {
-					var value =this.traceStrength();
+					var value = traceStrength.call(this);
 					this.cost("{" + value + ":credit}");
 				}
 
@@ -289,8 +316,14 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				 * Gestion de l'activation programmatique
 				 */
 				this.activate = function() {
-					if (!this.disabled)
-						this.getButton().click();
+					if (!this.disabled) {
+						var button = this.getButton();
+						button.click();
+
+						if (this.isSelectionAction())
+							this.action.selected = this.checkedInput.is(':checked');
+
+					}
 				}
 
 				/**
@@ -357,15 +390,15 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 
 			mix(ActionsBoxContainer, AbstractBoxContainer);
 			mix(ActionsBoxContainer, function() {
-				
-				this.getSelectedSubs=function(){
+
+				this.getSelectedSubs = function() {
 					return this.zoomContainer.getSelectedSubs();
 				}
-				
-				this.getSelectedOrder=function(){
+
+				this.getSelectedOrder = function() {
 					return this.zoomContainer.getSelectedOrder();
 				}
-				
+
 				/**
 				 * Activation d'une action
 				 */
@@ -471,8 +504,6 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			}
 			mix(ZoomedDetail, AbstractBoxContainer);
 			mix(ZoomedDetail, function() {
-				
-				
 
 				/**
 				 * Parcours toutes les sous routines
@@ -635,26 +666,26 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 					this.header.element.text(text || "");
 					this.header.computeSize(this.header.element);
 				}
-				
+
 				/**
 				 * Renvoi la liste des subs selectionnees
 				 */
-				this.getSelectedSubs=function(){
-					var subs=[];
-					this.zoomedDetail.eachSubs(function (sub){
-						if(sub.isChecked())
+				this.getSelectedSubs = function() {
+					var subs = [];
+					this.zoomedDetail.eachSubs(function(sub) {
+						if (sub.isChecked())
 							subs.push(sub.subId());
 					});
-					
-					return subs ;
+
+					return subs;
 				}
-				
+
 				/**
 				 * Renvoi l'ordre de elements
 				 */
-				this.getSelectedOrder=function(){
-					var order=[];
-					this.zoomedDetail.cardsOrderContainer.eachChild(function(c){
+				this.getSelectedOrder = function() {
+					var order = [];
+					this.zoomedDetail.cardsOrderContainer.eachChild(function(c) {
 						order.push(c.id());
 					})
 					return order;
