@@ -221,7 +221,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			mix(ActionBox, AnrTextMixin);
 			mix(ActionBox, function() {
 				
-				var traceStrength = function() {
+				this.traceStrength = function() {
 					return parseInt(this.traceInput.val());
 				}
 
@@ -233,7 +233,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 						rid : this.action.id
 					};
 					if (this.isTraceAction()) 
-						response.object={trace:traceStrength()};
+						response.object={trace:this.traceStrength()};
 					else if(ActionBox.BREAK_TYPE === this.actionType)
 						response.object={subs:this.container.getSelectedSubs()};
 					else if(ActionBox.ORDERING_TYPE === this.actionType)
@@ -253,7 +253,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				 * Change la valeur du curseur
 				 */
 				this.changeTraceValue = function(inc) {
-					var value = traceStrength() + inc;
+					var value = this.traceStrength() + inc;
 					if (value >= 0 && value <= this.action.max) {
 						this.traceInput.val(value);
 						this.syncTraceCost();
@@ -264,7 +264,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				 * Synchronisation du cout de la trace
 				 */
 				this.syncTraceCost = function() {
-					var value =traceStrength();
+					var value =this.traceStrength();
 					this.cost("{" + value + ":credit}");
 				}
 
