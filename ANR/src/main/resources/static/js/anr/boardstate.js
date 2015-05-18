@@ -107,7 +107,7 @@ RunBox, Point) {
 		 * Activation d'une action
 		 */
 		this.activateAction = function(actionbox) {
-			var encoded = actionBox.encodeResponse();
+			var encoded = actionbox.encodeResponse();
 
 			console.log("activateAction", actionbox);
 			console.debug("encoded", encoded);
@@ -122,8 +122,8 @@ RunBox, Point) {
 					cos.setActions();
 				});
 
-				if (outputFunction)
-					outputFunction(encoded);
+				if (this.outputFunction)
+					this.outputFunction(encoded);
 			}
 		}
 

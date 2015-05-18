@@ -357,7 +357,15 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 
 			mix(ActionsBoxContainer, AbstractBoxContainer);
 			mix(ActionsBoxContainer, function() {
-
+				
+				this.getSelectedSubs=function(){
+					return this.zoomContainer.getSelectedSubs();
+				}
+				
+				this.getSelectedOrder=function(){
+					return this.zoomContainer.getSelectedOrder();
+				}
+				
 				/**
 				 * Activation d'une action
 				 */
