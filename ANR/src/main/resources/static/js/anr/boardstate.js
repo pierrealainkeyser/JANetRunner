@@ -48,7 +48,7 @@ RunBox, Point) {
 		}
 	});
 
-	function BoardState(layoutManager) {
+	function BoardState(layoutManager, outputFunction) {
 		this.layoutManager = layoutManager;
 
 		this.turnTracker = new TurnTracker(layoutManager);
@@ -89,6 +89,11 @@ RunBox, Point) {
 		// mise à jour des positions
 		$(window).resize(layoutManager.withinLayout(this.updateLocalPositions.bind(this)));
 		this.updateLocalPositions();
+		
+		//la fonction de sortie des actions
+		this.outputFunction=outputFunction;
+		//permet de gérer le controle de doublon d'action
+		this.lastAction=-1;
 
 	}
 
@@ -102,12 +107,24 @@ RunBox, Point) {
 		 * Activation d'une action
 		 */
 		this.activateAction = function(actionbox) {
+			var encoded = actionBox.encodeResponse();
+
 			console.log("activateAction", actionbox);
-			var alls = _.values(this.servers).concat(_.values(this.cards));
-			_.each(alls, function(cos) {
-				// suppression des toutes les actions
-				cos.setActions();
-			});
+			console.debug("encoded", encoded);
+
+			var id = encoded.rid;
+			//on vérifie que nous n'avons pas déjà envoyer l'action
+			if (this.lastAction < id) {
+				this.lastAction =id;
+				var alls = _.values(this.servers).concat(_.values(this.cards));
+				_.each(alls, function(cos) {
+					// suppression des toutes les actions
+					cos.setActions();
+				});
+
+				if (outputFunction)
+					outputFunction(encoded);
+			}
 		}
 
 		/**

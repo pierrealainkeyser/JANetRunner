@@ -45,6 +45,13 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 						this._checkbox.click();
 					}
 				}
+				
+				/**
+				 * Renvoi l'ID de la sub
+				 */
+				this.subId=function(){
+					return this.sub.id;
+				}
 
 				/**
 				 * Indique que la routine est selectionnée
@@ -226,13 +233,12 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 						rid : this.action.id
 					};
 					if (this.isTraceAction()) 
-						response.trace=traceStrength();
-					else if(ActionBox.BREAK_TYPE === this.actionType){
-						//TODO sélection des sous routines sélectionné
-					}
-					else if(ActionBox.ORDERING_TYPE === this.actionType){
-						//TODO sélection de l'ordre
-					}
+						response.object={trace:traceStrength()};
+					else if(ActionBox.BREAK_TYPE === this.actionType)
+						response.object={subs:this.container.getSelectedSubs()};
+					else if(ActionBox.ORDERING_TYPE === this.actionType)
+						response.object={order:this.container.getSelectedOrder()};
+					
 					return response;
 				}
 
@@ -457,6 +463,8 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			}
 			mix(ZoomedDetail, AbstractBoxContainer);
 			mix(ZoomedDetail, function() {
+				
+				
 
 				/**
 				 * Parcours toutes les sous routines
@@ -618,6 +626,30 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				this.setHeaderText = function(text) {
 					this.header.element.text(text || "");
 					this.header.computeSize(this.header.element);
+				}
+				
+				/**
+				 * Renvoi la liste des subs selectionnees
+				 */
+				this.getSelectedSubs=function(){
+					var subs=[];
+					this.zoomedDetail.eachSubs(function (sub){
+						if(sub.isChecked())
+							subs.push(sub.subId());
+					});
+					
+					return subs ;
+				}
+				
+				/**
+				 * Renvoi l'ordre de elements
+				 */
+				this.getSelectedOrder=function(){
+					var order=[];
+					this.zoomedDetail.cardsOrderContainer.eachChild(function(c){
+						order.push(c.id());
+					})
+					return order;
 				}
 
 				/**
