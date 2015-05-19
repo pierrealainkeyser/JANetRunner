@@ -188,6 +188,13 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 		this.size = function() {
 			return this.childs.length;
 		}
+		
+		/**
+		 * Renvoi vrai si le noeud est contenu dans la liste des enfants
+		 */
+		this.containsChild=function(child){
+			return _.contains(this.childs,child);
+		}
 
 		/**
 		 * Parcours tous les enfants

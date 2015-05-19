@@ -10,7 +10,9 @@ function(Size, AnchorLayout, FlowLayout, TranslateLayout, GridLayout) {
 		mini : new Size(w / 3, h / 3),//
 		zoom : new Size(w * 2, h * 2),//
 		selected : new Size(w * 1.75, h * 1.75),//		
-		layouts : { tokens : new GridLayout({ maxCols : 3, padding : 2 }) } // 
+		layouts : { tokens : new GridLayout({ maxCols : 3, padding : 2 }),//
+			wrapper:new FlowLayout({})//
+		} // 
 		};
 
 		// la duree d'animation

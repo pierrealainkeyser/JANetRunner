@@ -1,6 +1,6 @@
-define([ "mix", "underscore", "jquery", "layout/abstractbox", "layout/abstractboxleaf", "ui/tweenlitesyncscreenmixin", "ui/animateappearancecss", //
+define([ "mix", "underscore", "jquery", "layout/abstractbox", "layout/abstractboxleaf","layout/abstractboxcontainer", "ui/tweenlitesyncscreenmixin", "ui/animateappearancecss", //
 "./tokenmodel", "anr/actionmodel", "./submodel", "./tokencontainerbox", "conf" ],// 
-function(mix, _, $, AbstractBox, AbstractBoxLeaf, TweenLiteSyncScreenMixin, AnimateAppearanceCss, //
+function(mix, _, $, AbstractBox, AbstractBoxLeaf, AbstractBoxContainer, TweenLiteSyncScreenMixin, AnimateAppearanceCss, //
 TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 
 	function Card(layoutManager, def, actionListener) {
@@ -20,6 +20,9 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 		this.actionModel = new ActionModel();
 		this.subModel = new SubModel();
 		this.tokensContainer = new TokenContainerBox(layoutManager, config.card.layouts.tokens, this.tokens, false, this.tokenModel);
+		
+		//le conteneur de la carte
+		this.wrapper = new CardWrapper(this);
 
 		// le tableau des ghost
 		this.ghosts = [];
@@ -50,6 +53,8 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 
 		// l'écouteur de sélection
 		this.actionListener = actionListener;
+		
+		//TODO chaine d'host à modéliser
 
 		var activateCard = layoutManager.withinLayout(this.activateCard.bind(this));
 		this.back.on('click', activateCard);
@@ -142,6 +147,18 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 				this.subModel.removeAll();
 			else
 				this.subModel.update(subs);
+		}
+		
+
+		/**
+		 * Rajoute la carte dans son wrapper si pas déjà présente et
+		 * renvoi le wrapper
+		 */
+		this.wrapped = function() {
+			if (!this.wrapper.containsChild(this))
+				this.wrapper.addchild(this);
+
+			return this.wrapper;
 		}
 
 		/**
@@ -356,6 +373,23 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 			this.setFace(this.card.face);
 		}
 	});
+	
+
+	/**
+	 * Permet de contenir des cartes. Ainsi il est possible de rajouter des hotes à un carte. Il faut un layout particulier
+	 */
+	function CardWrapper(card) {
+		AbstractBoxContainer.call(this, card.layoutManager, config.card.layouts.wrapper);
+		this.owner = card;
+	}
+
+	mix(CardWrapper, AbstractBoxContainer)
+	mix(CardWrapper, function() {
+
+	});
+
+	// exposition du composant
+	Card.CardWrapper = CardWrapper;
 
 	return Card;
 });
