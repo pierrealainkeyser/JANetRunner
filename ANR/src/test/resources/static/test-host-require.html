@@ -27,14 +27,21 @@
 		$(function() {
 			var layoutManager = new layout.LayoutManager($("#main"));
 			layoutManager.runLayout(function() {
-				
-				var c1=new Card(layoutManager,{ id : 0, url : "01080.png", faction : "corp"});
-				var c2=new Card(layoutManager,{ id : 1, url : "01088.png", faction : "corp"});
-				c2.setHost({card:c1,index:0});
-				
-				var wrapper=c.wrapped();
+
+				var i=0;
+				var c1 = new Card(layoutManager, { id : i++, url : "01080.png", faction : "corp" });
+				var c2 = new Card(layoutManager, { id : i++, url : "01088.png", faction : "corp" });
+				var c3 = new Card(layoutManager, { id : i++, url : "01086.png", faction : "corp" });
+				var c4 = new Card(layoutManager, { id : i++, url : "01091.png", faction : "corp" });
+				c2.setHost(c4, 0);
+				c3.setHost(c4, 1);
+				c4.setHost(c1, 0);
+
+				var wrapper = c1.wrapped();
 				wrapper.addChild(c2);
-				wrapper.local.moveTo({x:500,y:500});
+				wrapper.addChild(c3);
+				wrapper.addChild(c4);
+				wrapper.local.moveTo({ x : 500, y : 100 });
 
 			});
 		});

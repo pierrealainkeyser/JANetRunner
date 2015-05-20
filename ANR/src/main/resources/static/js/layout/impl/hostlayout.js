@@ -1,20 +1,23 @@
 define([ "mix", "underscore", "geometry/package" ], function(mix, _, geom) {
-	function HostLayout() {
+	function HostLayout(options) {
+		options = options || {};
+		this.padding = options.padding || -20;
 	}
 
-	function CardNode(card) {
+	function CardNode(layout, card) {
+		this.layout = layout;
 		this.id = card.id();
 		this.card = card;
 		this.hostedNodes = [];
-		this.bounds = new geom.Rectangle({size : card.local.size});
+		this.bounds = new geom.Rectangle({ size : card.local.size });
 	}
 
 	mix(CardNode, function() {
 		this.append = function(node) {
 			this.hostedNodes.push(node);
 		}
-		
-		this.indexInHost=function(){
+
+		this.indexInHost = function() {
 			var host = this.card.host;
 			if (host)
 				return host.index;
@@ -22,16 +25,22 @@ define([ "mix", "underscore", "geometry/package" ], function(mix, _, geom) {
 				return -1;
 		}
 
+		/**
+		 * Renvoi l'ID de la carte hote
+		 */
 		this.hostId = function() {
 			var host = this.card.host;
-			if (host)
+
+			if (host && host.card)
 				return host.card.id();
 			else
 				return null;
 		}
 
+		/**
+		 * Calcul le layout, mais tous les enfants en premier
+		 */
 		this.doLayout = function() {
-			// réalise le layout de tous les enfants en premier
 			_.each(this.hostedNodes, function(hn) {
 				hn.doLayout();
 			});
@@ -39,41 +48,42 @@ define([ "mix", "underscore", "geometry/package" ], function(mix, _, geom) {
 			// le rectangle d'ensemble
 			var rectangle = this.bounds;
 			var x = 0;
-			
-			//TODO détermination de la position en delta
-			var deltaY = 150;
-			
-			var sorted=_.sortBy(this.hostedNodes, function(cn){ return indexInHost.indexInHost() });
+
+			var sorted = _.sortBy(this.hostedNodes, function(cn) {
+				return cn.indexInHost()
+			});
+			var padding = this.layout.padding;
 			_.each(sorted, function(hn) {
 				var bounds = hn.bounds;
-				bounds.moveTo({x : x,y : deltaY});
+				var h = hn.card.local.size.height * 2 / 3;
+				bounds.moveTo({ x : x, y : h });
 
 				// décallage sur la droite + TODO voir pour un padding
-				x += bounds.size.width;
+				x += bounds.size.width + padding;
 
 				rectangle = rectangle.merge(bounds);
 			});
 			this.bounds = rectangle;
 		}
 
+		/**
+		 * Propage les coordonnées locales
+		 */
 		this.mergeLocal = function(offset) {
 
 			var ori = this.bounds.clonePoint();
 			var point = this.bounds.clonePoint();
 
 			// centre la carte sur le centre
-			if (!_.isEmtpy(this.hostedNodes)) {
-				var deltaX = this.bounds.width / 2 + this.card.local.size.width / 2;
-				point.add({
-					x : deltaX,
-					y : 0
-				});
+			if (!_.isEmpty(this.hostedNodes)) {
+				var deltaX = this.bounds.size.width / 2 - this.card.local.size.width / 2;
+				point.add({ x : deltaX, y : 0 });
 			}
 
 			// on décalle la position
 			point.add(offset);
 			ori.add(offset);
-			card.local.moveTo(point);
+			this.card.local.moveTo(point);
 
 			// réalise le merge sur les élements suivants
 			_.each(this.hostedNodes, function(hn) {
@@ -84,13 +94,14 @@ define([ "mix", "underscore", "geometry/package" ], function(mix, _, geom) {
 
 	HostLayout.prototype.doLayout = function(boxcontainer, childs) {
 
+		var me = this;
 		var allHosts = {};
 		// création de la liste des CardNode
 		_.each(childs, function(c) {
 			var cid = c.id();
 			var cn = allHosts[cid];
 			if (!cn)
-				allHosts[cid] = cn = new CardNode(c);
+				allHosts[cid] = cn = new CardNode(me, c);
 		});
 
 		// le noeud racine
@@ -98,8 +109,8 @@ define([ "mix", "underscore", "geometry/package" ], function(mix, _, geom) {
 
 		// création de l'arborescence
 		_.each(allHosts, function(cn) {
-			var hid = cn.hostId();
-			if (hid !== null) {
+			var cid = cn.hostId();
+			if (cid !== null) {
 				var host = allHosts[cid];
 				host.append(cn);
 			} else
@@ -115,7 +126,7 @@ define([ "mix", "underscore", "geometry/package" ], function(mix, _, geom) {
 		// recherche de la zone enblogante
 		var bounds = new geom.Rectangle();
 		_.each(allHosts, function(cn) {
-			bounds = bounds.merge(cn.local);
+			bounds = bounds.merge(cn.card.local);
 		});
 
 		// transmission de la taille au container

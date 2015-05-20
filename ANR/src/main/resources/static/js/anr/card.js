@@ -1,5 +1,6 @@
-define([ "mix", "underscore", "jquery", "layout/abstractbox", "layout/abstractboxleaf","layout/abstractboxcontainer", "ui/tweenlitesyncscreenmixin", "ui/animateappearancecss", //
-"./tokenmodel", "anr/actionmodel", "./submodel", "./tokencontainerbox", "conf" ],// 
+define([ "mix", "underscore", "jquery", "layout/abstractbox", "layout/abstractboxleaf", "layout/abstractboxcontainer", "ui/tweenlitesyncscreenmixin",
+		"ui/animateappearancecss", //
+		"./tokenmodel", "anr/actionmodel", "./submodel", "./tokencontainerbox", "conf" ],// 
 function(mix, _, $, AbstractBox, AbstractBoxLeaf, AbstractBoxContainer, TweenLiteSyncScreenMixin, AnimateAppearanceCss, //
 TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 
@@ -20,8 +21,8 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 		this.actionModel = new ActionModel();
 		this.subModel = new SubModel();
 		this.tokensContainer = new TokenContainerBox(layoutManager, config.card.layouts.tokens, this.tokens, false, this.tokenModel);
-		
-		//le conteneur de la carte
+
+		// le conteneur de la carte
 		this.wrapper = new CardWrapper(this);
 
 		// le tableau des ghost
@@ -53,8 +54,8 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 
 		// l'écouteur de sélection
 		this.actionListener = actionListener;
-		
-		//l'hote de la carte
+
+		// l'hote de la carte
 		this.host = null;
 
 		var activateCard = layoutManager.withinLayout(this.activateCard.bind(this));
@@ -150,17 +151,31 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 			else
 				this.subModel.update(subs);
 		}
-		
 
 		/**
-		 * Rajoute la carte dans son wrapper si pas déjà présente et
-		 * renvoi le wrapper
+		 * Rajoute la carte dans son wrapper si pas déjà présente et renvoi le
+		 * wrapper
 		 */
 		this.wrapped = function() {
 			if (!this.wrapper.containsChild(this))
-				this.wrapper.addchild(this);
+				this.wrapper.addChild(this);
 
 			return this.wrapper;
+		}
+
+		/**
+		 * Retire le wrapper de son parent
+		 */
+		this.unwrapped = function() {
+			var w = this.wrapper;
+			if (w.containsChild(this))
+				w.removeChild(this);
+
+			if (w.container) {
+				w.container.removeChild(w);
+				w.container = null;
+			}
+			return this;
 		}
 
 		/**
@@ -318,13 +333,13 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 		this.setSelected = function(selected) {
 			this._innerSet(Card.SELECTED, selected);
 		}
-		
+
 		/**
 		 * Connection au host
 		 */
-		this.setHost = function(card,index) {
-			if(card)
-				this._innerSet(Card.HOST, {card:card,index:index});
+		this.setHost = function(card, index) {
+			if (card)
+				this._innerSet(Card.HOST, { card : card, index : index });
 			else
 				this._innerSet(Card.HOST, null);
 		}
@@ -385,19 +400,36 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 			this.setFace(this.card.face);
 		}
 	});
-	
 
 	/**
-	 * Permet de contenir des cartes. Ainsi il est possible de rajouter des hotes à un carte. Il faut un layout particulier
+	 * Permet de contenir des cartes. Ainsi il est possible de rajouter des
+	 * hotes à un carte. Il faut un layout particulier
 	 */
 	function CardWrapper(card) {
-		AbstractBoxContainer.call(this, card.layoutManager, config.card.layouts.wrapper);
+		AbstractBoxContainer.call(this, card.layoutManager, {}, config.card.layouts.wrapper);
 		this.owner = card;
 	}
 
 	mix(CardWrapper, AbstractBoxContainer)
 	mix(CardWrapper, function() {
 
+		/**
+		 * Réalise le layout. Transmet à la fonction de layout ne calcule pas le
+		 * rang
+		 */
+		this.doLayout = function() {
+			this.layoutFunction.doLayout(this, this.childs);
+		}
+
+		/**
+		 * Délègue au parent
+		 */
+		this.renderingHints = function() {
+			if (this.container)
+				return this.container.renderingHints();
+			else
+				return AbstractBoxContainer.prototype.renderingHints.call(this);
+		}
 	});
 
 	// exposition du composant
