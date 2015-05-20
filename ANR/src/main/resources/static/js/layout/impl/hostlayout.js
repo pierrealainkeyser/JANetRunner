@@ -13,6 +13,14 @@ define([ "mix", "underscore", "geometry/package" ], function(mix, _, geom) {
 		this.append = function(node) {
 			this.hostedNodes.push(node);
 		}
+		
+		this.indexInHost=function(){
+			var host = this.card.host;
+			if (host)
+				return host.index;
+			else
+				return -1;
+		}
 
 		this.hostId = function() {
 			var host = this.card.host;
@@ -23,7 +31,7 @@ define([ "mix", "underscore", "geometry/package" ], function(mix, _, geom) {
 		}
 
 		this.doLayout = function() {
-			// réalise le layout de tous les enfants
+			// réalise le layout de tous les enfants en premier
 			_.each(this.hostedNodes, function(hn) {
 				hn.doLayout();
 			});
@@ -31,12 +39,16 @@ define([ "mix", "underscore", "geometry/package" ], function(mix, _, geom) {
 			// le rectangle d'ensemble
 			var rectangle = this.bounds;
 			var x = 0;
+			
+			//TODO détermination de la position en delta
 			var deltaY = 150;
-			_.each(this.hostedNodes, function(hn) {
+			
+			var sorted=_.sortBy(this.hostedNodes, function(cn){ return indexInHost.indexInHost() });
+			_.each(sorted, function(hn) {
 				var bounds = hn.bounds;
 				bounds.moveTo({x : x,y : deltaY});
 
-				// décallage sur la droite
+				// décallage sur la droite + TODO voir pour un padding
 				x += bounds.size.width;
 
 				rectangle = rectangle.merge(bounds);
@@ -46,11 +58,11 @@ define([ "mix", "underscore", "geometry/package" ], function(mix, _, geom) {
 
 		this.mergeLocal = function(offset) {
 
-			var ori = this.bounds.point;
+			var ori = this.bounds.clonePoint();
 			var point = this.bounds.clonePoint();
 
 			// centre la carte sur le centre
-			if (!_.isEmtpy(this.hostedNode)) {
+			if (!_.isEmtpy(this.hostedNodes)) {
 				var deltaX = this.bounds.width / 2 + this.card.local.size.width / 2;
 				point.add({
 					x : deltaX,
@@ -64,7 +76,7 @@ define([ "mix", "underscore", "geometry/package" ], function(mix, _, geom) {
 			card.local.moveTo(point);
 
 			// réalise le merge sur les élements suivants
-			_.each(this.hostedNode, function(hn) {
+			_.each(this.hostedNodes, function(hn) {
 				hn.mergeLocal(ori);
 			});
 		}
