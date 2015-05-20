@@ -1,0 +1,47 @@
+<html lang="en">
+<head>
+<link rel="stylesheet/less" type="text/css" href="../../../main/resources/static/css/game.less" />
+<link rel="stylesheet" type="text/css" href="../../../main/resources/static/css/icons.css" />
+
+<link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
+<link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/animate.css/3.2.3/animate.min.css" />
+
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/less.js/2.4.0/less.js"></script>
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.16/require.min.js"></script>
+<script type="text/javascript">
+	require.config({
+		baseUrl : "../../../main/resources/static/js/",
+		paths : { jquery : "http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min",
+			underscore : "http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min",
+			tweenlite : "http://cdnjs.cloudflare.com/ajax/libs/gsap/1.16.1/TweenMax.min",//
+			mousetrap : "http://cdnjs.cloudflare.com/ajax/libs/mousetrap/1.4.6/mousetrap.min",//
+			conf : "./anr/conf" },//
+		shim : {//
+		tweenlite : { exports : 'TweenLite' }, //
+		mousetrap : { exports : 'Mousetrap' }, //
+		} //
+	});
+
+	require([ "jquery", "layout/package", "anr/card" ],//
+	function($, layout, Card) {
+		$(function() {
+			var layoutManager = new layout.LayoutManager($("#main"));
+			layoutManager.runLayout(function() {
+				
+				var c1=new Card(layoutManager,{ id : 0, url : "01080.png", faction : "corp"});
+				var c2=new Card(layoutManager,{ id : 1, url : "01088.png", faction : "corp"});
+				c2.setHost({card:c1,index:0});
+				
+				var wrapper=c.wrapped();
+				wrapper.addChild(c2);
+				wrapper.local.moveTo({x:500,y:500});
+
+			});
+		});
+	});
+</script>
+
+
+</head>
+<div id="main"></div>
+</html>

@@ -1,5 +1,5 @@
-define([ "geometry/size", "layout/impl/anchorlayout", "layout/impl/flowlayout", "layout/impl/translatelayout", "layout/impl/gridlayout" ], //
-function(Size, AnchorLayout, FlowLayout, TranslateLayout, GridLayout) {
+define([ "geometry/size", "layout/impl/anchorlayout", "layout/impl/flowlayout", "layout/impl/translatelayout", "layout/impl/gridlayout", "layout/impl/hostlayout" ], //
+function(Size, AnchorLayout, FlowLayout, TranslateLayout, GridLayout, HostLayout) {
 
 	function Conf() {
 		var w = 80;
@@ -11,7 +11,7 @@ function(Size, AnchorLayout, FlowLayout, TranslateLayout, GridLayout) {
 		zoom : new Size(w * 2, h * 2),//
 		selected : new Size(w * 1.75, h * 1.75),//		
 		layouts : { tokens : new GridLayout({ maxCols : 3, padding : 2 }),//
-			wrapper:new FlowLayout({})//
+			wrapper:new HostLayout({})//
 		} // 
 		};
 

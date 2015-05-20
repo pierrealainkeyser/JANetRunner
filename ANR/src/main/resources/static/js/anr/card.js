@@ -54,7 +54,8 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 		// l'écouteur de sélection
 		this.actionListener = actionListener;
 		
-		//TODO chaine d'host à modéliser
+		//l'hote de la carte
+		this.host = null;
 
 		var activateCard = layoutManager.withinLayout(this.activateCard.bind(this));
 		this.back.on('click', activateCard);
@@ -67,6 +68,7 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 	Card.ZOOMABLE = "zoomable";
 	Card.FACE = "face";
 	Card.SELECTED = "selected";
+	Card.HOST = "host";
 
 	mix(Card, AbstractBoxLeaf);
 	mix(Card, TweenLiteSyncScreenMixin);
@@ -315,6 +317,16 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 		 */
 		this.setSelected = function(selected) {
 			this._innerSet(Card.SELECTED, selected);
+		}
+		
+		/**
+		 * Connection au host
+		 */
+		this.setHost = function(card,index) {
+			if(card)
+				this._innerSet(Card.HOST, {card:card,index:index});
+			else
+				this._innerSet(Card.HOST, null);
 		}
 	});
 

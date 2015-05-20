@@ -21,6 +21,13 @@ define([ "mix", "util/observablemixin", "./point", "./size" ], function(mix, Obs
 		this.cloneSize = function() {
 			return new Size(this.size.width, this.size.height);
 		}
+		
+		/**
+		 * Duplique la position
+		 */
+		this.clonePoint = function() {
+			return new Point(this.point.x, this.point.y);
+		}
 
 		/**
 		 * Renvoi le point en bas à droits
