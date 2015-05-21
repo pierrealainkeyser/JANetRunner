@@ -90,6 +90,25 @@ define([ "mix", "underscore", "geometry/package" ], function(mix, _, geom) {
 				hn.mergeLocal(ori);
 			});
 		}
+		
+		/**
+		 * Permet de réaliser un parcours par niveau 
+		 */
+		this.collect = function (){
+			var collected = [];
+			var iterates = [ this ];
+			while (!_.isEmpty(iterates)) {
+				var newIterates = [];
+				_.each(iterates, function(cn) {
+					collected.push(cn.card);
+
+					// on rajoute tous les noeuds hotes
+					newIterates = newIterates.concat(cn.hostedNodes);
+				});
+				iterates = newIterates;
+			}
+			return collected;
+		}
 	});
 
 	HostLayout.prototype.doLayout = function(boxcontainer, childs) {
@@ -120,8 +139,13 @@ define([ "mix", "underscore", "geometry/package" ], function(mix, _, geom) {
 		// réalise le layout en 2 phases à partir de la racine
 		rootNode.doLayout();
 		rootNode.mergeLocal(new geom.Point());
+		
 
-		// TODO quid du z-index ?
+		// Affectation du rank par niveau, ce qui permet de calcul le
+		// zIndex par apres
+		_.each(rootNode.collect(), function(card, index) {
+			card.setRank(index);
+		});
 
 		// recherche de la zone enblogante
 		var bounds = new geom.Rectangle();

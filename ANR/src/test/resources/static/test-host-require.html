@@ -22,11 +22,13 @@
 		} //
 	});
 
-	require([ "jquery", "layout/package", "anr/card" ],//
-	function($, layout, Card) {
+	require([ "jquery", "layout/package", "anr/card" ,"layout/impl/flowlayout"],//
+	function($, layout, Card, FlowLayout) {
 		$(function() {
 			var layoutManager = new layout.LayoutManager($("#main"));
 			layoutManager.runLayout(function() {
+				
+				var cont=new layout.AbstractBoxContainer(layoutManager,{addZIndex:true,childZIndexFactor:1},new FlowLayout());
 
 				var i=0;
 				var c1 = new Card(layoutManager, { id : i++, url : "01080.png", faction : "corp" });
@@ -41,7 +43,10 @@
 				wrapper.addChild(c2);
 				wrapper.addChild(c3);
 				wrapper.addChild(c4);
-				wrapper.local.moveTo({ x : 500, y : 100 });
+				
+				cont.addChild(wrapper);
+				
+				cont.local.moveTo({ x : 500, y : 100 });
 
 			});
 		});
