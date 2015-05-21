@@ -39,12 +39,10 @@
 				c3.setHost(c4, 1);
 				c4.setHost(c1, 0);
 
-				var wrapper = c1.wrapped();
-				wrapper.addChild(c2);
-				wrapper.addChild(c3);
-				wrapper.addChild(c4);
-				
-				cont.addChild(wrapper);
+				cont.addChild(c1.wrapped());
+				c2.addInHostWrapper();
+				c3.addInHostWrapper();
+				c4.addInHostWrapper();
 				
 				cont.local.moveTo({ x : 500, y : 100 });
 

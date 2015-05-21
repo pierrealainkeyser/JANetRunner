@@ -184,11 +184,15 @@ RunBox, Point) {
 		 * Mise à jour de toutes les cartes
 		 */
 		this.updateCardsAndServers = function(msg) {
+			var addToHost=[];
 			_.each(msg.cards, function(def) {
 				var card = this.card(def);
 
-				if (def.location)
-					this.addToContainer(def.location, card);
+				if (def.location){
+					var shallAdd=this.addToContainer(def.location, card);
+					if(shallAdd)
+						addToHost.push(card);
+				}
 
 				if (def.tokens)
 					card.setTokensValues(def.tokens);
@@ -217,6 +221,11 @@ RunBox, Point) {
 					card.setCardsOrder(null);
 
 			}.bind(this));
+			
+			//recopie place l'objet au bon endroit
+			_.each(addToHost, function(card){
+				card.addInHostWrapper();
+			});
 
 			_.each(msg.servers, function(def) {
 				var server = this.server(def);
@@ -246,9 +255,9 @@ RunBox, Point) {
 				else if ("upgrades" === key)
 					server.addToUpgrades(card, path.index);
 			} else if ("card" === first) {
-				// TODO
-				return null;
-				// return this.card({ id : path.serverIndex });
+				var host=this.card({id:path.serverIndex });
+				card.setHost(host,path.index);
+				return true;
 			} else if ("resource" === first)
 				this.runner.addToResource(card, path.index);
 			else if ("hardware" === first)
@@ -263,6 +272,8 @@ RunBox, Point) {
 				this.runner.addToHeap(card, path.index);
 			else if ("hand" === first)
 				this.hand.addChild(card, path.index);
+			
+			return false;
 		}
 
 		/**

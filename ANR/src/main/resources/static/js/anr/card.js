@@ -177,6 +177,20 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 			}
 			return this;
 		}
+		
+
+		/**
+		 * S'installe dans le wrapper maximum
+		 */
+		this.addInHostWrapper = function() {
+			var me = this;
+			while (me.host) {
+				me = me.host.card;
+			}
+			me.wrapper.addChild(this);
+		}
+		
+
 
 		/**
 		 * Détermine la taille
