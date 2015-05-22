@@ -1,8 +1,8 @@
 define([ "mix", "underscore", "jquery", "layout/abstractbox", "layout/abstractboxleaf", "layout/abstractboxcontainer", "ui/tweenlitesyncscreenmixin",
 		"ui/animateappearancecss", //
-		"./tokenmodel", "anr/actionmodel", "./submodel", "./tokencontainerbox", "conf" ],// 
+		"./tokenmodel", "anr/actionmodel", "./submodel", "./tokencontainerbox","./cardsmodel", "conf" ],// 
 function(mix, _, $, AbstractBox, AbstractBoxLeaf, AbstractBoxContainer, TweenLiteSyncScreenMixin, AnimateAppearanceCss, //
-TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
+TokenModel, ActionModel, SubModel, TokenContainerBox,CardsModel, config) {
 
 	function Card(layoutManager, def, actionListener) {
 		this.def = def;
@@ -57,6 +57,19 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 
 		// l'hote de la carte
 		this.host = null;
+		this.hostedsModel = new CardsModel();
+		
+		//changement dans l'hote on mets à jour la collection des cartes hotes de l'hote
+		this.observe(function(evt) {
+			var oldHost = evt.oldvalue;
+			var newHost = evt.newvalue;
+
+			if (oldHost)
+				oldHost.card.hostedModel.remove(this);
+
+			if (newHost)
+				newHost.card.hostedModel.add(this);
+		}.bind(this), [ Card.HOST ]);
 
 		var activateCard = layoutManager.withinLayout(this.activateCard.bind(this));
 		this.back.on('click', activateCard);
@@ -74,6 +87,7 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 	mix(Card, AbstractBoxLeaf);
 	mix(Card, TweenLiteSyncScreenMixin);
 	mix(Card, function() {
+		
 
 		/**
 		 * Place les cartes à ordonner
@@ -187,7 +201,7 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 			while (me.host) {
 				me = me.host.card;
 			}
-			me.wrapper.addChild(this);
+			me.wrapper.addChild(this.unwrapped());
 		}
 		
 
@@ -397,6 +411,13 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 	mix(GhostCard, Card);
 	mix(GhostCard, AnimateAppearanceCss);
 	mix(GhostCard, function() {
+		
+		/**
+		 * Délègue à la carte parent
+		 */
+		this.id=function(){
+			return this.card.id();
+		}
 
 		/**
 		 * Permet de désincrire l'état
@@ -426,6 +447,13 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, config) {
 
 	mix(CardWrapper, AbstractBoxContainer)
 	mix(CardWrapper, function() {
+		
+		/**
+		 * Renvoi la carte propriétaire
+		 */
+		this.cardOwner=function(){
+			return this;
+		}
 
 		/**
 		 * Réalise le layout. Transmet à la fonction de layout ne calcule pas le

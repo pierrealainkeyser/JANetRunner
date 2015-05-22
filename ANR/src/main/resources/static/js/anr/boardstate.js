@@ -249,29 +249,32 @@ RunBox, Point) {
 				var server = this.server({ id : path.serverIndex });
 				var key = path.secondary.toLowerCase();
 				if ("ices" == key)
-					server.addToIces(card, path.index);
+					server.addToIces(card.wrapped(), path.index);
 				else if ("assetorupgrades" === key || "stack" === key)
-					server.addToAssetsOrUpgrades(card, path.index);
+					server.addToAssetsOrUpgrades(card.wrapped(), path.index);
 				else if ("upgrades" === key)
-					server.addToUpgrades(card, path.index);
+					server.addToUpgrades(card.wrapped(), path.index);
 			} else if ("card" === first) {
 				var host=this.card({id:path.serverIndex });
 				card.setHost(host,path.index);
 				return true;
 			} else if ("resource" === first)
-				this.runner.addToResource(card, path.index);
+				this.runner.addToResource(card.wrapped(), path.index);
 			else if ("hardware" === first)
-				this.runner.addToHardwares(card, path.index);
+				this.runner.addToHardwares(card.wrapped(), path.index);
 			else if ("program" === first)
-				this.runner.addToPrograms(card, path.index);
+				this.runner.addToPrograms(card.wrapped(), path.index);
 			else if ("grip" === first)
-				this.runner.addToGrip(card, path.index);
+				this.runner.addToGrip(card.wrapped(), path.index);
 			else if ("stack" === first)
-				this.runner.addToStack(card, path.index);
+				this.runner.addToStack(card.wrapped(), path.index);
 			else if ("heap" === first)
-				this.runner.addToHeap(card, path.index);
+				this.runner.addToHeap(card.wrapped(), path.index);
 			else if ("hand" === first)
-				this.hand.addChild(card, path.index);
+				this.hand.addChild(card.unwrapped(), path.index);
+			
+			//suppression de l'hote
+			card.setHost(null);
 			
 			return false;
 		}

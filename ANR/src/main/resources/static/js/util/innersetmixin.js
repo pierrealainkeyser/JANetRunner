@@ -11,7 +11,7 @@ define([], function() {
 			if (old !== value) {
 				this.performChange(name, function() {
 					self[name] = value;
-					return { oldvalue : old };
+					return { oldvalue : old, newvalue:value };
 				})
 			}
 		}
