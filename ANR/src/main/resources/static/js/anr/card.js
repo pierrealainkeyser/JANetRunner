@@ -1,8 +1,8 @@
 define([ "mix", "underscore", "jquery", "layout/abstractbox", "layout/abstractboxleaf", "layout/abstractboxcontainer", "ui/tweenlitesyncscreenmixin",
 		"ui/animateappearancecss", //
-		"./tokenmodel", "anr/actionmodel", "./submodel", "./tokencontainerbox","./cardsmodel", "conf" ],// 
+		"./tokenmodel", "anr/actionmodel", "./submodel", "./tokencontainerbox", "./cardsmodel", "conf" ],// 
 function(mix, _, $, AbstractBox, AbstractBoxLeaf, AbstractBoxContainer, TweenLiteSyncScreenMixin, AnimateAppearanceCss, //
-TokenModel, ActionModel, SubModel, TokenContainerBox,CardsModel, config) {
+TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, config) {
 
 	function Card(layoutManager, def, actionListener) {
 		this.def = def;
@@ -58,8 +58,9 @@ TokenModel, ActionModel, SubModel, TokenContainerBox,CardsModel, config) {
 		// l'hote de la carte
 		this.host = null;
 		this.hostedsModel = new CardsModel();
-		
-		//changement dans l'hote on mets à jour la collection des cartes hotes de l'hote
+
+		// changement dans l'hote on mets à jour la collection des cartes hotes
+		// de l'hote
 		this.observe(function(evt) {
 			var oldHost = evt.oldvalue;
 			var newHost = evt.newvalue;
@@ -87,7 +88,6 @@ TokenModel, ActionModel, SubModel, TokenContainerBox,CardsModel, config) {
 	mix(Card, AbstractBoxLeaf);
 	mix(Card, TweenLiteSyncScreenMixin);
 	mix(Card, function() {
-		
 
 		/**
 		 * Place les cartes à ordonner
@@ -191,7 +191,6 @@ TokenModel, ActionModel, SubModel, TokenContainerBox,CardsModel, config) {
 			}
 			return this;
 		}
-		
 
 		/**
 		 * S'installe dans le wrapper maximum
@@ -203,8 +202,6 @@ TokenModel, ActionModel, SubModel, TokenContainerBox,CardsModel, config) {
 			}
 			me.wrapper.addChild(this.unwrapped());
 		}
-		
-
 
 		/**
 		 * Détermine la taille
@@ -411,11 +408,11 @@ TokenModel, ActionModel, SubModel, TokenContainerBox,CardsModel, config) {
 	mix(GhostCard, Card);
 	mix(GhostCard, AnimateAppearanceCss);
 	mix(GhostCard, function() {
-		
+
 		/**
 		 * Délègue à la carte parent
 		 */
-		this.id=function(){
+		this.id = function() {
 			return this.card.id();
 		}
 
@@ -447,12 +444,12 @@ TokenModel, ActionModel, SubModel, TokenContainerBox,CardsModel, config) {
 
 	mix(CardWrapper, AbstractBoxContainer)
 	mix(CardWrapper, function() {
-		
+
 		/**
 		 * Renvoi la carte propriétaire
 		 */
-		this.cardOwner=function(){
-			return this;
+		this.cardOwner = function() {
+			return this.owner;
 		}
 
 		/**

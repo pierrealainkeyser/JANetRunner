@@ -79,7 +79,7 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel, Card, 
 				// on ne rajoute la carte que si elle est accessible
 				var card = evt.added.cardOwner();
 				card.observe(this.trackAccessibleWatch, [ Card.ACCESSIBLE ]);
-				this.trackAccessible({ object : card});
+				this.trackAccessible({ object : card });
 			} else if (evt.type === layout.AbstractBoxContainer.CHILD_REMOVED) {
 				// suppression de l'observation
 				var card = evt.removed.cardOwner();
