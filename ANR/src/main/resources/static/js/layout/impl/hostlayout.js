@@ -58,7 +58,7 @@ define([ "mix", "underscore", "geometry/package" ], function(mix, _, geom) {
 				var h = hn.card.local.size.height * 2 / 3;
 				bounds.moveTo({ x : x, y : h });
 
-				// décallage sur la droite + TODO voir pour un padding
+				// décallage sur la droite
 				x += bounds.size.width + padding;
 
 				rectangle = rectangle.merge(bounds);
@@ -90,11 +90,11 @@ define([ "mix", "underscore", "geometry/package" ], function(mix, _, geom) {
 				hn.mergeLocal(ori);
 			});
 		}
-		
+
 		/**
-		 * Permet de réaliser un parcours par niveau 
+		 * Permet de réaliser un parcours par niveau
 		 */
-		this.collect = function (){
+		this.collect = function() {
 			var collected = [];
 			var iterates = [ this ];
 			while (!_.isEmpty(iterates)) {
@@ -139,7 +139,6 @@ define([ "mix", "underscore", "geometry/package" ], function(mix, _, geom) {
 		// réalise le layout en 2 phases à partir de la racine
 		rootNode.doLayout();
 		rootNode.mergeLocal(new geom.Point());
-		
 
 		// Affectation du rank par niveau, ce qui permet de calcul le
 		// zIndex par apres

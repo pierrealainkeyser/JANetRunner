@@ -1,8 +1,8 @@
 define([ "mix", "underscore", "jquery", "layout/abstractbox", "layout/abstractboxleaf", "layout/abstractboxcontainer", "ui/tweenlitesyncscreenmixin",
 		"ui/animateappearancecss", //
-		"./tokenmodel", "anr/actionmodel", "./submodel", "./tokencontainerbox", "./cardsmodel", "conf" ],// 
+		"./tokenmodel", "anr/actionmodel", "./submodel", "./tokencontainerbox", "./cardsmodel", "geometry/point", "conf" ],// 
 function(mix, _, $, AbstractBox, AbstractBoxLeaf, AbstractBoxContainer, TweenLiteSyncScreenMixin, AnimateAppearanceCss, //
-TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, config) {
+TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config) {
 
 	function Card(layoutManager, def, actionListener) {
 		this.def = def;
@@ -66,10 +66,10 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, config) {
 			var newHost = evt.newvalue;
 
 			if (oldHost)
-				oldHost.card.hostedModel.remove(this);
+				oldHost.card.hostedsModel.remove(this);
 
 			if (newHost)
-				newHost.card.hostedModel.add(this);
+				newHost.card.hostedsModel.add(this);
 		}.bind(this), [ Card.HOST ]);
 
 		var activateCard = layoutManager.withinLayout(this.activateCard.bind(this));
@@ -249,6 +249,10 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, config) {
 					// on retransforme la bonne taille pour prendre en compte la
 					// rotation
 					size = size.swap();
+					
+					//on redimensionne la carte
+					if(this.container instanceof CardWrapper)					
+						moveTo = new Point(moveTo.y, moveTo.x);
 				}
 
 				// applique la transformation du parent
@@ -440,6 +444,9 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, config) {
 	function CardWrapper(card) {
 		AbstractBoxContainer.call(this, card.layoutManager, {}, config.card.layouts.wrapper);
 		this.owner = card;
+
+		// en cas de changement de parent redétermine la taille
+		this.observe(this.owner.computeFromRenderingHints.bind(this.owner), [ AbstractBox.CONTAINER ]);
 	}
 
 	mix(CardWrapper, AbstractBoxContainer)

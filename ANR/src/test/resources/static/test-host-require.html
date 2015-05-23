@@ -22,15 +22,15 @@
 		} //
 	});
 
-	require([ "jquery", "layout/package", "anr/card" ,"layout/impl/flowlayout"],//
+	require([ "jquery", "layout/package", "anr/card", "layout/impl/flowlayout" ],//
 	function($, layout, Card, FlowLayout) {
 		$(function() {
 			var layoutManager = new layout.LayoutManager($("#main"));
 			layoutManager.runLayout(function() {
-				
-				var cont=new layout.AbstractBoxContainer(layoutManager,{addZIndex:true,childZIndexFactor:1},new FlowLayout());
 
-				var i=0;
+				var cont = new layout.AbstractBoxContainer(layoutManager, { addZIndex : true, childZIndexFactor : 1, horizontal : true }, new FlowLayout());
+
+				var i = 0;
 				var c1 = new Card(layoutManager, { id : i++, url : "01080.png", faction : "corp" });
 				var c2 = new Card(layoutManager, { id : i++, url : "01088.png", faction : "corp" });
 				var c3 = new Card(layoutManager, { id : i++, url : "01086.png", faction : "corp" });
@@ -43,7 +43,7 @@
 				c2.addInHostWrapper();
 				c3.addInHostWrapper();
 				c4.addInHostWrapper();
-				
+
 				cont.local.moveTo({ x : 500, y : 100 });
 
 			});
