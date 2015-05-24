@@ -12,11 +12,12 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config)
 		var createdDiv = $("<div class='card " + this.def.faction + "'>" + //
 		"<img class='back'/>" + //
 		"<img class='front' src='/card-img/" + this.def.url + "'/>" + // 
-		"<div class='tokens'/></div>");
+		"<div class='tokens'/><div class='marks glyphicon glyphicon-remove'/></div>");
 		this.element = layoutManager.append(createdDiv);
 		this.front = this.element.find("img.front");
 		this.back = this.element.find("img.back");
 		this.tokens = this.element.find("div.tokens");
+		this.marks = this.element.find("div.marks");
 		this.tokenModel = new TokenModel();
 		this.actionModel = new ActionModel();
 		this.subModel = new SubModel();
@@ -50,7 +51,7 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config)
 		// pour changer l'apparence de la bordule
 		var syncScreen = this.needSyncScreen.bind(this);
 		this.actionModel.observe(syncScreen, [ ActionModel.ADDED, ActionModel.REMOVED ]);
-		this.observe(syncScreen, [ Card.FACE, Card.ZOOMABLE ]);
+		this.observe(syncScreen, [ Card.FACE, Card.ZOOMABLE, Card.MARK ]);
 
 		// l'écouteur de sélection
 		this.actionListener = actionListener;
@@ -58,6 +59,9 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config)
 		// l'hote de la carte
 		this.host = null;
 		this.hostedsModel = new CardsModel();
+
+		// indique si la carte est marque
+		this.mark = null;
 
 		// changement dans l'hote on mets à jour la collection des cartes hotes
 		// de l'hote
@@ -84,6 +88,7 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config)
 	Card.FACE = "face";
 	Card.SELECTED = "selected";
 	Card.HOST = "host";
+	Card.MARK = "mark";
 
 	mix(Card, AbstractBoxLeaf);
 	mix(Card, TweenLiteSyncScreenMixin);
@@ -146,6 +151,10 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config)
 		 * Décorateur vers le model d'action
 		 */
 		this.setActions = function(actions) {
+			var me = this;
+			_.each(actions, function(a) {
+				a.owner = me;
+			});
 			this.actionModel.set(actions);
 		}
 
@@ -249,9 +258,9 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config)
 					// on retransforme la bonne taille pour prendre en compte la
 					// rotation
 					size = size.swap();
-					
-					//on redimensionne la carte
-					if(this.container instanceof CardWrapper)					
+
+					// on redimensionne la carte
+					if (this.container instanceof CardWrapper)
 						moveTo = new Point(moveTo.y, moveTo.x);
 				}
 
@@ -316,9 +325,12 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config)
 			var backCss = _.extend(_.clone(frontCss), { boxShadow : shadow });
 			var css = this.computePrimaryCssTween();
 			var tokenCss = { autoAlpha : 1 };
+			var marksCss = { autoAlpha : this.mark ? 1 : 0 };
 
-			if (zoomed)
+			if (zoomed) {
 				tokenCss.autoAlpha = 0;
+				marksCss.autoAlpha = 0;
+			}
 
 			// todo en fonction du container
 			if (hints.invisibleWhenNotLast === true) {
@@ -330,9 +342,10 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config)
 			this.tweenElement(this.element, css, set);
 			this.tweenElement(this.front, frontCss, set);
 			this.tweenElement(this.back, backCss, set);
-
 			if (this.tokens)
 				this.tweenElement(this.tokens, tokenCss, set);
+			if (this.marks)
+				this.tweenElement(this.marks, marksCss, set);
 		}
 
 		/**
@@ -361,6 +374,13 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config)
 		 */
 		this.setSelected = function(selected) {
 			this._innerSet(Card.SELECTED, selected);
+		}
+
+		/**
+		 * Activation du marquage
+		 */
+		this.setMark = function(mark) {
+			this._innerSet(Card.MARK, mark);
 		}
 
 		/**

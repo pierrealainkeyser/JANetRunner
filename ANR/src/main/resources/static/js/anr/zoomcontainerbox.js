@@ -225,7 +225,10 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 
 				this.getButton().on('click', layoutManager.withinLayout(function() {
 					if (this.isSelectionAction()) {
-						this.action.selected = this.checkedInput.is(':checked');
+						var checked = this.checkedInput.is(':checked');
+						this.action.selected = checked;
+						if (this.action.owner)
+							this.action.owner.setMark(checked);
 					} else
 						this.container.activateAction(this);
 
