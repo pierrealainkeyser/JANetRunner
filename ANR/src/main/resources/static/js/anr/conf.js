@@ -51,6 +51,7 @@ function(Size, AnchorLayout, FlowLayout, TranslateLayout, GridLayout, HostLayout
 		front : { horizontal : "2.5px -2.5px 4px 0px rgba(60, 60, 60, 0.8)", vertical : "2.5px 2.5px 4px 0px rgba(60, 60, 60, 0.8)" },//
 		back : { horizontal : "-2.5px -2.5px 4px 0px rgba(60, 60, 60, 0.8)", vertical : "-2.5px 2.5px 4px 0px rgba(60, 60, 60, 0.8)" },//
 		action : "0px 0px 5px 2px rgb(240, 173, 78)",//
+		marked:"0px 0px 5px 2px #FF3300"//
 		};
 
 		// les niveau de positions en couches

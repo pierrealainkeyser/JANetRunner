@@ -316,9 +316,10 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config)
 
 			// il y a une action dans le model
 			if (!maxed) {
-				if (this.actionModel.hasAction()) {
+				if (this.mark)
+					shadow = config.shadow.marked;
+				else if (this.actionModel.hasAction())
 					shadow = config.shadow.action;
-				}
 			}
 
 			var frontCss = { rotationY : faceup ? 0 : -180 };

@@ -120,6 +120,8 @@ RunBox, Point) {
 				_.each(alls, function(cos) {
 					// suppression des toutes les actions
 					cos.setActions();
+					if(cos instanceof Card)
+						cos.setMark(false);
 				});
 
 				if (this.outputFunction)
