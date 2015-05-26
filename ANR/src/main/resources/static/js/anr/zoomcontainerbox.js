@@ -15,6 +15,9 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				this.animateEnter(this.element);
 
 				this.sub = sub;
+
+				this._checkbox.prop("checked", sub.selected);
+
 				this.parent = parent;
 				this._checkbox.change(function() {
 					this.parent.subChanged(this);
@@ -99,17 +102,6 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				}
 
 				/**
-				 * Compte le nombre d'élément sélectionné
-				 */
-				this.selectedCount = function() {
-					var selected = 0
-					this.eachChild(function(sub) {
-						selected += sub.isChecked();
-					});
-					return selected;
-				}
-
-				/**
 				 * Attachement du model
 				 */
 				this.setSubModel = function(subModel) {
@@ -141,7 +133,9 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				 * Une sub a change
 				 */
 				this.subChanged = function(subbox) {
-					this._parent.subChanged(subbox);
+					if (this.subModel) {
+						this.subModel.select(subbox.sub, subbox.isChecked());
+					}
 				}
 
 				/**
@@ -173,18 +167,11 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				AnimateAppearanceCss.call(this, "lightSpeedIn", "lightSpeedOut");
 				this._cost = this.element.find(".cost");
 				this.action = action;
-				this.actionType = action.type || ActionBox.DEFAULT_TYPE;
 
 				// fait apparaitre l'action joliment
 				this.animateEnter(this.element);
-				if (action.cost)
-					this.cost(action.cost, true);
 
-				this.variableCosts = action.costs || [];
-				this.variableSelection = null;
-				this.disabled = false;
-
-				if (this.isTraceAction()) {
+				if (this.action.isTraceAction()) {
 					var button = this.element;
 					var parent = button.parent();
 
@@ -196,17 +183,18 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 					this.element.appendTo(parent);
 					this.computeSize(this.element);
 
-					this.traceInput.on('change', this.syncTraceCost.bind(this));
-					this.traceInput.val(0);
+					this.traceInput.val(action.variableValue);
+					this.traceInput.on('change', function() {
+						var value = parseInt(this.traceInput.val());
+						this.action.setVariableValue(value);
+					}.bind(this))
 
 					this.traceInput.focus(function() {
 						$(this).blur();
 					})
-
-					this.syncTraceCost();
 				}
 
-				if (this.isSelectionAction()) {
+				if (this.action.isSelectionAction()) {
 					var old = this.element;
 					var parent = old.parent();
 
@@ -223,86 +211,52 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 					})
 				}
 
+				// mise a jour de l'état
+				this.cost(action.state.cost, true);
+				this.setEnabled(action.state.enabled, true);
+
 				this.getButton().on('click', layoutManager.withinLayout(function() {
-					if (this.isSelectionAction()) {
+					if (this.action.isSelectionAction()) {
 						var checked = this.checkedInput.is(':checked');
-						this.action.selected = checked;
-						if (this.action.owner)
-							this.action.owner.setMark(checked);
+						this.action.setSelected(checked);
 					} else
-						this.container.activateAction(this);
+						this.action.activate();
 
 				}.bind(this)));
-			}
 
-			ActionBox.DEFAULT_TYPE = "default";
-			ActionBox.BREAK_TYPE = "break";
-			ActionBox.TRACE_TYPE = "trace";
-			ActionBox.ORDERING_TYPE = "ordering";
-			ActionBox.SELECTION_TYPE = "selection";
+				action.observe(function(e) {
+					var state = e.newvalue;
+					if (state) {
+						this.cost(state.cost);
+						this.setEnabled(state.enabled);
+					}
+				}.bind(this), [ "state" ])
+
+			}
 
 			mix(ActionBox, JQueryBoxSize);
 			mix(ActionBox, AnimateAppearanceCss);
 			mix(ActionBox, AnrTextMixin);
 			mix(ActionBox, function() {
 
-				var traceStrength = function() {
-					return parseInt(this.traceInput.val());
-				}
-
-				/**
-				 * Encodage de la réponse
-				 */
-				this.encodeResponse = function() {
-					var response = { rid : this.action.id };
-					if (this.isTraceAction())
-						response.object = { trace : traceStrength.call(this) };
-					else if (ActionBox.BREAK_TYPE === this.actionType)
-						response.object = { subs : this.container.getSelectedSubs() };
-					else if (ActionBox.ORDERING_TYPE === this.actionType)
-						response.object = { order : this.container.getSelectedOrder() };
-
-					return response;
-				}
-
-				/**
-				 * Renvoi vrai si l'action est une action de selection
-				 */
-				this.isSelectionAction = function() {
-					return ActionBox.SELECTION_TYPE === this.actionType;
-				}
-
-				/**
-				 * Renvoi vrai si l'action est une action de trace
-				 */
 				this.isTraceAction = function() {
-					return ActionBox.TRACE_TYPE === this.actionType;
+					return this.action.isTraceAction();
 				}
 
 				/**
 				 * Change la valeur du curseur
 				 */
-				this.changeTraceValue = function(inc) {
-					var value = traceStrength.call(this) + inc;
-					if (value >= 0 && value <= this.action.max) {
-						this.traceInput.val(value);
-						this.syncTraceCost();
-					}
-				}
-
-				/**
-				 * Synchronisation du cout de la trace
-				 */
-				this.syncTraceCost = function() {
-					var value = traceStrength.call(this);
-					this.cost("{" + value + ":credit}");
+				this.changeTraceCost = function(inc) {
+					var value = parseInt(this.traceInput.val()) + inc;
+					this.traceInput.val(value);
+					this.traceInput.change();
 				}
 
 				/**
 				 * Renvoi le boutton
 				 */
 				this.getButton = function() {
-					if (this.isTraceAction())
+					if (this.action.isTraceAction())
 						return this.button;
 
 					return this.element;
@@ -316,28 +270,15 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				}
 
 				/**
-				 * Gestion de l'activation programmatique
+				 * Gestion de l'activation programatique
 				 */
 				this.activate = function() {
-					if (!this.disabled) {
+					if (this.action.isEnabled()) {
 						var button = this.getButton();
 						button.click();
 
 						if (this.isSelectionAction())
-							this.action.selected = this.checkedInput.is(':checked');
-
-					}
-				}
-
-				/**
-				 * Mise à jour du cout variable
-				 */
-				this.updateVariableCost = function(nb) {
-					if (nb >= 0 && nb < this.variableCosts.length) {
-						var variable = this.variableCosts[nb];
-						this.variableSelection = nb;
-						this.cost(variable.cost || '');
-						this.disable(!variable.enabled);
+							this.action.setSelected(this.checkedInput.is(':checked'));
 					}
 				}
 
@@ -362,19 +303,38 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				}
 
 				/**
-				 * Gestion de l'affichage de la sélection ou non
+				 * Gestion de l'affichage de la sélection ou non. On trace
 				 */
-				this.disable = function(disabled) {
-					var changed = this.disabled !== disabled;
-					this.disabled = disabled;
+				this.setEnabled = function(enabled, ignore) {
+					var button = this.getButton();
+					var old = !button.hasClass("disabled");
+					var changed = old !== enabled;
+					if (ignore) {
+						if (enabled)
+							button.removeClass("disabled")
+						else
+							button.addClass("disabled");
+						return;
+					}
+
 					if (changed) {
 						this.animateSwap(this.element, function() {
-							if (disabled)
-								this.getButton().addClass("disabled");
+							if (enabled)
+								button.removeClass("disabled")
 							else
-								this.getButton().removeClass("disabled")
+								button.addClass("disabled");
 						}.bind(this));
 					}
+
+				}
+
+				/**
+				 * Rend invisible et suppression des ecouteurs
+				 */
+				this.clear = function() {
+					this.setVisible(false);
+					// TODO suppression des ecouteurs
+
 				}
 			});
 
@@ -393,32 +353,6 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 
 			mix(ActionsBoxContainer, AbstractBoxContainer);
 			mix(ActionsBoxContainer, function() {
-
-				this.getSelectedSubs = function() {
-					return this.zoomContainer.getSelectedSubs();
-				}
-
-				this.getSelectedOrder = function() {
-					return this.zoomContainer.getSelectedOrder();
-				}
-
-				/**
-				 * Activation d'une action
-				 */
-				this.activateAction = function(action) {
-					this.zoomContainer.activateAction(action);
-				}
-
-				/**
-				 * Mise à jour des couts variables
-				 */
-				this.updateVariableCosts = function(actionType, nb) {
-					this.eachChild(function(ab) {
-						if (ab.actionType === actionType) {
-							ab.updateVariableCost(nb);
-						}
-					});
-				}
 
 				/**
 				 * Mise en place du model
@@ -449,7 +383,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				this.removeAllActions = function() {
 					var me = this;
 					this.eachChild(function(ab) {
-						ab.setVisible(false);
+						ab.clear();
 						ab.animateRemove(ab.element, ab.remove.bind(ab));
 						me.removeChild(ab);
 					})
@@ -516,13 +450,6 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				}
 
 				/**
-				 * Une sub a change
-				 */
-				this.subChanged = function(subbox) {
-					this._parent.subChanged(this.subs.selectedCount());
-				}
-
-				/**
 				 * Affichage de l'objet primaire
 				 */
 				this.bindPrimary = function(obj) {
@@ -546,7 +473,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				};
 			})
 
-			function ZoomContainerBox(layoutManager, actionListener, headerText) {
+			function ZoomContainerBox(layoutManager) {
 
 				AbstractBoxContainer.call(this, layoutManager, { addZIndex : true }, new FlowLayout({ direction : FlowLayout.Direction.BOTTOM }));
 				AnimateAppearanceCss.call(this, "fadeIn", "fadeOut");
@@ -559,15 +486,12 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 					moveTo.add({ x : -topLeft.x, y : -topLeft.y });
 				}.bind(this);
 
-				var postProcessAction = this.postProcessAction.bind(this);
-
 				// carte primaire (à gauche)
 				this.primaryCardsModel = new CardsModel();
 				this.primaryCardContainer = new CardsContainerBox(layoutManager, { cardsize : "zoom", addZIndex : true, IsZoomed : true },
 						new AnchorLayout({}), true);
 				this.primaryCardContainer.setCardsModel(this.primaryCardsModel);
 				this.primaryActions = new ActionsBoxContainer(this);
-				this.primaryActions.observe(postProcessAction, [ AbstractBoxContainer.CHILD_ADDED ]);
 
 				// carte secondaire (à droite)
 				this.secondaryCardsModel = new CardsModel();
@@ -575,7 +499,6 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 						{}), true);
 				this.secondaryCardContainer.setCardsModel(this.secondaryCardsModel);
 				this.secondaryActions = new ActionsBoxContainer(this);
-				this.secondaryActions.observe(postProcessAction, [ AbstractBoxContainer.CHILD_ADDED ]);
 
 				this.element = $("<div class='zoombox'/>");
 
@@ -648,9 +571,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				this.removedCard = null;
 
 				this.setVisible(false);
-				this.setHeaderText(headerText);
-
-				this.actionListener = actionListener;
+				this.setHeaderText(null);
 			}
 
 			// export d'autre classe
@@ -671,20 +592,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				}
 
 				/**
-				 * Renvoi la liste des subs selectionnees
-				 */
-				this.getSelectedSubs = function() {
-					var subs = [];
-					this.zoomedDetail.eachSubs(function(sub) {
-						if (sub.isChecked())
-							subs.push(sub.subId());
-					});
-
-					return subs;
-				}
-
-				/**
-				 * Renvoi l'ordre de elements
+				 * Renvoi l'ordre de elements. TODO il faut le placer dans les ActionBox
 				 */
 				this.getSelectedOrder = function() {
 					var order = [];
@@ -692,14 +600,6 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 						order.push(c.id());
 					})
 					return order;
-				}
-
-				/**
-				 * Activation d'une action
-				 */
-				this.activateAction = function(action) {
-					if (this.actionListener)
-						this.actionListener(action);
 				}
 
 				/**
@@ -741,25 +641,6 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 						css.left -= topLeft.x;
 						return css;
 					};
-				}
-
-				/**
-				 * Gestion des actions
-				 */
-				this.postProcessAction = function(evt) {
-					var actionBox = evt.added;
-					if (actionBox.actionType == ActionBox.BREAK_TYPE) {
-						var nb = this.zoomedDetail.subs.selectedCount();
-						actionBox.updateVariableCost(nb);
-					}
-				}
-
-				/**
-				 * La sélection du sous-routine à changer
-				 */
-				this.subChanged = function(selectedSubsCount) {
-					this.primaryActions.updateVariableCosts(ActionBox.BREAK_TYPE, selectedSubsCount);
-					this.secondaryActions.updateVariableCosts(ActionBox.BREAK_TYPE, selectedSubsCount);
 				}
 
 				/**

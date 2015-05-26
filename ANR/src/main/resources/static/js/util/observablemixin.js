@@ -36,6 +36,10 @@ define([], function() {
 				func : listener,
 				types : types
 			});
+			
+			return function(){
+				this.unobserve(listener);
+			}.bind(this);
 		}
 
 		/**

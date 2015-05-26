@@ -95,6 +95,18 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config)
 	mix(Card, function() {
 
 		/**
+		 * Enregistre des écouteurs sur la carte
+		 */
+		this.registerAction = function(action) {
+			if (action.isSelectionAction()) {
+				action.observe(function(evt) {
+					var sel = evt.newvalue;
+					this.setMark(sel === true);
+				}.bind(this), [ "selected" ]);
+			}
+		}
+
+		/**
 		 * Place les cartes à ordonner
 		 */
 		this.setCardsOrder = function(order) {

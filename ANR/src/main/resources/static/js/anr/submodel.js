@@ -5,6 +5,7 @@ define([ "mix", "underscore", "util/observablemixin" ], function(mix, _, Observa
 
 	SubModel.REMOVED = "subsRemoved";
 	SubModel.ADDED = "subsAdded";
+	SubModel.SELECTED = "subSelected";
 	SubModel.BROKEN = "subsBroken";
 
 	mix(SubModel, ObservableMixin);
@@ -21,7 +22,7 @@ define([ "mix", "underscore", "util/observablemixin" ], function(mix, _, Observa
 				} else
 					added.push(s);
 			}.bind(this));
-			
+
 			if (!_.isEmpty(added))
 				this.performChange(SubModel.ADDED, function() {
 					var me = this;
@@ -30,18 +31,35 @@ define([ "mix", "underscore", "util/observablemixin" ], function(mix, _, Observa
 							me.subs[s.id] = s;
 						})
 
-					return {
-						newSubs : subs,
-						size : this.subs.length
-					};
+					return { newSubs : subs, size : this.subs.length };
 				}.bind(this));
 			else if (!_.isEmpty(broken))
 				this.performChange(SubModel.BROKEN, function() {
-					return {
-						broken : broken,
-						size : this.subs.length
-					}
+					return { broken : broken, size : this.subs.length }
 				}.bind(this))
+		}
+
+		/**
+		 * Compte les sous-routine selectionne
+		 */
+		this.getSelecteds = function() {
+			var selecteds = [];
+			this.eachSubs(function(s) {
+				if (s.selected)
+					selecteds.push(s);
+			});
+			return selecteds;
+		}
+
+		/**
+		 * Changement de sélection d'un sub
+		 */
+		this.select = function(sub, selected) {
+			this.performChange(SubModel.SELECTED, function() {
+				sub.selected = selected;
+				return { selected : selected }
+			}.bind(this))
+
 		}
 
 		/**
@@ -64,10 +82,7 @@ define([ "mix", "underscore", "util/observablemixin" ], function(mix, _, Observa
 				this.performChange(SubModel.REMOVED, function() {
 					var removed = this.subs;
 					this.subs = {};
-					return {
-						removedSubs : removed,
-						size : this.subs.length
-					};
+					return { removedSubs : removed, size : this.subs.length };
 				}.bind(this));
 			}
 		}

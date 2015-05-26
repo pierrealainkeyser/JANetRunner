@@ -1,9 +1,9 @@
 define([ "mix", "jquery", "underscore", "conf", "layout/package", "layout/impl/handlayout", "anr/corp", "anr/runner", "anr/corpserver", "anr/focus",
 		"anr/card", "anr/turntracker", "anr/zoomcontainerbox", "anr/cardcontainerbox", "geometry/rectangle", "anr/actionmodel",//
-		"anr/runbox", "geometry/point" ],//
+		"anr/runbox", "geometry/point", "anr/actionbus" ],//
 function(mix, $, _, config, layout, HandLayout, Corp, Runner, CorpServer, FocusBox, Card,// 
 TurnTracker, ZoomContainerBox, CardContainerBox, Rectangle, ActionModel, //
-RunBox, Point) {
+RunBox, Point, ActionBus) {
 
 	/**
 	 * Gestion de l'information de sélection
@@ -79,6 +79,9 @@ RunBox, Point) {
 		this.servers = {};
 		this.cards = {};
 
+		// le gestionnaire d'action
+		this.actionBus = new ActionBus(outputFunction);
+
 		// les cartes en main
 		this.hand = new layout.AbstractBoxContainer(layoutManager, { addZIndex : true, childZIndexFactor : 3 }, new HandLayout());
 		this.hand.setZIndex(config.zindex.card);
@@ -89,11 +92,7 @@ RunBox, Point) {
 		// mise à jour des positions
 		$(window).resize(layoutManager.withinLayout(this.updateLocalPositions.bind(this)));
 		this.updateLocalPositions();
-		
-		//la fonction de sortie des actions
-		this.outputFunction=outputFunction;
-		//permet de gérer le controle de doublon d'action
-		this.lastAction=-1;
+
 
 	}
 
@@ -101,32 +100,6 @@ RunBox, Point) {
 
 		var inSelectionCtx = function(box) {
 			return box.renderingHints().inSelectionCtx;
-		}
-
-		/**
-		 * Activation d'une action
-		 */
-		this.activateAction = function(actionbox) {
-			var encoded = actionbox.encodeResponse();
-
-			console.log("activateAction", actionbox);
-			console.debug("encoded", encoded);
-
-			var id = encoded.rid;
-			//on vérifie que nous n'avons pas déjà envoyer l'action
-			if (this.lastAction < id) {
-				this.lastAction =id;
-				var alls = _.values(this.servers).concat(_.values(this.cards));
-				_.each(alls, function(cos) {
-					// suppression des toutes les actions
-					cos.setActions();
-					if(cos instanceof Card)
-						cos.setMark(false);
-				});
-
-				if (this.outputFunction)
-					this.outputFunction(encoded);
-			}
 		}
 
 		/**
@@ -186,13 +159,13 @@ RunBox, Point) {
 		 * Mise à jour de toutes les cartes
 		 */
 		this.updateCardsAndServers = function(msg) {
-			var addToHost=[];
+			var addToHost = [];
 			_.each(msg.cards, function(def) {
 				var card = this.card(def);
 
-				if (def.location){
-					var shallAdd=this.addToContainer(def.location, card);
-					if(shallAdd)
+				if (def.location) {
+					var shallAdd = this.addToContainer(def.location, card);
+					if (shallAdd)
 						addToHost.push(card);
 				}
 
@@ -200,7 +173,7 @@ RunBox, Point) {
 					card.setTokensValues(def.tokens);
 
 				if (def.actions)
-					card.setActions(def.actions);
+					card.setActions(this.actionBus.createActions(card, def.actions));
 
 				if (def.subs)
 					card.setSubs(def.subs);
@@ -223,9 +196,9 @@ RunBox, Point) {
 					card.setCardsOrder(null);
 
 			}.bind(this));
-			
-			//recopie place l'objet au bon endroit
-			_.each(addToHost, function(card){
+
+			// recopie place l'objet au bon endroit
+			_.each(addToHost, function(card) {
 				card.addInHostWrapper();
 			});
 
@@ -233,7 +206,7 @@ RunBox, Point) {
 				var server = this.server(def);
 
 				if (def.actions)
-					server.setActions(def.actions);
+					server.setActions(this.actionBus.createActions(server, def.actions));
 
 			}.bind(this));
 
@@ -257,8 +230,8 @@ RunBox, Point) {
 				else if ("upgrades" === key)
 					server.addToUpgrades(card.wrapped(), path.index);
 			} else if ("card" === first) {
-				var host=this.card({id:path.serverIndex });
-				card.setHost(host,path.index);
+				var host = this.card({ id : path.serverIndex });
+				card.setHost(host, path.index);
 				return true;
 			} else if ("resource" === first)
 				this.runner.addToResource(card.wrapped(), path.index);
@@ -274,10 +247,10 @@ RunBox, Point) {
 				this.runner.addToHeap(card.wrapped(), path.index);
 			else if ("hand" === first)
 				this.hand.addChild(card.unwrapped(), path.index);
-			
-			//suppression de l'hote
+
+			// suppression de l'hote
 			card.setHost(null);
-			
+
 			return false;
 		}
 
@@ -317,6 +290,9 @@ RunBox, Point) {
 			var card = this.cards[id];
 			if (!card) {
 				card = new Card(this.layoutManager, def, this.activate.bind(this));
+				
+				//on ecoute le model de sub
+				this.actionBus.bindSubModel(card.subModel);
 
 				// on traque la premiere id à la création
 				if ("id" === def.type && this.local === def.faction) {
@@ -366,10 +342,10 @@ RunBox, Point) {
 			} else if (oldfocused instanceof ZoomContainerBox.ActionBox) {
 				if (oldfocused.isTraceAction()) {
 					if (Point.PLANE_LEFT === plane) {
-						oldfocused.changeTraceValue(-1);
+						oldfocused.changeTraceCost(-1);
 						return;
 					} else if (Point.PLANE_RIGHT === plane) {
-						oldfocused.changeTraceValue(1);
+						oldfocused.changeTraceCost(1);
 						return;
 					}
 				}
@@ -489,7 +465,7 @@ RunBox, Point) {
 
 			var exists = this.closeAllZooms(id);
 			if (!exists) {
-				var zoom = new ZoomContainerBox(this.layoutManager, this.activateAction.bind(this));
+				var zoom = new ZoomContainerBox(this.layoutManager);
 				zoom.setZIndex(config.zindex.zoom);
 				zoom.id = id;
 				zoom.setPrimary(primary);
