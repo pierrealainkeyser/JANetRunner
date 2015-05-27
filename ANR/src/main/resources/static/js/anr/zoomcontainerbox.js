@@ -1,9 +1,10 @@
 define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/impl/flowLayout", "layout/impl/anchorlayout", "layout/impl/gridlayout",
 		"ui/jqueryboxsize",//
 		"ui/animateappearancecss", "./headercontainerbox", "./tokencontainerbox", "ui/jquerytrackingbox", "./cardscontainerbox", "./cardsmodel",
-		"./actionmodel", "./submodel", "./anrtextmixin" ], //
+		"./actionmodel", "./submodel", "./anrtextmixin" , "util/observer"], //
 		function(mix, _, $, AbstractBoxContainer, FlowLayout, AnchorLayout, GridLayout, JQueryBoxSize,//
-		AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, CardsModel, ActionModel, SubModel, AnrTextMixin) {
+		AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, CardsModel, ActionModel, SubModel, AnrTextMixin,
+		Observer) {
 
 			function SubBox(parent, sub) {
 				JQueryBoxSize.call(this, parent.layoutManager, $("<label class='sub'><input type='checkbox' tabIndex='-1'/>" + this.interpolateString(sub.text)
@@ -164,6 +165,9 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			function ActionBox(layoutManager, action) {
 				JQueryBoxSize.call(this, layoutManager, $("<a class='action btn btn-default'><span class='cost'/><span class='text'>"
 						+ this.interpolateString(action.text || "") + "</span></div>"));
+				
+				Observer.call(this);
+				
 				AnimateAppearanceCss.call(this, "lightSpeedIn", "lightSpeedOut");
 				this._cost = this.element.find(".cost");
 				this.action = action;
@@ -224,7 +228,8 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 
 				}.bind(this)));
 
-				action.observe(function(e) {
+				//suivi de l'etat de l'action
+				this.monitor(action, function(e) {
 					var state = e.newvalue;
 					if (state) {
 						this.cost(state.cost);
@@ -237,6 +242,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			mix(ActionBox, JQueryBoxSize);
 			mix(ActionBox, AnimateAppearanceCss);
 			mix(ActionBox, AnrTextMixin);
+			mix(ActionBox, Observer);
 			mix(ActionBox, function() {
 
 				this.isTraceAction = function() {
@@ -333,7 +339,9 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				 */
 				this.clear = function() {
 					this.setVisible(false);
-					// TODO suppression des ecouteurs
+					
+					//suppression des écouteurs
+					this.cleanMonitoreds();
 
 				}
 			});
