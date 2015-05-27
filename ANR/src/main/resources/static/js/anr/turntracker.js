@@ -1,7 +1,7 @@
-define([ "mix", "jquery", "conf", "ui/jqueryboxsize", "ui/animateappearancecss", "geometry/size",// 
-"layout/impl/flowlayout", "layout/impl/anchorlayout", "layout/abstractboxcontainer", "ui/jquerytrackingbox" ],// 
-function(mix, $, config, JQueryBoxSize, AnimateAppeareanceCss, Size,//
-FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox) {
+define([ "mix", "jquery", "conf", "ui/jqueryboxsize", "ui/animateappearancecss", "geometry/size", "geometry/rectangle",// 
+"layout/impl/flowlayout", "layout/impl/anchorlayout", "layout/abstractboxcontainer", "ui/jquerytrackingbox", "anr/cardscontainerbox" ],// 
+function(mix, $, config, JQueryBoxSize, AnimateAppeareanceCss, Size, Rectangle,//
+FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox, CardsContainerBox) {
 
 	function ActiveFactionBox(layoutManager) {
 		JQueryBoxSize.call(this, layoutManager, $("<div class='faction icon'/>"), { zIndex : true, rotation : false, autoAlpha : true, size : true });
@@ -38,26 +38,72 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox) {
 	// ---------------------------------------------------
 
 	function ScoreFactionBox(layoutManager, additionnalClass) {
-		JQueryBoxSize.call(this, layoutManager, $("<div class='faction score " + additionnalClass + "'><span class='icon'/><span class='scorearea'/></div>"), {
-			zIndex : true, rotation : false, autoAlpha : true, size : true });
+
+		AbstractBoxContainer.call(this, layoutManager, { addZIndex : true }, new FlowLayout({ direction : FlowLayout.Direction.RIGHT,
+			align : FlowLayout.Align.MIDDLE, spacing : 0 }));
 		AnimateAppeareanceCss.call(this, "bounceIn", "bounceOut");
-		this.originalShadow = this.element.css("box-shadow");
+
+		this.tracking = new JQueryBoxSize(layoutManager, $("<div class='faction score " + additionnalClass
+				+ "'><span class='icon'/><span class='scorearea'/><span class='more'/></div>"), { size : false });
+		this.tracking.local.size.width = this.tracking.local.size.width - 5;
+
+		this.icon = this.tracking.element.find(".icon");
+		this.area = this.tracking.element.find(".scorearea");
+
+		// TODO il faut pouvoir changer la taille du more en fonction de la
+		// taille du conteneur de carte
+		this.more = this.tracking.element.find(".more");
+
+		this.cardsContainer = new CardsContainerBox(layoutManager, { cardsize : "mini", addZIndex : true }, new FlowLayout({
+			direction : FlowLayout.Direction.RIGHT, align : FlowLayout.Align.MIDDLE, spacing : 3 }, false));
+		this.cardsContainer.local.observe(function() {
+			// recalcul de la taille du composant à l'affichage
+			this.more.width(this.cardsContainer.local.size.width );
+		}.bind(this), [ Rectangle.RESIZE_TO ]);
+		
+		//TODO le merge to screen du container doit prendre un petit offset pour placer les cartes joliment
+
+		this.originalShadow = this.tracking.element.css("box-shadow");
 		this.oldScore = null;
 		this.active = false;
-		this.iconArea = this.element.find(".icon");
-		this.scoreArea = this.element.find(".scorearea");
 		this.faction = null;
+
+		this.addChild(this.tracking);
+		this.addChild(this.cardsContainer);
+
+		this.tracking.syncScreen = function() {
+			var i = this.tracking;
+			var css = i.computeCssTweenBox(this, i.cssTweenConfig);
+
+			if (this.active) {
+				var color = this.icon.css('color');
+				css.boxShadow = "0px 0px 1px 2px " + color;
+			} else
+				css.boxShadow = this.originalShadow;
+			css.zIndex = config.zindex.status;
+
+			var set = i.firstSyncScreen();
+			i.tweenElement(i.element, css, set);
+		}.bind(this);
 	}
-	mix(ScoreFactionBox, JQueryBoxSize);
+	mix(ScoreFactionBox, AbstractBoxContainer);
 	mix(ScoreFactionBox, AnimateAppeareanceCss);
 	mix(ScoreFactionBox, function() {
+
+		/**
+		 * Délégation au container
+		 */
+		this.setCardsModel = function(cardsModel) {
+			this.cardsContainer.setCardsModel(cardsModel);
+		}
+
 		/**
 		 * Changement de l'affichage de l'activite
 		 */
 		this.setActive = function(active) {
 			if (active !== this.active) {
 				this.active = active;
-				this.needSyncScreen();
+				this.tracking.needSyncScreen();
 			}
 		}
 
@@ -66,7 +112,8 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox) {
 		 */
 		this.setFaction = function(faction) {
 			this.faction = faction;
-			this.iconArea.addClass("icon-" + faction + " " + faction);
+			this.icon.addClass("icon-" + faction + " " + faction);
+
 		}
 
 		/**
@@ -74,36 +121,21 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox) {
 		 */
 		this.setScore = function(score) {
 
+			var scoreElement = this.area;
 			var updateText = function() {
-				this.scoreArea.text(score);
-				this.computeSize(this.element);
+				scoreElement.text(score);
 				this.oldScore = score;
 			}.bind(this);
 
 			// l'animation se fait dans un layout
 			if (this.oldScore !== null && this.oldScore !== score)
-				this.animateSwap(this.scoreArea, this.layoutManager.withinLayout(updateText));
+				this.animateSwap(scoreElement, this.layoutManager.withinLayout(updateText));
 			else {
 				updateText();
-				this.animateEnter(this.scoreArea);
+				this.animateEnter(scoreElement);
 			}
 		}
 
-		/**
-		 * réalise la synchronisation de base
-		 */
-		this.syncScreen = function() {
-			var css = this.computeCssTween(this.cssTweenConfig);
-
-			if (this.active) {
-				var color = this.iconArea.css('color');
-				css.boxShadow = "0px 0px 1px 2px " + color;
-			} else
-				css.boxShadow = this.originalShadow;
-
-			var set = this.firstSyncScreen();
-			this.tweenElement(this.element, css, set);
-		}
 	});
 
 	// ---------------------------------------------------
@@ -220,7 +252,7 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox) {
 		var trackingBox = new JQueryTrackingBox(layoutManager, $("<div class='statusrow'/>"));
 		trackingBox.trackAbstractBox(this);
 
-		var clickWrapper = new AbstractBoxContainer(layoutManager, { addZIndex : true }, new AnchorLayout({ minSize : new Size(130, 30) }));
+		var clickWrapper = new AbstractBoxContainer(layoutManager, { addZIndex : true }, new AnchorLayout({ minSize : new Size(150, 30) }));
 		clickWrapper.addChild(this.clicks);
 
 		this.addChild(this.corpScore);

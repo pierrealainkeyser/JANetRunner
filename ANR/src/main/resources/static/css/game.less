@@ -176,11 +176,11 @@ div#conf {
 
 //------------------------------
 .faction.icon {
-	@size: 30px;
+	@size: 37px;
 	.element ();
 	height: @size;
 	width: @size;
-	font-size: 22px;
+	font-size: 27px;
 	line-height: @size;
 	text-align: center;
 	.text-border (@color2);
@@ -188,22 +188,27 @@ div#conf {
 
 //------------------------------
 .faction.score {
-	@size: 30px;
+	@h: 37px;
+	@w: 30px;
 	.element ();
 	.unselectable ();
-	width: @size * 2;
-	height: @size;
 	display: table;
 	border-radius: 3px;
-	font-size: 20px;
 	box-shadow: 0px 0px 1px 1px @color1;
 	.icon , .scorearea {
-		display: table-cell;
-		width: 50%;
-		height: 100%;
+		display: inline-block;
+		width: @w;
+		height: @h;
+		line-height: @h;
 		vertical-align: middle;
 		text-align: center;
 		.text-border (@color2);
+		font-size: 27px;
+	}
+
+	.more {
+		display: inline-block;
+		width: 5px;
 	}
 
 	.scorearea {
@@ -226,7 +231,7 @@ div#conf {
 
 //------------------------------
 .clickcounter {
-	@token-size: 28px;
+	@token-size: 32px;
 	.element ();
 	width: @token-size;
 	height: @token-size;
@@ -237,7 +242,7 @@ div#conf {
 
 //------------------------------
 .gamestep {
-	@size: 26px;
+	@size: 32px;
 	.element ();
 	.unselectable ();
 	height: @size;

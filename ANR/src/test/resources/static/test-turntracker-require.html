@@ -24,8 +24,8 @@
 		} //
 	});
 
-	require([ "jquery", "layout/layoutmanager", "anr/turntracker" ],//
-	function($, LayoutManager, TurnTracker) {
+	require([ "jquery", "layout/layoutmanager", "anr/turntracker", "anr/card", "anr/cardsmodel" ],//
+	function($, LayoutManager, TurnTracker, Card, CardsModel) {
 		$(function() {
 
 			var layoutManager = new LayoutManager($("#main"));
@@ -34,9 +34,16 @@
 				var turnTracker = new TurnTracker(layoutManager);
 				turnTracker.local.moveTo({ x : 0, y : 0 });
 
+				var i = 0;
+				var cm = new CardsModel();
+
 				turnTracker.corpScore.setFaction("nbn");
 				turnTracker.corpScore.setScore(5);
 				turnTracker.corpScore.setActive(true);
+				turnTracker.runnerScore.setCardsModel(cm);
+				
+				cm.add(new Card(layoutManager, { id : i++, url : "01080.png", faction : "corp" }));
+				
 
 				turnTracker.runnerScore.setFaction("shaper");
 				turnTracker.runnerScore.setScore(1);
@@ -50,6 +57,7 @@
 				setTimeout(layoutManager.withinLayout(function() {
 
 					turnTracker.corpScore.setActive(false);
+					cm.add(new Card(layoutManager, { id : i++, url : "01088.png", faction : "corp" }));
 
 					turnTracker.runnerScore.setScore(3);
 					turnTracker.runnerScore.setActive(true);

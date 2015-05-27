@@ -7,7 +7,7 @@ function(Size, AnchorLayout, FlowLayout, TranslateLayout, GridLayout, HostLayout
 
 		// configuration pour les cartes
 		this.card = { normal : new Size(w, h),//
-		mini : new Size(w / 3, h / 3),//
+		mini : new Size(w / 3.2, h / 3.2),//
 		zoom : new Size(w * 2, h * 2),//
 		selected : new Size(w * 1.75, h * 1.75),//		
 		layouts : { tokens : new GridLayout({ maxCols : 3, padding : 2 }),//
