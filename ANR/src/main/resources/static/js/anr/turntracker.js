@@ -45,23 +45,27 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox, CardsContaine
 
 		this.tracking = new JQueryBoxSize(layoutManager, $("<div class='faction score " + additionnalClass
 				+ "'><span class='icon'/><span class='scorearea'/><span class='more'/></div>"), { size : false });
-		this.tracking.local.size.width = this.tracking.local.size.width - 5;
 
+		this.tracking.local.size.width=65;
+		
 		this.icon = this.tracking.element.find(".icon");
 		this.area = this.tracking.element.find(".scorearea");
 
-		// TODO il faut pouvoir changer la taille du more en fonction de la
+		//  il faut pouvoir changer la taille du more en fonction de la
 		// taille du conteneur de carte
 		this.more = this.tracking.element.find(".more");
 
 		this.cardsContainer = new CardsContainerBox(layoutManager, { cardsize : "mini", addZIndex : true }, new FlowLayout({
-			direction : FlowLayout.Direction.RIGHT, align : FlowLayout.Align.MIDDLE, spacing : 3 }, false));
+			direction : FlowLayout.Direction.RIGHT, spacing : 3 }, false));
 		this.cardsContainer.local.observe(function() {
-			// recalcul de la taille du composant à l'affichage
+			// TODO placer un tween ? recalcul de la taille du composant à l'affichage
 			this.more.width(this.cardsContainer.local.size.width );
 		}.bind(this), [ Rectangle.RESIZE_TO ]);
 		
-		//TODO le merge to screen du container doit prendre un petit offset pour placer les cartes joliment
+		//déplacement de la position à l'écran
+		this.cardsContainer.additionnalMergePosition=function(point){
+			point.x -= 5;
+		};
 
 		this.originalShadow = this.tracking.element.css("box-shadow");
 		this.oldScore = null;
@@ -254,10 +258,13 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox, CardsContaine
 
 		var clickWrapper = new AbstractBoxContainer(layoutManager, { addZIndex : true }, new AnchorLayout({ minSize : new Size(150, 30) }));
 		clickWrapper.addChild(this.clicks);
+		
+		var innerScore=new AbstractBoxContainer( layoutManager, { addZIndex : true }, new FlowLayout({
+			direction : FlowLayout.Direction.RIGHT}));		
+		innerScore.addChild(this.corpScore);
+		innerScore.addChild(this.runnerScore);
 
-		this.addChild(this.corpScore);
-		this.addChild(this.runnerScore);
-
+		this.addChild(innerScore);
 		this.addChild(new JQueryBoxSize(layoutManager, $("<span class='statusseparator left'/>")));
 		this.addChild(clickWrapper);
 		this.addChild(new JQueryBoxSize(layoutManager, $("<span class='statusseparator right'/>")));

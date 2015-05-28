@@ -35,14 +35,17 @@
 				turnTracker.local.moveTo({ x : 0, y : 0 });
 
 				var i = 0;
-				var cm = new CardsModel();
+				var cmRunner = new CardsModel();
+				var cmCorp = new CardsModel();
 
 				turnTracker.corpScore.setFaction("nbn");
 				turnTracker.corpScore.setScore(5);
 				turnTracker.corpScore.setActive(true);
-				turnTracker.runnerScore.setCardsModel(cm);
+				turnTracker.corpScore.setCardsModel(cmCorp);
 				
-				cm.add(new Card(layoutManager, { id : i++, url : "01080.png", faction : "corp" }));
+				turnTracker.runnerScore.setCardsModel(cmRunner);
+				
+				cmRunner.add(new Card(layoutManager, { id : i++, url : "01080.png", faction : "corp" }));
 				
 
 				turnTracker.runnerScore.setFaction("shaper");
@@ -57,7 +60,7 @@
 				setTimeout(layoutManager.withinLayout(function() {
 
 					turnTracker.corpScore.setActive(false);
-					cm.add(new Card(layoutManager, { id : i++, url : "01088.png", faction : "corp" }));
+					cmCorp.add(new Card(layoutManager, { id : i++, url : "01088.png", faction : "corp" }));
 
 					turnTracker.runnerScore.setScore(3);
 					turnTracker.runnerScore.setActive(true);

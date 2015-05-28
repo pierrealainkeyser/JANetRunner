@@ -3,7 +3,7 @@ define([ "underscore", "mix", "geometry/package", "./basiclayout" ], function(_,
 		options = options || {};
 		BasicLayout.call(this, options);
 		this.padding = options.padding || 0;
-		this.spacing = options.spacing || 5;
+		this.spacing = options.spacing || 0;
 		this.align = options.align || FlowLayout.Align.FIRST;
 		var direction = options.direction || FlowLayout.Direction.BOTTOM;
 
@@ -78,7 +78,8 @@ define([ "underscore", "mix", "geometry/package", "./basiclayout" ], function(_,
 			}.bind(this));
 
 			// application du padding au besoin
-			bounds = bounds.grow(this.padding);
+			if(this.padding>0)
+				bounds = bounds.grow(this.padding);
 
 			// calcul de l'offset pour que les coordonnées commence
 			// à 0,0
