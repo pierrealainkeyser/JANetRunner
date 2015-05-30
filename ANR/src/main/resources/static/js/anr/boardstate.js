@@ -79,8 +79,19 @@ RunBox, Point, ActionBus) {
 		this.servers = {};
 		this.cards = {};
 
+		var clearActions = function(c) {
+			c.setActions();
+		}
+
 		// le gestionnaire d'action
-		this.actionBus = new ActionBus(outputFunction);
+		this.actionBus = new ActionBus(function(act) {
+			_.each(this.servers, clearActions);
+			_.each(this.cards, clearActions);
+
+			if (_.isFunction(outputFunction))
+				outputFunction(act);
+
+		}.bind(this));
 
 		// les cartes en main
 		this.hand = new layout.AbstractBoxContainer(layoutManager, { addZIndex : true, childZIndexFactor : 3 }, new HandLayout());
@@ -92,7 +103,6 @@ RunBox, Point, ActionBus) {
 		// mise à jour des positions
 		$(window).resize(layoutManager.withinLayout(this.updateLocalPositions.bind(this)));
 		this.updateLocalPositions();
-
 
 	}
 
@@ -290,8 +300,8 @@ RunBox, Point, ActionBus) {
 			var card = this.cards[id];
 			if (!card) {
 				card = new Card(this.layoutManager, def, this.activate.bind(this));
-				
-				//on ecoute le model de sub
+
+				// on ecoute le model de sub
 				this.actionBus.bindSubModel(card.subModel);
 
 				// on traque la premiere id à la création
@@ -331,6 +341,7 @@ RunBox, Point, ActionBus) {
 							parent.swapChild(index, index - 1);
 						}
 						return;
+
 					} else if (Point.PLANE_RIGHT === plane) {
 						var index = parent.indexOf(oldfocused);
 						if (index < parent.size() - 1) {
@@ -468,6 +479,10 @@ RunBox, Point, ActionBus) {
 				var zoom = new ZoomContainerBox(this.layoutManager);
 				zoom.setZIndex(config.zindex.zoom);
 				zoom.id = id;
+				zoom.observe(function(evt) {
+					this.orderingChangeds(evt.order);
+				}.bind(this), [ ZoomContainerBox.ORDERING_CHANGE ]);
+
 				zoom.setPrimary(primary);
 
 				if (this.zoomInfo.isPrimaryZoom(zoom))
@@ -476,6 +491,14 @@ RunBox, Point, ActionBus) {
 				this.activeZoom = zoom;
 				this.zooms[id] = zoom;
 			}
+		}
+
+		/**
+		 * Changement dans l'ordre des carte sélectionnés à transmettre au bus
+		 * d'actions
+		 */
+		this.orderingChangeds = function(order) {
+			this.actionBus.orderingChangeds(order);
 		}
 
 		/**

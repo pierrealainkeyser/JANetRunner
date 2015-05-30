@@ -1,10 +1,10 @@
 define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/impl/flowLayout", "layout/impl/anchorlayout", "layout/impl/gridlayout",
 		"ui/jqueryboxsize",//
 		"ui/animateappearancecss", "./headercontainerbox", "./tokencontainerbox", "ui/jquerytrackingbox", "./cardscontainerbox", "./cardsmodel",
-		"./actionmodel", "./submodel", "./anrtextmixin" , "util/observer"], //
+		"./actionmodel", "./submodel", "./anrtextmixin", "util/observer" ], //
 		function(mix, _, $, AbstractBoxContainer, FlowLayout, AnchorLayout, GridLayout, JQueryBoxSize,//
 		AnimateAppearanceCss, HeaderContainerBox, TokenContainerBox, JQueryTrackingBox, CardsContainerBox, CardsModel, ActionModel, SubModel, AnrTextMixin,
-		Observer) {
+				Observer) {
 
 			function SubBox(parent, sub) {
 				JQueryBoxSize.call(this, parent.layoutManager, $("<label class='sub'><input type='checkbox' tabIndex='-1'/>" + this.interpolateString(sub.text)
@@ -165,9 +165,9 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			function ActionBox(layoutManager, action) {
 				JQueryBoxSize.call(this, layoutManager, $("<a class='action btn btn-default'><span class='cost'/><span class='text'>"
 						+ this.interpolateString(action.text || "") + "</span></div>"));
-				
+
 				Observer.call(this);
-				
+
 				AnimateAppearanceCss.call(this, "lightSpeedIn", "lightSpeedOut");
 				this._cost = this.element.find(".cost");
 				this.action = action;
@@ -210,7 +210,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 					this.computeSize(this.element);
 					this.checkedInput.prop("checked", this.action.selected || false);
 
-					this.element.focus(function() {
+					this.checkedInput.focus(function() {
 						$(this).blur();
 					})
 				}
@@ -228,7 +228,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 
 				}.bind(this)));
 
-				//suivi de l'etat de l'action
+				// suivi de l'etat de l'action
 				this.monitor(action, function(e) {
 					var state = e.newvalue;
 					if (state) {
@@ -283,7 +283,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 						var button = this.getButton();
 						button.click();
 
-						if (this.isSelectionAction())
+						if (this.action.isSelectionAction())
 							this.action.setSelected(this.checkedInput.is(':checked'));
 					}
 				}
@@ -339,8 +339,8 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				 */
 				this.clear = function() {
 					this.setVisible(false);
-					
-					//suppression des écouteurs
+
+					// suppression des écouteurs
 					this.cleanMonitoreds();
 
 				}
@@ -436,6 +436,11 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 
 				this.cardsOrderContainer = new CardsContainerBox(layoutManager, { inSelectionCtx : true, addZIndex : true, IsZoomed : true }, new GridLayout({
 					maxCols : 6, spacing : 5 }), true);
+
+				this.cardsOrderContainer.observe(function() {
+					parent.orderChanged();
+				}, [ AbstractBoxContainer.CHILDS_SWAPPED, AbstractBoxContainer.CHILD_ADDED  ]);
+
 				this.cardsOrderHeader = new HeaderContainerBox(layoutManager, this.cardsOrderContainer, "Ordering <small>(left is first)</small>");
 
 				parent.updateCssTweening(this.cardsOrderHeader.header);
@@ -586,6 +591,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			ZoomContainerBox.SubBox = SubBox;
 			ZoomContainerBox.ActionBox = ActionBox;
 			ZoomContainerBox.IsZoomed = "IsZoomed";
+			ZoomContainerBox.ORDERING_CHANGE = "orderingChange";
 
 			mix(ZoomContainerBox, AbstractBoxContainer);
 			mix(ZoomContainerBox, AnimateAppearanceCss);
@@ -600,14 +606,16 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				}
 
 				/**
-				 * Renvoi l'ordre de elements. TODO il faut le placer dans les ActionBox
+				 * Changement dans l'ordre des cartes
 				 */
-				this.getSelectedOrder = function() {
+				this.orderChanged = function() {
 					var order = [];
 					this.zoomedDetail.cardsOrderContainer.eachChild(function(c) {
 						order.push(c.id());
+					});
+					this.performChange(ZoomContainerBox.ORDERING_CHANGE, function() {
+						return { order : order };
 					})
-					return order;
 				}
 
 				/**

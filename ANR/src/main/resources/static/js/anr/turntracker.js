@@ -46,24 +46,25 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox, CardsContaine
 		this.tracking = new JQueryBoxSize(layoutManager, $("<div class='faction score " + additionnalClass
 				+ "'><span class='icon'/><span class='scorearea'/><span class='more'/></div>"), { size : false });
 
-		this.tracking.local.size.width=65;
-		
+		this.tracking.local.size.width = 64;
+
 		this.icon = this.tracking.element.find(".icon");
 		this.area = this.tracking.element.find(".scorearea");
 
-		//  il faut pouvoir changer la taille du more en fonction de la
+		// il faut pouvoir changer la taille du more en fonction de la
 		// taille du conteneur de carte
 		this.more = this.tracking.element.find(".more");
 
 		this.cardsContainer = new CardsContainerBox(layoutManager, { cardsize : "mini", addZIndex : true }, new FlowLayout({
 			direction : FlowLayout.Direction.RIGHT, spacing : 3 }, false));
 		this.cardsContainer.local.observe(function() {
-			// TODO placer un tween ? recalcul de la taille du composant à l'affichage
-			this.more.width(this.cardsContainer.local.size.width );
+			// TODO placer un tween ? recalcul de la taille du composant à
+			// l'affichage
+			this.more.width(this.cardsContainer.local.size.width);
 		}.bind(this), [ Rectangle.RESIZE_TO ]);
-		
-		//déplacement de la position à l'écran
-		this.cardsContainer.additionnalMergePosition=function(point){
+
+		// déplacement de la position à l'écran
+		this.cardsContainer.additionnalMergePosition = function(point) {
 			point.x -= 5;
 		};
 
@@ -258,9 +259,8 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox, CardsContaine
 
 		var clickWrapper = new AbstractBoxContainer(layoutManager, { addZIndex : true }, new AnchorLayout({ minSize : new Size(150, 30) }));
 		clickWrapper.addChild(this.clicks);
-		
-		var innerScore=new AbstractBoxContainer( layoutManager, { addZIndex : true }, new FlowLayout({
-			direction : FlowLayout.Direction.RIGHT}));		
+
+		var innerScore = new AbstractBoxContainer(layoutManager, { addZIndex : true }, new FlowLayout({ direction : FlowLayout.Direction.RIGHT }));
 		innerScore.addChild(this.corpScore);
 		innerScore.addChild(this.runnerScore);
 

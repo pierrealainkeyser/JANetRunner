@@ -19,6 +19,7 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 	}
 
 	AbstractBoxContainer.CHILD_ADDED = "childAdded";
+	AbstractBoxContainer.CHILDS_SWAPPED = "childsSwapped";
 	AbstractBoxContainer.CHILD_REMOVED = "childRemoved";
 	AbstractBoxContainer.ALL_CHILDS_REMOVED = "allChildsRemoved";
 
@@ -132,6 +133,11 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 			i1.needMergeToScreen();
 			i2.needMergeToScreen();
 
+			//envoi du swap
+			this.performChange(AbstractBoxContainer.CHILDS_SWAPPED, function() {
+				return { childs : [ i1, i2 ] };
+			});
+
 		}
 
 		/**
@@ -188,12 +194,12 @@ define([ "mix", "underscore", "./abstractbox", "geometry/rectangle" ], function(
 		this.size = function() {
 			return this.childs.length;
 		}
-		
+
 		/**
 		 * Renvoi vrai si le noeud est contenu dans la liste des enfants
 		 */
-		this.containsChild=function(child){
-			return _.contains(this.childs,child);
+		this.containsChild = function(child) {
+			return _.contains(this.childs, child);
 		}
 
 		/**

@@ -18,6 +18,8 @@ function(mix, _, ActionModel, SubModel, ObservableMixin, InnerSetMixin) {
 		this.observe(this.computeState.bind(this), [ Action.VARIABLE_VALUE, Action.ENABLED ]);
 		this.enabled = true;
 		this.selectedsSubs = null;
+		this.selected = false;
+		this.order = null;
 
 		this.computeState();
 
@@ -36,16 +38,22 @@ function(mix, _, ActionModel, SubModel, ObservableMixin, InnerSetMixin) {
 		}
 
 		/**
-		 * Encodage de la réponse TODO à compter
+		 * Encodage de la réponse
 		 */
 		this.encodeResponse = function() {
-			var response = { rid : this.action.id };
+			var response = { rid : this.id };
 			if (this.isTraceAction())
 				response.object = { trace : this.variableValue };
 			else if (this.isBreakAction())
-				response.object = { subs : [] };
-			else if (this.isOrderingAction())
-				response.object = { order : this.container.getSelectedOrder() };
+				response.object = { subs : _.map(this.selectedsSubs, function(s) {
+					return s.id;
+				}) };
+			else if (this.isOrderingAction()) {
+				response.object = { order : this.order };
+			} else if (this.isConfirmSelectionAction())
+				response.object = { selecteds : _.map(this.selectedsAction, function(a) {
+					return a.owner.id();
+				}) };
 
 			return response;
 		}
@@ -143,25 +151,45 @@ function(mix, _, ActionModel, SubModel, ObservableMixin, InnerSetMixin) {
 	Action.SELECTION_TYPE = "selection";
 	Action.CONFIRM_SELECTION_TYPE = "confirmselection";
 
-	function ActionBus() {
+	function ActionBus(listener) {
 		this.actions = [];
+		this.lastActionId = -1;
+		this.listener = listener;
 	}
 
 	mix(ActionBus, function() {
 
+		/**
+		 * Activation d'une action
+		 */
 		this.activateAction = function(action) {
-			console.log("activateAction", action);
+			if (this.lastActionId < action.id) {
+				var enc = action.encodeResponse();
+				console.log("activateAction", action, "------------", enc);
+				this.lastActionId = action.id;
+
+				// nettoyage de la sélections
+				_.each(this.actions, function(a) {
+					if (a.isSelectionAction()){
+						a.setSelected(false);
+					}
+				});
+
+				// nettoyage des actions
+				this.actions = [];
+
+				if (this.listener)
+					this.listener(enc);
+			}
 		}
 
 		/**
-		 * Ecoute le model pour avoir les actions selectionned
+		 * Changement de l'ordre on le place dans les actions
 		 */
-		this.syncFromSubModel = function(submodel) {
-			var selecteds = submodel.getSelecteds();
+		this.orderingChangeds = function(order) {
 			_.each(this.actions, function(a) {
-				if (a.isBreakAction()) {
-					a.setVariableValue(selecteds.length);
-					a.selectedsSubs = selecteds;
+				if (a.isOrderingAction()) {
+					a.order = order;
 				}
 			});
 		}
@@ -171,18 +199,61 @@ function(mix, _, ActionModel, SubModel, ObservableMixin, InnerSetMixin) {
 		 */
 		this.bindSubModel = function(submodel) {
 			submodel.observe(function(evt) {
-				this.syncFromSubModel(evt.object);
+
+				var selecteds = evt.object.getSelecteds();
+				_.each(this.actions, function(a) {
+					if (a.isBreakAction()) {
+						a.setVariableValue(selecteds.length);
+						a.selectedsSubs = selecteds;
+					}
+				});
+
 			}.bind(this), [ SubModel.SELECTED ]);
+
+			submodel.observe(function(evt) {
+				_.each(this.actions, function(a) {
+					if (a.isBreakAction()) {
+						a.setVariableValue(0);
+						a.selectedsSubs = null;
+					}
+				});
+			}.bind(this), [ SubModel.REMOVED ]);
+		}
+
+		/**
+		 * Renvoi toutes les actions sélectionnées
+		 */
+		this.getSelectedsAction = function() {
+			var selectedsActions = [];
+			_.each(this.actions, function(a) {
+				if (a.isSelectionAction() && a.selected)
+					selectedsActions.push(a);
+			});
+			return selectedsActions;
+		}
+
+		/**
+		 * Mise à jour de la confirmation
+		 */
+		this.updateConfirmSelection = function(evt) {
+			var selecteds = this.getSelectedsAction();
+			_.each(this.actions, function(a) {
+				if (a.isConfirmSelectionAction()) {
+					a.setVariableValue(selecteds.length);
+					a.selectedsAction = selecteds;
+				}
+			});
 		}
 
 		/**
 		 * Création des actions
 		 */
 		this.createActions = function(owner, actions) {
-
 			return _.map(actions, function(def) {
 				var act = new Action(this, owner, def);
 				this.actions.push(act);
+				if (act.isSelectionAction())
+					act.observe(this.updateConfirmSelection.bind(this), [ Action.SELECTED ]);
 				return act;
 			}.bind(this));
 

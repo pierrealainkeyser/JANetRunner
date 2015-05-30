@@ -126,9 +126,12 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel, Card, 
 				this.trackingBox.setVisible(false);
 				this.setVisible(false);
 				this.trackingBox.afterSyncCompleted = function() {
-					me.trackingBox.untrackAbstractBox(me.box);
-					me.trackingBox.remove();
-					me.trackingBox = null;
+					var tb = me.trackingBox;
+					if (tb) {
+						tb.untrackAbstractBox(me.box);
+						tb.remove();
+						me.trackingBox = null;
+					}
 				};
 			}
 		}
