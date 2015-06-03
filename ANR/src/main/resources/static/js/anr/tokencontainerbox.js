@@ -154,13 +154,18 @@ function(_, mix, $, TokenModel, AbstractBoxContainer, AbstractBox, JQueryBoxSize
 		this.createToken = function(type, value) {
 			var text = null;
 			if (this.includeText) {
+				var ltype=type.toLowerCase();
 				// gestion de la correspondance
-				if ("credits" === type)
+				if ("credit" === ltype)
 					text = "Credits";
-				else if ("advance" === type)
+				else if ("recurring" === ltype)
+					text = "Recurring credits";
+				else if ("advance" === ltype)
 					text = "Advancements";
-				else if ("power" === type)
+				else if ("power" === ltype)
 					text = "Power counters";
+				else if ("hability" === ltype)
+					text = "Special hability";
 				else
 					text = "?";
 			}

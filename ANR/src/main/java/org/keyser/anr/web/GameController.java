@@ -16,8 +16,7 @@ public class GameController {
 	@RequestMapping(value = "gsap")
 	public ModelAndView play() {
 
-		ModelAndView mav = new ModelAndView();
-		mav.setViewName("gsap");
+		ModelAndView mav = new ModelAndView("gsap_require");
 		mav.addObject("gameId", "123");
 		return mav;
 	}

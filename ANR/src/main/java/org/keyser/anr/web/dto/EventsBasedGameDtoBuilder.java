@@ -122,17 +122,8 @@ public class EventsBasedGameDtoBuilder {
 	}
 
 	private ServerDto createServer(int id, Operation operation) {
-		String name = "Remote";
-		if (id == -1)
-			name = "Archives";
-		else if (id == -2)
-			name = "R&D";
-		else if (id == -3)
-			name = "H&Q";
-		else
-			name += " " + Math.abs(id + 3);
 
-		return new ServerDto(id, name, operation);
+		return new ServerDto(id, operation);
 	}
 
 	public GameDto create(PlayerType playerType) {

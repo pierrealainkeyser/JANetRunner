@@ -1,0 +1,47 @@
+<html lang="en">
+<head>
+<title>Android Netrunner : the online card game</title>
+<link rel="stylesheet" type="text/css" href="/css/icons.css" />
+<link rel="stylesheet/less" type="text/css" href="/css/game.less" />
+
+<link rel="stylesheet" type="text/css" data-th-href="@{/webjars/bootstrap/3.3.4/css/bootstrap.min.css}" />
+<link rel="stylesheet" type="text/css" data-th-href="@{/webjars/animate.css/3.2.3/animate.min.css}" />
+
+<script type="text/javascript" data-th-src="@{/webjars/less/2.5.0/less.min.js}"></script>
+<script type="text/javascript" data-th-src="@{/webjars/requirejs/2.1.18/require.min.js}"></script>
+<script type="text/javascript" data-th-inline="javascript">
+	/*<![CDATA[*/
+	require.config({ baseUrl : "/js/",//
+	paths : { //
+	jquery : [[@{/webjars/jquery/2.1.4/jquery.min}]],//
+	underscore : [[@{/webjars/underscorejs/1.8.3/underscore-min}]],//
+	tweenlite : [[@{/webjars/gsap-js/1.13.1/minified/TweenMax.min}]],//
+	mousetrap : [[@{/webjars/mousetrap/1.4.6/mousetrap.min}]],//	
+	conf : "./anr/conf" },//
+	shim : {//
+	tweenlite : { exports : 'TweenLite' }, //
+	mousetrap : { exports : 'Mousetrap' }, //
+	} //
+	});
+	
+	var gameId = [[${gameId}]];
+
+	require([ "jquery", "layout/package", "anr/boardstate", "anr/inputmanager","anr/websocketclient" ],//
+			function($, layout, BoardState, InputManager, WebSocketClient) {
+		$(function() {
+			var layoutManager = new layout.LayoutManager($("#main"));
+			layoutManager.runLayout(function() {
+				
+				var client=new WebSocketClient(layoutManager.runLayout.bind(layoutManager));				
+				client.board=new BoardState(layoutManager, client.sendAction.bind(client));
+				var im = new InputManager(client.board);
+			});
+		});
+	});
+	/*]]>*/
+</script>
+</head>
+<body>
+	<div id="main"></div>
+</body>
+</html>

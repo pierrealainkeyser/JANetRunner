@@ -28,7 +28,7 @@ RunBox, Point, ActionBus) {
 			this.pop = true;
 			if (zoom) {
 				if (this.isPrimaryZoom(zoom)) {
-					zoom.setHeaderText(text);
+					zoom.setHeaderText(this.text);
 					this.pop = false;
 				}
 			}
@@ -148,9 +148,9 @@ RunBox, Point, ActionBus) {
 			var turn = msg.turn;
 			if (turn) {
 				var player = turn.player;
-				if ('corp' === player)
+				if ('CORP' === player)
 					this.turnTracker.activeFaction.setFaction(this.turnTracker.corpScore.faction);
-				else if ('runner' === player)
+				else if ('RUNNER' === player)
 					this.turnTracker.activeFaction.setFaction(this.turnTracker.runnerScore.faction);
 
 				this.turnTracker.gameStep.setText(turn.phase);
