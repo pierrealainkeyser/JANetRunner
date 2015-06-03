@@ -520,7 +520,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				this.header.element.appendTo(this.element);
 
 				var actionsRow = new AbstractBoxContainer(layoutManager, { addZIndex : true }, new FlowLayout({ direction : FlowLayout.Direction.RIGHT,
-					padding : 3 }));
+					padding : 3 , spacing : 2}));
 				actionsRow.addChild(this.primaryActions);
 				actionsRow.addChild(this.secondaryActions);
 

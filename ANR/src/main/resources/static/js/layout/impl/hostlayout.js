@@ -137,14 +137,16 @@ define([ "mix", "underscore", "geometry/package" ], function(mix, _, geom) {
 		});
 
 		// réalise le layout en 2 phases à partir de la racine
-		rootNode.doLayout();
-		rootNode.mergeLocal(new geom.Point());
+		if (rootNode) {
+			rootNode.doLayout();
+			rootNode.mergeLocal(new geom.Point());
 
-		// Affectation du rank par niveau, ce qui permet de calcul le
-		// zIndex par apres
-		_.each(rootNode.collect(), function(card, index) {
-			card.setRank(index);
-		});
+			// Affectation du rank par niveau, ce qui permet de calcul le
+			// zIndex par apres
+			_.each(rootNode.collect(), function(card, index) {
+				card.setRank(index);
+			});
+		}
 
 		// recherche de la zone enblogante
 		var bounds = new geom.Rectangle();
