@@ -351,8 +351,8 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 			 */
 			function ActionsBoxContainer(zoomContainer) {
 				var layoutManager = zoomContainer.layoutManager;
-				AbstractBoxContainer.call(this, layoutManager, { addZIndex : true, flatZIndex : 5, IsZoomed : true }, new FlowLayout(
-						{ direction : FlowLayout.Direction.RIGHT }));
+				AbstractBoxContainer.call(this, layoutManager, { addZIndex : true, flatZIndex : 5, IsZoomed : true }, new FlowLayout({
+					direction : FlowLayout.Direction.RIGHT, spacing : 2 }));
 
 				this.actionWatchFunction = this.syncFromEvent.bind(this);
 				this.actionModel = null;
@@ -439,7 +439,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 
 				this.cardsOrderContainer.observe(function() {
 					parent.orderChanged();
-				}, [ AbstractBoxContainer.CHILDS_SWAPPED, AbstractBoxContainer.CHILD_ADDED  ]);
+				}, [ AbstractBoxContainer.CHILDS_SWAPPED, AbstractBoxContainer.CHILD_ADDED ]);
 
 				this.cardsOrderHeader = new HeaderContainerBox(layoutManager, this.cardsOrderContainer, "Ordering <small>(left is first)</small>");
 
