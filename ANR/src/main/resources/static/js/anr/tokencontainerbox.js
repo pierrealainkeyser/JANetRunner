@@ -35,7 +35,6 @@ function(_, mix, $, TokenModel, AbstractBoxContainer, AbstractBox, JQueryBoxSize
 		 * Mise à jour de la valeur du token, uniquement en cas de changement
 		 */
 		this.setValue = function(value) {
-			console.log("setValue", this, this.tokenValue, value)
 			if (this.tokenValue !== value) {
 				this.tokenValue = value;
 				if (!value) {
@@ -138,8 +137,6 @@ function(_, mix, $, TokenModel, AbstractBoxContainer, AbstractBox, JQueryBoxSize
 			var type = event.type;
 			var tokenType = event.token;
 			var boxToken = this.findToken(tokenType);
-
-			console.log("syncToken", event, boxToken)
 
 			if (type === TokenModel.ADDED || type === TokenModel.CHANGED) {
 				// dans les 2 cas on créer ou l'on modifie la valeur

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.keyser.anr.core.AbstractCard;
@@ -27,6 +28,8 @@ import org.keyser.anr.core.PlayerType;
 import org.keyser.anr.core.Runner;
 import org.keyser.anr.core.Turn;
 import org.keyser.anr.core.UserAction;
+import org.keyser.anr.core.corp.ActionOnServer;
+import org.keyser.anr.core.corp.CorpServer;
 import org.keyser.anr.web.dto.CardDto.CardType;
 import org.keyser.anr.web.dto.CardDto.Face;
 import org.keyser.anr.web.dto.ServerDto.Operation;
@@ -158,6 +161,24 @@ public class EventsBasedGameDtoBuilder {
 		return dto;
 	}
 
+	private ServerDto getOrCreate(GameDto game, CorpServer cs) {
+
+		List<ServerDto> servers = game.getServers();
+		if (servers == null)
+			game.setServers(servers = new ArrayList<>());
+
+		int id = cs.getId();
+		Optional<ServerDto> opt = servers.stream().filter(s -> s.getId() == id).findFirst();
+		ServerDto serverDto = null;
+		if (opt.isPresent())
+			serverDto = opt.get();
+		else
+			servers.add(serverDto = createServer(id, null));
+
+		return serverDto;
+
+	}
+
 	private void updateCommon(Game game, GameDto dto, PlayerType playerType) {
 
 		ActionsContext actionsContext = game.getActionsContext();
@@ -178,14 +199,25 @@ public class EventsBasedGameDtoBuilder {
 			dto.setScore(game.getCorp().getScore(), game.getRunner().getScore());
 
 		// les actions sont à mapper sur les cartes...
-		if (!cards.isEmpty()) {
-			for (UserAction ua : actionsContext.getUserActions()) {
-				CardDto cdto = getOrCreate(ua.getSource());
+		for (UserAction ua : actionsContext.getUserActions()) {
+
+			AbstractCard source = ua.getSource();
+			if (source != null) {
+				CardDto cdto = getOrCreate(source);
 				ActionDto action = convert(ua);
 				if (action != null)
 					cdto.addAction(action);
+			} else if (ua instanceof ActionOnServer) {
+				ActionOnServer iisua = (ActionOnServer) ua;
+				ServerDto sdto = getOrCreate(dto, iisua.getServer());
+				ActionDto action = convert(ua);
+				if (action != null)
+					sdto.addAction(action);
 			}
 
+		}
+
+		if (!cards.isEmpty()) {
 			dto.setCards(new ArrayList<>(cards.values()));
 		}
 

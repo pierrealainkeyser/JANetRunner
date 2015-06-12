@@ -4,7 +4,7 @@ import org.keyser.anr.core.AbstractCardList;
 import org.keyser.anr.core.AbstractId;
 import org.keyser.anr.core.UserActionWithArgs;
 
-public class InstallInServerUserAction extends UserActionWithArgs<AbstractCardList> {
+public class InstallInServerUserAction extends UserActionWithArgs<AbstractCardList> implements ActionOnServer {
 
 	private final AbstractCardList cards;
 
@@ -16,6 +16,10 @@ public class InstallInServerUserAction extends UserActionWithArgs<AbstractCardLi
 		this.server = server;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.keyser.anr.core.corp.ActionOnServer#getServer()
+	 */
+	@Override
 	public CorpServer getServer() {
 		return server;
 	}
