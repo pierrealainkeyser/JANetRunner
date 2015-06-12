@@ -3,6 +3,7 @@ function(_, mix, $, TokenModel, AbstractBoxContainer, AbstractBox, JQueryBoxSize
 
 	function TokenBox(layoutManager, container, type, value, text) {
 		var innerToken = $("<span class='token " + type + "'>" + value + "</span>");
+		this.valueElement = innerToken;
 		if (text) {
 			var wrapper = $("<div class='token-wrapper'/>");
 			var text = $("<span class='token-text'>" + text + "</span>");
@@ -15,8 +16,6 @@ function(_, mix, $, TokenModel, AbstractBoxContainer, AbstractBox, JQueryBoxSize
 
 		// on se rajoute dans le container et pas dans le truc du parent
 		this.element.appendTo(container);
-
-		this.valueElement = this.element.find(".token");
 
 		// le type de token
 		this.tokenType = type;
@@ -36,6 +35,7 @@ function(_, mix, $, TokenModel, AbstractBoxContainer, AbstractBox, JQueryBoxSize
 		 * Mise à jour de la valeur du token, uniquement en cas de changement
 		 */
 		this.setValue = function(value) {
+			console.log("setValue", this, this.tokenValue, value)
 			if (this.tokenValue !== value) {
 				this.tokenValue = value;
 				if (!value) {
@@ -43,9 +43,11 @@ function(_, mix, $, TokenModel, AbstractBoxContainer, AbstractBox, JQueryBoxSize
 					this.setContainer(null);
 					this.animateRemove(this.element, this.remove.bind(this));
 				} else {
+					console.log(this.valueElement, value)
+
 					// changement de la valeur
 					this.animateSwap(this.element, function() {
-						this.valueElement.text(value);
+						this.valueElement.html(value);
 					}.bind(this));
 				}
 			}
@@ -136,6 +138,9 @@ function(_, mix, $, TokenModel, AbstractBoxContainer, AbstractBox, JQueryBoxSize
 			var type = event.type;
 			var tokenType = event.token;
 			var boxToken = this.findToken(tokenType);
+
+			console.log("syncToken", event, boxToken)
+
 			if (type === TokenModel.ADDED || type === TokenModel.CHANGED) {
 				// dans les 2 cas on créer ou l'on modifie la valeur
 				if (boxToken)
@@ -154,7 +159,7 @@ function(_, mix, $, TokenModel, AbstractBoxContainer, AbstractBox, JQueryBoxSize
 		this.createToken = function(type, value) {
 			var text = null;
 			if (this.includeText) {
-				var ltype=type.toLowerCase();
+				var ltype = type.toLowerCase();
 				// gestion de la correspondance
 				if ("credit" === ltype)
 					text = "Credits";

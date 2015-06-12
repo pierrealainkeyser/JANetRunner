@@ -40,56 +40,61 @@
 				score : { corp : 0, runner : 0 }, //
 				servers : [ { id : -1 }, { id : -2 }, { id : -3, actions : [ { id : 1, cost : "{1:click}", text : "Run" } ] } ], });
 
-				board.consumeMsg({//
-					primary : { id : 1, text : "Encountering ice" },//
-					cards : [//
-							{ id : 0, url : "01080.png", faction : "corp", type : "id",
-								location : { primary : "server", serverIndex : -3, secondary : "stack", index : 0 }, tokens : { credits : 5 } },//
-							{ id : 60, url : "01033.png", faction : "runner", type : "id", location : { primary : "grip", index : 0 } },//
+				board
+						.consumeMsg({//
+							primary : { id : 60, text : "Begining of turn" },//
+							cards : [//
+									{ id : 0, url : "01080.png", faction : "corp", type : "id",
+										location : { primary : "server", serverIndex : -3, secondary : "stack", index : 0 }, tokens : { credit : 3 } },//
+									{ id : 60, url : "01033.png", faction : "runner", type : "id", location : { primary : "grip", index : 0 },
+										tokens : { credit : 5 } },//
 
-							{
-								id : 1,
-								url : "01088.png",
-								faction : "corp",
-								location : { primary : "server", serverIndex : -3, secondary : "ices", index : 0 },
-								tokens : { power : 1 },//
-								actions : [
-										{ id : 2, type : 'break', costs : [ { enabled : false }, { cost : "{3:credit}", enabled : true } ],
-											text : "Break selected" },
-										{ id : 3, type : 'selection' },//
-										{ id : 4, type : 'confirmselection', text : "Confirm",
-											costs : [ { enabled : true, cost : "{1:credit}" }, { enabled : true } ] },//
-										{ id : 5, type : 'trace', base : 0, max : 5, text : "Bid" } //
+									{
+										id : 1,
+										url : "01088.png",
+										faction : "corp",
+										location : { primary : "server", serverIndex : -3, secondary : "ices", index : 0 },
+										tokens : { power : 1 },//
+										actions : [
+												{ id : 2, type : 'break', costs : [ { enabled : false }, { cost : "{3:credit}", enabled : true } ],
+													text : "Break selected" },
+												{ id : 3, type : 'selection' },//
+												{ id : 4, type : 'confirmselection', text : "Confirm",
+													costs : [ { enabled : true, cost : "{1:credit}" }, { enabled : true } ] },//
+												{ id : 5, type : 'trace', base : 0, max : 5, text : "Bid" } //
 
-								],//
-								subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on |Data Raven|" } ] //
-							},//
-							{ id : 2, url : "01089.png", faction : "corp", location : { primary : "hand", index : 0 } },//
-							{ id : 3, url : "01091.png", faction : "corp", location : { primary : "hand", index : 1 } }, //
-							{ id : 4, url : "01086.png", faction : "corp", face : "down", zoomable : "up", accessible : true,
-								location : { primary : "server", serverIndex : -1, secondary : "stack", index : 0 } }, //
-							{ id : 5, url : "01085.png", faction : "corp", face : "down", zoomable : "down", accessible : true,
-								location : { primary : "server", serverIndex : -1, secondary : "stack", index : 1 } } //
-					] //
-				});
-
-				board.consumeMsg({//
-				runs : [ { id : 0, server : -1 } ], //
-				primary : { id : 60, text : "Begining of turn" },//
-				cards : [ { id : 60, ordering : [ 2, 3 ], actions : [ { id : 10, type : 'ordering', text : "Done" } ] } ],//
-				});
+										],//
+										subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on |Data Raven|" } ] //
+									},//
+									{ id : 2, url : "01089.png", faction : "corp", location : { primary : "hand", index : 0 } },//
+									{ id : 3, url : "01091.png", faction : "corp", location : { primary : "hand", index : 1 } }, //
+									{ id : 4, url : "01086.png", faction : "corp", face : "down", zoomable : "up", accessible : true,
+										location : { primary : "server", serverIndex : -1, secondary : "stack", index : 0 } }, //
+									{ id : 5, url : "01085.png", faction : "corp", face : "down", zoomable : "down", accessible : true,
+										location : { primary : "server", serverIndex : -1, secondary : "stack", index : 1 } } //
+							] //
+						});
 
 				setTimeout(layoutManager.withinLayout(function() {
 					board.consumeMsg({//
-					runs : [ { id : 0, server : -3 } ] //
+					runs : [ { id : 0, server : -1 } ], //
+					cards : [ { id : 60, ordering : [ 2, 3 ], actions : [ { id : 10, type : 'ordering', text : "Done" } ], tokens : { credit : 6 } } ],//
 					});
-				}), 1000);
+				}), 500);
 
-				setTimeout(layoutManager.withinLayout(function() {
-					board.consumeMsg({//
-					runs : [ { id : 0, operation : "remove" } ] //
-					});
-				}), 2000);
+				if (false)
+					setTimeout(layoutManager.withinLayout(function() {
+						board.consumeMsg({//
+						runs : [ { id : 0, server : -3 } ] //
+						});
+					}), 1000);
+
+				if (false)
+					setTimeout(layoutManager.withinLayout(function() {
+						board.consumeMsg({//
+						runs : [ { id : 0, operation : "remove" } ] //
+						});
+					}), 2000);
 
 			});
 		});
