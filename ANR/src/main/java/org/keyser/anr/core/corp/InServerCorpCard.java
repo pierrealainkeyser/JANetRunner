@@ -50,13 +50,14 @@ public abstract class InServerCorpCard extends AbstractCardCorp {
 		Game g = getGame();
 		g.userContext(this, "Choose a server", Type.INSTALL_IN_SERVER);
 
+
 		Corp corp = getCorp();
 		Consumer<CorpServer> install = cs -> {
 			if (installableOn(cs)) {
 				AbstractCardList list = new AbstractCardList();
 				cs.forEachAssetOrUpgrades(list::add);
-				InstallInServerUserAction ua = new InstallInServerUserAction(corp, "Install", cs, list);
-				g.user(new FeedbackWithArgs<>(ua, this::installed), next);
+				UserAction ua = new UserAction(corp, cs, null, "Install", list);
+				g.user(new FeedbackWithArgs<UserAction, AbstractCardList>(ua, this::installed), next);
 			}
 		};
 		corp.eachServers(install);
@@ -69,7 +70,7 @@ public abstract class InServerCorpCard extends AbstractCardCorp {
 	 * @param discard
 	 * @param next
 	 */
-	private void installed(InstallInServerUserAction action, AbstractCardList discard, Flow next) {
+	private void installed(UserAction action, AbstractCardList discard, Flow next) {
 
 		// TODO trash des cartes sélectionnés
 
@@ -78,7 +79,8 @@ public abstract class InServerCorpCard extends AbstractCardCorp {
 		if (server instanceof CorpServerCentral)
 			server.addUpgrade((Upgrade) this);
 		else
-			server.addAssetOrUpgrade(this);
+			server.addAssetOrUpgrade(this);		
+		
 
 		// cleanup et poursuite du traitement
 		getGame().apply(new AbstractCardInstalledCleanup(this), next);

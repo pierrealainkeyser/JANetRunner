@@ -22,6 +22,8 @@ public class CardDto {
 	private List<ActionDto> actions;
 
 	private Face face;
+	
+	private Face zoomable;
 
 	private PlayerType faction;
 
@@ -118,6 +120,14 @@ public class CardDto {
 
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	public Face getZoomable() {
+		return zoomable;
+	}
+
+	public void setZoomable(Face zoomable) {
+		this.zoomable = zoomable;
 	}
 
 }

@@ -1,5 +1,7 @@
 package org.keyser.anr.core;
 
+import org.keyser.anr.core.corp.CorpServer;
+
 public class UserAction {
 
 	private int actionId;
@@ -12,11 +14,32 @@ public class UserAction {
 
 	private final AbstractId to;
 
+	private final Class<?> type;
+
+	private final AbstractCardList cards;
+
+	private final CorpServer server;
+
 	public UserAction(AbstractId user, AbstractCard source, CostForAction cost, String description) {
+		this(user, source, cost, description, null, null, null);
+	}
+
+	public UserAction(AbstractId user, CorpServer source, CostForAction cost, String description) {
+		this(user, null, cost, description, null, null, source);
+	}
+
+	public UserAction(AbstractId user, CorpServer source, CostForAction cost, String description, AbstractCardList cards) {
+		this(user, null, cost, description, null, cards, source);
+	}
+
+	public UserAction(AbstractId user, AbstractCard source, CostForAction cost, String description, Class<?> type, AbstractCardList cards, CorpServer server) {
 		this.to = user;
 		this.source = source;
 		this.cost = cost;
 		this.description = description;
+		this.type = type;
+		this.cards = cards;
+		this.server = server;
 	}
 
 	public boolean isAnAction() {
@@ -24,7 +47,7 @@ public class UserAction {
 	}
 
 	/**
-	 * Mise à jour du cout et renvoi vrai si le joueur peut payer le cout
+	 * Mise ï¿½ jour du cout et renvoi vrai si le joueur peut payer le cout
 	 * 
 	 * @return
 	 */
@@ -97,6 +120,18 @@ public class UserAction {
 
 	public String getDescription() {
 		return description;
+	}
+
+	public Class<?> getType() {
+		return type;
+	}
+
+	public AbstractCardList getCards() {
+		return cards;
+	}
+
+	public CorpServer getServer() {
+		return server;
 	}
 
 }

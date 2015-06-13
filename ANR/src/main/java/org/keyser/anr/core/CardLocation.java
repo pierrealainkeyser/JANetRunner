@@ -71,6 +71,8 @@ public class CardLocation {
 	private final Integer index;
 
 	public final static int HQ_INDEX = -3;
+	
+	public final static int RD_INDEX = -2;
 
 	private CardLocation(Primary primary, Integer serverIndex, Secondary secondary, Integer index) {
 		super();
@@ -108,6 +110,11 @@ public class CardLocation {
 	@JsonIgnore
 	public boolean isInCorpHand() {
 		return primary == Primary.SERVER && serverIndex == HQ_INDEX && secondary == Secondary.STACK && index >= 0;
+	}
+	
+	@JsonIgnore
+	public boolean isInRD() {
+		return primary == Primary.SERVER && serverIndex == RD_INDEX && secondary == Secondary.STACK && index >= 0;
 	}
 
 	@JsonIgnore

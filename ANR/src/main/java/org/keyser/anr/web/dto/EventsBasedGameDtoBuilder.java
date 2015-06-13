@@ -28,7 +28,6 @@ import org.keyser.anr.core.PlayerType;
 import org.keyser.anr.core.Runner;
 import org.keyser.anr.core.Turn;
 import org.keyser.anr.core.UserAction;
-import org.keyser.anr.core.corp.ActionOnServer;
 import org.keyser.anr.core.corp.CorpServer;
 import org.keyser.anr.web.dto.CardDto.CardType;
 import org.keyser.anr.web.dto.CardDto.Face;
@@ -78,6 +77,7 @@ public class EventsBasedGameDtoBuilder {
 	private void updateLocation(AbstractCard card, CardDto dto) {
 		CardLocation location = card.getLocation();
 		dto.setLocation(location);
+		updateFace(card, dto);
 	}
 
 	private void with(AbstractCard card, FlowArg<CardDto> act) {
@@ -207,9 +207,8 @@ public class EventsBasedGameDtoBuilder {
 				ActionDto action = convert(ua);
 				if (action != null)
 					cdto.addAction(action);
-			} else if (ua instanceof ActionOnServer) {
-				ActionOnServer iisua = (ActionOnServer) ua;
-				ServerDto sdto = getOrCreate(dto, iisua.getServer());
+			} else {
+				ServerDto sdto = getOrCreate(dto, ua.getServer());
 				ActionDto action = convert(ua);
 				if (action != null)
 					sdto.addAction(action);
@@ -226,13 +225,21 @@ public class EventsBasedGameDtoBuilder {
 			for (CardDto c : dto.getCards()) {
 				CardLocation location = c.getLocation();
 				if (location != null) {
-					if (PlayerType.CORP == playerType && location.isInCorpHand()) {
-						c.setLocation(location.toHandLocation());
-						c.setFace(Face.up);
+					if (PlayerType.CORP == playerType) {
+						if (location.isInCorpHand()) {
+							c.setLocation(location.toHandLocation());
+							c.setFace(Face.up);
+						}
+						if (location.isInRD())
+							c.setZoomable(Face.down);
+						else
+							c.setZoomable(Face.up);
+
 					} else if (PlayerType.RUNNER == playerType && location.isInRunnerHand()) {
 						c.setLocation(location.toHandLocation());
 						c.setFace(Face.up);
 					}
+
 				}
 			}
 		}

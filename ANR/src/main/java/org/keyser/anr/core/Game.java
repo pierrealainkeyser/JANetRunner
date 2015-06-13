@@ -117,10 +117,10 @@ public class Game {
 				AbstractId to = getId(active);
 
 				// TODO il faut préciser le contexte quelque part...
-				AskEventOrderUserAction ask = new AskEventOrderUserAction(to, "Select order", new AbstractCardList(sources));
+				UserAction ask = new UserAction(to, null, null, "Select order", null, new AbstractCardList(sources), null);
 
 				userContext(null, "Select matching order", Type.SELECT_MATCH_ORDER);
-				user(new FeedbackWithArgs<AskEventOrderUserAction, AbstractCardList>(ask, this::orderSelected), next);
+				user(new FeedbackWithArgs<UserAction, AbstractCardList>(ask, this::orderSelected), next);
 			}
 		}
 
@@ -131,7 +131,7 @@ public class Game {
 		 * @param ordered
 		 * @param next
 		 */
-		private void orderSelected(AskEventOrderUserAction ask, AbstractCardList ordered, Flow next) {
+		private void orderSelected(UserAction ask, AbstractCardList ordered, Flow next) {
 
 			// réalise une recursion sur les cartes recuperes
 			RecursiveIterator.recurse(ordered.iterator(), this::applyEffect, next);

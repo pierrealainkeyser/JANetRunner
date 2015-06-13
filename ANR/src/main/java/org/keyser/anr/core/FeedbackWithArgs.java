@@ -7,7 +7,7 @@ package org.keyser.anr.core;
  *
  * @param <UA>
  */
-public class FeedbackWithArgs<UA extends UserActionWithArgs<T>, T> implements Feedback<UA, T> {
+public class FeedbackWithArgs<UA extends UserAction, T> implements Feedback<UA, T> {
 
 	private final UA userAction;
 
@@ -33,9 +33,10 @@ public class FeedbackWithArgs<UA extends UserActionWithArgs<T>, T> implements Fe
 		return userAction;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Class<T> getInputType() {
-		return userAction.getType();
+		return (Class<T>) userAction.getType();
 	}
 
 }
