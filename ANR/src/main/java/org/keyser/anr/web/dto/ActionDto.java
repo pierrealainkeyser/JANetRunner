@@ -14,6 +14,8 @@ public class ActionDto {
 
 	private PlayerType faction;
 
+	private String type;
+
 	public int getId() {
 		return id;
 	}
@@ -52,6 +54,14 @@ public class ActionDto {
 
 	public void setFaction(PlayerType faction) {
 		this.faction = faction;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 
 }

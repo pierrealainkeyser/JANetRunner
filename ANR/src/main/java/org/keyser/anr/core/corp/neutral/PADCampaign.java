@@ -31,8 +31,11 @@ public class PADCampaign extends Asset {
 
 	private void gainOne(StartOfTurn s, Flow next) {
 
-		// TODO notification de l'effet ?
+		// notification de l'effet
+		game.chat("{0} gains {1}", this, Cost.credit(1));
+
 		getCorp().addToken(TokenType.CREDIT, 1);
 
+		next.apply();
 	}
 }

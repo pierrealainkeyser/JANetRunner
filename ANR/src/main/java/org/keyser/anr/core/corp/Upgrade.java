@@ -14,5 +14,10 @@ public abstract class Upgrade extends InServerCorpCard {
 	protected PlayCardAction<? extends AbstractCardCorp> playAction() {
 		return new PlayUpgradeAction(this);
 	}
+	
+	@Override
+	public boolean isRezzable() {
+		return true;
+	}
 
 }

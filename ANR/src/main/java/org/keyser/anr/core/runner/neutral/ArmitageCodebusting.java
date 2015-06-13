@@ -17,10 +17,7 @@ import org.keyser.anr.core.runner.Resource;
 
 public class ArmitageCodebusting extends Resource {
 
-	public final static MetaCard INSTANCE = new MetaCard(
-			"Armitage Codebusting", Faction.RUNNER_NEUTRAL.infl(0),
-			Cost.credit(1), false, "01053", emptyList(),
-			ArmitageCodebusting::new);
+	public final static MetaCard INSTANCE = new MetaCard("Armitage Codebusting", Faction.RUNNER_NEUTRAL.infl(0), Cost.credit(1), false, "01053", emptyList(), ArmitageCodebusting::new);
 
 	protected ArmitageCodebusting(int id, MetaCard meta) {
 		super(id, meta);
@@ -30,9 +27,7 @@ public class ArmitageCodebusting extends Resource {
 
 	private void configureAction(CollectHabilities hab) {
 		Cost oneAction = Cost.free().withAction(1);
-		UserAction take2credits = new UserAction(getRunner(), this,
-				new CostForAction(oneAction, new AbstractCardAction<>(this)),
-				"Take {2:credit}");
+		UserAction take2credits = new UserAction(getRunner(), this, new CostForAction(oneAction, new AbstractCardAction<>(this)), "Take {2:credit}");
 		hab.add(new SimpleFeedback<>(take2credits, this::take2CreditsAction));
 	}
 

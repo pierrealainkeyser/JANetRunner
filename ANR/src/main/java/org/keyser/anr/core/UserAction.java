@@ -14,31 +14,21 @@ public class UserAction {
 
 	private final AbstractId to;
 
-	private final Class<?> type;
-
-	private final AbstractCardList cards;
-
 	private final CorpServer server;
 
 	public UserAction(AbstractId user, AbstractCard source, CostForAction cost, String description) {
-		this(user, source, cost, description, null, null, null);
+		this(user, source, cost, description, null);
 	}
 
 	public UserAction(AbstractId user, CorpServer source, CostForAction cost, String description) {
-		this(user, null, cost, description, null, null, source);
+		this(user, null, cost, description, source);
 	}
 
-	public UserAction(AbstractId user, CorpServer source, CostForAction cost, String description, AbstractCardList cards) {
-		this(user, null, cost, description, null, cards, source);
-	}
-
-	public UserAction(AbstractId user, AbstractCard source, CostForAction cost, String description, Class<?> type, AbstractCardList cards, CorpServer server) {
+	public UserAction(AbstractId user, AbstractCard source, CostForAction cost, String description, CorpServer server) {
 		this.to = user;
 		this.source = source;
 		this.cost = cost;
 		this.description = description;
-		this.type = type;
-		this.cards = cards;
 		this.server = server;
 	}
 
@@ -114,20 +104,17 @@ public class UserAction {
 		});
 	}
 
+	public  SimpleFeedback<UserAction> spendAndApply(EventConsumer<UserAction> call) {		
+		return spendAndApply(call.wrap(this));
+				
+	}
+
 	public CostForAction getCost() {
 		return cost;
 	}
 
 	public String getDescription() {
 		return description;
-	}
-
-	public Class<?> getType() {
-		return type;
-	}
-
-	public AbstractCardList getCards() {
-		return cards;
 	}
 
 	public CorpServer getServer() {

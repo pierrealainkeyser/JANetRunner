@@ -119,6 +119,9 @@ public class CorpServer {
 	}
 
 	public void addAssetOrUpgrade(InServerCorpCard card) {
+
+		// TODO trash des assets et agenda...
+
 		assetOrUpgrades.add(card);
 	}
 

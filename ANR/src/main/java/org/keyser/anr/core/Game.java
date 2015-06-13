@@ -117,10 +117,10 @@ public class Game {
 				AbstractId to = getId(active);
 
 				// TODO il faut préciser le contexte quelque part...
-				UserAction ask = new UserAction(to, null, null, "Select order", null, new AbstractCardList(sources), null);
+				OrderEventsAction ask = new OrderEventsAction(to, null, new AbstractCardList(sources));
 
 				userContext(null, "Select matching order", Type.SELECT_MATCH_ORDER);
-				user(new FeedbackWithArgs<UserAction, AbstractCardList>(ask, this::orderSelected), next);
+				user(new FeedbackWithArgs<>(ask, this::orderSelected), next);
 			}
 		}
 

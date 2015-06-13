@@ -15,4 +15,9 @@ public abstract class Asset extends AssetOrAgenda {
 		return new PlayAssetAction(this);
 	}
 
+	@Override
+	public boolean isRezzable() {
+		return true;
+	}
+
 }

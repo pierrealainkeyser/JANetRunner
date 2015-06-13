@@ -15,6 +15,7 @@ import org.keyser.anr.core.Game;
 import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.PlayCardAction;
 import org.keyser.anr.core.UserAction;
+import org.keyser.anr.core.UserActionArgs;
 import org.keyser.anr.core.UserActionContext.Type;
 
 public abstract class InServerCorpCard extends AbstractCardCorp {
@@ -50,14 +51,13 @@ public abstract class InServerCorpCard extends AbstractCardCorp {
 		Game g = getGame();
 		g.userContext(this, "Choose a server", Type.INSTALL_IN_SERVER);
 
-
 		Corp corp = getCorp();
 		Consumer<CorpServer> install = cs -> {
 			if (installableOn(cs)) {
 				AbstractCardList list = new AbstractCardList();
 				cs.forEachAssetOrUpgrades(list::add);
-				UserAction ua = new UserAction(corp, cs, null, "Install", list);
-				g.user(new FeedbackWithArgs<UserAction, AbstractCardList>(ua, this::installed), next);
+				UserActionArgs<AbstractCardList> ua = new UserActionArgs<>(corp, cs, null, "Install", list);
+				g.user(new FeedbackWithArgs<>(ua, this::installed), next);
 			}
 		};
 		corp.eachServers(install);
@@ -71,16 +71,16 @@ public abstract class InServerCorpCard extends AbstractCardCorp {
 	 * @param next
 	 */
 	private void installed(UserAction action, AbstractCardList discard, Flow next) {
-
 		// TODO trash des cartes sélectionnés
+		
+		this.setInstalled(true);
 
 		// installation dans la zone qui va bien
 		CorpServer server = action.getServer();
 		if (server instanceof CorpServerCentral)
 			server.addUpgrade((Upgrade) this);
 		else
-			server.addAssetOrUpgrade(this);		
-		
+			server.addAssetOrUpgrade(this);
 
 		// cleanup et poursuite du traitement
 		getGame().apply(new AbstractCardInstalledCleanup(this), next);

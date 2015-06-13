@@ -202,13 +202,14 @@ public class EventsBasedGameDtoBuilder {
 		for (UserAction ua : actionsContext.getUserActions()) {
 
 			AbstractCard source = ua.getSource();
+			CorpServer server = ua.getServer();
 			if (source != null) {
 				CardDto cdto = getOrCreate(source);
 				ActionDto action = convert(ua);
 				if (action != null)
 					cdto.addAction(action);
-			} else {
-				ServerDto sdto = getOrCreate(dto, ua.getServer());
+			} else if (server != null) {
+				ServerDto sdto = getOrCreate(dto, server);
 				ActionDto action = convert(ua);
 				if (action != null)
 					sdto.addAction(action);

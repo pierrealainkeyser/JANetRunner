@@ -164,7 +164,6 @@ public abstract class AbstractId extends AbstractCard {
 
 	private void spendCredits(CostForAction costForAction, Flow next) {
 		int credits = costForAction.getCost().getValue(CostType.CREDIT);
-
 		if (credits > 0) {
 			// consommation en premier dans les sources de cr�dits. TODO a
 			// changer pour les sources optionnels ou stealth (genre GhostRunner
@@ -206,6 +205,18 @@ public abstract class AbstractId extends AbstractCard {
 		int action = cost.getCost().getValue(CostType.ACTION);
 		if (action > 0) {
 			if (!(clicks.getActive() >= action && game.getTurn().mayPlayAction()))
+				return false;
+		}
+
+		int credits = cost.getCost().getValue(CostType.CREDIT);
+		if (credits > 0) {
+			for (TokenCreditsSource source : creditsSources) {
+				if (source.test(cost))
+					credits -= source.getAvailable();
+			}
+
+			credits -= getToken(TokenType.CREDIT);
+			if (credits > 0)
 				return false;
 		}
 
