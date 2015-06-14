@@ -108,6 +108,15 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	}
 
 	/**
+	 * Rajoute une condition declenche
+	 * 
+	 * @param registerAction
+	 */
+	protected final void addHability(FlowArg<CollectHabilities> registerAction) {
+		match(CollectHabilities.class, em -> em.test(ch -> ch.getType() == getOwner() && rezzed).call(registerAction));
+	}
+
+	/**
 	 * A appeler dans le constructeur de la carte
 	 * 
 	 * @param value

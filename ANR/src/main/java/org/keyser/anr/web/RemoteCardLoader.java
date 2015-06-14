@@ -9,6 +9,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -25,6 +27,8 @@ import org.springframework.web.context.request.async.DeferredResult;
  * 
  */
 public class RemoteCardLoader implements InitializingBean {
+
+	private final static Logger logger = LoggerFactory.getLogger(RemoteCardLoader.class);
 
 	private File downloadDir = new File("cache/download");
 
@@ -48,22 +52,22 @@ public class RemoteCardLoader implements InitializingBean {
 		cacheDir.mkdirs();
 	}
 
-	private Runnable fetch(final DeferredResult<ResponseEntity<Resource>> to,
-			final String path, final File fileInCache) {
-		return new Runnable() {
-			public void run() {
-				String url = format(urlFormat, path);
+	private Runnable fetch(final DeferredResult<ResponseEntity<Resource>> to, final String path, final File fileInCache) {
+		return () -> {
+			String url = format(urlFormat, path);
+			logger.debug("fetching {}", url);
 
-				File tmp = null;
-				try {
-					tmp = loadURL(url);
-				} catch (IOException e) {
-					// TODO gestion de l'erreur
-				}
+			File tmp = null;
+			try {
+				tmp = loadURL(url);
+			} catch (IOException e) {
+				logger.error("fetch error " + url, e);
+			}
+			if (tmp != null) {
 				tmp.renameTo(fileInCache);
 
 				result(to, fileInCache, null);
-			};
+			}
 		};
 	}
 
@@ -81,8 +85,7 @@ public class RemoteCardLoader implements InitializingBean {
 	 * @param to
 	 * @param path
 	 */
-	public void load(DeferredResult<ResponseEntity<Resource>> to, String path,
-			HttpHeaders ifModifiedSince) {
+	public void load(DeferredResult<ResponseEntity<Resource>> to, String path, HttpHeaders ifModifiedSince) {
 		File inCache = fileInCache(path);
 		if (inCache.exists())
 			result(to, inCache, ifModifiedSince);
@@ -106,8 +109,7 @@ public class RemoteCardLoader implements InitializingBean {
 	 * @param to
 	 * @param inCache
 	 */
-	private void result(DeferredResult<ResponseEntity<Resource>> to,
-			File inCache, HttpHeaders requestHeader) {
+	private void result(DeferredResult<ResponseEntity<Resource>> to, File inCache, HttpHeaders requestHeader) {
 
 		long lastModified = inCache.lastModified();
 		HttpHeaders headers = new HttpHeaders();
@@ -120,15 +122,13 @@ public class RemoteCardLoader implements InitializingBean {
 		if (requestHeader != null) {
 			long date = requestHeader.getIfModifiedSince();
 			if (date <= lastModified)
-				to.setResult(new ResponseEntity<Resource>(headers,
-						HttpStatus.NOT_MODIFIED));
+				to.setResult(new ResponseEntity<Resource>(headers, HttpStatus.NOT_MODIFIED));
 			return;
 		}
 
 		headers.setContentType(mediaType);
 
-		to.setResult(new ResponseEntity<Resource>(new FileSystemResource(
-				inCache), headers, HttpStatus.OK));
+		to.setResult(new ResponseEntity<Resource>(new FileSystemResource(inCache), headers, HttpStatus.OK));
 	}
 
 	public void setCacheDir(File cacheDir) {

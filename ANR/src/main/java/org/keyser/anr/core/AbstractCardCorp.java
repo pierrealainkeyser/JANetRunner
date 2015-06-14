@@ -13,11 +13,12 @@ public class AbstractCardCorp extends AbstractCard {
 	protected AbstractCardCorp(int id, MetaCard meta) {
 		super(id, meta, CollectHabilities.CORP, CardLocation::isInCorpHand);
 
-		match(CollectHabilities.class, em -> em.test(ch -> isInstalled() && !isRezzed()).call(this::registerRezz));
+		//permet de rezzed
+		match(CollectHabilities.class, em -> em.test(ch -> isInstalled() && ch.getType() == getOwner() && !isRezzed()).call(this::registerRezz));
 	}
 
 	private void registerRezz(CollectHabilities hab) {
-		UserAction rezz = new UserAction(getCorp(), this, new CostForAction(getCost(), new RezzAbstractCardAction<>(this)), "Rezz");		
+		UserAction rezz = new UserAction(getCorp(), this, new CostForAction(getCost(), new RezzAbstractCardAction<>(this)), "Rezz");
 		hab.add(rezz.spendAndApply(this::doRezz));
 	}
 
