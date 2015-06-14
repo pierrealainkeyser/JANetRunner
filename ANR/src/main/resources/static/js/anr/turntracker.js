@@ -28,7 +28,7 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox, CardsContaine
 
 			if (this.oldClass !== null && this.oldClass !== newClassname)
 				this.animateSwap(this.element, animIn);
-			else {
+			else if (this.oldClass == null) {
 				animIn();
 				this.animateEnter(this.element);
 			}
@@ -165,12 +165,16 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox, CardsContaine
 		 */
 		this.setActive = function(active) {
 			if (active) {
-				this.click.show();
-				this.animateEnter(this.click);
+				if (!this.click.is(":visible")) {
+					this.click.show();
+					this.animateEnter(this.click);
+				}
 			} else {
-				this.animateRemove(this.click, function() {
-					this.click.hide();
-				}.bind(this));
+				if (this.click.is(":visible")) {
+					this.animateRemove(this.click, function() {
+						this.click.hide();
+					}.bind(this));
+				}
 			}
 		}
 	});
@@ -235,7 +239,7 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox, CardsContaine
 			// l'animation se fait dans un layout
 			if (this.oldText !== null && this.oldText !== text)
 				this.animateSwap(this.element, this.layoutManager.withinLayout(updateText));
-			else {
+			else if (this.oldText === null) {
 				updateText();
 				this.animateEnter(this.element);
 			}

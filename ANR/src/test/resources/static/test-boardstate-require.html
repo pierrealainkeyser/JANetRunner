@@ -43,6 +43,7 @@
 				board
 						.consumeMsg({//
 							primary : { id : 60, text : "Begining of turn" },//
+							clicks : { active : 1, used : 2 },//
 							cards : [//
 									{ id : 0, url : "01080.png", faction : "corp", type : "id",
 										location : { primary : "server", serverIndex : -3, secondary : "stack", index : 0 }, tokens : { credit : 3 } },//
@@ -77,17 +78,18 @@
 
 				setTimeout(layoutManager.withinLayout(function() {
 					board.consumeMsg({//
+					clicks : { active : 4, used : 0 },//
 					runs : [ { id : 0, server : -1 } ], //
 					cards : [ { id : 60, ordering : [ 2, 3 ], actions : [ { id : 10, type : 'ordering', text : "Done" } ], tokens : { credit : 6 } } ],//
 					});
-				}), 500);
+				}), 1000);
 
-				if (false)
-					setTimeout(layoutManager.withinLayout(function() {
-						board.consumeMsg({//
-						runs : [ { id : 0, server : -3 } ] //
-						});
-					}), 1000);
+				setTimeout(layoutManager.withinLayout(function() {
+					board.consumeMsg({//
+					clicks : { active : 3, used : 1 },//
+					runs : [ { id : 0, server : -3 } ] //
+					});
+				}), 2000);
 
 				if (false)
 					setTimeout(layoutManager.withinLayout(function() {
