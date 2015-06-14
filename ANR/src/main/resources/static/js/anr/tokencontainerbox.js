@@ -42,8 +42,6 @@ function(_, mix, $, TokenModel, AbstractBoxContainer, AbstractBox, JQueryBoxSize
 					this.setContainer(null);
 					this.animateRemove(this.element, this.remove.bind(this));
 				} else {
-					console.log(this.valueElement, value)
-
 					// changement de la valeur
 					this.animateSwap(this.element, function() {
 						this.valueElement.html(value);
