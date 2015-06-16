@@ -47,8 +47,15 @@ public class Runner extends AbstractId {
 	 * @param creator
 	 */
 	public void load(RunnerDef def, Function<AbstractTokenContainerId, AbstractCard> creator) {
-
+		registerCard(def.getGrip(), a -> grip.add((AbstractCardRunner) a), creator);
+		registerCard(def.getStack(), a -> stack.add((AbstractCardRunner) a), creator);
+		registerCard(def.getHeap(), a -> heap.add((AbstractCardRunner) a), creator);
+		registerCard(def.getHardwares(), a -> hardwares.add((Hardware) a), creator);
+		registerCard(def.getPrograms(), a -> programs.add((Program) a), creator);
+		registerCard(def.getResources(), a -> resources.add((Resource) a), creator);
 	}
+
+	
 
 	/**
 	 * Création de la définition du runner
@@ -121,6 +128,6 @@ public class Runner extends AbstractId {
 	public void draw(int i, Flow next) {
 		// TODO Auto-generated method stub
 		next.apply();
-		
+
 	}
 }

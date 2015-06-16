@@ -2,7 +2,10 @@ package org.keyser.anr.core;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +33,12 @@ public abstract class AbstractId extends AbstractCard {
 		addAction(this::playFeedback);
 		setInstalled(true);
 		setRezzed(true);
+	}
+
+	public final void registerCard(List<AbstractCardDef> defs, Consumer<AbstractCard> container, Function<AbstractTokenContainerId, AbstractCard> creator) {
+		if (defs != null) {
+			defs.stream().map(creator).filter(a -> a != null).forEach(container);
+		}
 	}
 
 	protected void updateIdDef(IdDef def) {

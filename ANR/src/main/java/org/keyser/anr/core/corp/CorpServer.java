@@ -12,6 +12,7 @@ import org.keyser.anr.core.AbstractCardCorp;
 import org.keyser.anr.core.AbstractCardDef;
 import org.keyser.anr.core.AbstractTokenContainerId;
 import org.keyser.anr.core.CardLocation;
+import org.keyser.anr.core.Corp;
 import org.keyser.anr.core.Game;
 
 public class CorpServer {
@@ -50,16 +51,13 @@ public class CorpServer {
 	 * @param creator
 	 */
 	public void load(CorpServerDef def, Function<AbstractTokenContainerId, AbstractCard> creator) {
-		registerCard(def.getAssetOrUpgrades(), a -> assetOrUpgrades.add((InServerCorpCard) a), creator);
-		registerCard(def.getUpgrades(), a -> upgrades.add((Upgrade) a), creator);
-		registerCard(def.getIces(), a -> ices.add((Ice) a), creator);
+		Corp corp = game.getCorp();
+		corp.registerCard(def.getAssetOrUpgrades(), a -> assetOrUpgrades.add((InServerCorpCard) a), creator);
+		corp.registerCard(def.getUpgrades(), a -> upgrades.add((Upgrade) a), creator);
+		corp.registerCard(def.getIces(), a -> ices.add((Ice) a), creator);
 	}
 
-	protected void registerCard(List<AbstractCardDef> defs, Consumer<AbstractCard> container, Function<AbstractTokenContainerId, AbstractCard> creator) {
-		if (defs != null) {
-			defs.stream().map(creator).filter(a -> a != null).forEach(container);
-		}
-	}
+	
 
 	public CorpServerDef createDef() {
 		CorpServerDef def = new CorpServerDef();

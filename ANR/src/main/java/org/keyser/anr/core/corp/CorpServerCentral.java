@@ -30,7 +30,7 @@ public class CorpServerCentral extends CorpServer {
 	@Override
 	public void load(CorpServerDef def, Function<AbstractTokenContainerId, AbstractCard> creator) {
 		super.load(def, creator);
-		registerCard(def.getStack(), a -> stack.add((AbstractCardCorp) a), creator);
+		game.getCorp().registerCard(def.getStack(), a -> stack.add((AbstractCardCorp) a), creator);
 	}
 
 	@Override

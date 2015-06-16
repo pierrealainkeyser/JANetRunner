@@ -30,10 +30,10 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config)
 		this.ghosts = [];
 
 		// la rotation et la position de la carte, ainsi que la profondeur
-		this.face = Card.FACE_UP;
+		this.face = Card.FACE_DOWN;
 
 		// permet de montrer le mode de zoom up, down et null
-		this.zoomable = Card.FACE_UP;
+		this.zoomable = Card.FACE_DOWN;
 
 		// permet de savoir si la carte est visible dans la partie
 		// "cards" d'une cardcontainerbox
@@ -310,7 +310,11 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config)
 			var maxed = cardsize === "zoom";
 			var zoomed = maxed || cardsize === "mini" || (this.selected && hints.inSelectionCtx);
 			var shadow = "";
-			var faceup = (zoomed ? this.zoomable : this.face) === Card.FACE_UP;
+			var faceup = this.face === Card.FACE_UP;
+
+			if (zoomed) 
+				faceup == faceup || this.zoomable === Card.FACE_UP;
+
 			var horizontal = this.rotation == 90;
 
 			// gestion de l'ombre

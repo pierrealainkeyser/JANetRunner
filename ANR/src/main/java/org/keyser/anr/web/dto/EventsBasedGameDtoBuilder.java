@@ -233,12 +233,19 @@ public class EventsBasedGameDtoBuilder {
 						}
 						if (location.isInRD())
 							c.setZoomable(Face.down);
-						else
+						else if (PlayerType.CORP == c.getFaction())
 							c.setZoomable(Face.up);
 
-					} else if (PlayerType.RUNNER == playerType && location.isInRunnerHand()) {
-						c.setLocation(location.toHandLocation());
-						c.setFace(Face.up);
+					} else if (PlayerType.RUNNER == playerType) {
+						if (location.isInRunnerHand()) {
+							c.setLocation(location.toHandLocation());
+							c.setFace(Face.up);
+						}
+
+						if (location.isInStack())
+							c.setZoomable(Face.down);
+						else if (PlayerType.RUNNER == c.getFaction())
+							c.setZoomable(Face.up);
 					}
 
 				}
