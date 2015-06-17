@@ -9,7 +9,6 @@ import org.keyser.anr.core.CostForAction;
 import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.MetaCard;
-import org.keyser.anr.core.SimpleFeedback;
 import org.keyser.anr.core.TokenType;
 import org.keyser.anr.core.TrashCause;
 import org.keyser.anr.core.UserAction;
@@ -28,7 +27,7 @@ public class ArmitageCodebusting extends Resource {
 	private void configureAction(CollectHabilities hab) {
 		Cost oneAction = Cost.free().withAction(1);
 		UserAction take2credits = new UserAction(getRunner(), this, new CostForAction(oneAction, new AbstractCardAction<>(this)), "Take {2:credit}");
-		hab.add(new SimpleFeedback<>(take2credits, this::take2CreditsAction));
+		hab.add(take2credits.spendAndApply(this::take2CreditsAction));
 	}
 
 	private void take2CreditsAction(UserAction ua, Flow next) {

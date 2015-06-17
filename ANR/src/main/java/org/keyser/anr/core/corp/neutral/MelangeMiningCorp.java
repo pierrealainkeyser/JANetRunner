@@ -1,26 +1,44 @@
 package org.keyser.anr.core.corp.neutral;
 
-import org.keyser.anr.core.CardAbility;
-import org.keyser.anr.core.CardDef;
+import static java.util.Collections.emptyList;
+
+import org.keyser.anr.core.AbstractCardAction;
+import org.keyser.anr.core.CollectHabilities;
+import org.keyser.anr.core.Corp;
 import org.keyser.anr.core.Cost;
+import org.keyser.anr.core.CostForAction;
 import org.keyser.anr.core.Faction;
-import org.keyser.anr.core.WalletCredits;
+import org.keyser.anr.core.Flow;
+import org.keyser.anr.core.MetaCard;
+import org.keyser.anr.core.TokenType;
+import org.keyser.anr.core.UserAction;
 import org.keyser.anr.core.corp.Asset;
+import org.keyser.anr.core.corp.AssetUpgradeMetaCard;
 
-@CardDef(name = "Melange Mining Corp.", oid = "01108")
 public class MelangeMiningCorp extends Asset {
-	public MelangeMiningCorp() {
-		super(Faction.CORP_NEUTRAL.infl(0), Cost.credit(1), Cost.credit(1));
 
-		addAction(new CardAbility(this, "Gain 7{credits}", Cost.action(3)) {
+	public final static AssetUpgradeMetaCard INSTANCE = new AssetUpgradeMetaCard("Melange Mining Corp.", Faction.CORP_NEUTRAL.infl(0), Cost.credit(1), Cost.credit(1), false, "01108", emptyList(),
+			MelangeMiningCorp::new);
 
-			@Override
-			public void apply() {
-				// TODO notification
+	protected MelangeMiningCorp(int id, MetaCard meta) {
+		super(id, meta);
 
-				getGame().getCorp().getWallet().wallet(WalletCredits.class, wc -> wc.setAmount(wc.getAmount() + 7));
-				next.apply();
-			}
-		});
+		addAction(this::configureAction);
+	}
+
+	private void configureAction(CollectHabilities hab) {
+		Cost threeActions = Cost.free().withAction(3);
+		UserAction gain7 = new UserAction(getCorp(), this, new CostForAction(threeActions, new AbstractCardAction<>(this)), "Gains {7:credit}");
+		hab.add(gain7.spendAndApply(this::gain7creditsAction));
+	}
+
+	private void gain7creditsAction(UserAction ua, Flow next) {
+		Corp corp = getCorp();
+		corp.addToken(TokenType.CREDIT, 7);
+
+		// notification de l'effet
+		game.chat("{0} gains {1} and looses {2}", corp, Cost.credit(7), ua.getCost());
+		
+		next.apply();
 	}
 }

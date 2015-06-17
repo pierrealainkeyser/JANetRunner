@@ -6,6 +6,7 @@ import org.keyser.anr.core.corp.nbn.MakingNews;
 import org.keyser.anr.core.corp.nbn.Psychographics;
 import org.keyser.anr.core.corp.nbn.SEASource;
 import org.keyser.anr.core.corp.neutral.HedgeFund;
+import org.keyser.anr.core.corp.neutral.MelangeMiningCorp;
 import org.keyser.anr.core.corp.neutral.PADCampaign;
 import org.keyser.anr.core.runner.neutral.ArmitageCodebusting;
 import org.keyser.anr.core.runner.neutral.SureGamble;
@@ -40,6 +41,7 @@ public class ANRMetaCards {
 
 		// neutral
 		INSTANCE.add(PADCampaign.INSTANCE);
+		INSTANCE.add(MelangeMiningCorp.INSTANCE);
 		INSTANCE.add(HedgeFund.INSTANCE);
 	}
 }
