@@ -8,6 +8,7 @@ import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.TrashCause;
+import org.keyser.anr.core.UserAction;
 import org.keyser.anr.core.corp.Operation;
 
 public class AnonymousTip extends Operation {
@@ -19,9 +20,9 @@ public class AnonymousTip extends Operation {
 	}
 
 	@Override
-	protected void invoke(Flow next) {
+	protected void invoke(UserAction ua, Flow next) {
 		Corp corp = getCorp();
-		game.chat("{0} plays {1}, loses {2} and draws 3 cards", corp, this, Cost.click(1));
+		game.chat("{0} plays {1}, loses {2} and draws 3 cards", corp, this, ua.getCost().getCost());
 		corp.draw(3, () -> trash(TrashCause.PLAY, next));
 	}
 }

@@ -10,7 +10,6 @@ import org.keyser.anr.core.CostForAction;
 import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.MetaCard;
-import org.keyser.anr.core.TokenType;
 import org.keyser.anr.core.UserAction;
 import org.keyser.anr.core.corp.Asset;
 import org.keyser.anr.core.corp.AssetUpgradeMetaCard;
@@ -34,7 +33,7 @@ public class MelangeMiningCorp extends Asset {
 
 	private void gain7creditsAction(UserAction ua, Flow next) {
 		Corp corp = getCorp();
-		corp.addToken(TokenType.CREDIT, 7);
+		corp.gainCredits(7);
 
 		// notification de l'effet
 		game.chat("{0} gains {1} and looses {2}", corp, Cost.credit(7), ua.getCost());

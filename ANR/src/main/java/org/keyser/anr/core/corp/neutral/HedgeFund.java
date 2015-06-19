@@ -7,8 +7,8 @@ import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.MetaCard;
-import org.keyser.anr.core.TokenType;
 import org.keyser.anr.core.TrashCause;
+import org.keyser.anr.core.UserAction;
 import org.keyser.anr.core.corp.Operation;
 
 public class HedgeFund extends Operation {
@@ -20,12 +20,12 @@ public class HedgeFund extends Operation {
 	}
 
 	@Override
-	protected void invoke(Flow next) {
+	protected void invoke(UserAction ua, Flow next) {
 
 		Corp corp = getCorp();
-		corp.addToken(TokenType.CREDIT, 9);
+		corp.gainCredits(9);
 
-		game.chat("{0} plays {1}, loses {2} and gains {3}", corp, this, Cost.click(1), Cost.credit(9));
+		game.chat("{0} plays {1}, loses {2} and gains {3}", corp, this, ua.getCost().getCost(), Cost.credit(9));
 		trash(TrashCause.PLAY, next);
 
 	}

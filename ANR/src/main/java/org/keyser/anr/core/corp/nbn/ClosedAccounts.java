@@ -10,6 +10,7 @@ import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.Runner;
+import org.keyser.anr.core.UserAction;
 import org.keyser.anr.core.corp.Operation;
 
 public class ClosedAccounts extends Operation {
@@ -28,7 +29,7 @@ public class ClosedAccounts extends Operation {
 	}
 
 	@Override
-	protected void invoke(Flow next) {
+	protected void invoke(UserAction ua, Flow next) {
 
 		next.apply();
 

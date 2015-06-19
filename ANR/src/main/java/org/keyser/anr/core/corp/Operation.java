@@ -27,10 +27,11 @@ public abstract class Operation extends AbstractCardCorp {
 	}
 
 	/**
-	 * Invocation de l'opération
+	 * Invocation de l'operation
 	 * 
+	 * @param action
 	 * @param next
 	 * @return
 	 */
-	protected abstract void invoke(Flow next);
+	protected abstract void invoke(UserAction action,Flow next);
 }

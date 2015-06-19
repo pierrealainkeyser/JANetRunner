@@ -10,14 +10,12 @@ import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.StartOfTurn;
-import org.keyser.anr.core.TokenType;
 import org.keyser.anr.core.corp.Asset;
 import org.keyser.anr.core.corp.AssetUpgradeMetaCard;
 
 public class PADCampaign extends Asset {
 
-	public final static AssetUpgradeMetaCard INSTANCE = new AssetUpgradeMetaCard("PAD Campaign", Faction.CORP_NEUTRAL.infl(0), Cost.credit(2), Cost.credit(4), false, "01109", emptyList(),
-			PADCampaign::new);
+	public final static AssetUpgradeMetaCard INSTANCE = new AssetUpgradeMetaCard("PAD Campaign", Faction.CORP_NEUTRAL.infl(0), Cost.credit(2), Cost.credit(4), false, "01109", emptyList(), PADCampaign::new);
 
 	protected PADCampaign(int id, MetaCard meta) {
 		super(id, meta);
@@ -36,7 +34,7 @@ public class PADCampaign extends Asset {
 		// notification de l'effet
 		game.chat("{0} gains {1}", this, Cost.credit(1));
 
-		getCorp().addToken(TokenType.CREDIT, 1);
+		getCorp().gainCredits(1);
 
 		next.apply();
 	}

@@ -124,6 +124,10 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	protected void addRecuringCredit(int value) {
 		match(InitTurn.class, em -> em.test(myTurn()).run(() -> setToken(TokenType.RECURRING, value)));
 	}
+	
+	public void gainCredits(int credits){
+		addToken(TokenType.CREDIT, credits);
+	}
 
 	/**
 	 * Modification du delta

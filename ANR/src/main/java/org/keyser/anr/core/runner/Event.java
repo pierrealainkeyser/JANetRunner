@@ -6,7 +6,6 @@ import org.keyser.anr.core.CostForAction;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.UserAction;
-import org.keyser.anr.core.corp.PlayOperationAction;
 
 public abstract class Event extends AbstractCardRunner {
 	protected Event(int id, MetaCard meta) {
@@ -31,5 +30,5 @@ public abstract class Event extends AbstractCardRunner {
 	 * @param next
 	 * @return
 	 */
-	protected abstract void invoke(Flow next);
+	protected abstract void invoke(UserAction ua, Flow next);
 }

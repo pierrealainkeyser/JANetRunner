@@ -10,6 +10,7 @@ import org.keyser.anr.core.CollectHabilities;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.Run;
+import org.keyser.anr.core.UserAction;
 import org.keyser.anr.core.corp.Operation;
 import org.keyser.anr.core.runner.DoDamageEvent;
 import org.keyser.anr.core.runner.DoDamageEvent.DamageType;
@@ -29,7 +30,7 @@ public class NeuralEMP extends Operation {
 	}
 
 	@Override
-	protected void invoke(Flow next) {
+	protected void invoke(UserAction ua, Flow next) {
 		new DoDamageEvent(this, 1, DamageType.NET).fire(next);
 	}
 }
