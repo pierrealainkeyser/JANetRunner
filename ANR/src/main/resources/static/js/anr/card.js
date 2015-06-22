@@ -311,9 +311,9 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config)
 			var zoomed = maxed || cardsize === "mini" || (this.selected && hints.inSelectionCtx);
 			var shadow = "";
 			var faceup = this.face === Card.FACE_UP;
-
+			
 			if (zoomed) 
-				faceup == faceup || this.zoomable === Card.FACE_UP;
+				faceup = faceup || this.zoomable === Card.FACE_UP;
 
 			var horizontal = this.rotation == 90;
 
@@ -435,7 +435,6 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config)
 		this.observe(this.computeFromRenderingHints.bind(this), [ AbstractBox.CONTAINER ]);
 
 		this.setFace(card.face);
-		this.setZoomable(card.zoomable);
 
 		this.card = card;
 		this.actionModel = card.actionModel;
