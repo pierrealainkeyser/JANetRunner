@@ -9,12 +9,14 @@ import org.keyser.anr.core.CardLocation;
 import org.keyser.anr.core.PlayerType;
 import org.keyser.anr.core.TokenType;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class CardDto {
 
-	public enum CardType{
+	public enum CardType {
 		id
 	}
-	
+
 	public enum Face {
 		down, up
 	}
@@ -22,13 +24,16 @@ public class CardDto {
 	private List<ActionDto> actions;
 
 	private Face face;
-	
+
 	private Face zoomable;
 
 	private PlayerType faction;
 
+	@JsonIgnore
+	private PlayerType localFaction;
+
 	private int id;
-	
+
 	private CardType type;
 
 	private CardLocation location;
@@ -40,8 +45,9 @@ public class CardDto {
 	public CardDto() {
 	}
 
-	public CardDto(int id) {
+	public CardDto(int id, PlayerType localFaction) {
 		this.id = id;
+		this.localFaction = localFaction;
 	}
 
 	public void addAction(ActionDto dto) {
@@ -128,6 +134,10 @@ public class CardDto {
 
 	public void setZoomable(Face zoomable) {
 		this.zoomable = zoomable;
+	}
+
+	public PlayerType getLocalFaction() {
+		return localFaction;
 	}
 
 }

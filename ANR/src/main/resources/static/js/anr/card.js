@@ -435,6 +435,7 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config)
 		this.observe(this.computeFromRenderingHints.bind(this), [ AbstractBox.CONTAINER ]);
 
 		this.setFace(card.face);
+		this.setZoomable(card.zoomable);
 
 		this.card = card;
 		this.actionModel = card.actionModel;

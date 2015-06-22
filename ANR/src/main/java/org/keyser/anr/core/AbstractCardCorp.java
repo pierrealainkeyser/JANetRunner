@@ -42,12 +42,11 @@ public class AbstractCardCorp extends AbstractCard {
 	 * @param next
 	 */
 	@Override
-	public void trash(TrashCause ctx, Flow next) {
-		super.trash(ctx, () -> {
-			getCorp().getArchives().add(this);
-			next.apply();
-		});
+	protected void setTrashCause(TrashCause ctx) {
+		super.setTrashCause(ctx);
+		getCorp().getArchives().add(this);
 	}
+
 
 	@Override
 	public PlayerType getOwner() {

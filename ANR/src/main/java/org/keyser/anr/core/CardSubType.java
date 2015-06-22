@@ -11,7 +11,10 @@ public enum CardSubType {
 	// pour des pieges
 	AMBUSH,
 	
-	// 
+	// por les consoles
 	CONSOLE,
+	
+	//pour les regions
+	REGION,
 
 }

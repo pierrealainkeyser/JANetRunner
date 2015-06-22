@@ -143,7 +143,7 @@ public abstract class AbstractId extends AbstractCard {
 				AbstractCardAction<AbstractCard> aca = (AbstractCardAction<AbstractCard>) action;
 				AbstractCard card = aca.getCard();
 
-				// TODO gestion du contexte de trash...
+				//  gestion du contexte de trash...
 				card.trash(null, () -> trashAgenda(costForAction, next));
 				return;
 			} else {

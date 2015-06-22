@@ -22,14 +22,8 @@ import java.util.stream.Stream;
  */
 public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 
-	public static Predicate<AbstractCard> hasSubtypes(CardSubType... subtypes) {
-		return (a) -> {
-			for (CardSubType s : subtypes) {
-				if (a.getSubTypes().contains(s))
-					return true;
-			}
-			return false;
-		};
+	public static Predicate<AbstractCard> hasAnyTypes(CardSubType... or) {
+		return a -> a.hasAnySubTypes(or);
 	}
 
 	private final EventMatchers events = new EventMatchers();
@@ -65,6 +59,14 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 
 		if (playPredicate != null && playLocation != null)
 			match(CollectHabilities.class, em -> playAction(em, playPredicate.and(location(playLocation))));
+	}
+
+	public boolean hasAnySubTypes(CardSubType... or) {
+		for (CardSubType s : or) {
+			if (subTypes.contains(s))
+				return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -124,8 +126,8 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	protected void addRecuringCredit(int value) {
 		match(InitTurn.class, em -> em.test(myTurn()).run(() -> setToken(TokenType.RECURRING, value)));
 	}
-	
-	public void gainCredits(int credits){
+
+	public void gainCredits(int credits) {
 		addToken(TokenType.CREDIT, credits);
 	}
 
@@ -405,12 +407,14 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	 * @param ctx
 	 * @param next
 	 */
-	public void trash(TrashCause ctx, Flow next) {
-		setRezzed(ctx.isRezzedAfterTrash());
-		setInstalled(false);
-
-		// TODO
+	public final void trash(TrashCause ctx, Flow next) {		
+		setTrashCause(ctx);
 		next.apply();
+	}
+	
+	protected void setTrashCause(TrashCause ctx){
+		setRezzed(this.isRezzed() || ctx.isRezzedAfterTrash());
+		setInstalled(false);				
 	}
 
 	protected <T> Predicate<T> turn(Predicate<Turn> p) {

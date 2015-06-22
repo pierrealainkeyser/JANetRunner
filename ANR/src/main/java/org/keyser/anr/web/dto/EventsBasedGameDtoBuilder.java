@@ -112,7 +112,7 @@ public class EventsBasedGameDtoBuilder {
 	private CardDto getOrCreate(AbstractCard card) {
 		CardDto dto = cards.get(card);
 		if (dto == null) {
-			dto = new CardDto(card.getId());
+			dto = new CardDto(card.getId(), card.getOwner());
 			cards.put(card, dto);
 		}
 		return dto;
@@ -223,33 +223,37 @@ public class EventsBasedGameDtoBuilder {
 
 		// mise à jour des positions des cartes
 		if (dto.getCards() != null) {
-			for (CardDto c : dto.getCards()) {
-				CardLocation location = c.getLocation();
-				if (location != null) {
-					if (PlayerType.CORP == playerType) {
-						if (location.isInCorpHand()) {
-							c.setLocation(location.toHandLocation());
-							c.setFace(Face.up);
-						}
-						if (location.isInRD())
-							c.setZoomable(Face.down);
-						else if (PlayerType.CORP == c.getFaction())
-							c.setZoomable(Face.up);
+			for (CardDto c : dto.getCards())
+				setZoomAndFace(playerType, c);
+		}
+	}
 
-					} else if (PlayerType.RUNNER == playerType) {
-						if (location.isInRunnerHand()) {
-							c.setLocation(location.toHandLocation());
-							c.setFace(Face.up);
-						}
-
-						if (location.isInStack())
-							c.setZoomable(Face.down);
-						else if (PlayerType.RUNNER == c.getFaction())
-							c.setZoomable(Face.up);
-					}
-
+	private void setZoomAndFace(PlayerType playerType, CardDto c) {
+		CardLocation location = c.getLocation();
+		if (location != null) {
+			if (PlayerType.CORP == playerType) {
+				if (location.isInCorpHand()) {
+					c.setLocation(location.toHandLocation());
+					c.setFace(Face.up);
 				}
+
+				if (location.isInRD())
+					c.setZoomable(Face.down);
+				else if (c.getLocalFaction() == playerType)
+					c.setZoomable(Face.up);
+
+			} else if (PlayerType.RUNNER == playerType) {
+				if (location.isInRunnerHand()) {
+					c.setLocation(location.toHandLocation());
+					c.setFace(Face.up);
+				}
+
+				if (location.isInStack())
+					c.setZoomable(Face.down);
+				else if (c.getLocalFaction() == playerType)
+					c.setZoomable(Face.up);
 			}
+
 		}
 	}
 

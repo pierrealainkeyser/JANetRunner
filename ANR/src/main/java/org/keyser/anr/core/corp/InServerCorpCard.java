@@ -72,7 +72,7 @@ public abstract class InServerCorpCard extends AbstractCardCorp {
 	 */
 	private void installed(UserAction action, AbstractCardList discard, Flow next) {
 		// TODO trash des cartes sélectionnés
-		
+
 		this.setInstalled(true);
 
 		// installation dans la zone qui va bien
@@ -82,9 +82,14 @@ public abstract class InServerCorpCard extends AbstractCardCorp {
 		else
 			server.addAssetOrUpgrade(this);
 
+		server.trashOtherIllegalsCards(this, next.wrap(this::processCleanUp));
+
+	}
+
+	private void processCleanUp(Flow next) {
+
 		// cleanup et poursuite du traitement
 		getGame().apply(new AbstractCardInstalledCleanup(this), next);
-
 	}
 
 }

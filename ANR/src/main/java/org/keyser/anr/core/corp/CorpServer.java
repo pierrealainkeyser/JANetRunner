@@ -2,18 +2,21 @@ package org.keyser.anr.core.corp;
 
 import static org.keyser.anr.core.AbstractCard.createDefList;
 
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.keyser.anr.core.AbstractCard;
 import org.keyser.anr.core.AbstractCardContainer;
 import org.keyser.anr.core.AbstractCardCorp;
-import org.keyser.anr.core.AbstractCardDef;
 import org.keyser.anr.core.AbstractTokenContainerId;
 import org.keyser.anr.core.CardLocation;
+import org.keyser.anr.core.CardSubType;
 import org.keyser.anr.core.Corp;
+import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.Game;
+import org.keyser.anr.core.TrashCause;
+import org.keyser.anr.core.TrashList;
 
 public class CorpServer {
 
@@ -56,8 +59,6 @@ public class CorpServer {
 		corp.registerCard(def.getUpgrades(), a -> upgrades.add((Upgrade) a), creator);
 		corp.registerCard(def.getIces(), a -> ices.add((Ice) a), creator);
 	}
-
-	
 
 	public CorpServerDef createDef() {
 		CorpServerDef def = new CorpServerDef();
@@ -116,10 +117,36 @@ public class CorpServer {
 		upgrade.add(upgrade);
 	}
 
+	/**
+	 * Supprime les cartes non légales
+	 * 
+	 * @param card
+	 * @param next
+	 */
+	public void trashOtherIllegalsCards(InServerCorpCard card, Flow next) {
+
+		Predicate<AbstractCard> isNotCard = a -> a != card;
+
+		TrashList tl = new TrashList(TrashCause.OTHER_INSTALLED);
+		if (card instanceof AssetOrAgenda)
+			assetOrUpgrades.stream().filter(isNotCard.and(a -> a instanceof AssetOrAgenda)).forEach(tl::add);
+		else if (card instanceof Upgrade) {
+			Upgrade u = (Upgrade) card;
+			Predicate<AbstractCard> region = AbstractCard.hasAnyTypes(CardSubType.REGION);
+			if (region.test(u)) {
+				//suppression de toutes les regions
+				Predicate<AbstractCard> p = isNotCard.and(region);
+				assetOrUpgrades.stream().filter(p).forEach(tl::add);
+				upgrades.stream().filter(p).forEach(tl::add);
+			}
+
+		}
+
+		tl.trash(next);
+
+	}
+
 	public void addAssetOrUpgrade(InServerCorpCard card) {
-
-		// TODO trash des assets et agenda...
-
 		assetOrUpgrades.add(card);
 	}
 
