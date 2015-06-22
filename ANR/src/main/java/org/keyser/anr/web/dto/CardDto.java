@@ -41,6 +41,8 @@ public class CardDto {
 	private Map<String, Integer> tokens;
 
 	private String url;
+	
+	private boolean accessible;
 
 	public CardDto() {
 	}
@@ -118,6 +120,7 @@ public class CardDto {
 
 	public void setLocation(CardLocation location) {
 		this.location = location;
+		setAccessible(location.isTrashed());
 	}
 
 	public void setTokens(Map<String, Integer> tokens) {
@@ -138,6 +141,14 @@ public class CardDto {
 
 	public PlayerType getLocalFaction() {
 		return localFaction;
+	}
+
+	public boolean isAccessible() {
+		return accessible;
+	}
+
+	public void setAccessible(boolean accessible) {
+		this.accessible = accessible;
 	}
 
 }

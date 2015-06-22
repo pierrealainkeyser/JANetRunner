@@ -235,7 +235,7 @@ public class EventsBasedGameDtoBuilder {
 				if (location.isInCorpHand()) {
 					c.setLocation(location.toHandLocation());
 					c.setFace(Face.up);
-				}
+				}				
 
 				if (location.isInRD())
 					c.setZoomable(Face.down);
@@ -253,8 +253,8 @@ public class EventsBasedGameDtoBuilder {
 				else if (c.getLocalFaction() == playerType)
 					c.setZoomable(Face.up);
 			}
-
 		}
+		
 	}
 
 	/**
