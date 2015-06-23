@@ -25,6 +25,10 @@ public class TrashList {
 		return this;
 	}
 
+	/**
+	 * Trash toutes les cartes
+	 * @param next
+	 */
 	public void trash(Flow next) {
 		RecursiveIterator.recurse(cards.iterator(), this::doTrash, next);
 	}

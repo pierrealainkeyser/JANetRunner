@@ -13,10 +13,7 @@ import org.keyser.anr.core.AbstractTokenContainerId;
 import org.keyser.anr.core.CardLocation;
 import org.keyser.anr.core.CardSubType;
 import org.keyser.anr.core.Corp;
-import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.Game;
-import org.keyser.anr.core.TrashCause;
-import org.keyser.anr.core.TrashList;
 
 public class CorpServer {
 
@@ -118,32 +115,37 @@ public class CorpServer {
 	}
 
 	/**
-	 * Supprime les cartes non légales
+	 * Permet de trouver tous les cartes légales (ou non) si la card est rajouté
+	 * dans le serveur
 	 * 
 	 * @param card
-	 * @param next
+	 * @param legal
+	 * @param consumer
 	 */
-	public void trashOtherIllegalsCards(InServerCorpCard card, Flow next) {
+	public void collectIllegalsCards(InServerCorpCard card, boolean legal, Consumer<AbstractCard> consumer) {
+		collectCard(card, a -> a instanceof AssetOrAgenda, legal, consumer);
+		collectCard(card, AbstractCard.hasAnyTypes(CardSubType.REGION), legal, consumer);
+	}
 
-		Predicate<AbstractCard> isNotCard = a -> a != card;
+	/**
+	 * Verifie si la carte correspond au prédicate, puis transmet au consumer
+	 * 
+	 * @param card
+	 * @param pred
+	 * @param negateSearch si vrai inverse la condition pour la recherche
+	 * @param consumer
+	 */
+	private void collectCard(InServerCorpCard card, Predicate<AbstractCard> pred, boolean negateSearch, Consumer<AbstractCard> consumer) {
+		if (pred.test(card)) {
+			if (negateSearch)
+				pred = pred.negate();
 
-		TrashList tl = new TrashList(TrashCause.OTHER_INSTALLED);
-		if (card instanceof AssetOrAgenda)
-			assetOrUpgrades.stream().filter(isNotCard.and(a -> a instanceof AssetOrAgenda)).forEach(tl::add);
-		else if (card instanceof Upgrade) {
-			Upgrade u = (Upgrade) card;
-			Predicate<AbstractCard> region = AbstractCard.hasAnyTypes(CardSubType.REGION);
-			if (region.test(u)) {
-				//suppression de toutes les regions
-				Predicate<AbstractCard> p = isNotCard.and(region);
-				assetOrUpgrades.stream().filter(p).forEach(tl::add);
-				upgrades.stream().filter(p).forEach(tl::add);
-			}
-
+			Predicate<AbstractCard> match = pred.and(a -> a != card);
+			forEachAssetOrUpgrades(c -> {
+				if (match.test(c))
+					consumer.accept(c);
+			});
 		}
-
-		tl.trash(next);
-
 	}
 
 	public void addAssetOrUpgrade(InServerCorpCard card) {

@@ -14,6 +14,8 @@ import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.Game;
 import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.PlayCardAction;
+import org.keyser.anr.core.TrashCause;
+import org.keyser.anr.core.TrashList;
 import org.keyser.anr.core.UserAction;
 import org.keyser.anr.core.UserActionArgs;
 import org.keyser.anr.core.UserActionContext.Type;
@@ -54,8 +56,9 @@ public abstract class InServerCorpCard extends AbstractCardCorp {
 		Corp corp = getCorp();
 		Consumer<CorpServer> install = cs -> {
 			if (installableOn(cs)) {
-				AbstractCardList list = new AbstractCardList();
-				cs.forEachAssetOrUpgrades(list::add);
+				AbstractCardList list = new AbstractCardList();				
+				cs.collectIllegalsCards(this, true, list::add);
+				
 				UserActionArgs<AbstractCardList> ua = new UserActionArgs<>(corp, cs, null, "Install", list);
 				g.user(new FeedbackWithArgs<>(ua, this::installed), next);
 			}
@@ -71,7 +74,6 @@ public abstract class InServerCorpCard extends AbstractCardCorp {
 	 * @param next
 	 */
 	private void installed(UserAction action, AbstractCardList discard, Flow next) {
-		// TODO trash des cartes sélectionnés
 
 		this.setInstalled(true);
 
@@ -82,7 +84,16 @@ public abstract class InServerCorpCard extends AbstractCardCorp {
 		else
 			server.addAssetOrUpgrade(this);
 
-		server.trashOtherIllegalsCards(this, next.wrap(this::processCleanUp));
+
+		// on rajoute toutes les cates sélectionnées
+		TrashList tl = new TrashList(TrashCause.OTHER_INSTALLED);
+		discard.forEach(tl::add);
+
+		// on recherche toutes les cartes illegales sur le serveur
+		server.collectIllegalsCards(this, false, tl::add);
+
+		//trash toutes les cartes
+		tl.trash(next.wrap(this::processCleanUp));
 
 	}
 
