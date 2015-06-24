@@ -17,8 +17,9 @@ import org.keyser.anr.core.PlayCardAction;
 import org.keyser.anr.core.TrashCause;
 import org.keyser.anr.core.TrashList;
 import org.keyser.anr.core.UserAction;
-import org.keyser.anr.core.UserActionArgs;
+import org.keyser.anr.core.UserActionConfirmSelection;
 import org.keyser.anr.core.UserActionContext.Type;
+import org.keyser.anr.core.UserActionSelectCard;
 
 public abstract class InServerCorpCard extends AbstractCardCorp {
 
@@ -55,13 +56,8 @@ public abstract class InServerCorpCard extends AbstractCardCorp {
 
 		Corp corp = getCorp();
 		Consumer<CorpServer> install = cs -> {
-			if (installableOn(cs)) {
-				AbstractCardList list = new AbstractCardList();				
-				cs.collectIllegalsCards(this, true, list::add);
-				
-				UserActionArgs<AbstractCardList> ua = new UserActionArgs<>(corp, cs, null, "Install", list);
-				g.user(new FeedbackWithArgs<>(ua, this::installed), next);
-			}
+			if (installableOn(cs))
+				g.user(new UserAction(corp, cs, null, "Install").apply(this::installedOnServer), next);
 		};
 		corp.eachServers(install);
 	}
@@ -70,31 +66,55 @@ public abstract class InServerCorpCard extends AbstractCardCorp {
 	 * Permet de supprimer les cartes
 	 * 
 	 * @param action
-	 * @param discard
 	 * @param next
 	 */
-	private void installed(UserAction action, AbstractCardList discard, Flow next) {
+	private void installedOnServer(UserAction action, Flow next) {
+
+		Corp corp = getCorp();
+		AbstractCardList list = new AbstractCardList();
+		CorpServer selected = action.getServer();
+		selected.collectIllegalsCards(this, true, list::add);
+
+		if (!list.isEmpty()) {
+			Game g = getGame();
+			g.userContext(this, "Remove assets, upgrades or agenda", Type.REMOVE_ON_INSTALL);
+
+			// on rajoute l'action de confirmation
+			g.user(new FeedbackWithArgs<>(new UserActionConfirmSelection(corp, this), (u, toRemove, n) -> removeAndInstall(selected, toRemove, n)), next);
+
+			// on peut sélectionner les cartes
+			list.forEach(c -> g.user(new UserActionSelectCard(corp, c)));
+		} else
+			removeAndInstall(selected, list, next);
+
+	}
+
+	/**
+	 * La liste des cartes sélectionnés par le client est transmise
+	 * 
+	 * @param selected
+	 * @param toRemove
+	 * @param next
+	 */
+	private void removeAndInstall(CorpServer selected, AbstractCardList toRemove, Flow next) {
 
 		this.setInstalled(true);
 
 		// installation dans la zone qui va bien
-		CorpServer server = action.getServer();
-		if (server instanceof CorpServerCentral)
-			server.addUpgrade((Upgrade) this);
+		if (selected instanceof CorpServerCentral)
+			selected.addUpgrade((Upgrade) this);
 		else
-			server.addAssetOrUpgrade(this);
-
+			selected.addAssetOrUpgrade(this);
 
 		// on rajoute toutes les cates sélectionnées
 		TrashList tl = new TrashList(TrashCause.OTHER_INSTALLED);
-		discard.forEach(tl::add);
 
 		// on recherche toutes les cartes illegales sur le serveur
-		server.collectIllegalsCards(this, false, tl::add);
+		selected.collectIllegalsCards(this, false, tl::add);
+		toRemove.forEach(tl::add);
 
-		//trash toutes les cartes
+		// trash toutes les cartes
 		tl.trash(next.wrap(this::processCleanUp));
-
 	}
 
 	private void processCleanUp(Flow next) {

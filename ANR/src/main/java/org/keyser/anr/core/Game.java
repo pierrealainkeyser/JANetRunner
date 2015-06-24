@@ -461,6 +461,20 @@ public class Game {
 	}
 
 	/**
+	 * Rajout une action non interractive (doit être géré coté client)
+	 * 
+	 * @param userAction
+	 */
+	public void user(UserAction userAction) {
+		int id = nextAction++;
+		userAction.setActionId(id);
+
+		logger.debug("User (without feedback) - {}", userAction);
+
+		actionsContext.actions.put(id, new FeedbackHandler<>(userAction, null, null));
+	}
+
+	/**
 	 * Rajoute une interaction de l'utilisation
 	 * 
 	 * @param ua

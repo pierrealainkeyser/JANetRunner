@@ -16,20 +16,31 @@ public class UserAction {
 
 	private final CorpServer server;
 
+	private final Object data;
+
 	public UserAction(AbstractId user, AbstractCard source, CostForAction cost, String description) {
-		this(user, source, cost, description, null);
+		this(user, source, cost, description, null, null);
+	}
+
+	public UserAction(AbstractId user, AbstractCard source, CostForAction cost, String description, Object data) {
+		this(user, source, cost, description, null, data);
 	}
 
 	public UserAction(AbstractId user, CorpServer source, CostForAction cost, String description) {
-		this(user, null, cost, description, source);
+		this(user, source, cost, description, null);
 	}
 
-	public UserAction(AbstractId user, AbstractCard source, CostForAction cost, String description, CorpServer server) {
+	public UserAction(AbstractId user, CorpServer source, CostForAction cost, String description, Object data) {
+		this(user, null, cost, description, source, data);
+	}
+
+	public UserAction(AbstractId user, AbstractCard source, CostForAction cost, String description, CorpServer server, Object data) {
 		this.to = user;
 		this.source = source;
 		this.cost = cost;
 		this.description = description;
 		this.server = server;
+		this.data = data;
 	}
 
 	public boolean isAnAction() {
@@ -104,9 +115,13 @@ public class UserAction {
 		});
 	}
 
-	public  SimpleFeedback<UserAction> spendAndApply(EventConsumer<UserAction> call) {		
+	public SimpleFeedback<UserAction> spendAndApply(EventConsumer<UserAction> call) {
 		return spendAndApply(call.wrap(this));
-				
+
+	}
+
+	public SimpleFeedback<UserAction> apply(EventConsumer<UserAction> call) {
+		return new SimpleFeedback<UserAction>(this, call);
 	}
 
 	public CostForAction getCost() {

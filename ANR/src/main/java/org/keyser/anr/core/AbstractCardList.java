@@ -20,6 +20,10 @@ public class AbstractCardList implements Iterable<AbstractCard> {
 	public AbstractCardList() {
 	}
 
+	public boolean isEmpty() {
+		return cards.isEmpty();
+	}
+
 	public List<AbstractCard> getCards() {
 		return cards;
 	}
