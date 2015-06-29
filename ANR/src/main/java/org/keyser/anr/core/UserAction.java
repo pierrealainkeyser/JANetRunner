@@ -136,4 +136,8 @@ public class UserAction {
 		return server;
 	}
 
+	public Object getData() {
+		return data;
+	}
+
 }

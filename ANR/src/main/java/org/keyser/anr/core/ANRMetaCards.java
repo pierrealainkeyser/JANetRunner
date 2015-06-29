@@ -8,6 +8,7 @@ import org.keyser.anr.core.corp.nbn.SEASource;
 import org.keyser.anr.core.corp.neutral.HedgeFund;
 import org.keyser.anr.core.corp.neutral.MelangeMiningCorp;
 import org.keyser.anr.core.corp.neutral.PADCampaign;
+import org.keyser.anr.core.corp.neutral.WallOfStatic;
 import org.keyser.anr.core.runner.neutral.ArmitageCodebusting;
 import org.keyser.anr.core.runner.neutral.SureGamble;
 import org.keyser.anr.core.runner.shaper.AkamatsuMemChip;
@@ -43,5 +44,7 @@ public class ANRMetaCards {
 		INSTANCE.add(PADCampaign.INSTANCE);
 		INSTANCE.add(MelangeMiningCorp.INSTANCE);
 		INSTANCE.add(HedgeFund.INSTANCE);
+		
+		INSTANCE.add(WallOfStatic.INSTANCE);
 	}
 }

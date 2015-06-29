@@ -13,8 +13,8 @@ public class AbstractCardCorp extends AbstractCard {
 	protected AbstractCardCorp(int id, MetaCard meta) {
 		super(id, meta, CollectHabilities.CORP, CardLocation::isInCorpHand);
 
-		//permet de rezzed
-		match(CollectHabilities.class, em -> em.test(ch -> isInstalled() && ch.getType() == getOwner() && !isRezzed()).call(this::registerRezz));
+		// permet de rezzed
+		match(CollectHabilities.class, em -> em.test(ch -> isInstalled() && ch.getType() == getOwner() && isRezzable() && !isRezzed()).call(this::registerRezz));
 	}
 
 	private void registerRezz(CollectHabilities hab) {
@@ -46,7 +46,6 @@ public class AbstractCardCorp extends AbstractCard {
 		super.setTrashCause(ctx);
 		getCorp().getArchives().add(this);
 	}
-
 
 	@Override
 	public PlayerType getOwner() {
