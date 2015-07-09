@@ -6,12 +6,14 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import org.keyser.anr.core.ANRMetaCards;
+import org.keyser.anr.core.AbstractCardCorp;
 import org.keyser.anr.core.Corp;
 import org.keyser.anr.core.Game;
 import org.keyser.anr.core.GameDef;
 import org.keyser.anr.core.OCTGNParser;
 import org.keyser.anr.core.TestOCTGNParser;
 import org.keyser.anr.core.TokenType;
+import org.keyser.anr.core.corp.Ice;
 import org.keyser.anr.web.AnrWebSocketHandler;
 import org.keyser.anr.web.Endpoint;
 import org.keyser.anr.web.EndpointProcessor;
@@ -27,6 +29,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.introspector.Property;
+import org.yaml.snakeyaml.nodes.NodeTuple;
+import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.representer.Representer;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -83,10 +90,31 @@ public class AnrMain implements WebSocketConfigurer {
 
 		g.load(def, ANRMetaCards.INSTANCE);
 
+		Representer r = new Representer() {
+
+			@Override
+			protected NodeTuple representJavaBeanProperty(Object javaBean, Property property, Object propertyValue, Tag customTag) {
+				if (propertyValue == null) {
+					return null;
+				} else {
+					return super.representJavaBeanProperty(javaBean, property, propertyValue, customTag);
+				}
+			}
+		};
+
 		Corp corp = g.getCorp();
 		corp.setToken(TokenType.CREDIT, 5);
-		corp.draw(5, () -> {
+		corp.draw(1, () -> {
 		});
+		
+		 AbstractCardCorp acc = corp.getRd().getStack().get(0);
+		 corp.getRd().addIce((Ice)acc, 0);
+		
+		GameDef gd = g.createDef();
+
+		Yaml yaml = new Yaml(r);
+		String dump = yaml.dump(gd);
+		System.out.println(dump);
 
 		g.start();
 

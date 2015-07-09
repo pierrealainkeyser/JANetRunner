@@ -1,5 +1,8 @@
 package org.keyser.anr.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.keyser.anr.core.corp.CorpServer;
 
 public class UserAction {
@@ -9,6 +12,11 @@ public class UserAction {
 	private final AbstractCard source;
 
 	private CostForAction cost;
+
+	/**
+	 * La liste des couts variables
+	 */
+	private List<VariableCost> costs;
 
 	private final String description;
 
@@ -43,12 +51,23 @@ public class UserAction {
 		this.data = data;
 	}
 
+	public UserAction addCost(Cost cost, boolean enabled) {
+		return addCost(new VariableCost(cost, enabled));
+	}
+
+	public UserAction addCost(VariableCost cost) {
+		if (costs == null)
+			costs = new ArrayList<>();
+		costs.add(cost);
+		return this;
+	}
+
 	public boolean isAnAction() {
 		return cost.getAction() instanceof AbstractCardAction;
 	}
 
 	/**
-	 * Mise � jour du cout et renvoi vrai si le joueur peut payer le cout
+	 * Mise à jour du cout et renvoi vrai si le joueur peut payer le cout
 	 * 
 	 * @return
 	 */
@@ -138,6 +157,10 @@ public class UserAction {
 
 	public Object getData() {
 		return data;
+	}
+
+	public List<VariableCost> getCosts() {
+		return costs;
 	}
 
 }

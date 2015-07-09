@@ -177,5 +177,4 @@ public class Corp extends AbstractId {
 	public List<CorpServer> getRemotes() {
 		return Collections.unmodifiableList(remotes);
 	}
-
 }

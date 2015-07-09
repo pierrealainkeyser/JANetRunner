@@ -40,4 +40,8 @@ public class AbstractCardList implements Iterable<AbstractCard> {
 	public Iterator<AbstractCard> iterator() {
 		return cards.iterator();
 	}
+
+	public int size() {
+		return cards.size();
+	}
 }

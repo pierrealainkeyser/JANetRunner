@@ -1,5 +1,7 @@
 package org.keyser.anr.web.dto;
 
+import java.util.List;
+
 import org.keyser.anr.core.PlayerType;
 
 public class ActionDto {
@@ -9,6 +11,8 @@ public class ActionDto {
 	private String text;
 
 	private String cost;
+	
+	private List<VariableCostDto> costs;
 
 	private String cls;
 
@@ -62,6 +66,14 @@ public class ActionDto {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public List<VariableCostDto> getCosts() {
+		return costs;
+	}
+
+	public void setCosts(List<VariableCostDto> costs) {
+		this.costs = costs;
 	}
 
 }

@@ -5,6 +5,7 @@ import static org.keyser.anr.core.AbstractCard.createDefList;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.keyser.anr.core.AbstractCard;
 import org.keyser.anr.core.AbstractCardContainer;
@@ -132,7 +133,8 @@ public class CorpServer {
 	 * 
 	 * @param card
 	 * @param pred
-	 * @param negateSearch si vrai inverse la condition pour la recherche
+	 * @param negateSearch
+	 *            si vrai inverse la condition pour la recherche
 	 * @param consumer
 	 */
 	private void collectCard(InServerCorpCard card, Predicate<AbstractCard> pred, boolean negateSearch, Consumer<AbstractCard> consumer) {
@@ -159,5 +161,4 @@ public class CorpServer {
 	public int getId() {
 		return id;
 	}
-
 }

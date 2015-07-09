@@ -1,5 +1,7 @@
 package org.keyser.anr.web.dto;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,6 +30,9 @@ import org.keyser.anr.core.PlayerType;
 import org.keyser.anr.core.Runner;
 import org.keyser.anr.core.Turn;
 import org.keyser.anr.core.UserAction;
+import org.keyser.anr.core.UserActionConfirmSelection;
+import org.keyser.anr.core.UserActionSelectCard;
+import org.keyser.anr.core.VariableCost;
 import org.keyser.anr.core.corp.CorpServer;
 import org.keyser.anr.web.dto.CardDto.CardType;
 import org.keyser.anr.web.dto.CardDto.Face;
@@ -235,7 +240,7 @@ public class EventsBasedGameDtoBuilder {
 				if (location.isInCorpHand()) {
 					c.setLocation(location.toHandLocation());
 					c.setFace(Face.up);
-				}				
+				}
 
 				if (location.isInRD())
 					c.setZoomable(Face.down);
@@ -254,7 +259,7 @@ public class EventsBasedGameDtoBuilder {
 					c.setZoomable(Face.up);
 			}
 		}
-		
+
 	}
 
 	/**
@@ -271,9 +276,21 @@ public class EventsBasedGameDtoBuilder {
 		CostForAction cfa = ua.getCost();
 		if (cfa != null)
 			a.setCost(cfa.getCost().toString());
+		List<VariableCost> costs = ua.getCosts();
+		if (costs != null)
+			a.setCosts(costs.stream().map(this::toVariableCostDto).collect(toList()));
 		a.setText(ua.getDescription());
 
+		if (ua instanceof UserActionConfirmSelection)
+			a.setType("confirmselection");
+		else if (ua instanceof UserActionSelectCard)
+			a.setType("selection");
+
 		return a;
+	}
+
+	private VariableCostDto toVariableCostDto(VariableCost vc) {
+		return new VariableCostDto(vc.getCost().toString(), vc.isEnabled());
 	}
 
 	public GameDto build(PlayerType type) {

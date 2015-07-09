@@ -66,7 +66,14 @@ public abstract class Ice extends AbstractCardCorp {
 			// on rajoute l'action de confirmation
 			UserActionConfirmSelection userAction = new UserActionConfirmSelection(corp, this);
 
-			// TODO rajout du cout variable
+			// calcul des couts variables
+			PlayIceAction playIceAction = new PlayIceAction(this);
+			int size = list.size();
+			for (int i = 0; i < size; ++i) {
+				Cost cost = Cost.credit(size - i - 1);
+				boolean enabled = game.mayAfford(corp.getOwner(), new CostForAction(cost, playIceAction));
+				userAction.addCost(cost, enabled);
+			}
 
 			g.user(new FeedbackWithArgs<>(userAction, (u, toRemove, n) -> removeAndInstall(selected, toRemove, n)), next);
 

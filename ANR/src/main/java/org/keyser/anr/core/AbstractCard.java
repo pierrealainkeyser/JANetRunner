@@ -91,8 +91,10 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 		AbstractCardDef def = new AbstractCardDef();
 		def.setName(meta.getName());
 		def.setHostedAs(hostedAs);
-		def.setRezzed(rezzed);
-		def.setInstalled(installed);
+		if (rezzed)
+			def.setRezzed(rezzed);
+		if (installed)
+			def.setInstalled(installed);
 		if (!tokens.isEmpty())
 			def.setTokens(new HashMap<>(tokens));
 		def.setHosteds(createDefList(this));
@@ -407,14 +409,14 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	 * @param ctx
 	 * @param next
 	 */
-	public final void trash(TrashCause ctx, Flow next) {		
+	public final void trash(TrashCause ctx, Flow next) {
 		setTrashCause(ctx);
 		next.apply();
 	}
-	
-	protected void setTrashCause(TrashCause ctx){
+
+	protected void setTrashCause(TrashCause ctx) {
 		setRezzed(this.isRezzed() || ctx.isRezzedAfterTrash());
-		setInstalled(false);				
+		setInstalled(false);
 	}
 
 	protected <T> Predicate<T> turn(Predicate<Turn> p) {

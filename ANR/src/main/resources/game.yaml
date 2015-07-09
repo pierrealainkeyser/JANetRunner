@@ -1,0 +1,45 @@
+corp:
+  clicks: {active: 0, used: 0}
+  name: 'NBN: Making News'
+  servers:
+  - {id: -1}
+  - ices:
+    - {name: Wall of Static}
+    id: -2
+    stack:
+    - {name: Wall of Static}
+    - {name: Melange Mining Corp.}
+    - {name: Melange Mining Corp.}
+    - {name: PAD Campaign}
+    - {name: PAD Campaign}
+    - {name: PAD Campaign}
+    - {name: Anonymous Tip}
+    - {name: Anonymous Tip}
+    - {name: Closed Accounts}
+    - {name: Closed Accounts}
+    - {name: Psychographics}
+    - {name: Psychographics}
+    - {name: SEA Source}
+    - {name: SEA Source}
+    - {name: Hedge Fund}
+    - {name: Hedge Fund}
+    - {name: Hedge Fund}
+  - id: -3
+    stack:
+    - {name: Wall of Static}
+  tokens: {CREDIT: 5}
+runner:
+  clicks: {active: 0, used: 0}
+  name: 'Kate "Mac" McCaffrey: Digital Tinker'
+  stack:
+  - {name: Akamatsu Mem Chip}
+  - {name: Akamatsu Mem Chip}
+  - {name: The Personal Touch}
+  - {name: The Personal Touch}
+  - {name: The Toolbox}
+  - {name: Sure Gamble}
+  - {name: Sure Gamble}
+  - {name: Sure Gamble}
+  - {name: Armitage Codebusting}
+  - {name: Armitage Codebusting}
+  - {name: Armitage Codebusting}
