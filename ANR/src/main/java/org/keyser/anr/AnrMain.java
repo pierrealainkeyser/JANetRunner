@@ -13,7 +13,9 @@ import org.keyser.anr.core.GameDef;
 import org.keyser.anr.core.OCTGNParser;
 import org.keyser.anr.core.TestOCTGNParser;
 import org.keyser.anr.core.TokenType;
+import org.keyser.anr.core.UserInputConverter;
 import org.keyser.anr.core.corp.Ice;
+import org.keyser.anr.web.AnrUserInputConverter;
 import org.keyser.anr.web.AnrWebSocketHandler;
 import org.keyser.anr.web.Endpoint;
 import org.keyser.anr.web.EndpointProcessor;
@@ -54,8 +56,13 @@ public class AnrMain implements WebSocketConfigurer {
 	}
 
 	@Bean
+	public UserInputConverter userInputConverter() {
+		return new AnrUserInputConverter();
+	}
+
+	@Bean
 	public AnrWebSocketHandler anrWebSocketHandler() {
-		return new AnrWebSocketHandler(objectMapper(), null, gameRepository());
+		return new AnrWebSocketHandler(objectMapper(), userInputConverter(), gameRepository());
 	}
 
 	@Bean
@@ -106,10 +113,10 @@ public class AnrMain implements WebSocketConfigurer {
 		corp.setToken(TokenType.CREDIT, 5);
 		corp.draw(1, () -> {
 		});
-		
-		 AbstractCardCorp acc = corp.getRd().getStack().get(0);
-		 corp.getRd().addIce((Ice)acc, 0);
-		
+
+		AbstractCardCorp acc = corp.getRd().getStack().get(0);
+		corp.getRd().addIce((Ice) acc, 0);
+
 		GameDef gd = g.createDef();
 
 		Yaml yaml = new Yaml(r);

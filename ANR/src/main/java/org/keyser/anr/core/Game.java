@@ -340,6 +340,10 @@ public class Game {
 		return Collections.unmodifiableCollection(cards.values());
 	}
 
+	public Optional<AbstractCard> findById(int id) {
+		return getCards().stream().filter(c -> id == c.getId()).findFirst();
+	}
+
 	/**
 	 * Permet d'envoyer un message
 	 * 

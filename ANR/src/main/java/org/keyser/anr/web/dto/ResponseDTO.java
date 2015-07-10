@@ -9,7 +9,7 @@ package org.keyser.anr.web.dto;
 public class ResponseDTO {
 	private int rid;
 
-	private Object content;
+	private Object object;
 
 	public int getRid() {
 		return rid;
@@ -19,12 +19,12 @@ public class ResponseDTO {
 		this.rid = rid;
 	}
 
-	public Object getContent() {
-		return content;
+	public Object getObject() {
+		return object;
 	}
 
-	public void setContent(Object content) {
-		this.content = content;
+	public void setObject(Object content) {
+		this.object = content;
 	}
 
 	@Override
@@ -33,9 +33,9 @@ public class ResponseDTO {
 		builder.append("ResponseDTO [rid=");
 		builder.append(rid);
 		builder.append(", ");
-		if (content != null) {
+		if (object != null) {
 			builder.append("content=");
-			builder.append(content);
+			builder.append(object);
 		}
 		builder.append("]");
 		return builder.toString();

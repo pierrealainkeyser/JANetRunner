@@ -56,8 +56,8 @@ function(Size, AnchorLayout, FlowLayout, TranslateLayout, GridLayout, HostLayout
 
 		// les niveau de positions en couches
 		this.zindex = {//
-		card : 50,//
-		zoom : 75,//
+		card : 1000,//
+		zoom : 2000,//
 		status : 10,//
 		run : 5 //
 		}

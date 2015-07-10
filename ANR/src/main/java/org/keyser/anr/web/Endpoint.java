@@ -67,7 +67,7 @@ public class Endpoint {
 			EventsBasedGameDtoBuilder builder = new EventsBasedGameDtoBuilder(game).listen();
 
 			// invocation de la reponse
-			game.invoke(message.getRid(), converter, message.getContent());
+			game.invoke(message.getRid(), converter, message.getObject());
 
 			// broadcast du resultat
 			for (RemoteSuscriber suscriber : connected.values()) {

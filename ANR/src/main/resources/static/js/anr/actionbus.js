@@ -43,17 +43,17 @@ function(mix, _, ActionModel, SubModel, ObservableMixin, InnerSetMixin) {
 		this.encodeResponse = function() {
 			var response = { rid : this.id };
 			if (this.isTraceAction())
-				response.object = { trace : this.variableValue };
+				response.object = this.variableValue;
 			else if (this.isBreakAction())
-				response.object = { subs : _.map(this.selectedsSubs, function(s) {
+				response.object = _.map(this.selectedsSubs, function(s) {
 					return s.id;
-				}) };
+				});
 			else if (this.isOrderingAction()) {
-				response.object = { order : this.order };
+				response.object = this.order;
 			} else if (this.isConfirmSelectionAction())
-				response.object = { selecteds : _.map(this.selectedsAction, function(a) {
+				response.object = _.map(this.selectedsAction, function(a) {
 					return a.owner.id();
-				}) };
+				});
 
 			return response;
 		}
@@ -170,7 +170,7 @@ function(mix, _, ActionModel, SubModel, ObservableMixin, InnerSetMixin) {
 
 				// nettoyage de la sélections
 				_.each(this.actions, function(a) {
-					if (a.isSelectionAction()){
+					if (a.isSelectionAction()) {
 						a.setSelected(false);
 					}
 				});
