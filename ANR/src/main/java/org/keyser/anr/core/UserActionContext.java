@@ -17,6 +17,8 @@ public class UserActionContext {
 	private Integer id;
 
 	private Type type;
+	
+	private CardLocation expectedAt;
 
 	public UserActionContext(AbstractCard primary, String customText, Type type) {
 		this.id = primary != null ? primary.getId() : null;
@@ -34,6 +36,14 @@ public class UserActionContext {
 
 	public Type getType() {
 		return type;
+	}
+
+	public CardLocation getExpectedAt() {
+		return expectedAt;
+	}
+
+	public void setExpectedAt(CardLocation expectedAt) {
+		this.expectedAt = expectedAt;
 	}
 
 }

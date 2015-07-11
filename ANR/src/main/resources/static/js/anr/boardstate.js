@@ -221,8 +221,18 @@ RunBox, Point, ActionBus) {
 			}.bind(this));
 
 			// gestion de la zone primaire
-			if (msg.primary)
-				this.zoomInfo.update(msg.primary);
+			var primary = msg.primary;
+			if (primary) {
+				this.zoomInfo.update(primary);
+				var expectedAt = primary.expectedAt;
+				if (expectedAt) {
+					var id = primary.id;
+					if (id >= 0) {
+						var card = this.cards[id];
+						this.addToContainer(expectedAt, card);
+					}
+				}
+			}
 		}
 
 		/**

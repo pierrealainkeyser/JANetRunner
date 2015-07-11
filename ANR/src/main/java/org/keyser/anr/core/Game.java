@@ -322,14 +322,14 @@ public class Game {
 		return def;
 	}
 
-	public Game userContext(AbstractCard primary, String customText) {
+	public UserActionContext userContext(AbstractCard primary, String customText) {
 		return userContext(primary, customText, UserActionContext.Type.BASIC);
 	}
 
-	public Game userContext(AbstractCard primary, String customText, Type type) {
+	public UserActionContext userContext(AbstractCard primary, String customText, Type type) {
 		logger.debug("Create user context - {} {} {}", primary, customText, type);
 		actionsContext.context = new UserActionContext(primary, customText, type);
-		return this;
+		return actionsContext.context;
 	}
 
 	public PlayerType getActivePlayer() {

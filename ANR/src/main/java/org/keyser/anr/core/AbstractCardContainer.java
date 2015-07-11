@@ -20,10 +20,15 @@ public class AbstractCardContainer<A extends AbstractCard> {
 	public AbstractCardContainer<A> add(A a) {
 		contents.add(a);
 
-		a.setLocation(locationFactory.apply(contents.size()));
+		int size = contents.size();
+		a.setLocation(locationAt(size));
 
 		a.setContainer((AbstractCardContainer<AbstractCard>) this);
 		return this;
+	}
+
+	public CardLocation locationAt(int size) {
+		return locationFactory.apply(size);
 	}
 
 	@SuppressWarnings("unchecked")

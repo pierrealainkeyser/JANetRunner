@@ -61,7 +61,8 @@ public abstract class Ice extends AbstractCardCorp {
 
 		if (!list.isEmpty()) {
 			Game g = getGame();
-			g.userContext(this, "Remove ice", Type.REMOVE_ON_INSTALL);
+
+			g.userContext(this, "Remove ice before", Type.REMOVE_ON_INSTALL).setExpectedAt(selected.topIceLocation());
 
 			// on rajoute l'action de confirmation
 			UserActionConfirmSelection userAction = new UserActionConfirmSelection(corp, this);
@@ -69,8 +70,8 @@ public abstract class Ice extends AbstractCardCorp {
 			// calcul des couts variables
 			PlayIceAction playIceAction = new PlayIceAction(this);
 			int size = list.size();
-			for (int i = 0; i < size; ++i) {
-				Cost cost = Cost.credit(size - i - 1);
+			for (int i = 0; i <= size; ++i) {
+				Cost cost = Cost.credit(size - i);
 				boolean enabled = game.mayAfford(corp.getOwner(), new CostForAction(cost, playIceAction));
 				userAction.addCost(cost, enabled);
 			}
@@ -122,16 +123,20 @@ public abstract class Ice extends AbstractCardCorp {
 
 		this.setInstalled(true);
 
-		// TODO gestion du cout
-
-		selected.addIce(this, selected.icesCount());
+		int icesCount = selected.icesCount();
+		selected.addIce(this, icesCount);
 
 		// on rajoute toutes les cates sélectionnées
 		TrashList tl = new TrashList(TrashCause.OTHER_INSTALLED);
 		toRemove.forEach(tl::add);
 
-		// trash toutes les cartes
-		tl.trash(next.wrap(this::processCleanUp));
+		// gestion du cout
+		CostForAction cfa = new CostForAction(Cost.credit(icesCount - toRemove.size()), new PlayIceAction(this));
+		getCorp().spend(cfa, () -> {
+			// trash toutes les cartes
+				tl.trash(next.wrap(this::processCleanUp));
+			});
+
 	}
 
 }

@@ -5,7 +5,6 @@ import static org.keyser.anr.core.AbstractCard.createDefList;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.keyser.anr.core.AbstractCard;
 import org.keyser.anr.core.AbstractCardContainer;
@@ -43,6 +42,14 @@ public class CorpServer {
 	public CorpServer(Game game, int id) {
 		this.game = game;
 		this.id = id;
+	}
+
+	/**
+	 * Renvoi la position du haut
+	 * @return
+	 */
+	public CardLocation topIceLocation() {
+		return ices.locationAt(ices.size());
 	}
 
 	/**
