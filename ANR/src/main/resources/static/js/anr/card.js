@@ -1,8 +1,10 @@
 define([ "mix", "underscore", "jquery", "layout/abstractbox", "layout/abstractboxleaf", "layout/abstractboxcontainer", "ui/tweenlitesyncscreenmixin",
 		"ui/animateappearancecss", //
-		"./tokenmodel", "anr/actionmodel", "./submodel", "./tokencontainerbox", "./cardsmodel", "geometry/point", "conf" ],// 
+		"./tokenmodel", "anr/actionmodel", "./submodel", "./tokencontainerbox", "./cardsmodel", "geometry/point", "conf",//
+		"interact" ],// 
 function(mix, _, $, AbstractBox, AbstractBoxLeaf, AbstractBoxContainer, TweenLiteSyncScreenMixin, AnimateAppearanceCss, //
-TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config) {
+TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config,// 
+interact) {
 
 	function Card(layoutManager, def, actionListener) {
 		this.def = def;
@@ -76,9 +78,9 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config)
 				newHost.card.hostedsModel.add(this);
 		}.bind(this), [ Card.HOST ]);
 
-		var activateCard = layoutManager.withinLayout(this.activateCard.bind(this));
-		this.back.on('click', activateCard);
-		this.front.on('click', activateCard);
+		this._interact = interact(this.element[0]);
+		this._interact.card = this;
+		this._interact.on('tap', layoutManager.withinLayout(this.activateCard.bind(this)));
 	}
 
 	Card.FACE_UP = "up";
@@ -95,14 +97,48 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config)
 	mix(Card, function() {
 
 		/**
+		 * Permet d'activer le dag
+		 */
+		this.enableDrag = function(enabled) {
+			this._interact.draggable({ enabled : enabled, onstart : function(event) {
+				// on conserve la position de début
+				this._startDrag = { x : event.clientX - this.screen.point.x, y : event.clientY - this.screen.point.y, rotation : this.rotation };
+				this.rotation = 0;
+
+			}.bind(this), onmove : function(event) {
+
+				var me = this;
+				// on calcule la nouvelle position
+				var pos = { x : event.clientX - this._startDrag.x, y : event.clientY - this._startDrag.y };
+				this.layoutManager.runLayout(function() {
+					me.screen.moveTo(pos);
+					me.applySyncScreen(true);
+				});
+
+			}.bind(this) });
+		}
+
+		/**
+		 * Permet d'inverser le drag
+		 */
+		this.revertDrag = function() {
+			this.rotation = this._startDrag.rotation;
+			this.mergeToScreen();
+			this.applySyncScreen(false);
+		}
+
+		/**
 		 * Enregistre des écouteurs sur la carte
 		 */
 		this.registerAction = function(action) {
+
 			if (action.isSelectionAction()) {
 				action.observe(function(evt) {
 					var sel = evt.newvalue;
 					this.setMark(sel === true);
 				}.bind(this), [ "selected" ]);
+			} else if (action.isDragAction()) {
+				this.enableDrag(true);
 			}
 		}
 
@@ -163,11 +199,14 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config)
 		 * Décorateur vers le model d'action
 		 */
 		this.setActions = function(actions) {
-			var me = this;
-			_.each(actions, function(a) {
-				a.owner = me;
-			});
 			this.actionModel.set(actions);
+		}
+
+		/**
+		 * Décorateur vers le model d'action
+		 */
+		this.eachActions = function(closure) {
+			this.actionModel.eachActions(closure);
 		}
 
 		/**
@@ -305,14 +344,19 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config)
 		 * Mise à jour des elements graphique
 		 */
 		this.syncScreen = function() {
+			var set = this.firstSyncScreen();
+			this.applySyncScreen(set);
+		}
+
+		this.applySyncScreen = function(set) {
 			var hints = this.renderingHints();
 			var cardsize = hints.cardsize;
 			var maxed = cardsize === "zoom";
 			var zoomed = maxed || cardsize === "mini" || (this.selected && hints.inSelectionCtx);
 			var shadow = "";
 			var faceup = this.face === Card.FACE_UP;
-			
-			if (zoomed) 
+
+			if (zoomed)
 				faceup = faceup || this.zoomable === Card.FACE_UP;
 
 			var horizontal = this.rotation == 90;
@@ -355,7 +399,6 @@ TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config)
 					css.autoAlpha = 0;
 			}
 
-			var set = this.firstSyncScreen();
 			this.tweenElement(this.element, css, set);
 			this.tweenElement(this.front, frontCss, set);
 			this.tweenElement(this.back, backCss, set);

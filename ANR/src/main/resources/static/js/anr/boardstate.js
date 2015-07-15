@@ -1,7 +1,7 @@
-define([ "mix", "jquery", "underscore", "conf", "layout/package", "layout/impl/handlayout", "anr/corp", "anr/runner", "anr/corpserver", "anr/focus",
-		"anr/card", "anr/turntracker", "anr/zoomcontainerbox", "anr/cardcontainerbox", "geometry/rectangle", "anr/actionmodel",//
-		"anr/runbox", "geometry/point", "anr/actionbus" ],//
-function(mix, $, _, config, layout, HandLayout, Corp, Runner, CorpServer, FocusBox, Card,// 
+define([ "mix", "jquery", "interact", "underscore", "conf", "layout/package", "layout/impl/handlayout", "anr/corp", "anr/runner", "anr/corpserver",
+		"anr/focus", "anr/card", "anr/turntracker", "anr/zoomcontainerbox", "anr/cardcontainerbox", "geometry/rectangle", "anr/actionmodel",//
+		"anr/runbox", "geometry/point", "anr/actionbus", ],//
+function(mix, $, interact, _, config, layout, HandLayout, Corp, Runner, CorpServer, FocusBox, Card,// 
 TurnTracker, ZoomContainerBox, CardContainerBox, Rectangle, ActionModel, //
 RunBox, Point, ActionBus) {
 
@@ -50,6 +50,22 @@ RunBox, Point, ActionBus) {
 
 	function BoardState(layoutManager, outputFunction) {
 		this.layoutManager = layoutManager;
+
+		var processDropAction = function(a) {
+			this.processDropAction(a);
+		}.bind(this);
+
+		// enregistrement de la zone de drop
+		interact(layoutManager.container[0]).dropzone({ ondrop : function(event) {
+			var card = event.draggable.card;
+			card.eachActions(function(a) {
+				if (a.isDragAction()) {
+					layoutManager.runLayout(function() {
+						processDropAction(a);
+					});
+				}
+			});
+		} });
 
 		this.turnTracker = new TurnTracker(layoutManager);
 		this.turnTracker.local.moveTo({ x : 0, y : 0 });
@@ -110,6 +126,52 @@ RunBox, Point, ActionBus) {
 
 		var inSelectionCtx = function(box) {
 			return box.renderingHints().inSelectionCtx;
+		}
+
+		/**
+		 * Cette fonction ce passe dans un cycle de layout
+		 */
+		this.processDropAction = function(dragAction) {
+
+			var card = dragAction.owner;
+
+			var revertDrag = true;
+			// on regarde les positions et on drope la carte au besoin
+			_.each(dragAction.dragTo, function(dragTo) {
+
+				var path = dragTo.location;
+				var first = path.primary.toLowerCase();
+				var point = card.screen.point;
+				if ("server" === first) {
+					var server = this.server({ id : path.serverIndex });
+					if (server.screen.containsPoint(point)) {
+
+						// on rajoute dans le serveur
+						this.addToContainer(path, card);
+						dragAction.draggedValue = dragTo.value;
+						revertDrag = false;
+					}
+				} else if ("card" === first) {
+					var host = this.card({ id : path.serverIndex });
+					if (host.screen.containsPoint(point)) {
+						// on rajoute dans la carte
+						this.addToContainer(path, card);
+						dragAction.draggedValue = dragTo.value;
+						revertDrag = false;
+					}
+				} else {
+					// la carte est jouée, il faut simplemetn qu'elle ne soit
+					// plus dans la main
+				}
+
+			}.bind(this));
+
+			if (revertDrag)
+				card.revertDrag();
+			else {
+				// activation de l'action
+				dragAction.activate();
+			}
 		}
 
 		/**
@@ -182,8 +244,9 @@ RunBox, Point, ActionBus) {
 				if (def.tokens)
 					card.setTokensValues(def.tokens);
 
-				if (def.actions)
+				if (def.actions) {
 					card.setActions(this.actionBus.createActions(card, def.actions));
+				}
 
 				if (def.subs)
 					card.setSubs(def.subs);

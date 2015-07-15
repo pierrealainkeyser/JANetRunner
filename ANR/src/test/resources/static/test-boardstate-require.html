@@ -15,6 +15,7 @@
 			underscore : "http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min",
 			tweenlite : "http://cdnjs.cloudflare.com/ajax/libs/gsap/1.16.1/TweenMax.min",//
 			mousetrap : "http://cdnjs.cloudflare.com/ajax/libs/mousetrap/1.4.6/mousetrap.min",//
+			interact : "http://cdn.jsdelivr.net/interact.js/1.2.4/interact.min",//
 			conf : "./anr/conf" },//
 		shim : {//
 		tweenlite : { exports : 'TweenLite' }, //
@@ -22,10 +23,11 @@
 		} //
 	});
 
-	require([ "jquery", "layout/package", "anr/boardstate", "anr/inputmanager" ],//
-	function($, layout, BoardState, InputManager) {
+	require([ "jquery", "layout/package", "anr/boardstate", "anr/inputmanager", "interact" ],//
+	function($, layout, BoardState, InputManager, interact) {
 		$(function() {
-			var layoutManager = new layout.LayoutManager($("#main"));
+			var main = $("#main");
+			var layoutManager = new layout.LayoutManager(main);
 			layoutManager.runLayout(function() {
 				var board = new BoardState(layoutManager, function(act) {
 					console.log("act", act);
@@ -38,7 +40,7 @@
 				clicks : { active : 3, used : 0 },//
 				turn : { phase : "Action", player : "corp" },//
 				score : { corp : 0, runner : 0 }, //
-				servers : [ { id : -1 }, { id : -2 }, { id : -3, actions : [ { id : 1, cost : "{1:click}", text : "Run" } ] } ], });
+				servers : [ { id : -1 }, { id : -2 }, { id : -3, actions : [ { id : 1, cost : "{1:click}", text : "Run" } ] }, { id : -4 } ], });
 
 				board
 						.consumeMsg({//
@@ -67,8 +69,31 @@
 										],//
 										subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on |Data Raven|" } ] //
 									},//
-									{ id : 2, url : "01089.png", faction : "corp", location : { primary : "hand", index : 0 } },//
-									{ id : 3, url : "01091.png", faction : "corp", location : { primary : "hand", index : 1 } }, //
+									{
+										id : 2,
+										url : "01089.png",
+										face : 'up',
+										faction : "corp",
+										location : { primary : "hand", index : 0 },
+
+										actions : [ { id : 17, type : 'drag',
+											dragTo : [ { value : -1, location : { primary : "server", serverIndex : -1, secondary : "ices", index : 0 } },//
+											{ value : -2, location : { primary : "server", serverIndex : -2, secondary : "ices", index : 0 } },//
+											{ value : -3, location : { primary : "server", serverIndex : -3, secondary : "ices", index : 1 } },//
+											{ value : -4, location : { primary : "server", serverIndex : -4, secondary : "ices", index : 0 } } //
+											] } ] },//
+									{
+										id : 3,
+										url : "01091.png",
+										face : 'up',
+										faction : "corp",
+										location : { primary : "hand", index : 1 },//
+										actions : [ {
+											id : 18,
+											type : 'drag',
+											dragTo : [ { value : -4,
+												location : { primary : "server", serverIndex : -4, secondary : "assetorupgrades", index : 0 } } ] } ] //
+									}, //
 									{ id : 4, url : "01086.png", faction : "corp", face : "down", zoomable : "up", accessible : true,
 										location : { primary : "server", serverIndex : -1, secondary : "stack", index : 0 } }, //
 									{ id : 5, url : "01085.png", faction : "corp", face : "down", zoomable : "down", accessible : true,

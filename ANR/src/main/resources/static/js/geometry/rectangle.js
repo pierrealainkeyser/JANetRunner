@@ -21,7 +21,7 @@ define([ "mix", "util/observablemixin", "./point", "./size" ], function(mix, Obs
 		this.cloneSize = function() {
 			return new Size(this.size.width, this.size.height);
 		}
-		
+
 		/**
 		 * Duplique la position
 		 */
@@ -104,11 +104,10 @@ define([ "mix", "util/observablemixin", "./point", "./size" ], function(mix, Obs
 			r.size.add(new Size(radius * 2, radius * 2));
 			return r;
 		}
-		
 
 		/**
-		 * Renvoi le point qui permet de faire rentrer bounds dans le container. ie.
-		 * pour avoir this.contains(bounds)===true
+		 * Renvoi le point qui permet de faire rentrer bounds dans le container.
+		 * ie. pour avoir this.contains(bounds)===true
 		 */
 		this.getMatchingPoint = function(bounds) {
 			var tl0 = this.topLeft();
@@ -146,6 +145,13 @@ define([ "mix", "util/observablemixin", "./point", "./size" ], function(mix, Obs
 			var br1 = bounds.bottomRight();
 
 			return (tl0.x <= tl1.x && tl0.y <= tl1.y) && (br0.x >= br1.x && br0.y >= br1.y);
+		}
+
+		/**
+		 * Renvoi vrai si le point est contenu dans le rectangle
+		 */
+		this.containsPoint = function(point) {
+			return this.contains(new Rectangle({ point : point }));
 		}
 	});
 

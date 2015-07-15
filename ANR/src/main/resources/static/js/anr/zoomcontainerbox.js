@@ -378,11 +378,14 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				}
 
 				/**
-				 * Création d'une action
+				 * Création d'une action. Ignore les actions de type drag
 				 */
 				this.createActionBox = function(action) {
-					var ab = new ActionBox(this.layoutManager, action);
-					this.addChild(ab);
+
+					if (!action.isDragAction()) {
+						var ab = new ActionBox(this.layoutManager, action);
+						this.addChild(ab);
+					}
 				}
 
 				/**
@@ -520,7 +523,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 				this.header.element.appendTo(this.element);
 
 				var actionsRow = new AbstractBoxContainer(layoutManager, { addZIndex : true }, new FlowLayout({ direction : FlowLayout.Direction.RIGHT,
-					padding : 3 , spacing : 2}));
+					padding : 3, spacing : 2 }));
 				actionsRow.addChild(this.primaryActions);
 				actionsRow.addChild(this.secondaryActions);
 

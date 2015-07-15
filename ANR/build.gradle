@@ -29,11 +29,12 @@ dependencies {
     compile("org.webjars:gsap-js:1.13.1")
     compile("org.webjars:bootstrap:3.3.4")    
     compile("org.webjars:less:2.5.0")
-    compile ("org.webjars:requirejs:2.1.18")
+    compile("org.webjars:requirejs:2.1.18")
     compile("org.webjars:animate.css:3.2.3")
     compile("org.webjars:underscorejs:1.8.3")
     compile("org.webjars:mousetrap:1.4.6")
-	compile("org.webjars:jquery:2.1.4")    
+	compile("org.webjars:jquery:2.1.4")
+	compile("org.webjars.bower:interact.js:1.2.4")
     
     testCompile("org.springframework.boot:spring-boot-starter-test")
 }

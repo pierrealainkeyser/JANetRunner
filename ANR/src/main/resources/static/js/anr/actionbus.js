@@ -20,6 +20,7 @@ function(mix, _, ActionModel, SubModel, ObservableMixin, InnerSetMixin) {
 		this.selectedsSubs = null;
 		this.selected = false;
 		this.order = null;
+		this.draggedValue = null;
 
 		this.computeState();
 
@@ -54,6 +55,8 @@ function(mix, _, ActionModel, SubModel, ObservableMixin, InnerSetMixin) {
 				response.object = _.map(this.selectedsAction, function(a) {
 					return a.owner.id();
 				});
+			else if (this.isDragAction()) 
+				response.object = this.draggedValue;
 
 			return response;
 		}
@@ -112,6 +115,13 @@ function(mix, _, ActionModel, SubModel, ObservableMixin, InnerSetMixin) {
 		}
 
 		/**
+		 * Renvoi vrai si l'action est une action de break
+		 */
+		this.isDragAction = function() {
+			return Action.DRAG_TYPE === this.actionType;
+		}
+
+		/**
 		 * Renvoi vrai si l'action est une action de réarrangement
 		 */
 		this.isOrderingAction = function() {
@@ -136,6 +146,13 @@ function(mix, _, ActionModel, SubModel, ObservableMixin, InnerSetMixin) {
 		this.setSelected = function(selected) {
 			this._innerSet(Action.SELECTED, selected);
 		}
+
+		/**
+		 * Permet de désactive le comportement de drag
+		 */
+		this.disableDrag = function() {
+			this.owner.enableDrag(false);
+		}
 	});
 
 	Action.STATE = "state";
@@ -147,6 +164,7 @@ function(mix, _, ActionModel, SubModel, ObservableMixin, InnerSetMixin) {
 	Action.DEFAULT_TYPE = "default";
 	Action.BREAK_TYPE = "break";
 	Action.TRACE_TYPE = "trace";
+	Action.DRAG_TYPE = "drag";
 	Action.ORDERING_TYPE = "ordering";
 	Action.SELECTION_TYPE = "selection";
 	Action.CONFIRM_SELECTION_TYPE = "confirmselection";
@@ -172,6 +190,8 @@ function(mix, _, ActionModel, SubModel, ObservableMixin, InnerSetMixin) {
 				_.each(this.actions, function(a) {
 					if (a.isSelectionAction()) {
 						a.setSelected(false);
+					} else if (a.isDragAction()) {
+						a.disableDrag();
 					}
 				});
 
