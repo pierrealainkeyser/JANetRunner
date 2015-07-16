@@ -76,11 +76,18 @@
 										faction : "corp",
 										location : { primary : "hand", index : 0 },
 
-										actions : [ { id : 17, type : 'drag',
-											dragTo : [ { value : -1, location : { primary : "server", serverIndex : -1, secondary : "ices", index : 0 } },//
-											{ value : -2, location : { primary : "server", serverIndex : -2, secondary : "ices", index : 0 } },//
-											{ value : -3, location : { primary : "server", serverIndex : -3, secondary : "ices", index : 1 } },//
-											{ value : -4, location : { primary : "server", serverIndex : -4, secondary : "ices", index : 0 } } //
+										actions : [ {
+											id : 17,
+											type : 'drag',
+											dragTo : [
+													{ value : -1, action : "add",
+														location : { primary : "server", serverIndex : -1, secondary : "ices", index : 0 } },//
+													{ value : -2, action : "add",
+														location : { primary : "server", serverIndex : -2, secondary : "ices", index : 0 } },//
+													{ value : -3, action : "add",
+														location : { primary : "server", serverIndex : -3, secondary : "ices", index : 1 } },//
+													{ value : -4, action : "add",
+														location : { primary : "server", serverIndex : -4, secondary : "ices", index : 0 } } //
 											] } ] },//
 									{
 										id : 3,
@@ -91,7 +98,7 @@
 										actions : [ {
 											id : 18,
 											type : 'drag',
-											dragTo : [ { value : -4,
+											dragTo : [ { value : -4, action : "add",
 												location : { primary : "server", serverIndex : -4, secondary : "assetorupgrades", index : 0 } } ] } ] //
 									}, //
 									{ id : 4, url : "01086.png", faction : "corp", face : "down", zoomable : "up", accessible : true,

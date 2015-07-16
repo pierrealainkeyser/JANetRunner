@@ -6,7 +6,7 @@ function(mix, _, $, AbstractBox, AbstractBoxLeaf, AbstractBoxContainer, TweenLit
 TokenModel, ActionModel, SubModel, TokenContainerBox, CardsModel, Point, config,// 
 interact) {
 
-	function Card(layoutManager, def, actionListener) {
+	function Card(layoutManager, def, actionListener, dragListener) {
 		this.def = def;
 
 		AbstractBoxLeaf.call(this, layoutManager);
@@ -57,6 +57,7 @@ interact) {
 
 		// l'écouteur de sélection
 		this.actionListener = actionListener;
+		this.dragListener = dragListener;
 
 		// l'hote de la carte
 		this.host = null;
@@ -100,31 +101,44 @@ interact) {
 		 * Permet d'activer le dag
 		 */
 		this.enableDrag = function(enabled) {
-			this._interact.draggable({ enabled : enabled, onstart : function(event) {
-				// on conserve la position de début
-				this._startDrag = { x : event.clientX - this.screen.point.x, y : event.clientY - this.screen.point.y, rotation : this.rotation };
-				this.rotation = 0;
+			this._interact.draggable({
+				enabled : enabled,
+				onstart : function(event) {
 
-			}.bind(this), onmove : function(event) {
+					if (_.isFunction(this.dragListener))
+						this.dragListener(this);
 
-				var me = this;
-				// on calcule la nouvelle position
-				var pos = { x : event.clientX - this._startDrag.x, y : event.clientY - this._startDrag.y };
-				this.layoutManager.runLayout(function() {
-					me.screen.moveTo(pos);
-					me.applySyncScreen(true);
-				});
+					// on conserve la position de début
+					this._lastDrag = this._startDrag = { x : event.clientX - this.screen.point.x, y : event.clientY - this.screen.point.y,
+						rotation : this.rotation };
+					this.rotation = 0;
 
-			}.bind(this) });
+				}.bind(this), onmove : function(event) {
+
+					var me = this;
+					// on calcule la nouvelle position
+					var pos = { x : event.clientX - this._startDrag.x, y : event.clientY - this._startDrag.y };
+					this.layoutManager.runLayout(function() {
+						me.screen.moveTo(pos);
+						me.forceTweenPosition();
+					});
+
+				}.bind(this) });
+		}
+
+		/**
+		 * Fin du drag
+		 */
+		this.stopDrag = function() {
+			delete this._startDrag;
 		}
 
 		/**
 		 * Permet d'inverser le drag
 		 */
 		this.revertDrag = function() {
-			this.rotation = this._startDrag.rotation;
+			this.rotation = this._lastDrag.rotation;
 			this.mergeToScreen();
-			this.applySyncScreen(false);
 		}
 
 		/**
@@ -332,11 +346,19 @@ interact) {
 				box = this;
 
 			var hints = box.renderingHints();
+
 			var css = this.computeCssTweenBox(box, { zIndex : true, rotation : true, autoAlpha : true, size : true });
 			// en cas d'affichage horizontal on corrige la position
 			if (hints && true === hints.horizontal) {
 				css.left += box.screen.size.height;
 			}
+
+			// en drag on supprime les positions
+			if (box._startDrag) {
+				delete css.left;
+				delete css.top;
+			}
+
 			return css;
 		}
 
@@ -345,10 +367,6 @@ interact) {
 		 */
 		this.syncScreen = function() {
 			var set = this.firstSyncScreen();
-			this.applySyncScreen(set);
-		}
-
-		this.applySyncScreen = function(set) {
 			var hints = this.renderingHints();
 			var cardsize = hints.cardsize;
 			var maxed = cardsize === "zoom";
@@ -385,6 +403,7 @@ interact) {
 			var frontCss = { rotationY : faceup ? 0 : -180 };
 			var backCss = _.extend(_.clone(frontCss), { boxShadow : shadow });
 			var css = this.computePrimaryCssTween();
+
 			var tokenCss = { autoAlpha : 1 };
 			var marksCss = { autoAlpha : this.mark ? 1 : 0 };
 
@@ -406,6 +425,14 @@ interact) {
 				this.tweenElement(this.tokens, tokenCss, set);
 			if (this.marks)
 				this.tweenElement(this.marks, marksCss, set);
+		}
+
+		/**
+		 * Place l'élement selon la position
+		 */
+		this.forceTweenPosition = function() {
+			var css = this.computeCssTweenBox(this, { zIndex : false, rotation : false, autoAlpha : false, size : false });
+			this.tweenElement(this.element, css, true);
 		}
 
 		/**

@@ -51,8 +51,8 @@ RunBox, Point, ActionBus) {
 	function BoardState(layoutManager, outputFunction) {
 		this.layoutManager = layoutManager;
 
-		var processDropAction = function(a) {
-			this.processDropAction(a);
+		var processDropAction = function(a, event) {
+			this.processDropAction(a, event);
 		}.bind(this);
 
 		// enregistrement de la zone de drop
@@ -61,7 +61,7 @@ RunBox, Point, ActionBus) {
 			card.eachActions(function(a) {
 				if (a.isDragAction()) {
 					layoutManager.runLayout(function() {
-						processDropAction(a);
+						processDropAction(a, event);
 					});
 				}
 			});
@@ -129,11 +129,26 @@ RunBox, Point, ActionBus) {
 		}
 
 		/**
+		 * Permet de gérer le comportement
+		 */
+		this.handleDragToAction = function(dragAction, dragTo, card) {
+
+			//TODO gestion des autres actions
+			if ("add" == dragTo.action)
+				this.addToContainer(dragTo.location, card);
+
+			dragAction.draggedValue = dragTo.value;
+		}
+
+		/**
 		 * Cette fonction ce passe dans un cycle de layout
 		 */
-		this.processDropAction = function(dragAction) {
+		this.processDropAction = function(dragAction, event) {
+
+			var at = new Point(event.dragEvent.clientX, event.dragEvent.clientY);
 
 			var card = dragAction.owner;
+			card.stopDrag();
 
 			var revertDrag = true;
 			// on regarde les positions et on drope la carte au besoin
@@ -141,26 +156,23 @@ RunBox, Point, ActionBus) {
 
 				var path = dragTo.location;
 				var first = path.primary.toLowerCase();
-				var point = card.screen.point;
 				if ("server" === first) {
 					var server = this.server({ id : path.serverIndex });
-					if (server.screen.containsPoint(point)) {
+					if (server.screen.containsPoint(at)) {
 
 						// on rajoute dans le serveur
-						this.addToContainer(path, card);
-						dragAction.draggedValue = dragTo.value;
+						this.handleDragToAction(dragAction, dragTo, card);
 						revertDrag = false;
 					}
 				} else if ("card" === first) {
 					var host = this.card({ id : path.serverIndex });
-					if (host.screen.containsPoint(point)) {
+					if (host.screen.containsPoint(at)) {
 						// on rajoute dans la carte
-						this.addToContainer(path, card);
-						dragAction.draggedValue = dragTo.value;
+						this.handleDragToAction(dragAction, dragTo, card);
 						revertDrag = false;
 					}
 				} else {
-					// la carte est jouée, il faut simplemetn qu'elle ne soit
+					// la carte est jouée, il faut simplement qu'elle ne soit
 					// plus dans la main
 				}
 
@@ -366,13 +378,23 @@ RunBox, Point, ActionBus) {
 		}
 
 		/**
+		 * Début de drag
+		 */
+		this.onStartCardDrag = function(card) {
+			this.layoutManager.runLayout(function() {
+				this.closeZoom(card.id());
+			}.bind(this));
+
+		}
+
+		/**
 		 * Accède ou créer la carte correspondante à la définition
 		 */
 		this.card = function(def) {
 			var id = def.id;
 			var card = this.cards[id];
 			if (!card) {
-				card = new Card(this.layoutManager, def, this.activate.bind(this));
+				card = new Card(this.layoutManager, def, this.activate.bind(this), this.onStartCardDrag.bind(this));
 
 				// on ecoute le model de sub
 				this.actionBus.bindSubModel(card.subModel);
@@ -572,6 +594,16 @@ RunBox, Point, ActionBus) {
 		 */
 		this.orderingChangeds = function(order) {
 			this.actionBus.orderingChangeds(order);
+		}
+
+		/**
+		 * Ferme les zooms pour l'id
+		 */
+		this.closeZoom = function(id) {
+			_.each(this.zooms, function(zoom) {
+				if (zoom.id === id)
+					zoom.setPrimary(null);
+			});
 		}
 
 		/**
