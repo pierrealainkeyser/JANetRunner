@@ -59,7 +59,7 @@ RunBox, Point, ActionBus) {
 		interact(layoutManager.container[0]).dropzone({ ondrop : function(event) {
 			var card = event.draggable.card;
 			card.eachActions(function(a) {
-				if (a.isDragAction()) {
+				if (a.isDragEnabled()) {
 					layoutManager.runLayout(function() {
 						processDropAction(a, event);
 					});
@@ -133,7 +133,7 @@ RunBox, Point, ActionBus) {
 		 */
 		this.handleDragToAction = function(dragAction, dragTo, card) {
 
-			//TODO gestion des autres actions
+			// TODO gestion des autres actions
 			if ("add" == dragTo.action)
 				this.addToContainer(dragTo.location, card);
 
@@ -143,46 +143,51 @@ RunBox, Point, ActionBus) {
 		/**
 		 * Cette fonction ce passe dans un cycle de layout
 		 */
-		this.processDropAction = function(dragAction, event) {
+		this.processDropAction = function(action, event) {
 
 			var at = new Point(event.dragEvent.clientX, event.dragEvent.clientY);
 
-			var card = dragAction.owner;
+			var card = action.owner;
 			card.stopDrag();
 
 			var revertDrag = true;
-			// on regarde les positions et on drope la carte au besoin
-			_.each(dragAction.dragTo, function(dragTo) {
+			if (action.isDragAction()) {
+				// on regarde les positions et on drope la carte au besoin
+				_.each(action.dragTo, function(dragTo) {
 
-				var path = dragTo.location;
-				var first = path.primary.toLowerCase();
-				if ("server" === first) {
-					var server = this.server({ id : path.serverIndex });
-					if (server.screen.containsPoint(at)) {
+					var path = dragTo.location;
+					var first = path.primary.toLowerCase();
+					if ("server" === first) {
+						var server = this.server({ id : path.serverIndex });
+						if (server.screen.containsPoint(at)) {
 
-						// on rajoute dans le serveur
-						this.handleDragToAction(dragAction, dragTo, card);
-						revertDrag = false;
+							// on rajoute dans le serveur
+							this.handleDragToAction(action, dragTo, card);
+							revertDrag = false;
+						}
+					} else if ("card" === first) {
+						var host = this.card({ id : path.serverIndex });
+						if (host.screen.containsPoint(at)) {
+							// on rajoute dans la carte
+							this.handleDragToAction(action, dragTo, card);
+							revertDrag = false;
+						}
 					}
-				} else if ("card" === first) {
-					var host = this.card({ id : path.serverIndex });
-					if (host.screen.containsPoint(at)) {
-						// on rajoute dans la carte
-						this.handleDragToAction(dragAction, dragTo, card);
-						revertDrag = false;
-					}
-				} else {
-					// la carte est jouée, il faut simplement qu'elle ne soit
-					// plus dans la main
+				}.bind(this));
+			} else {
+				// c'est une action activée avec enabledDrag:true. Il faut juste
+				// sortir la carte de la main
+				console.log(this.hand.screen,at)
+				if (!this.hand.screen.containsPoint(at)) {
+					revertDrag = false;
 				}
-
-			}.bind(this));
+			}
 
 			if (revertDrag)
 				card.revertDrag();
 			else {
 				// activation de l'action
-				dragAction.activate();
+				action.activate();
 			}
 		}
 

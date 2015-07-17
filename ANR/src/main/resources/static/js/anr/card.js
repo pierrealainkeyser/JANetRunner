@@ -151,7 +151,7 @@ interact) {
 					var sel = evt.newvalue;
 					this.setMark(sel === true);
 				}.bind(this), [ "selected" ]);
-			} else if (action.isDragAction()) {
+			} else if (action.isDragEnabled()) {
 				this.enableDrag(true);
 			}
 		}

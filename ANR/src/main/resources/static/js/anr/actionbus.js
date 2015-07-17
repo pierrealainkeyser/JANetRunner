@@ -115,10 +115,17 @@ function(mix, _, ActionModel, SubModel, ObservableMixin, InnerSetMixin) {
 		}
 
 		/**
-		 * Renvoi vrai si l'action est une action de break
+		 * Renvoi vrai si l'action est une action de drag
 		 */
 		this.isDragAction = function() {
-			return Action.DRAG_TYPE === this.actionType;
+			return Action.DRAG_TYPE === this.actionType ;
+		}
+		
+		/**
+		 * Renvoi si l'action est une action de drag, ou que le drag est activé
+		 */
+		this.isDragEnabled = function() {
+			return this.isDragAction() || this.enableDrag;
 		}
 
 		/**
@@ -190,7 +197,9 @@ function(mix, _, ActionModel, SubModel, ObservableMixin, InnerSetMixin) {
 				_.each(this.actions, function(a) {
 					if (a.isSelectionAction()) {
 						a.setSelected(false);
-					} else if (a.isDragAction()) {
+					} 
+					
+					if (a.isDragEnabled()) {
 						a.disableDrag();
 					}
 				});
