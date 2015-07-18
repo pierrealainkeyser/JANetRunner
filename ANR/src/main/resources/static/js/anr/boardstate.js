@@ -264,6 +264,7 @@ RunBox, Point, ActionBus) {
 				var card = this.card(def);
 
 				if (def.location) {
+					this.closeZoom(card.id());
 					var shallAdd = this.addToContainer(def.location, card);
 					if (shallAdd)
 						addToHost.push(card);
@@ -619,6 +620,8 @@ RunBox, Point, ActionBus) {
 			_.each(this.zooms, function(zoom) {
 				if (zoom.id === id)
 					zoom.setPrimary(null);
+				else if(zoom.secondaryId===id)
+					zoom.setSecondary(null);
 			});
 		}
 
