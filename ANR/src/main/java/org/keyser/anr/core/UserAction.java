@@ -13,6 +13,8 @@ public class UserAction {
 
 	private CostForAction cost;
 
+	private boolean enabledDrag = false;
+
 	/**
 	 * La liste des couts variables
 	 */
@@ -49,6 +51,11 @@ public class UserAction {
 		this.description = description;
 		this.server = server;
 		this.data = data;
+	}
+
+	public UserAction enabledDrag() {
+		this.enabledDrag = true;
+		return this;
 	}
 
 	public UserAction addCost(Cost cost, boolean enabled) {
@@ -161,6 +168,10 @@ public class UserAction {
 
 	public List<VariableCost> getCosts() {
 		return costs;
+	}
+
+	public boolean isEnabledDrag() {
+		return enabledDrag;
 	}
 
 }

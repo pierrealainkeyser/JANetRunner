@@ -11,7 +11,7 @@ public class ActionDto {
 	private String text;
 
 	private String cost;
-	
+
 	private List<VariableCostDto> costs;
 
 	private String cls;
@@ -19,6 +19,8 @@ public class ActionDto {
 	private PlayerType faction;
 
 	private String type;
+
+	private Boolean enableDrag;
 
 	public int getId() {
 		return id;
@@ -74,6 +76,14 @@ public class ActionDto {
 
 	public void setCosts(List<VariableCostDto> costs) {
 		this.costs = costs;
+	}
+
+	public Boolean getEnableDrag() {
+		return enableDrag;
+	}
+
+	public void setEnableDrag(Boolean enableDrag) {
+		this.enableDrag = enableDrag;
 	}
 
 }

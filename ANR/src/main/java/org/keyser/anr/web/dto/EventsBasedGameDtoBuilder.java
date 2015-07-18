@@ -281,6 +281,9 @@ public class EventsBasedGameDtoBuilder {
 			a.setCosts(costs.stream().map(this::toVariableCostDto).collect(toList()));
 		a.setText(ua.getDescription());
 
+		if (ua.isEnabledDrag())
+			a.setEnableDrag(true);
+
 		if (ua instanceof UserActionConfirmSelection)
 			a.setType("confirmselection");
 		else if (ua instanceof UserActionSelectCard)

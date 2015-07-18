@@ -156,20 +156,30 @@ RunBox, Point, ActionBus) {
 				_.each(action.dragTo, function(dragTo) {
 
 					var path = dragTo.location;
-					var first = path.primary.toLowerCase();
-					if ("server" === first) {
-						var server = this.server({ id : path.serverIndex });
-						if (server.screen.containsPoint(at)) {
+					if (path) {
+						var first = path.primary.toLowerCase();
+						if ("server" === first) {
+							var server = this.server({ id : path.serverIndex });
+							if (server.screen.containsPoint(at)) {
 
-							// on rajoute dans le serveur
-							this.handleDragToAction(action, dragTo, card);
-							revertDrag = false;
+								// on rajoute dans le serveur
+								this.handleDragToAction(action, dragTo, card);
+								revertDrag = false;
+							}
+						} else if ("card" === first) {
+							var host = this.card({ id : path.serverIndex });
+							if (host.screen.containsPoint(at)) {
+								// on rajoute dans la carte
+								this.handleDragToAction(action, dragTo, card);
+								revertDrag = false;
+							}
 						}
-					} else if ("card" === first) {
-						var host = this.card({ id : path.serverIndex });
-						if (host.screen.containsPoint(at)) {
-							// on rajoute dans la carte
-							this.handleDragToAction(action, dragTo, card);
+					} else {
+						// c'est une action sans dragTo
+						// faut juste sortir la carte de la main
+						var distance = card.draggedDistance(at);
+						var h = config.card.normal.height;
+						if (distance > h) {
 							revertDrag = false;
 						}
 					}
@@ -177,8 +187,9 @@ RunBox, Point, ActionBus) {
 			} else {
 				// c'est une action activée avec enabledDrag:true. Il faut juste
 				// sortir la carte de la main
-				console.log(this.hand.screen,at)
-				if (!this.hand.screen.containsPoint(at)) {
+				var distance = card.draggedDistance(at);
+				var h = config.card.normal.height;
+				if (distance > h) {
 					revertDrag = false;
 				}
 			}

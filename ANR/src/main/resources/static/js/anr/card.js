@@ -103,14 +103,16 @@ interact) {
 		this.enableDrag = function(enabled) {
 			this._interact.draggable({
 				enabled : enabled,
+
 				onstart : function(event) {
 
 					if (_.isFunction(this.dragListener))
 						this.dragListener(this);
 
+					// on conserve le point de drag
 					// on conserve la position de début
 					this._lastDrag = this._startDrag = { x : event.clientX - this.screen.point.x, y : event.clientY - this.screen.point.y,
-						rotation : this.rotation };
+						rotation : this.rotation, origin : new Point(event.clientX, event.clientY) };
 					this.rotation = 0;
 
 				}.bind(this), onmove : function(event) {
@@ -131,6 +133,13 @@ interact) {
 		 */
 		this.stopDrag = function() {
 			delete this._startDrag;
+		}
+
+		/**
+		 * Renvoi la distance parcouru depuis le drag
+		 */
+		this.draggedDistance = function(point) {
+			return this._lastDrag.origin.distance(point);
 		}
 
 		/**
