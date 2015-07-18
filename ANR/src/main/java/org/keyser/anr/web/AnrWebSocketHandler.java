@@ -80,7 +80,8 @@ public class AnrWebSocketHandler extends TextWebSocketHandler {
 		private void send(TypedMessage content) {
 			try {
 				log.debug("send({}) : {}", content);
-				session.sendMessage(new TextMessage(mapper.writeValueAsString(content)));
+				String json = mapper.writeValueAsString(content);
+				session.sendMessage(new TextMessage(json));
 			} catch (Throwable e) {
 				// il ne faut pas bloquer l'erreur.
 				log.debug("erreur à l'émission", e);

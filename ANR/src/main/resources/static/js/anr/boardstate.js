@@ -399,7 +399,7 @@ RunBox, Point, ActionBus) {
 		 */
 		this.onStartCardDrag = function(card) {
 			this.layoutManager.runLayout(function() {
-				this.closeZoom(card.id());
+				this.closeAllZooms();
 			}.bind(this));
 
 		}

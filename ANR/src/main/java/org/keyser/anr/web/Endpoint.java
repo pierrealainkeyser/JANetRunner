@@ -54,10 +54,14 @@ public class Endpoint {
 	}
 
 	public void refresh(RemoteSuscriber suscriber) {
-		PlayerType type = suscriber.getKey().getType();
-		GameDto dto = new EventsBasedGameDtoBuilder(game).create(type);
+		try {
+			PlayerType type = suscriber.getKey().getType();
+			GameDto dto = new EventsBasedGameDtoBuilder(game).create(type);
 
-		suscriber.send(new TypedMessage(RemoteVerbs.VERB_REFRESH, dto));
+			suscriber.send(new TypedMessage(RemoteVerbs.VERB_REFRESH, dto));
+		} catch (Throwable t) {
+			log.error("Erreur lors du refresh : " + t.getMessage(), t);
+		}
 	}
 
 	public void receive(ResponseDTO message, UserInputConverter converter) {

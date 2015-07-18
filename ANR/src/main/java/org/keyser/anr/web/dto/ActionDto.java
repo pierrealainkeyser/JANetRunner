@@ -3,6 +3,7 @@ package org.keyser.anr.web.dto;
 import java.util.List;
 
 import org.keyser.anr.core.PlayerType;
+import org.keyser.anr.core.UserDragActionTo;
 
 public class ActionDto {
 
@@ -21,6 +22,8 @@ public class ActionDto {
 	private String type;
 
 	private Boolean enableDrag;
+	
+	private  List<UserDragActionTo> dragTo;
 
 	public int getId() {
 		return id;
@@ -84,6 +87,14 @@ public class ActionDto {
 
 	public void setEnableDrag(Boolean enableDrag) {
 		this.enableDrag = enableDrag;
+	}
+
+	public List<UserDragActionTo> getDragTo() {
+		return dragTo;
+	}
+
+	public void setDragTo(List<UserDragActionTo> dragTo) {
+		this.dragTo = dragTo;
 	}
 
 }

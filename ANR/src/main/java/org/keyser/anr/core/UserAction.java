@@ -22,7 +22,7 @@ public class UserAction {
 
 	private final String description;
 
-	private final AbstractId to;
+	protected final AbstractId to;
 
 	private final CorpServer server;
 

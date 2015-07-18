@@ -73,7 +73,12 @@ public class Corp extends AbstractId {
 		}
 	}
 
-	private CorpServer getOrCreate(int serverId) {
+	/**
+	 * Accède au serveur
+	 * @param serverId
+	 * @return
+	 */
+	public CorpServer getOrCreate(int serverId) {
 		if (serverId == -1)
 			return archives;
 		if (serverId == -2)

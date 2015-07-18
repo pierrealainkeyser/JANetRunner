@@ -30,4 +30,23 @@ public class UserActionArgs<T> extends UserAction {
 		return type;
 	}
 
+	public FeedbackWithArgs<UserActionArgs<T>, T> spendAndApplyArg(BiEventConsumer<UserActionArgs<T>, T> consumer) {
+		return new FeedbackWithArgs<>(this, (action, input, next) -> {
+			to.spend(getCost(), () -> consumer.apply(action, input, next));
+		});
+	}
+	
+	public FeedbackWithArgs<UserActionArgs<T>, T> applyArg(EventConsumer<T> consumer) {
+		return new FeedbackWithArgs<>(this, (action, input, next) -> {
+			consumer.apply(input,next);
+		});
+	}
+
+
+	public FeedbackWithArgs<UserActionArgs<T>, T> spendAndApplyArg(EventConsumer<T> consumer) {
+		return new FeedbackWithArgs<>(this, (action, input, next) -> {
+			to.spend(getCost(), () -> consumer.apply(input, next));
+		});
+	}
+
 }

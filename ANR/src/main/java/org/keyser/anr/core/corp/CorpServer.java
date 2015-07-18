@@ -51,6 +51,14 @@ public class CorpServer {
 	public CardLocation topIceLocation() {
 		return ices.locationAt(ices.size());
 	}
+	
+	/**
+	 * Renvoi la position des assets
+	 * @return
+	 */
+	public CardLocation lastAssetOrUpgradesLocation() {
+		return assetOrUpgrades.locationAt(assetOrUpgrades.size());
+	}
 
 	/**
 	 * Création des cartes

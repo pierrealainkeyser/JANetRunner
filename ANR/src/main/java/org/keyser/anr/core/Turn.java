@@ -22,6 +22,10 @@ public class Turn {
 		}
 
 		protected void collectFeedbacks(boolean action, EventConsumer<Feedback<?, ?>> feedbackConsumer, Flow next) {
+
+			// création d'un serveur vide au besoin
+			game.getCorp().ensureEmptyServer();
+
 			CollectHabilities collect = new CollectHabilities(active, action);
 			game.fire(collect);
 
@@ -240,12 +244,6 @@ public class Turn {
 		if (id.hasAction()) {
 
 			setPhase(TurnPhase.ACTION);
-
-			//création d'un serveur vide au besoin
-			if (id instanceof Corp) {
-				Corp corp = (Corp) id;
-				corp.ensureEmptyServer();
-			}
 
 			// on comme par l'utilisateur
 			new ActionPingPong(active).firstPlayer(this::actionPhase);

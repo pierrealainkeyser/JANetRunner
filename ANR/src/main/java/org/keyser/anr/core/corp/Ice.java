@@ -12,7 +12,6 @@ import org.keyser.anr.core.CollectHabilities;
 import org.keyser.anr.core.Corp;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.CostForAction;
-import org.keyser.anr.core.FeedbackWithArgs;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.Game;
 import org.keyser.anr.core.MetaCard;
@@ -22,6 +21,7 @@ import org.keyser.anr.core.UserAction;
 import org.keyser.anr.core.UserActionConfirmSelection;
 import org.keyser.anr.core.UserActionContext.Type;
 import org.keyser.anr.core.UserActionSelectCard;
+import org.keyser.anr.core.UserDragAction;
 
 public abstract class Ice extends AbstractCardCorp {
 
@@ -52,11 +52,10 @@ public abstract class Ice extends AbstractCardCorp {
 	 * @param action
 	 * @param next
 	 */
-	private void installedOnServer(UserAction action, Flow next) {
+	private void installedOnServer(CorpServer selected, Flow next) {
 
 		Corp corp = getCorp();
 		AbstractCardList list = new AbstractCardList();
-		CorpServer selected = action.getServer();
 		selected.forEachIce(list::add);
 
 		if (!list.isEmpty()) {
@@ -65,7 +64,7 @@ public abstract class Ice extends AbstractCardCorp {
 			g.userContext(this, "Remove ice before", Type.REMOVE_ON_INSTALL).setExpectedAt(selected.topIceLocation());
 
 			// on rajoute l'action de confirmation
-			UserActionConfirmSelection userAction = new UserActionConfirmSelection(corp, this);
+			UserActionConfirmSelection confirm = new UserActionConfirmSelection(corp, this);
 
 			// calcul des couts variables
 			PlayIceAction playIceAction = new PlayIceAction(this);
@@ -73,10 +72,10 @@ public abstract class Ice extends AbstractCardCorp {
 			for (int i = 0; i <= size; ++i) {
 				Cost cost = Cost.credit(size - i);
 				boolean enabled = game.mayAfford(corp.getOwner(), new CostForAction(cost, playIceAction));
-				userAction.addCost(cost, enabled);
+				confirm.addCost(cost, enabled);
 			}
 
-			g.user(new FeedbackWithArgs<>(userAction, (u, toRemove, n) -> removeAndInstall(selected, toRemove, n)), next);
+			g.user(confirm.applyArg((toRemove, n) -> removeAndInstall(selected, toRemove, n)), next);
 
 			// on peut sélectionner les cartes
 			list.forEach(c -> g.user(new UserActionSelectCard(corp, c)));
@@ -86,8 +85,15 @@ public abstract class Ice extends AbstractCardCorp {
 
 	@Override
 	public void playFeedback(CollectHabilities hab) {
-		UserAction playOperation = new UserAction(getCorp(), this, new CostForAction(Cost.free().withAction(1), new PlayIceAction(this)), "Install");
+		CostForAction cost = new CostForAction(Cost.free().withAction(1), new PlayIceAction(this));
+		Corp corp = getCorp();
+		UserAction playOperation = new UserAction(corp, this, cost, "Install");
 		hab.add(playOperation.spendAndApply(this::prepareInstall));
+
+		UserDragAction<CorpServer> drag = new UserDragAction<>(corp, this, cost, CorpServer.class);
+		corp.eachServers(cs -> drag.add(cs.getId(), cs.topIceLocation()));
+		hab.add(drag.spendAndApplyArg(this::installedOnServer));
+
 	}
 
 	/**
@@ -101,7 +107,7 @@ public abstract class Ice extends AbstractCardCorp {
 
 		Corp corp = getCorp();
 		Consumer<CorpServer> install = cs -> {
-			g.user(new UserAction(corp, cs, null, "Install").apply(this::installedOnServer), next);
+			g.user(new UserAction(corp, cs, null, "Install").apply((ua, n) -> installedOnServer(cs, n)), next);
 		};
 		corp.eachServers(install);
 	}

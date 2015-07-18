@@ -5,6 +5,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Permet de gerer les files d'attente par jeu
  * 
@@ -12,6 +15,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * 
  */
 public class MailboxEndpointProcessor implements EndpointProcessor {
+
+	private final static Logger logger = LoggerFactory.getLogger(MailboxEndpointProcessor.class);
 
 	private static class InputMessageWithEndPoint {
 		private final Endpoint endpoint;
@@ -68,7 +73,7 @@ public class MailboxEndpointProcessor implements EndpointProcessor {
 
 			InputMessageWithEndPoint ir = null;
 
-			// acces au premier élèment
+			// acces au premier ï¿½lï¿½ment
 			try {
 				mutex.lock();
 				ir = runs.peek();
@@ -81,10 +86,10 @@ public class MailboxEndpointProcessor implements EndpointProcessor {
 				try {
 					ir.run();
 				} catch (Exception e) {
-					// TODO gestion de l'erreur
+					logger.error("Erreur durant le traitement de la file", e);
 				} finally {
 
-					// on dépile apres la transmission
+					// on dÃ©pile apres la transmission
 					try {
 						mutex.lock();
 						runs.poll();

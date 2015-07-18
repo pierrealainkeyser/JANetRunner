@@ -81,7 +81,10 @@ interact) {
 
 		this._interact = interact(this.element[0]);
 		this._interact.card = this;
-		this._interact.on('tap', layoutManager.withinLayout(this.activateCard.bind(this)));
+
+		var activateCard = layoutManager.withinLayout(this.activateCard.bind(this));
+		this.back.on('click', activateCard);
+		this.front.on('click', activateCard);
 	}
 
 	Card.FACE_UP = "up";
@@ -362,10 +365,11 @@ interact) {
 				css.left += box.screen.size.height;
 			}
 
-			// en drag on supprime les positions
+			// en drag on supprime les positions et on met un gros zIndex
 			if (box._startDrag) {
 				delete css.left;
 				delete css.top;
+				css.zIndex = 10000;
 			}
 
 			return css;

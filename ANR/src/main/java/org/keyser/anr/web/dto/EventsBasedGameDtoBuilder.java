@@ -32,6 +32,7 @@ import org.keyser.anr.core.Turn;
 import org.keyser.anr.core.UserAction;
 import org.keyser.anr.core.UserActionConfirmSelection;
 import org.keyser.anr.core.UserActionSelectCard;
+import org.keyser.anr.core.UserDragAction;
 import org.keyser.anr.core.VariableCost;
 import org.keyser.anr.core.corp.CorpServer;
 import org.keyser.anr.web.dto.CardDto.CardType;
@@ -210,12 +211,12 @@ public class EventsBasedGameDtoBuilder {
 			CorpServer server = ua.getServer();
 			if (source != null) {
 				CardDto cdto = getOrCreate(source);
-				ActionDto action = convert(ua);
+				ActionDto action = convertAction(ua);
 				if (action != null)
 					cdto.addAction(action);
 			} else if (server != null) {
 				ServerDto sdto = getOrCreate(dto, server);
-				ActionDto action = convert(ua);
+				ActionDto action = convertAction(ua);
 				if (action != null)
 					sdto.addAction(action);
 			}
@@ -263,12 +264,12 @@ public class EventsBasedGameDtoBuilder {
 	}
 
 	/**
-	 * TODO gestion de la conversion
+	 * Gestion de la conversion
 	 * 
 	 * @param ua
 	 * @return
 	 */
-	private ActionDto convert(UserAction ua) {
+	private ActionDto convertAction(UserAction ua) {
 
 		ActionDto a = new ActionDto();
 		a.setId(ua.getActionId());
@@ -288,6 +289,11 @@ public class EventsBasedGameDtoBuilder {
 			a.setType("confirmselection");
 		else if (ua instanceof UserActionSelectCard)
 			a.setType("selection");
+		else if (ua instanceof UserDragAction<?>) {
+			UserDragAction<?> uda = (UserDragAction<?>) ua;
+			a.setType("drag");
+			a.setDragTo(uda.getDragTos());
+		}
 
 		return a;
 	}
