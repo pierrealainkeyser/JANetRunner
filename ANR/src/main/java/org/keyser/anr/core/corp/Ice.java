@@ -61,7 +61,7 @@ public abstract class Ice extends AbstractCardCorp {
 		if (!list.isEmpty()) {
 			Game g = getGame();
 
-			g.userContext(this, "Remove ice before", Type.REMOVE_ON_INSTALL).setExpectedAt(selected.topIceLocation());
+			g.userContext(this, "Remove ice", Type.REMOVE_ON_INSTALL).setExpectedAt(selected.topIceLocation());
 
 			// on rajoute l'action de confirmation
 			UserActionConfirmSelection confirm = new UserActionConfirmSelection(corp, this);

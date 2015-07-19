@@ -2,6 +2,7 @@ package org.keyser.anr.core.corp;
 
 import java.util.function.Consumer;
 
+import org.keyser.anr.core.AbstractCardContainer;
 import org.keyser.anr.core.AbstractCardCorp;
 import org.keyser.anr.core.AbstractCardInstalledCleanup;
 import org.keyser.anr.core.AbstractCardList;
@@ -37,7 +38,7 @@ public abstract class InServerCorpCard extends AbstractCardCorp {
 		hab.add(playOperation.spendAndApply(this::prepareInstall));
 
 		UserDragAction<CorpServer> drag = new UserDragAction<>(corp, this, cost, CorpServer.class);
-		corp.eachServers(cs -> drag.add(cs.getId(), cs.lastAssetOrUpgradesLocation()));
+		corp.eachServers(cs -> drag.add(cs.getId(), cs.containerFor(this).lastLocation()));
 		hab.add(drag.spendAndApplyArg(this::installedOnServer));
 	}
 
@@ -49,6 +50,10 @@ public abstract class InServerCorpCard extends AbstractCardCorp {
 	 */
 	protected boolean installableOn(CorpServer server) {
 		return true;
+	}
+
+	protected CorpServer installedOn() {
+		return getCorp().getOrCreate(getLocation().getServerIndex());
 	}
 
 	/**
@@ -68,6 +73,21 @@ public abstract class InServerCorpCard extends AbstractCardCorp {
 		corp.eachServers(install);
 	}
 
+	@Override
+	protected void onRezzed(Flow next) {
+		CorpServer installedOn = installedOn();
+		installedOn.dispatchKnownUpgrades();
+		
+		// on rajoute toutes les cates sélectionnées
+		TrashList tl = new TrashList(TrashCause.OTHER_INSTALLED);
+
+		// on recherche toutes les cartes illegales sur le serveur
+		installedOn.collectIllegalsCards(this, false, tl::add);
+
+		// trash toutes les cartes
+		tl.trash(next);
+	}
+
 	/**
 	 * Permet de supprimer les cartes
 	 * 
@@ -82,10 +102,13 @@ public abstract class InServerCorpCard extends AbstractCardCorp {
 
 		if (!list.isEmpty()) {
 			Game g = getGame();
-			g.userContext(this, "Remove assets, upgrades or agenda", Type.REMOVE_ON_INSTALL);
+			g.userContext(this, "Remove others", Type.REMOVE_ON_INSTALL);
 
 			// on rajoute l'action de confirmation
 			UserActionConfirmSelection confirm = new UserActionConfirmSelection(corp, this);
+			Cost free = Cost.free();
+			list.forEach(c -> confirm.addCost(free, true));
+
 			g.user(confirm.applyArg((toRemove, n) -> removeAndInstall(selected, toRemove, n)), next);
 
 			// on peut sélectionner les cartes
@@ -102,15 +125,14 @@ public abstract class InServerCorpCard extends AbstractCardCorp {
 	 * @param toRemove
 	 * @param next
 	 */
+
+	@SuppressWarnings("unchecked")
 	private void removeAndInstall(CorpServer selected, AbstractCardList toRemove, Flow next) {
 
 		this.setInstalled(true);
 
 		// installation dans la zone qui va bien
-		if (selected instanceof CorpServerCentral)
-			selected.addUpgrade((Upgrade) this);
-		else
-			selected.addAssetOrUpgrade(this);
+		((AbstractCardContainer<InServerCorpCard>) selected.containerFor(this)).add(this);
 
 		// on rajoute toutes les cates sélectionnées
 		TrashList tl = new TrashList(TrashCause.OTHER_INSTALLED);

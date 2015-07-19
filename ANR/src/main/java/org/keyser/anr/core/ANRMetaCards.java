@@ -5,6 +5,7 @@ import org.keyser.anr.core.corp.nbn.ClosedAccounts;
 import org.keyser.anr.core.corp.nbn.MakingNews;
 import org.keyser.anr.core.corp.nbn.Psychographics;
 import org.keyser.anr.core.corp.nbn.SEASource;
+import org.keyser.anr.core.corp.nbn.SanSanCityGrid;
 import org.keyser.anr.core.corp.neutral.HedgeFund;
 import org.keyser.anr.core.corp.neutral.MelangeMiningCorp;
 import org.keyser.anr.core.corp.neutral.PADCampaign;
@@ -39,6 +40,8 @@ public class ANRMetaCards {
 		INSTANCE.add(ClosedAccounts.INSTANCE);
 		INSTANCE.add(SEASource.INSTANCE);
 		INSTANCE.add(Psychographics.INSTANCE);
+		INSTANCE.add(SanSanCityGrid.INSTANCE);
+		
 
 		// neutral
 		INSTANCE.add(PADCampaign.INSTANCE);

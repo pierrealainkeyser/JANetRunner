@@ -26,6 +26,10 @@ public class AbstractCardContainer<A extends AbstractCard> {
 		a.setContainer((AbstractCardContainer<AbstractCard>) this);
 		return this;
 	}
+	
+	public CardLocation lastLocation() {
+		return locationAt(contents.size());
+	}
 
 	public CardLocation locationAt(int size) {
 		return locationFactory.apply(size);

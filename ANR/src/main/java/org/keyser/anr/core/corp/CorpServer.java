@@ -2,6 +2,9 @@ package org.keyser.anr.core.corp;
 
 import static org.keyser.anr.core.AbstractCard.createDefList;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -46,18 +49,51 @@ public class CorpServer {
 
 	/**
 	 * Renvoi la position du haut
+	 * 
 	 * @return
 	 */
 	public CardLocation topIceLocation() {
 		return ices.locationAt(ices.size());
 	}
-	
+
 	/**
-	 * Renvoi la position des assets
+	 * Détermination de la logique de placement
+	 * 
+	 * @param is
 	 * @return
 	 */
-	public CardLocation lastAssetOrUpgradesLocation() {
-		return assetOrUpgrades.locationAt(assetOrUpgrades.size());
+	public AbstractCardContainer<? extends InServerCorpCard> containerFor(InServerCorpCard is) {
+		if (is instanceof AssetOrAgenda)
+			return assetOrUpgrades;
+
+		// la carte est un upgrade
+		Optional<InServerCorpCard> aoa = rezzedAssetOrAgenda();
+		if (aoa.isPresent()) {
+			return upgrades;
+		} else
+			return assetOrUpgrades;
+	}
+
+	private Optional<InServerCorpCard> rezzedAssetOrAgenda() {
+		return assetOrUpgrades.stream().filter(isc -> isc.isRezzed() && (isc instanceof AssetOrAgenda)).findFirst();
+	}
+
+	/**
+	 * Gestion des upgrades à bien placer
+	 * 
+	 */
+	public void dispatchKnownUpgrades() {
+
+		Optional<InServerCorpCard> aoa = rezzedAssetOrAgenda();
+		List<Upgrade> moves = new ArrayList<>();
+		if (aoa.isPresent()) {
+			assetOrUpgrades.stream().filter(isc -> isc instanceof Upgrade).forEach(isc -> moves.add((Upgrade) isc));
+		}
+
+		assetOrUpgrades.stream().filter(isc -> isc.isRezzed() && isc instanceof Upgrade).forEach(isc -> moves.add((Upgrade) isc));
+
+		moves.forEach(u -> upgrades.add(u));
+
 	}
 
 	/**
@@ -127,7 +163,7 @@ public class CorpServer {
 	}
 
 	public void addUpgrade(Upgrade upgrade) {
-		upgrade.add(upgrade);
+		upgrades.add(upgrade);
 	}
 
 	/**

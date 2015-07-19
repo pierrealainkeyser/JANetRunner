@@ -5,8 +5,8 @@ import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.PlayCardAction;
 
-public abstract class Asset extends AssetOrAgenda {
 
+public abstract class Asset extends AssetOrAgenda {
 	protected Asset(int id, MetaCard meta) {
 		super(id, meta);
 	}

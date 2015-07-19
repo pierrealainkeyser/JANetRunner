@@ -21,11 +21,15 @@ public class AbstractCardCorp extends AbstractCard {
 		UserAction rezz = new UserAction(getCorp(), this, new CostForAction(getCost(), new RezzAbstractCardAction<>(this)), "Rezz");
 		hab.add(rezz.spendAndApply(this::doRezz));
 	}
+	
+	protected void onRezzed(Flow next){
+		next.apply();
+	}
 
 	private void doRezz(UserAction ua, Flow next) {
 		setRezzed(true);
-		game.chat("{0} rezz {1} for {2}", getCorp(), this, ua.getCost().getCost());
-		next.apply();
+		game.chat("{0} rezz {1} for {2}", getCorp(), this, ua.getCost().getCost());		
+		onRezzed(next);
 	}
 
 	public boolean isRezzable() {
