@@ -1,40 +1,24 @@
 package org.keyser.anr.core.corp.nbn;
 
-import static org.keyser.anr.core.EventMatcher.match;
+import static java.util.Arrays.asList;
 
-import org.keyser.anr.core.CardDef;
 import org.keyser.anr.core.CardSubType;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Faction;
-import org.keyser.anr.core.Flow;
-import org.keyser.anr.core.Run.CardAccededEvent;
+import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.corp.Asset;
-import org.keyser.anr.core.runner.AddTagsEvent;
+import org.keyser.anr.core.corp.AssetUpgradeMetaCard;
 
-@CardDef(name = "Ghost Branch", oid = "01087")
 public class GhostBranch extends Asset {
-	public GhostBranch() {
-		super(Faction.NBN.infl(1), Cost.credit(0), Cost.credit(0), CardSubType.AMBUSH);
+	
+	public final static AssetUpgradeMetaCard INSTANCE = new AssetUpgradeMetaCard("Ghost Branch", Faction.NBN.infl(1), Cost.credit(0), Cost.credit(0), false, "01087", asList(CardSubType.AMBUSH), GhostBranch::new);
+	
 
-		register(match(CardAccededEvent.class).pred(this::equals).wrap(this::fireTags));
+	protected GhostBranch(int id, MetaCard meta) {
+		super(id, meta);
 	}
 
-	/**
-	 * Envoi les tags
-	 * 
-	 * @param event
-	 * @param next
-	 */
-	private void fireTags(CardAccededEvent event, Flow next) {
-		Integer adv = getAdvancement();
-		if (adv != null && adv > 0) {
-			AddTagsEvent t = new AddTagsEvent(adv);
-			// on envoi un tag sur Ghost Branch
-			t.fire(getGame(), next);
 
-		} else
-			next.apply();
-	}
 
 	@Override
 	public boolean isAdvanceable() {

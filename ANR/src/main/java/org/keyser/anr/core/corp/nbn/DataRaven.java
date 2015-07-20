@@ -1,42 +1,21 @@
 package org.keyser.anr.core.corp.nbn;
 
-import static org.keyser.anr.core.Cost.credit;
-import static org.keyser.anr.core.EventMatcher.match;
+import static java.util.Arrays.asList;
 import static org.keyser.anr.core.Faction.NBN;
 
-import org.keyser.anr.core.CardDef;
 import org.keyser.anr.core.CardSubType;
-import org.keyser.anr.core.Flow;
-import org.keyser.anr.core.Game;
-import org.keyser.anr.core.NotificationEvent;
-import org.keyser.anr.core.Player;
-import org.keyser.anr.core.Question;
-import org.keyser.anr.core.Run.IceIsEncounterEvent;
+import org.keyser.anr.core.Cost;
+import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.corp.Ice;
-import org.keyser.anr.core.runner.AddTagsEvent;
+import org.keyser.anr.core.corp.IceMetaCard;
 
-@CardDef(name = "Data Raven", oid = "01088")
 public class DataRaven extends Ice {
+	
+	public static final MetaCard INSTANCE = new IceMetaCard("Data Raven", NBN.infl(2), Cost.credit(4), 4, false, "01088", asList(CardSubType.SENTRY), DataRaven::new);
 
-	public DataRaven() {
-		super(NBN.infl(2), credit(4), 4, CardSubType.SENTRY);
-
-		register(match(IceIsEncounterEvent.class).pred(this::equals).name("DataRaven").wrap(this::applyEffect));
+	protected DataRaven(int id, MetaCard meta) {
+		super(id, meta);
 	}
 
-	private void applyEffect(IceIsEncounterEvent e, Flow next) {
-		Game g = getGame();
-		Question q = g.ask(Player.RUNNER, NotificationEvent.CUSTOM_QUESTION);
-		q.m("Take a tag or jackoff ?");
-		q.ask("Take a tag").to(() -> {
-			AddTagsEvent evt = new AddTagsEvent(1);
-			evt.fire(g, next);
-		});
-		q.ask("Jack off").to(() -> {
-			e.getRun().endedByRoutine();
-			next.apply();
-		});
-		q.fire();
-	}
-
+	
 }

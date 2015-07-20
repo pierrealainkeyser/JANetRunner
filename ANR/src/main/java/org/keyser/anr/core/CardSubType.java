@@ -7,6 +7,9 @@ public enum CardSubType {
 
 	// pour les ices
 	BARRIER, SENTRY, CODEGATE, TRAP, ICE,
+	
+	//sous type de glace
+	TRACER,
 
 	// pour des pieges
 	AMBUSH,
