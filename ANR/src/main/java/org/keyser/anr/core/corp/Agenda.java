@@ -8,6 +8,7 @@ import org.keyser.anr.core.Corp;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.CostForAction;
 import org.keyser.anr.core.Flow;
+import org.keyser.anr.core.Game;
 import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.PlayCardAction;
 import org.keyser.anr.core.TokenType;
@@ -20,6 +21,20 @@ public abstract class Agenda extends AssetOrAgenda {
 
 		Predicate<CollectHabilities> scorablePredicate = ch -> isInstalled() && ch.getType() == getOwner() && isScorable();
 		match(CollectHabilities.class, em -> em.test(scorablePredicate).call(this::registerScore));
+	}
+
+	public int getRequirement() {
+		return getMeta().getRequirement();
+	}
+	
+
+	public int getPoints() {
+		return getMeta().getPoints();
+	}
+
+	@Override
+	protected AgendaMetaCard getMeta() {
+		return (AgendaMetaCard) super.getMeta();
 	}
 
 	private void registerScore(CollectHabilities collect) {
@@ -41,13 +56,14 @@ public abstract class Agenda extends AssetOrAgenda {
 		// gestion de la position
 		Corp corp = getCorp();
 		corp.addToScore(this);
-		
+
 		onScored(next.wrap(this::cleanUpScore));
 	}
 
 	private void cleanUpScore(Flow next) {
 		// supprimer les tokens d'avancement
-		this.setToken(TokenType.ADVANCEMENT, 0);
+		this.setToken(TokenType.ADVANCE, 0);
+		next.apply();
 	}
 
 	protected void onScored(Flow next) {
@@ -64,8 +80,23 @@ public abstract class Agenda extends AssetOrAgenda {
 	}
 
 	public boolean isScorable() {
-		// TODO logique de score
-		return false;
+
+		if (isScored())
+			return false;
+
+		Game game = getGame();
+		if (!game.getTurn().mayScoreAgenda())
+			return false;
+
+		int adv = getToken(TokenType.ADVANCE);
+
+		// il faut envoyer un evenement dans le moteur !!
+		DetermineAgendaRequirement dar = new DetermineAgendaRequirement(this);
+		game.fire(dar);
+
+		int req = dar.getRequirement();
+		return adv >= req;
+
 	}
 
 	@Override

@@ -73,7 +73,10 @@ RunBox, Point, ActionBus) {
 		var showElement = this.activate.bind(this);
 
 		this.corp = new Corp(layoutManager, showElement);
+		this.turnTracker.corpScore.setCardsModel(this.corp.scoreModel);
+				
 		this.runner = new Runner(layoutManager, showElement);
+		this.turnTracker.runnerScore.setCardsModel(this.runner.scoreModel);
 		this.local = null;
 
 		this.focus = new FocusBox(layoutManager);
@@ -359,6 +362,8 @@ RunBox, Point, ActionBus) {
 				this.runner.addToHeap(card.wrapped(), path.index);
 			else if ("hand" === first)
 				this.hand.addChild(card.unwrapped(), path.index);
+			else if ("corpscore" === first)
+				this.corp.addToScore(card);
 
 			// suppression de l'hote
 			card.setHost(null);

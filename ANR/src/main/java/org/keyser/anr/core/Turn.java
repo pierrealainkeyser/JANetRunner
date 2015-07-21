@@ -278,9 +278,9 @@ public class Turn {
 	public boolean mayPlayAction() {
 		return phase == TurnPhase.ACTION;
 	}
-	
-	public boolean mayScoreAgenda(){
-		return false;
+
+	public boolean mayScoreAgenda() {
+		return phase == TurnPhase.ACTION && PlayerType.CORP == active;
 	}
 
 	private void setPhase(TurnPhase phase) {

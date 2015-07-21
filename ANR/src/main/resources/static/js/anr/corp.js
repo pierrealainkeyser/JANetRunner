@@ -1,5 +1,5 @@
-define([ "mix", "conf", "layout/abstractboxcontainer", "./corpserver" ], //
-function(mix, config, AbstractBoxContainer, CorpServer) {
+define([ "mix", "conf", "layout/abstractboxcontainer", "./corpserver", "./cardsmodel" ], //
+function(mix, config, AbstractBoxContainer, CorpServer, CardsModel) {
 	function Corp(layoutManager, actionListener) {
 		var layouts = config.corp.layouts;
 		AbstractBoxContainer.call(this, layoutManager, {}, layouts.translate);
@@ -13,10 +13,16 @@ function(mix, config, AbstractBoxContainer, CorpServer) {
 
 		// l'ecouteur d'affichage du container
 		this.actionListener = actionListener;
+
+		this.scoreModel = new CardsModel();
 	}
 
 	mix(Corp, AbstractBoxContainer)
 	mix(Corp, function() {
+
+		this.addToScore = function(card) {
+			this.scoreModel.add(card);
+		}
 
 		/**
 		 * Parcours tout les serveurs

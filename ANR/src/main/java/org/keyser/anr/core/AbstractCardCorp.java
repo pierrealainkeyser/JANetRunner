@@ -2,6 +2,7 @@ package org.keyser.anr.core;
 
 import java.util.function.Predicate;
 
+import org.keyser.anr.core.corp.AdvanceAbstractCardAction;
 import org.keyser.anr.core.corp.RezzAbstractCardAction;
 
 public class AbstractCardCorp extends AbstractCard {
@@ -15,21 +16,36 @@ public class AbstractCardCorp extends AbstractCard {
 
 		// permet de rezzed
 		match(CollectHabilities.class, em -> em.test(ch -> isInstalled() && ch.getType() == getOwner() && isRezzable() && !isRezzed()).call(this::registerRezz));
+
+		match(CollectHabilities.class, em -> em.test(ch -> isInstalled() && ch.getType() == getOwner() && isAdvanceable()).call(this::registerAdvance));
+	}
+
+	private void registerAdvance(CollectHabilities hab) {
+		UserAction rezz = new UserAction(getCorp(), this, new CostForAction(Cost.credit(1).withAction(1), new AdvanceAbstractCardAction<>(this)), "Advance");
+		hab.add(rezz.spendAndApply(this::doAdvance));
 	}
 
 	private void registerRezz(CollectHabilities hab) {
 		UserAction rezz = new UserAction(getCorp(), this, new CostForAction(getCost(), new RezzAbstractCardAction<>(this)), "Rezz");
 		hab.add(rezz.spendAndApply(this::doRezz));
 	}
-	
-	protected void onRezzed(Flow next){
+
+	protected void onRezzed(Flow next) {
 		next.apply();
 	}
 
 	private void doRezz(UserAction ua, Flow next) {
 		setRezzed(true);
-		game.chat("{0} rezz {1} for {2}", getCorp(), this, ua.getCost().getCost());		
+		game.chat("{0} rezz {1} for {2}", getCorp(), this, ua.getCost().getCost());
 		onRezzed(next);
+	}
+
+	private void doAdvance(UserAction ua, Flow next) {
+
+		game.chat("{0} advance {1} for {2}", getCorp(), this, ua.getCost().getCost());
+		addToken(TokenType.ADVANCE, 1);
+		next.apply();
+
 	}
 
 	public boolean isRezzable() {

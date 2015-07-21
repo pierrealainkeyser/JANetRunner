@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.keyser.anr.core.corp.Agenda;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,10 +38,14 @@ public abstract class AbstractId extends AbstractCard {
 		setInstalled(true);
 		setRezzed(true);
 	}
-	
-	public void addToScore(AbstractCard ac){
+
+	public void addToScore(AbstractCard ac) {
 		scoreds.add(ac);
-		//TODO calcul du score
+
+		if (ac instanceof Agenda) {
+			Agenda a = (Agenda) ac;
+			setScore(getScore() + a.getPoints());
+		}
 	}
 
 	public final void registerCard(List<AbstractCardDef> defs, Consumer<AbstractCard> container, Function<AbstractTokenContainerId, AbstractCard> creator) {

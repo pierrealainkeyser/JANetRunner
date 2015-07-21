@@ -1,5 +1,5 @@
-define([ "mix", "conf", "layout/abstractboxcontainer", "./cardcontainerbox" ], //
-function(mix, config, AbstractBoxContainer, CardContainerBox) {
+define([ "mix", "conf", "layout/abstractboxcontainer", "./cardcontainerbox","./cardsmodel" ], //
+function(mix, config, AbstractBoxContainer, CardContainerBox, CardsModel) {
 	function Runner(layoutManager, actionListener) {
 		var layouts = config.runner.layouts;
 		AbstractBoxContainer.call(this, layoutManager, {}, layouts.translate);
@@ -17,6 +17,8 @@ function(mix, config, AbstractBoxContainer, CardContainerBox) {
 		this.grip = new CardContainerBox(layoutManager, "Grip", layouts.stacked, actionListener);
 		this.stack = new CardContainerBox(layoutManager, "Stack", layouts.stacked, actionListener);
 		this.heap = new CardContainerBox(layoutManager, "Heap", layouts.stacked, actionListener);
+		
+		this.scoreModel = new CardsModel();
 
 		firstLine.addChild(this.heap);
 		firstLine.addChild(this.stack);
@@ -33,6 +35,10 @@ function(mix, config, AbstractBoxContainer, CardContainerBox) {
 
 	mix(Runner, AbstractBoxContainer)
 	mix(Runner, function() {
+		
+		this.addToScore = function(card) {
+			this.scoreModel.add(card);
+		}
 
 		/**
 		 * Choisi le container
