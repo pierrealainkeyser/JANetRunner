@@ -143,6 +143,8 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 		int value = getToken(type);
 		setToken(type, value + delta);
 	}
+	
+	
 
 	private void bindCleanup(EventMatcherBuilder<? extends AbstractCardCleanup> ric, FlowArg<Flow> call) {
 		ric.test(AbstractCardCleanup.with(myself()));

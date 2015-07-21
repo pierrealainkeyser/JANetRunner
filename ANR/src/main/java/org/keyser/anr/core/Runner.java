@@ -23,7 +23,7 @@ public class Runner extends AbstractId {
 	private int link;
 
 	protected Runner(int id, MetaCard meta) {
-		super(id, meta, PlayerType.RUNNER);
+		super(id, meta, PlayerType.RUNNER, CardLocation::runnerScore);
 	}
 
 	@Override
@@ -54,8 +54,6 @@ public class Runner extends AbstractId {
 		registerCard(def.getPrograms(), a -> programs.add((Program) a), creator);
 		registerCard(def.getResources(), a -> resources.add((Resource) a), creator);
 	}
-
-	
 
 	/**
 	 * Création de la définition du runner

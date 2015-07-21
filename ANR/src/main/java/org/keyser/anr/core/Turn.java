@@ -278,6 +278,10 @@ public class Turn {
 	public boolean mayPlayAction() {
 		return phase == TurnPhase.ACTION;
 	}
+	
+	public boolean mayScoreAgenda(){
+		return false;
+	}
 
 	private void setPhase(TurnPhase phase) {
 		this.phase = phase;

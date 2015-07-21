@@ -25,14 +25,22 @@ public abstract class AbstractId extends AbstractCard {
 	 */
 	private Set<TokenCreditsSource> creditsSources = new HashSet<>();
 
-	public AbstractId(int id, MetaCard meta, PlayerType playerType) {
+	private final AbstractCardContainer<AbstractCard> scoreds;
+
+	public AbstractId(int id, MetaCard meta, PlayerType playerType, Function<Integer, CardLocation> scoredLocationFactory) {
 		super(id, meta, null, null);
 		this.playerType = playerType;
+		this.scoreds = new AbstractCardContainer<AbstractCard>(scoredLocationFactory);
 
 		// on recherche les actions jouables par défaut
 		addAction(this::playFeedback);
 		setInstalled(true);
 		setRezzed(true);
+	}
+	
+	public void addToScore(AbstractCard ac){
+		scoreds.add(ac);
+		//TODO calcul du score
 	}
 
 	public final void registerCard(List<AbstractCardDef> defs, Consumer<AbstractCard> container, Function<AbstractTokenContainerId, AbstractCard> creator) {
@@ -143,7 +151,7 @@ public abstract class AbstractId extends AbstractCard {
 				AbstractCardAction<AbstractCard> aca = (AbstractCardAction<AbstractCard>) action;
 				AbstractCard card = aca.getCard();
 
-				//  gestion du contexte de trash...
+				// gestion du contexte de trash...
 				card.trash(null, () -> trashAgenda(costForAction, next));
 				return;
 			} else {
@@ -247,6 +255,10 @@ public abstract class AbstractId extends AbstractCard {
 		if (old != score)
 			game.fire(new AbstractCardScoreChangedEvent(this));
 
+	}
+
+	public AbstractCardContainer<AbstractCard> getScoreds() {
+		return scoreds;
 	}
 
 }

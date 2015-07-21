@@ -22,7 +22,7 @@ public class Corp extends AbstractId {
 	private CorpServerCentral hq;
 
 	public Corp(int id, MetaCard meta) {
-		super(id, meta, PlayerType.CORP);
+		super(id, meta, PlayerType.CORP, CardLocation::corpScore);
 	}
 
 	/**

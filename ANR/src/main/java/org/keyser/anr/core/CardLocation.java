@@ -17,6 +17,14 @@ public class CardLocation {
 	public enum Secondary {
 		ICES, ASSETORUPGRADES, UPGRADES, STACK
 	}
+	
+	public static CardLocation corpScore(int index) {
+		return new CardLocation(Primary.CORPSCORE, null, null, index);
+	}
+	
+	public static CardLocation runnerScore(int index) {
+		return new CardLocation(Primary.RUNNERSCORE, null, null, index);
+	}
 
 	public static CardLocation assetOrUpgrades(int server, int aou) {
 		return new CardLocation(Primary.SERVER, server, Secondary.ASSETORUPGRADES, aou);
@@ -129,6 +137,11 @@ public class CardLocation {
 	@JsonIgnore
 	public boolean isInStack() {
 		return primary == Primary.STACK;
+	}
+	
+	@JsonIgnore
+	public boolean isScoredByCorp() {
+		return primary == Primary.CORPSCORE;
 	}
 
 	@JsonIgnore
