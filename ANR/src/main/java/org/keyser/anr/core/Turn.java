@@ -328,10 +328,7 @@ public class Turn {
 	}
 
 	private void terminate() {
-
-		// TODO phase de cleanup
-
-		next.apply();
+		game.apply(new EndOfTurn(), next);
 	}
 
 	public PlayerType getActive() {

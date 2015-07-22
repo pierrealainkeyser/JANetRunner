@@ -6,28 +6,32 @@ package org.keyser.anr.core;
  * @author PAF
  * 
  */
-public abstract class CoolEffect<T> {
+public abstract class CoolEffect<X extends AbstractCard, T> {
 
-	private final EventMatchers matchers = new EventMatchers();
+	protected final EventMatchers matchers = new EventMatchers();
 
-	public CoolEffect(AbstractCard source, Class<T> unbindOn) {
+	protected final X source;
+
+	public CoolEffect(X source, Class<T> unbindOn) {
 		EventMatcherBuilder<T> uninstallBuilder = EventMatcherBuilder.match(unbindOn, source);
-		filterUninstall(uninstallBuilder);
-		uninstallBuilder.run(this::uninstall);
+		uninstallBuilder.apply(this::uninstall);
 		matchers.add(uninstallBuilder);
-		accept(matchers);
+		this.source = source;
 
 		// gestion du bind
 		source.getGame().bind(matchers);
 	}
 
-	protected void filterUninstall(EventMatcherBuilder<T> e) {
-
+	protected Game getGame() {
+		return getSource().getGame();
 	}
 
-	protected abstract void accept(EventMatchers matchers);
-
-	public void uninstall() {
+	protected void uninstall(T t, Flow next) {
 		matchers.uninstall();
+		next.apply();
+	}
+
+	protected X getSource() {
+		return source;
 	}
 }
