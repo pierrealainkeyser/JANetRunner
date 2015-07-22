@@ -46,7 +46,7 @@ public abstract class Agenda extends AssetOrAgenda {
 	}
 
 	/**
-	 * Déplace l'agenda en zone de score et envoi l'evenement de score de
+	 * Dï¿½place l'agenda en zone de score et envoi l'evenement de score de
 	 * l'agenda
 	 * 
 	 * @param next
@@ -66,7 +66,7 @@ public abstract class Agenda extends AssetOrAgenda {
 	 */
 	private void localScoreEffect(Flow next) {
 
-		// on envoi l'evenememnt pour pouvoir réagir
+		// on envoi l'evenememnt pour pouvoir rï¿½agir
 		onScored(next.wrap(this::cleanUpScore));
 
 	}
@@ -79,11 +79,12 @@ public abstract class Agenda extends AssetOrAgenda {
 	private void cleanUpScore(Flow next) {
 		// supprimer les tokens d'avancement
 		this.setToken(TokenType.ADVANCE, 0);
+		this.setInstalled(false);
 		next.apply();
 	}
 
 	/**
-	 * Méthode à surcharger pour ajouter un comportement particulier
+	 * Mï¿½thode ï¿½ surcharger pour ajouter un comportement particulier
 	 * 
 	 * @param next
 	 */
@@ -101,7 +102,7 @@ public abstract class Agenda extends AssetOrAgenda {
 	}
 
 	/**
-	 * Permet de savoir si l'agenda est scorable. La logique est placée dans
+	 * Permet de savoir si l'agenda est scorable. La logique est placï¿½e dans
 	 * {@link DetermineAgendaRequirement}
 	 * 
 	 * @return
