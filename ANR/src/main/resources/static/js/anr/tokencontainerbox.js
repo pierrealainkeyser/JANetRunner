@@ -166,6 +166,10 @@ function(_, mix, $, TokenModel, AbstractBoxContainer, AbstractBox, JQueryBoxSize
 					text = "Power counters";
 				else if ("hability" === ltype)
 					text = "Special hability";
+				else if ("tag" === ltype)
+					text = "Tags";
+				else if ("agenda" === ltype)
+					text = "Agendas";
 				else
 					text = "?";
 			}

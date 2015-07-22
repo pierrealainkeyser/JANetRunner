@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import org.keyser.anr.core.AbstractCard;
 import org.keyser.anr.core.AbstractCardContainer;
@@ -87,10 +88,9 @@ public class CorpServer {
 		Optional<InServerCorpCard> aoa = rezzedAssetOrAgenda();
 		List<Upgrade> moves = new ArrayList<>();
 		if (aoa.isPresent()) {
-			assetOrUpgrades.stream().filter(isc -> isc instanceof Upgrade).forEach(isc -> moves.add((Upgrade) isc));
+			streamAssetsOrUpgrades().filter(isc -> isc instanceof Upgrade).forEach(isc -> moves.add((Upgrade) isc));
 		}
-
-		assetOrUpgrades.stream().filter(isc -> isc.isRezzed() && isc instanceof Upgrade).forEach(isc -> moves.add((Upgrade) isc));
+		streamAssetsOrUpgrades().filter(isc -> isc.isRezzed() && isc instanceof Upgrade).forEach(isc -> moves.add((Upgrade) isc));
 
 		moves.forEach(u -> upgrades.add(u));
 
@@ -131,24 +131,33 @@ public class CorpServer {
 		return assetOrUpgrades.stream().anyMatch(c -> (c instanceof Agenda || c instanceof Asset) && c.isRezzed());
 	}
 
+
 	/**
-	 * Pour tous les assets
-	 * 
-	 * @param bi
+	 * Parcours tous les assets ou upgrades
+	 * @return
 	 */
-	public void forEachAssetOrUpgrades(Consumer<AbstractCardCorp> consumer) {
-		assetOrUpgrades.stream().forEach(consumer);
-		upgrades.stream().forEach(consumer);
+	public Stream<AbstractCardCorp> streamAssetsOrUpgrades() {
+		return Stream.concat(assetOrUpgrades.stream(), upgrades.stream());
 	}
 
 	/**
-	 * Pour toutes les glaces
-	 * 
-	 * @param consumer
+	 * Parcours tous les assets/upgrades/ices
+	 * @return
 	 */
-	public void forEachIce(Consumer<Ice> consumer) {
-		ices.stream().forEach(consumer);
+	public Stream<AbstractCardCorp> streamInstalledCards() {
+		return Stream.concat(streamAssetsOrUpgrades(), streamIces());
+
 	}
+	
+	/**
+	 * Parcours toutes les ices
+	 * @return
+	 */
+	public Stream<Ice> streamIces(){
+		return ices.stream();
+	}
+
+	
 
 	public void addIce(Ice ice, int at) {
 		ices.addAt(ice, at);
@@ -194,10 +203,9 @@ public class CorpServer {
 				pred = pred.negate();
 
 			Predicate<AbstractCard> match = pred.and(a -> a != card);
-			forEachAssetOrUpgrades(c -> {
-				if (match.test(c))
-					consumer.accept(c);
-			});
+			
+			streamAssetsOrUpgrades().filter(match).forEach(consumer);
+					
 		}
 	}
 

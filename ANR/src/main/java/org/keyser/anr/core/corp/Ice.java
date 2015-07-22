@@ -56,7 +56,7 @@ public abstract class Ice extends AbstractCardCorp {
 
 		Corp corp = getCorp();
 		AbstractCardList list = new AbstractCardList();
-		selected.forEachIce(list::add);
+		selected.streamIces().forEach(list::add);		
 
 		if (!list.isEmpty()) {
 			Game g = getGame();
