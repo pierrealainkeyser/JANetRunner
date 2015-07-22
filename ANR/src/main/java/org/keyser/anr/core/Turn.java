@@ -248,7 +248,8 @@ public class Turn {
 			// on comme par l'utilisateur
 			new ActionPingPong(active).firstPlayer(this::actionPhase);
 		} else {
-			discardPhase();
+			//permet d'avoir des évenements en fin de phase de d'action
+			new EventPingPong(active).firstPlayer(this::discardPhase);
 		}
 	}
 

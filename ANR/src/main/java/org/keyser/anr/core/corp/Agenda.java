@@ -79,6 +79,10 @@ public abstract class Agenda extends AssetOrAgenda {
 		return getLocation().isScoredByCorp();
 	}
 
+	/**
+	 * Permet de savoir si l'agenda est scorable. La logique est placée dans {@link DetermineAgendaRequirement}
+	 * @return
+	 */
 	public boolean isScorable() {
 
 		if (isScored())
@@ -88,14 +92,10 @@ public abstract class Agenda extends AssetOrAgenda {
 		if (!game.getTurn().mayScoreAgenda())
 			return false;
 
-		int adv = getToken(TokenType.ADVANCE);
-
 		// il faut envoyer un evenement dans le moteur !!
 		DetermineAgendaRequirement dar = new DetermineAgendaRequirement(this);
 		game.fire(dar);
-
-		int req = dar.getRequirement();
-		return adv >= req;
+		return dar.isScorable();
 
 	}
 
