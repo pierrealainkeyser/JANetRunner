@@ -26,7 +26,6 @@ public abstract class Agenda extends AssetOrAgenda {
 	public int getRequirement() {
 		return getMeta().getRequirement();
 	}
-	
 
 	public int getPoints() {
 		return getMeta().getPoints();
@@ -39,7 +38,7 @@ public abstract class Agenda extends AssetOrAgenda {
 
 	private void registerScore(CollectHabilities collect) {
 		UserAction scoreAgenda = new UserAction(getCorp(), this, createScoringCost(), "Score");
-		collect.add(scoreAgenda.spendAndApply(this::doScore));
+		collect.add(scoreAgenda.spendAndApply(this::prepareScore));
 	}
 
 	private CostForAction createScoringCost() {
@@ -47,25 +46,47 @@ public abstract class Agenda extends AssetOrAgenda {
 	}
 
 	/**
-	 * Permet de scorer l'agenda
+	 * Déplace l'agenda en zone de score et envoi l'evenement de score de
+	 * l'agenda
 	 * 
 	 * @param next
 	 */
-	private void doScore(Flow next) {
-
+	private void prepareScore(Flow next) {
 		// gestion de la position
 		Corp corp = getCorp();
 		corp.addToScore(this);
 
-		onScored(next.wrap(this::cleanUpScore));
+		game.apply(new AgendaScoredEvent(this), next.wrap(this::localScoreEffect));
 	}
 
+	/**
+	 * Permet d'appliquer les traitements locaux pour le score de l'agenda
+	 * 
+	 * @param next
+	 */
+	private void localScoreEffect(Flow next) {
+
+		// on envoi l'evenememnt pour pouvoir réagir
+		onScored(next.wrap(this::cleanUpScore));
+
+	}
+
+	/**
+	 * Fait du traitement de scoring. On nettoye les tokens
+	 * 
+	 * @param next
+	 */
 	private void cleanUpScore(Flow next) {
 		// supprimer les tokens d'avancement
 		this.setToken(TokenType.ADVANCE, 0);
 		next.apply();
 	}
 
+	/**
+	 * Méthode à surcharger pour ajouter un comportement particulier
+	 * 
+	 * @param next
+	 */
 	protected void onScored(Flow next) {
 		next.apply();
 	}
@@ -80,7 +101,9 @@ public abstract class Agenda extends AssetOrAgenda {
 	}
 
 	/**
-	 * Permet de savoir si l'agenda est scorable. La logique est placée dans {@link DetermineAgendaRequirement}
+	 * Permet de savoir si l'agenda est scorable. La logique est placée dans
+	 * {@link DetermineAgendaRequirement}
+	 * 
 	 * @return
 	 */
 	public boolean isScorable() {
