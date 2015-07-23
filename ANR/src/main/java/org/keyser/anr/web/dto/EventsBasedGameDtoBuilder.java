@@ -26,6 +26,7 @@ import org.keyser.anr.core.EventMatchers;
 import org.keyser.anr.core.FlowArg;
 import org.keyser.anr.core.Game;
 import org.keyser.anr.core.Game.ActionsContext;
+import org.keyser.anr.core.NoopUserAction;
 import org.keyser.anr.core.PlayerType;
 import org.keyser.anr.core.Runner;
 import org.keyser.anr.core.Turn;
@@ -293,6 +294,8 @@ public class EventsBasedGameDtoBuilder {
 			UserDragAction<?> uda = (UserDragAction<?>) ua;
 			a.setType("drag");
 			a.setDragTo(uda.getDragTos());
+		} else if (ua instanceof NoopUserAction) {
+			a.setType("noop");
 		}
 
 		return a;

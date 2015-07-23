@@ -9,9 +9,21 @@ define([ "mix", "mousetrap", "geometry/point" ], function(mix, Mousetrap, Point)
 		Mousetrap.bind("space", this.space.bind(this));
 		Mousetrap.bind("escape", this.escape.bind(this));
 		Mousetrap.bind("tab", this.tab.bind(this));
+		Mousetrap.bind("f1", this.doneAction.bind(this));
 	}
 
 	mix(InputManager, function() {
+
+		var preventDefault = function(e) {
+			if (e.preventDefault) {
+
+				e.preventDefault();
+			} else {
+				// internet explorer
+				e.returnValue = false;
+			}
+		};
+
 		this.up = function() {
 			this.changeFocus(Point.PLANE_UP);
 		}
@@ -37,14 +49,13 @@ define([ "mix", "mousetrap", "geometry/point" ], function(mix, Mousetrap, Point)
 			}
 		}
 
-		this.tab = function(e) {
-			if (e.preventDefault) {
-				e.preventDefault();
-			} else {
-				// internet explorer
-				e.returnValue = false;
-			}
+		this.doneAction = function(evt) {
+			preventDefault(evt);
+			this.boardstate.doneAction();
+		}
 
+		this.tab = function(e) {
+			preventDefault(e);
 			var focused = this.boardstate.focused();
 			if (focused) {
 				this.runLayout(function() {

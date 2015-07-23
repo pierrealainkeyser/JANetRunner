@@ -196,9 +196,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 					this.traceInput.focus(function() {
 						$(this).blur();
 					})
-				}
-
-				if (this.action.isSelectionAction()) {
+				} else if (this.action.isSelectionAction()) {
 					var old = this.element;
 					var parent = old.parent();
 
@@ -212,7 +210,10 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 
 					this.checkedInput.focus(function() {
 						$(this).blur();
-					})
+					}) 
+				} else if(this.action.isDefaultAction()){
+					this.element.addClass("btn-primary");
+					this.element.removeClass("btn-default");
 				}
 
 				// mise a jour de l'état

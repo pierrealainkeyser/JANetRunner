@@ -7,18 +7,18 @@ public class TurnDTO {
 
 	private final PlayerType player;
 
-	private final TurnPhase phase;
+	private final String phase;
 
 	public TurnDTO(PlayerType player, TurnPhase phase) {
 		this.player = player;
-		this.phase = phase;
+		this.phase = phase.toString();
 	}
 
 	public PlayerType getPlayer() {
 		return player;
 	}
 
-	public TurnPhase getPhase() {
+	public String getPhase() {
 		return phase;
 	}
 }

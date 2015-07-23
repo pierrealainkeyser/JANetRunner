@@ -4,10 +4,10 @@
     <card qty="1" id="bc0f047c-01b1-427f-a439-d451eda01080">NBN: Making News</card>
   </section>
   <section name="R&amp;D / Stack">
+    <card qty="3" id="bc0f047c-01b1-427f-a439-d451eda01109">PAD Campaign</card>
     <card qty="2" id="bc0f047c-01b1-427f-a439-d451eda01082">Breaking News</card>
     <card qty="1" id="bc0f047c-01b1-427f-a439-d451eda01092">SanSan City Grid</card>
-    <card qty="2" id="bc0f047c-01b1-427f-a439-d451eda01081">AstroScript Pilot Program</card>
-    <card qty="3" id="bc0f047c-01b1-427f-a439-d451eda01109">PAD Campaign</card>
+    <card qty="2" id="bc0f047c-01b1-427f-a439-d451eda01081">AstroScript Pilot Program</card>    
     <card qty="3" id="bc0f047c-01b1-427f-a439-d451eda01110">Hedge Fund</card>
   	<card qty="3" id="bc0f047c-01b1-427f-a439-d451eda01113">Wall of Static</card>
     <card qty="2" id="bc0f047c-01b1-427f-a439-d451eda01108">Melange Mining Corp.</card>

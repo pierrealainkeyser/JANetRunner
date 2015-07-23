@@ -248,7 +248,9 @@ public class Turn {
 			// on comme par l'utilisateur
 			new ActionPingPong(active).firstPlayer(this::actionPhase);
 		} else {
-			//permet d'avoir des évenements en fin de phase de d'action
+			// permet d'avoir des Ã©venements en fin de phase de d'action
+			setPhase(TurnPhase.ACTION_WILL_END);
+
 			new EventPingPong(active).firstPlayer(this::discardPhase);
 		}
 	}
@@ -256,15 +258,15 @@ public class Turn {
 	public void discardPhase() {
 		setPhase(TurnPhase.DISCARD);
 
-		// TODO gestion du seuil puis fin
+		// TODO gestion du seuil puis fin vers terminate
 
 		// on commence par l'utilisateur
-		new EventPingPong(active).firstPlayer(this::terminate);
+		this.terminate();
 	}
 
 	public void drawPhase() {
 		setPhase(TurnPhase.DRAW);
-		game.getCorp().draw(1, this::startTurn);
+		game.getCorp().draw(1, this::willStartTurn);
 	}
 
 	public TurnPhase getPhase() {
@@ -277,11 +279,11 @@ public class Turn {
 	}
 
 	public boolean mayPlayAction() {
-		return phase == TurnPhase.ACTION;
+		return TurnPhase.ACTION == phase;
 	}
 
 	public boolean mayScoreAgenda() {
-		return phase == TurnPhase.ACTION && PlayerType.CORP == active;
+		return (TurnPhase.ACTION == phase || TurnPhase.ACTION_WILL_START == phase || TurnPhase.ACTION_WILL_END == phase) && PlayerType.CORP == active;
 	}
 
 	private void setPhase(TurnPhase phase) {
@@ -316,15 +318,19 @@ public class Turn {
 			drawPhase();
 		} else {
 			id.setActiveAction(4);
-			startTurn();
+			willStartTurn();
 		}
 	}
 
-	private void startTurn() {
-		setPhase(TurnPhase.STARTING);
+	private void willStartTurn() {
+		setPhase(TurnPhase.ACTION_WILL_START);
 
-		// envoi l'evenement de debut de tour
-		game.apply(new StartOfTurn(), () -> pingpong(this::actionPhase));
+		pingpong(this::startTurn);
+	}
+
+	private void startTurn() {
+		setPhase(TurnPhase.ACTION);
+		game.apply(new StartOfTurn(), this::actionPhase);
 	}
 
 	private void terminate() {

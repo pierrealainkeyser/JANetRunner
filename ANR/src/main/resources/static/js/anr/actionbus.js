@@ -55,7 +55,7 @@ function(mix, _, ActionModel, SubModel, ObservableMixin, InnerSetMixin) {
 				response.object = _.map(this.selectedsAction, function(a) {
 					return a.owner.id();
 				});
-			else if (this.isDragAction()) 
+			else if (this.isDragAction())
 				response.object = this.draggedValue;
 
 			return response;
@@ -118,9 +118,9 @@ function(mix, _, ActionModel, SubModel, ObservableMixin, InnerSetMixin) {
 		 * Renvoi vrai si l'action est une action de drag
 		 */
 		this.isDragAction = function() {
-			return Action.DRAG_TYPE === this.actionType ;
+			return Action.DRAG_TYPE === this.actionType;
 		}
-		
+
 		/**
 		 * Renvoi si l'action est une action de drag, ou que le drag est activé
 		 */
@@ -133,6 +133,20 @@ function(mix, _, ActionModel, SubModel, ObservableMixin, InnerSetMixin) {
 		 */
 		this.isOrderingAction = function() {
 			return Action.ORDERING_TYPE === this.actionType;
+		}
+
+		/**
+		 * Renvoi vrai si l'action est une action de no-op
+		 */
+		this.isNoopAction = function() {
+			return Action.NOOP_TYPE === this.actionType;
+		}
+
+		/**
+		 * Permet d'identifier les actions par défaut
+		 */
+		this.isDefaultAction = function() {
+			return this.isNoopAction() || this.isConfirmSelectionAction();
 		}
 
 		this.setState = function(state) {
@@ -175,6 +189,7 @@ function(mix, _, ActionModel, SubModel, ObservableMixin, InnerSetMixin) {
 	Action.ORDERING_TYPE = "ordering";
 	Action.SELECTION_TYPE = "selection";
 	Action.CONFIRM_SELECTION_TYPE = "confirmselection";
+	Action.NOOP_TYPE = "noop";
 
 	function ActionBus(listener) {
 		this.actions = [];
@@ -197,8 +212,8 @@ function(mix, _, ActionModel, SubModel, ObservableMixin, InnerSetMixin) {
 				_.each(this.actions, function(a) {
 					if (a.isSelectionAction()) {
 						a.setSelected(false);
-					} 
-					
+					}
+
 					if (a.isDragEnabled()) {
 						a.disableDrag();
 					}
@@ -259,6 +274,22 @@ function(mix, _, ActionModel, SubModel, ObservableMixin, InnerSetMixin) {
 					selectedsActions.push(a);
 			});
 			return selectedsActions;
+		}
+
+		/**
+		 * Renvoi la premiere action par defaut
+		 */
+		this.getDefaultAction = function() {
+			var selectedsActions = [];
+			_.each(this.actions, function(a) {
+				if (a.isDefaultAction())
+					selectedsActions.push(a);
+			});
+
+			if (selectedsActions.length > 0)
+				return selectedsActions[0];
+			else
+				return null;
 		}
 
 		/**

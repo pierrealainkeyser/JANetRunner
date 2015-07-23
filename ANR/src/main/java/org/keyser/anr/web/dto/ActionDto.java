@@ -15,8 +15,6 @@ public class ActionDto {
 
 	private List<VariableCostDto> costs;
 
-	private String cls;
-
 	private PlayerType faction;
 
 	private String type;
@@ -47,14 +45,6 @@ public class ActionDto {
 
 	public void setCost(String cost) {
 		this.cost = cost;
-	}
-
-	public String getCls() {
-		return cls;
-	}
-
-	public void setCls(String cls) {
-		this.cls = cls;
 	}
 
 	public PlayerType getFaction() {

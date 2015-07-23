@@ -74,7 +74,7 @@ RunBox, Point, ActionBus) {
 
 		this.corp = new Corp(layoutManager, showElement);
 		this.turnTracker.corpScore.setCardsModel(this.corp.scoreModel);
-				
+
 		this.runner = new Runner(layoutManager, showElement);
 		this.turnTracker.runnerScore.setCardsModel(this.runner.scoreModel);
 		this.local = null;
@@ -446,6 +446,15 @@ RunBox, Point, ActionBus) {
 		}
 
 		/**
+		 * L'utilisateur à choisi de passer
+		 */
+		this.doneAction = function() {
+			var noop = this.actionBus.getDefaultAction();
+			if (noop)
+				this.actionBus.activateAction(noop);
+		}
+
+		/**
 		 * Prise en compte de la commande
 		 */
 		this.selectFocused = function(newfocused, oldfocused, plane) {
@@ -625,7 +634,7 @@ RunBox, Point, ActionBus) {
 			_.each(this.zooms, function(zoom) {
 				if (zoom.id === id)
 					zoom.setPrimary(null);
-				else if(zoom.secondaryId===id)
+				else if (zoom.secondaryId === id)
 					zoom.setSecondary(null);
 			});
 		}
