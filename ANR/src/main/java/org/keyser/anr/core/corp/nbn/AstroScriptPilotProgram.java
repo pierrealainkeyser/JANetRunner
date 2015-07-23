@@ -14,7 +14,6 @@ import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.TokenType;
 import org.keyser.anr.core.UserAction;
-import org.keyser.anr.core.UserActionContext.Type;
 import org.keyser.anr.core.corp.Agenda;
 import org.keyser.anr.core.corp.AgendaMetaCard;
 import org.keyser.anr.core.corp.PutAdvanceTokenAbstractCardAction;
@@ -51,7 +50,7 @@ public class AstroScriptPilotProgram extends Agenda {
 	private void chooseACardToAdvance(List<AbstractCardCorp> advanceables, Flow next) {
 
 		Corp corp = getCorp();
-		game.userContext(this, "Choose a card", Type.BASIC);
+		game.userContext(this, "Choose a card");
 
 		for (AbstractCardCorp acc : advanceables) {
 			game.user(new UserAction(corp, acc, null, "Advance").apply((ua, n) -> putAdvanceToken(acc, n)), next);

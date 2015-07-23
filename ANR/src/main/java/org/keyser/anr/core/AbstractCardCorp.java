@@ -44,9 +44,15 @@ public class AbstractCardCorp extends AbstractCard {
 		next.apply();
 	}
 
-	private void doRezz(UserAction ua, Flow next) {
+	/**
+	 * Permet de rézzer une carte
+	 * @param ua
+	 * @param next
+	 */
+	public void doRezz(UserAction ua, Flow next) {
 		setRezzed(true);
-		game.chat("{0} rezz {1} for {2}", getCorp(), this, ua.getCost().getCost());
+		Cost cost = ua.getCost().getCost();
+		game.chat("{0} rezz {1} for {2}", getCorp(), this, cost);
 		onRezzed(next);
 	}
 
