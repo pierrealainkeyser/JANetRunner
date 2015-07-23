@@ -1,6 +1,7 @@
 package org.keyser.anr.core.corp.nbn;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 import org.keyser.anr.core.CoolEffect;
 import org.keyser.anr.core.EndOfTurn;
@@ -16,7 +17,12 @@ import org.keyser.anr.core.runner.AddTagsEvent;
 
 public class BreakingNews extends Agenda {
 
-	private static class BreakingNewsEffect extends CoolEffect<BreakingNews, EndOfTurn> {
+	/**
+	 * L'effet temporaire de rajouter des cartes
+	 * @author pakeyser
+	 *
+	 */
+	public static class BreakingNewsEffect extends CoolEffect {
 
 		public BreakingNewsEffect(BreakingNews source) {
 			super(source, EndOfTurn.class);
@@ -24,6 +30,7 @@ public class BreakingNews extends Agenda {
 
 		/**
 		 * Ajout des tags au runner
+		 * 
 		 * @param next
 		 */
 		public void addTags(Flow next) {
@@ -32,11 +39,11 @@ public class BreakingNews extends Agenda {
 		}
 
 		@Override
-		protected void uninstall(EndOfTurn t, Flow next) {
+		protected void uninstall(Object t, Flow next) {
 			Game g = getGame();
 			Runner runner = g.getRunner();
 
-			//suppression ds tags à la fin du tour
+			// suppression ds tags à la fin du tour
 			int tag = Math.min(2, runner.getToken(TokenType.TAG));
 			runner.addToken(TokenType.TAG, -tag);
 
@@ -50,10 +57,20 @@ public class BreakingNews extends Agenda {
 		super(id, meta);
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T extends CoolEffect> Optional<T> createCoolEffect(Class<T> type) {
+
+		if (BreakingNewsEffect.class.equals(type)) {
+			return (Optional<T>) Optional.of(new BreakingNewsEffect(this));
+		}
+
+		return super.createCoolEffect(type);
+	}
+
 	@Override
 	protected void onScored(Flow next) {
-		BreakingNewsEffect effect = new BreakingNewsEffect(this);
-		effect.addTags(next);
+		createCoolEffect(BreakingNewsEffect.class).ifPresent(e -> e.addTags(next));
 	}
 
 }

@@ -1,5 +1,6 @@
 package org.keyser.anr.core;
 
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import org.keyser.anr.core.corp.AdvanceAbstractCardAction;
@@ -18,6 +19,15 @@ public class AbstractCardCorp extends AbstractCard {
 		match(CollectHabilities.class, em -> em.test(ch -> isInstalled() && ch.getType() == getOwner() && isRezzable() && !isRezzed()).call(this::registerRezz));
 
 		match(CollectHabilities.class, em -> em.test(ch -> isInstalled() && ch.getType() == getOwner() && isAdvanceable()).call(this::registerAdvance));
+	}
+
+	/**
+	 * Création d'un effet temporaire d'un type donné
+	 * @param type
+	 * @return
+	 */
+	public <T extends CoolEffect> Optional<T> createCoolEffect(Class<T> type){
+		return Optional.empty();
 	}
 
 	private void registerAdvance(CollectHabilities hab) {
