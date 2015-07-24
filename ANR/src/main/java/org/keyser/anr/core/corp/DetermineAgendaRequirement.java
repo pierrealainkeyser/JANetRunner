@@ -1,6 +1,7 @@
 package org.keyser.anr.core.corp;
 
 import org.keyser.anr.core.AbstractCardEvent;
+import org.keyser.anr.core.SequentialEvent;
 import org.keyser.anr.core.TokenType;
 
 /**
@@ -9,7 +10,7 @@ import org.keyser.anr.core.TokenType;
  * @author PAF
  *
  */
-public class DetermineAgendaRequirement extends AbstractCardEvent {
+public class DetermineAgendaRequirement extends AbstractCardEvent implements SequentialEvent {
 
 	private int delta;
 

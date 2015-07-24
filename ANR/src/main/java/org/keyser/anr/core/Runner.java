@@ -126,6 +126,12 @@ public class Runner extends AbstractId {
 	public void draw(int i, Flow next) {
 		// TODO Auto-generated method stub
 		next.apply();
-
+	}
+	
+	@Override
+	protected AbstractCardList cardsInHands() {
+		AbstractCardList acl = new AbstractCardList();
+		grip.stream().forEach(acl::add);
+		return acl;
 	}
 }

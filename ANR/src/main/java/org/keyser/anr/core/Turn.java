@@ -257,11 +257,14 @@ public class Turn {
 
 	public void discardPhase() {
 		setPhase(TurnPhase.DISCARD);
+		
+		AbstractId id = game.getId(active);
+		DetermineMaxHandSizeEvent max = new DetermineMaxHandSizeEvent(id);
+		game.fire(max);
 
-		// TODO gestion du seuil puis fin vers terminate
+		// le joueur doit défausser ce qu'il peut
+		id.discardUntil(max.computeMaxHandSize(), this::terminate);
 
-		// on commence par l'utilisateur
-		this.terminate();
 	}
 
 	public void drawPhase() {

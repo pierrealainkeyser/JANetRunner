@@ -43,6 +43,13 @@ public class Corp extends AbstractId {
 		rd = new CorpServerCentral(game, nextServerId());
 		hq = new CorpServerCentral(game, nextServerId());
 	}
+	
+	@Override
+	protected AbstractCardList cardsInHands() {
+		AbstractCardList acl = new AbstractCardList();
+		hq.getStack().stream().forEach(acl::add);
+		return acl;
+	}
 
 	@Override
 	public void draw(int i, Flow next) {
