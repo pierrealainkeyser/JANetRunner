@@ -1,5 +1,8 @@
 package org.keyser.anr.core;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Function;
 
 import org.keyser.anr.core.runner.Hardware;
@@ -72,10 +75,6 @@ public class Runner extends AbstractId {
 		return def;
 	}
 
-	public void doDraw(int nb, Flow next) {
-
-	}
-
 	public AbstractCardContainer<Resource> getResources() {
 		return resources;
 	}
@@ -103,9 +102,34 @@ public class Runner extends AbstractId {
 	public void alterMemory(int delta, Flow next) {
 
 		// TODO gestion de l'effet
+		next.apply();
 	}
 
+	/**
+	 * Gestion des dommages
+	 * @param damage
+	 * @param next
+	 */
 	public void doDamage(int damage, Flow next) {
+
+		int size = grip.size();
+		if (damage <= size) {
+			
+			AbstractCardList acl=cardsInHands();
+			List<AbstractCard> cards = acl.getCards();
+		
+			//on prend les cartes au hasard
+			Collections.shuffle(cards);			
+			TrashList tl = new TrashList(TrashCause.DAMAGE);
+			for (int i = 0; i < damage; i++)
+				tl.add(cards.get(i));
+			
+			tl.trash(next);
+
+		} else {
+			//TODO  runner flatline !!
+			next.apply();
+		}
 
 	}
 
@@ -124,10 +148,17 @@ public class Runner extends AbstractId {
 
 	@Override
 	public void draw(int i, Flow next) {
-		// TODO Auto-generated method stub
+		int size = Math.min(i, stack.size());
+
+		List<AbstractCardRunner> cards = new ArrayList<>();
+		for (int j = 0; j < size; j++)
+			cards.add(stack.get(j));
+
+		if (!cards.isEmpty())
+			cards.stream().forEach(grip::add);
 		next.apply();
 	}
-	
+
 	@Override
 	protected AbstractCardList cardsInHands() {
 		AbstractCardList acl = new AbstractCardList();
