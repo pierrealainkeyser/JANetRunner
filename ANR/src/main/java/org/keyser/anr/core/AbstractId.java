@@ -135,6 +135,8 @@ public abstract class AbstractId extends AbstractCard {
 			
 			game.user(confirm.applyArg(this::trashOnDiscard), next);
 		}
+		else
+			next.apply();
 	}
 	
 	/**
