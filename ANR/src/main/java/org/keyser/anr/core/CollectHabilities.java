@@ -30,6 +30,10 @@ public class CollectHabilities implements SequentialEvent {
 	public void add(Feedback<?, ?> uf) {
 		feedbacks.add(uf);
 	}
+	
+	public boolean hasFeedbacks(){
+		return !feedbacks.isEmpty();
+	}
 
 	public Collection<Feedback<?, ?>> getFeedbacks() {
 		return Collections.unmodifiableList(feedbacks);

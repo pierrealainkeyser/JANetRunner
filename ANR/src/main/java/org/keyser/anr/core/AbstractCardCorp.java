@@ -23,10 +23,11 @@ public class AbstractCardCorp extends AbstractCard {
 
 	/**
 	 * Création d'un effet temporaire d'un type donné
+	 * 
 	 * @param type
 	 * @return
 	 */
-	public <T extends CoolEffect> Optional<T> createCoolEffect(Class<T> type){
+	public <T extends CoolEffect> Optional<T> createCoolEffect(Class<T> type) {
 		return Optional.empty();
 	}
 
@@ -46,6 +47,7 @@ public class AbstractCardCorp extends AbstractCard {
 
 	/**
 	 * Permet de rézzer une carte
+	 * 
 	 * @param ua
 	 * @param next
 	 */
@@ -70,6 +72,41 @@ public class AbstractCardCorp extends AbstractCard {
 
 	public boolean isAdvanceable() {
 		return false;
+	}
+
+	/**
+	 * La carte est accedee (on commence par demander à la corp)
+	 * 
+	 * @param next
+	 */
+	public void acceded(Flow next) {
+		OnAccesHabilities o = new OnAccesHabilities(this, PlayerType.CORP);
+		game.fire(o);
+
+		//on revele la carte au besoin
+		if(o.isRevealToCorp())
+			setRezzed(true);
+		
+		if (o.hasFeedbacks()) {
+			game.userContext(this, "Card acceded");
+			for (Feedback<?, ?> feedback : o.getFeedbacks()) {
+				game.user(feedback, next);
+			}
+			game.user(SimpleFeedback.noop(getCorp(), this, "Done"), next.wrap(this::accededRunner));
+		} else
+			accededRunner(next);
+	}
+
+	private void accededRunner(Flow next) {
+		OnAccesHabilities o = new OnAccesHabilities(this, PlayerType.RUNNER);
+		game.fire(o);
+
+		game.userContext(this, "Card acceded");
+		for (Feedback<?, ?> feedback : o.getFeedbacks()) {
+			game.user(feedback, next);
+		}
+		game.user(SimpleFeedback.noop(getGame().getRunner(), this, "Done"), next);
+
 	}
 
 	/**
