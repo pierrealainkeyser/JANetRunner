@@ -25,7 +25,7 @@ RunBox, Point, ActionBus) {
 
 			// a faire après le layout
 			var zoom = this.boardstate.activeZoom;
-			this.pop = true;
+			this.pop = primary.type=='POP_CARD';
 			if (zoom) {
 				if (this.isPrimaryZoom(zoom)) {
 					zoom.setHeaderText(this.text);
@@ -247,6 +247,11 @@ RunBox, Point, ActionBus) {
 					this.turnTracker.activeFaction.setFaction(this.turnTracker.runnerScore.faction);
 
 				this.turnTracker.gameStep.setText(turn.phase);
+			}
+			
+			var primary=msg.primary;
+			if(primary){
+				this.turnTracker.gamePhase.setText(primary.text);
 			}
 		}
 

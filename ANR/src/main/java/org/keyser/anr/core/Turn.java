@@ -34,7 +34,7 @@ public class Turn {
 
 			String text = "Play events";
 			if (action)
-				text = "Play action";
+				text = "Play an action";
 
 			AbstractId id = game.getId(active);
 			game.userContext(id, text);

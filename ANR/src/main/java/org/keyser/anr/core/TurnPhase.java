@@ -1,7 +1,7 @@
 package org.keyser.anr.core;
 
 public enum TurnPhase {
-	ACTION_WILL_START("Acting phase will begin"), ACTION("Acting phase"), ACTION_WILL_END("Acting phase will end"), DISCARD("Discarding phase"), DRAW("Drawing phase"), INITING("Initing phase"), RUNNING(
+	ACTION_WILL_START("Actions phase will begin"), ACTION("Actions phase"), ACTION_WILL_END("Actions phase will end"), DISCARD("Discarding phase"), DRAW("Drawing phase"), INITING("Initing phase"), RUNNING(
 			"Running phase");
 
 	private String text;
