@@ -299,6 +299,10 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	public boolean isRezzed() {
 		return rezzed;
 	}
+	
+	public boolean isTrashed(){
+		return getLocation().isTrashed();
+	}
 
 	protected <T> Predicate<T> location(Predicate<CardLocation> pred) {
 		return (t) -> pred.test(location);

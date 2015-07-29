@@ -75,38 +75,73 @@ public class AbstractCardCorp extends AbstractCard {
 	}
 
 	/**
+	 * Permet de gérer l'accés
+	 * @author pakeyser
+	 *
+	 */
+	private class CardAccesContext {
+		private boolean rezzedBefore = isRezzed();
+
+		/**
+		 * La carte est accedee (on commence par demander à la corp)
+		 * 
+		 * @param next
+		 */
+		public void acceded(Flow next) {
+			AbstractCardCorp me = AbstractCardCorp.this;
+			OnAccesHabilities o = new OnAccesHabilities(me, PlayerType.CORP);
+			game.fire(o);
+
+			// on revele la carte au besoin
+			if (o.isRevealToCorp())
+				setRezzed(true);
+
+			if (o.hasFeedbacks()) {
+				game.userContext(me, "Card acceded", UserActionContext.Type.POP_CARD);
+				for (Feedback<?, ?> feedback : o.getFeedbacks()) {
+					if (feedback.checkCost())
+						game.user(feedback, next);
+				}
+				game.user(SimpleFeedback.noop(getCorp(), me, "Done"), next.wrap(this::accededRunner));
+			} else
+				accededRunner(next);
+		}
+
+		private void accededRunner(Flow next) {
+			AbstractCardCorp me = AbstractCardCorp.this;
+			Flow to = next.wrap(this::cleanUp);
+			if (me.isTrashed())
+				to.apply();
+			else {
+				OnAccesHabilities o = new OnAccesHabilities(me, PlayerType.RUNNER);
+				game.fire(o);
+
+				game.userContext(me, "Card acceded", UserActionContext.Type.POP_CARD);
+				for (Feedback<?, ?> feedback : o.getFeedbacks()) {
+					if (feedback.checkCost())
+						game.user(feedback, to);
+				}
+				game.user(SimpleFeedback.noop(getGame().getRunner(), me, "Done"), to);
+			}
+
+		}
+
+		private void cleanUp(Flow next) {
+			AbstractCardCorp me = AbstractCardCorp.this;
+			if (!me.isTrashed()) {
+				me.setRezzed(rezzedBefore);
+			}
+			next.apply();
+		}
+	}
+	
+	/**
 	 * La carte est accedee (on commence par demander à la corp)
 	 * 
 	 * @param next
 	 */
 	public void acceded(Flow next) {
-		OnAccesHabilities o = new OnAccesHabilities(this, PlayerType.CORP);
-		game.fire(o);
-
-		//on revele la carte au besoin
-		if(o.isRevealToCorp())
-			setRezzed(true);
-		
-		if (o.hasFeedbacks()) {
-			game.userContext(this, "Card acceded");
-			for (Feedback<?, ?> feedback : o.getFeedbacks()) {
-				game.user(feedback, next);
-			}
-			game.user(SimpleFeedback.noop(getCorp(), this, "Done"), next.wrap(this::accededRunner));
-		} else
-			accededRunner(next);
-	}
-
-	private void accededRunner(Flow next) {
-		OnAccesHabilities o = new OnAccesHabilities(this, PlayerType.RUNNER);
-		game.fire(o);
-
-		game.userContext(this, "Card acceded");
-		for (Feedback<?, ?> feedback : o.getFeedbacks()) {
-			game.user(feedback, next);
-		}
-		game.user(SimpleFeedback.noop(getGame().getRunner(), this, "Done"), next);
-
+		new CardAccesContext().acceded(next);
 	}
 
 	/**

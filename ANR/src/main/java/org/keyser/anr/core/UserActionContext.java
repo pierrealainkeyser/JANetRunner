@@ -3,7 +3,7 @@ package org.keyser.anr.core;
 public class UserActionContext {
 
 	public enum Type {
-		BASIC, SELECT_MATCH_ORDER, INSTALL_IN_SERVER, REMOVE_ON_INSTALL, INSTALL_ICE
+		BASIC, POP_CARD
 	}
 
 	/**

@@ -19,7 +19,6 @@ import org.keyser.anr.core.TrashCause;
 import org.keyser.anr.core.TrashList;
 import org.keyser.anr.core.UserAction;
 import org.keyser.anr.core.UserActionConfirmSelection;
-import org.keyser.anr.core.UserActionContext.Type;
 import org.keyser.anr.core.UserActionSelectCard;
 import org.keyser.anr.core.UserDragAction;
 
@@ -61,7 +60,7 @@ public abstract class Ice extends AbstractCardCorp {
 		if (!list.isEmpty()) {
 			Game g = getGame();
 
-			g.userContext(this, "Remove ice", Type.REMOVE_ON_INSTALL).setExpectedAt(selected.topIceLocation());
+			g.userContext(this, "Remove ice").setExpectedAt(selected.topIceLocation());
 
 			// on rajoute l'action de confirmation
 			UserActionConfirmSelection confirm = new UserActionConfirmSelection(corp, this);
@@ -103,7 +102,7 @@ public abstract class Ice extends AbstractCardCorp {
 	 */
 	private void prepareInstall(Flow next) {
 		Game g = getGame();
-		g.userContext(this, "Choose a server", Type.INSTALL_IN_SERVER);
+		g.userContext(this, "Choose a server");
 
 		Corp corp = getCorp();
 		Consumer<CorpServer> install = cs -> {
