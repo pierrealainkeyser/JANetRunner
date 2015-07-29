@@ -13,6 +13,7 @@ import org.keyser.anr.core.CostForAction;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.Game;
 import org.keyser.anr.core.MetaCard;
+import org.keyser.anr.core.OnAccesHabilities;
 import org.keyser.anr.core.PlayCardAction;
 import org.keyser.anr.core.TrashCause;
 import org.keyser.anr.core.TrashList;
@@ -25,6 +26,14 @@ public abstract class InServerCorpCard extends AbstractCardCorp {
 
 	protected InServerCorpCard(int id, MetaCard meta) {
 		super(id, meta);
+		
+		if(this instanceof Trashable){
+			match(OnAccesHabilities.class, em -> em.test(ch -> ch.getAcceded()==this && ch.getType() == getOwner().next()).call(this::registerTrash) );
+		}
+	}
+	
+	private void registerTrash(OnAccesHabilities hab){
+		
 	}
 
 	protected abstract PlayCardAction<? extends AbstractCardCorp> playAction();
