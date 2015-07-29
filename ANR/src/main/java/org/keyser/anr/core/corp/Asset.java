@@ -6,13 +6,19 @@ import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.PlayCardAction;
 
 
-public abstract class Asset extends AssetOrAgenda {
+public abstract class Asset extends AssetOrAgenda implements Trashable{
 	protected Asset(int id, MetaCard meta) {
 		super(id, meta);
 	}
+	
+	@Override
+	protected AssetUpgradeMetaCard getMeta() {
+		return (AssetUpgradeMetaCard)super.getMeta();
+	}
 
+	@Override
 	public Cost getThrashCost() {
-		return ((AssetUpgradeMetaCard) getMeta()).getCost();
+		return getMeta().getCost();
 	}
 
 	@Override
