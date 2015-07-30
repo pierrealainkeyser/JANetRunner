@@ -66,7 +66,7 @@ define([ "mix", "mousetrap", "geometry/point" ], function(mix, Mousetrap, Point)
 
 		this.escape = function() {
 			this.runLayout(function() {
-				this.boardstate.closeAllZooms();
+				this.boardstate.displayOrClosePrimary();
 			}.bind(this));
 		}
 

@@ -25,13 +25,20 @@ RunBox, Point, ActionBus) {
 
 			// a faire après le layout
 			var zoom = this.boardstate.activeZoom;
-			this.pop = primary.type=='POP_CARD';
+			this.pop = primary.type == 'POP_CARD';
 			if (zoom) {
 				if (this.isPrimaryZoom(zoom)) {
 					zoom.setHeaderText(this.text);
 					this.pop = false;
 				}
 			}
+		}
+
+		/**
+		 * Permet de réafficher le zoom
+		 */
+		this.repopPrimary = function() {
+			this.pop = true;
 		}
 
 		this.afterLayoutPhase = function() {
@@ -248,9 +255,9 @@ RunBox, Point, ActionBus) {
 
 				this.turnTracker.gameStep.setText(turn.phase);
 			}
-			
-			var primary=msg.primary;
-			if(primary){
+
+			var primary = msg.primary;
+			if (primary) {
 				this.turnTracker.gamePhase.setText(primary.text);
 			}
 		}
@@ -656,6 +663,17 @@ RunBox, Point, ActionBus) {
 				zoom.setPrimary(null);
 			});
 			return exists;
+		}
+
+		/**
+		 * Si la carte primaire est visible, on ferme le zoom, sinon on l'active
+		 */
+		this.displayOrClosePrimary = function() {
+			if (this.activeZoom && this.zoomInfo.isPrimaryZoom(this.activeZoom)) {
+				this.closeAllZooms();
+			} else {
+				this.zoomInfo.repopPrimary();
+			}
 		}
 
 		/**
