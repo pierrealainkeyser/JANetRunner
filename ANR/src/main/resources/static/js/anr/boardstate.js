@@ -340,6 +340,8 @@ RunBox, Point, ActionBus) {
 					}
 				}
 			}
+			
+			//TODO voir comment faire pour indiquer le joueur actif...
 		}
 
 		/**

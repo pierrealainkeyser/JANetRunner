@@ -324,7 +324,8 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 						return;
 					}
 
-					if (changed) {
+					//il faut animer si c'est une action de confirmation de sélection (ca fait un effet cool)
+					if (changed || this.action.isConfirmSelectionAction()) {
 						this.animateSwap(this.element, function() {
 							if (enabled)
 								button.removeClass("disabled")
