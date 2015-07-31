@@ -108,7 +108,7 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	 */
 	protected final void addAction(FlowArg<CollectHabilities> registerAction) {
 		// on recherche les actions jouables par défaut
-		match(CollectHabilities.class, em -> em.test(ch -> ch.isAllowAction() && ch.getType() == getOwner() && rezzed).call(registerAction));
+		match(CollectHabilities.class, em -> em.test(rezzedHabilities().and(ch -> ch.isAllowAction())).call(registerAction));
 	}
 
 	/**
@@ -117,7 +117,7 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	 * @param registerAction
 	 */
 	protected final void addHability(FlowArg<CollectHabilities> registerAction) {
-		match(CollectHabilities.class, em -> em.test(ch -> ch.getType() == getOwner() && rezzed).call(registerAction));
+		match(CollectHabilities.class, em -> em.test(rezzedHabilities()).call(registerAction));
 	}
 
 	/**
@@ -143,8 +143,6 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 		int value = getToken(type);
 		setToken(type, value + delta);
 	}
-	
-	
 
 	private void bindCleanup(EventMatcherBuilder<? extends AbstractCardCleanup> ric, FlowArg<Flow> call) {
 		ric.test(AbstractCardCleanup.with(myself()));
@@ -299,8 +297,8 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	public boolean isRezzed() {
 		return rezzed;
 	}
-	
-	public boolean isTrashed(){
+
+	public boolean isTrashed() {
 		return getLocation().isTrashed();
 	}
 
@@ -345,6 +343,18 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	 */
 	public void playFeedback(CollectHabilities hab) {
 
+	}
+
+	/**
+	 * Indique que l'on joue maintenant
+	 * @return
+	 */
+	protected Predicate<CollectHabilities> habilities() {
+		return ch -> ch.getType() == getOwner();
+	}
+
+	protected Predicate<CollectHabilities> rezzedHabilities() {
+		return habilities().and(rezzed()).and(installed());
 	}
 
 	protected <T> Predicate<T> rezzed() {

@@ -22,10 +22,10 @@ public class AbstractCardCorp extends AbstractCard {
 	protected AbstractCardCorp(int id, MetaCard meta) {
 		super(id, meta, CollectHabilities.CORP, CardLocation::isInCorpHand);
 
+		Predicate<CollectHabilities> habilities = habilities();
 		// permet de rezzed
-		match(CollectHabilities.class, em -> em.test(ch -> isInstalled() && ch.getType() == getOwner() && isRezzable() && !isRezzed()).call(this::registerRezz));
-
-		match(CollectHabilities.class, em -> em.test(ch -> isInstalled() && ch.getType() == getOwner() && isAdvanceable()).call(this::registerAdvance));
+		match(CollectHabilities.class, em -> em.test(habilities.and(rezzed().negate()).and(installed()).and(ch -> isRezzable())).call(this::registerRezz));
+		match(CollectHabilities.class, em -> em.test(habilities.and(installed()).and(ch -> isAdvanceable())).call(this::registerAdvance));
 	}
 
 	public Optional<CorpServer> getServer() {

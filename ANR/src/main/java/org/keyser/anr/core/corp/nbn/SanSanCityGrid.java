@@ -2,6 +2,8 @@ package org.keyser.anr.core.corp.nbn;
 
 import static java.util.Arrays.asList;
 
+import java.util.function.Predicate;
+
 import org.keyser.anr.core.CardSubType;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Faction;
@@ -18,7 +20,9 @@ public class SanSanCityGrid extends Upgrade {
 	protected SanSanCityGrid(int id, MetaCard meta) {
 		super(id, meta);
 
-		match(DetermineAgendaRequirement.class, em -> em.test(dar -> isInstalled() && isRezzed() && dar.getPrimary().getServer().equals(getServer())).call(this::updateRequirement));
+		Predicate<DetermineAgendaRequirement> installed = installed();
+		Predicate<DetermineAgendaRequirement> sameServer = dar -> dar.getPrimary().getServer().equals(getServer());
+		match(DetermineAgendaRequirement.class, em -> em.test(installed.and(rezzed()).and(sameServer)).call(this::updateRequirement));
 	}
 
 	private void updateRequirement(DetermineAgendaRequirement dar) {

@@ -3,6 +3,7 @@ package org.keyser.anr.core.corp.nbn;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.keyser.anr.core.AbstractCardCorp;
 import org.keyser.anr.core.CollectHabilities;
@@ -25,7 +26,8 @@ public class AstroScriptPilotProgram extends Agenda {
 	protected AstroScriptPilotProgram(int id, MetaCard meta) {
 		super(id, meta);
 
-		match(CollectHabilities.class, em -> em.test(ch -> isScored() && hasAnyToken(TokenType.AGENDA)).call(this::registerPutAnAdvanceToken));
+		Predicate<CollectHabilities> myTurn = habilities();
+		match(CollectHabilities.class, em -> em.test(myTurn.and(ch -> isScored() && hasAnyToken(TokenType.AGENDA))).call(this::registerPutAnAdvanceToken));
 	}
 
 	private void registerPutAnAdvanceToken(CollectHabilities ch) {
