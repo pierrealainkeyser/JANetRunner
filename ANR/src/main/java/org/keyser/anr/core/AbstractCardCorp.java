@@ -1,10 +1,16 @@
 package org.keyser.anr.core;
 
+import static org.keyser.anr.core.SimpleFeedback.noop;
+
 import java.util.Optional;
 import java.util.function.Predicate;
 
 import org.keyser.anr.core.corp.AdvanceAbstractCardAction;
+import org.keyser.anr.core.corp.Agenda;
 import org.keyser.anr.core.corp.RezzAbstractCardAction;
+import org.keyser.anr.core.corp.StealAgendaAction;
+import org.keyser.anr.core.corp.TrashAbstractCorpCardAction;
+import org.keyser.anr.core.corp.Trashable;
 
 public class AbstractCardCorp extends AbstractCard {
 
@@ -22,7 +28,7 @@ public class AbstractCardCorp extends AbstractCard {
 	}
 
 	/**
-	 * Création d'un effet temporaire d'un type donné
+	 * Crï¿½ation d'un effet temporaire d'un type donnï¿½
 	 * 
 	 * @param type
 	 * @return
@@ -46,7 +52,7 @@ public class AbstractCardCorp extends AbstractCard {
 	}
 
 	/**
-	 * Permet de rézzer une carte
+	 * Permet de rï¿½zzer une carte
 	 * 
 	 * @param ua
 	 * @param next
@@ -75,7 +81,8 @@ public class AbstractCardCorp extends AbstractCard {
 	}
 
 	/**
-	 * Permet de gérer l'accés
+	 * Permet de gï¿½rer l'accï¿½s
+	 * 
 	 * @author pakeyser
 	 *
 	 */
@@ -83,46 +90,60 @@ public class AbstractCardCorp extends AbstractCard {
 		private boolean rezzedBefore = isRezzed();
 
 		/**
-		 * La carte est accedee (on commence par demander à la corp)
+		 * La carte est accedee (on commence par demander ï¿½ la corp)
 		 * 
 		 * @param next
 		 */
 		public void acceded(Flow next) {
 			AbstractCardCorp me = AbstractCardCorp.this;
-			OnAccesHabilities o = new OnAccesHabilities(me, PlayerType.CORP);
-			game.fire(o);
-
-			// on revele la carte au besoin
-			if (o.isRevealToCorp())
-				setRezzed(true);
-
-			if (o.hasFeedbacks()) {
-				game.userContext(me, "Card acceded", UserActionContext.Type.POP_CARD);
-				for (Feedback<?, ?> feedback : o.getFeedbacks()) {
-					if (feedback.checkCost())
-						game.user(feedback, next);
-				}
-				game.user(SimpleFeedback.noop(getCorp(), me, "Done"), next.wrap(this::accededRunner));
-			} else
-				accededRunner(next);
+			OnAccesEvent o = new OnAccesEvent(me);
+			game.apply(o, next.wrap(n -> this.accededRunner(o, n)));
 		}
 
-		private void accededRunner(Flow next) {
-			AbstractCardCorp me = AbstractCardCorp.this;
-			Flow to = next.wrap(this::cleanUp);
-			if (me.isTrashed())
-				to.apply();
-			else {
-				OnAccesHabilities o = new OnAccesHabilities(me, PlayerType.RUNNER);
-				game.fire(o);
+		private void accededRunner(OnAccesEvent e, Flow next) {
+			Flow cleanUp = next.wrap(this::cleanUp);
+			if (e.isContinueAccess()) {
+				Runner runner = game.getRunner();
+				AbstractCardCorp card = e.getPrimary();
 
-				game.userContext(me, "Card acceded", UserActionContext.Type.POP_CARD);
-				for (Feedback<?, ?> feedback : o.getFeedbacks()) {
-					if (feedback.checkCost())
-						game.user(feedback, to);
+				if (card instanceof Agenda) {
+					// gestion du vol
+					Agenda agenda = (Agenda) card;
+					UserAction ua = new UserAction(runner, card, new CostForAction(Cost.free(), new StealAgendaAction(agenda)), "Steal");
+					if (ua.checkCost()) {
+						if (ua.getCost().isFree()) {
+							agenda.doSteal(next);
+						} else {
+							// gestion du trash
+							e.context();
+							game.user(ua.spendAndApply(agenda::doSteal), next);
+							game.user(noop(runner, card, "Don't steal"), cleanUp);
+						}
+
+					} else
+						cleanUp.apply();
+
+				} else if (card instanceof Trashable) {
+					Trashable trashable = (Trashable) card;
+					UserAction ua = new UserAction(runner, card, new CostForAction(trashable.getThrashCost(), new TrashAbstractCorpCardAction(card)), "Trash");
+					if (ua.checkCost()) {
+						// gestion du trash
+						e.context();
+						game.user(ua.spendAndApply(this::doTrash), next);
+						game.user(noop(runner, card, "Don't trash"), cleanUp);
+
+					} else
+						cleanUp.apply();
 				}
-				game.user(SimpleFeedback.noop(getGame().getRunner(), me, "Done"), to);
-			}
+
+			} else
+				cleanUp.apply();
+		}
+
+		private void doTrash(Flow next) {
+			AbstractCardCorp me = AbstractCardCorp.this;
+			me.setTrashCause(TrashCause.ON_ACCESS);
+			next.apply();
 
 		}
 
@@ -134,9 +155,9 @@ public class AbstractCardCorp extends AbstractCard {
 			next.apply();
 		}
 	}
-	
+
 	/**
-	 * La carte est accedee (on commence par demander à la corp)
+	 * La carte est accedee (on commence par demander ï¿½ la corp)
 	 * 
 	 * @param next
 	 */

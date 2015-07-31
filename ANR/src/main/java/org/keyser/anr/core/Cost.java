@@ -22,7 +22,7 @@ public class Cost {
 	public static Cost credit(int value) {
 		return new Cost().with(new CostElement(value, CostType.CREDIT));
 	}
-	
+
 	public static Cost click(int value) {
 		return new Cost().with(new CostElement(value, CostType.ACTION));
 	}
@@ -44,6 +44,10 @@ public class Cost {
 
 	private void extractTypes(List<CostElement> m, Set<CostType> types) {
 		m.stream().map(CostElement::getType).forEach(types::add);
+	}
+
+	public boolean isFree() {
+		return getValue(null) == 0;
 	}
 
 	/**
@@ -73,7 +77,7 @@ public class Cost {
 	}
 
 	private int getValue(List<CostElement> elements, CostType type) {
-		return elements.stream().filter(ce -> ce.getType() == type).mapToInt(CostElement::getValue).sum();
+		return elements.stream().filter(ce -> type == null || ce.getType() == type).mapToInt(CostElement::getValue).sum();
 	}
 
 	public Cost normalize() {

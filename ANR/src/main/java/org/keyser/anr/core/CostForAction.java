@@ -34,4 +34,8 @@ public class CostForAction {
 	public CostForAction merge(Cost newCost) {
 		return new CostForAction(newCost, action);
 	}
+
+	public boolean isFree() {
+		return cost.isFree();
+	}
 }

@@ -11,6 +11,7 @@ import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.Game;
 import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.PlayCardAction;
+import org.keyser.anr.core.Runner;
 import org.keyser.anr.core.TokenType;
 import org.keyser.anr.core.UserAction;
 
@@ -57,6 +58,19 @@ public abstract class Agenda extends AssetOrAgenda {
 		corp.addToScore(this);
 
 		game.apply(new AgendaScoredEvent(this), next.wrap(this::localScoreEffect));
+	}
+
+	/**
+	 * L'agenda est volé
+	 * 
+	 * @param next
+	 */
+	public void doSteal(Flow next) {
+		Runner runner = getRunner();
+		runner.addToScore(this);
+
+		// on envoi la notification et on score
+		game.apply(new AgendaStolenEvent(this), next.wrap(this::cleanUpScore));
 	}
 
 	/**
