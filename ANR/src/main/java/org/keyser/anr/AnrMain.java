@@ -111,7 +111,7 @@ public class AnrMain implements WebSocketConfigurer {
 
 		Corp corp = g.getCorp();
 		corp.setToken(TokenType.CREDIT, 5);
-		corp.draw(4, () -> {
+		corp.draw(6, () -> {
 		});
 
 		GameDef gd = g.createDef();

@@ -17,11 +17,11 @@ public class CardLocation {
 	public enum Secondary {
 		ICES, ASSETORUPGRADES, UPGRADES, STACK
 	}
-	
+
 	public static CardLocation corpScore(int index) {
 		return new CardLocation(Primary.CORPSCORE, null, null, index);
 	}
-	
+
 	public static CardLocation runnerScore(int index) {
 		return new CardLocation(Primary.RUNNERSCORE, null, null, index);
 	}
@@ -78,12 +78,10 @@ public class CardLocation {
 
 	private final Integer index;
 
-	
-	
 	public final static int HQ_INDEX = -3;
 
 	public final static int RD_INDEX = -2;
-	
+
 	public final static int ARCHIVE_INDEX = -1;
 
 	private CardLocation(Primary primary, Integer serverIndex, Secondary secondary, Integer index) {
@@ -121,24 +119,24 @@ public class CardLocation {
 
 	@JsonIgnore
 	public boolean isInCorpHand() {
-		return primary == Primary.SERVER && serverIndex == HQ_INDEX && secondary == Secondary.STACK && index >= 0;
+		return isInServer() && serverIndex == HQ_INDEX && secondary == Secondary.STACK && index >= 0;
 	}
-	
+
 	@JsonIgnore
 	public boolean isTrashed() {
-		return (primary == Primary.SERVER && serverIndex == ARCHIVE_INDEX && secondary == Secondary.STACK && index >= 0) || (primary==Primary.HEAP);
+		return (isInServer() && serverIndex == ARCHIVE_INDEX && secondary == Secondary.STACK && index >= 0) || (primary == Primary.HEAP);
 	}
 
 	@JsonIgnore
 	public boolean isInRD() {
-		return primary == Primary.SERVER && serverIndex == RD_INDEX && secondary == Secondary.STACK && index >= 0;
+		return isInServer() && serverIndex == RD_INDEX && secondary == Secondary.STACK && index >= 0;
 	}
 
 	@JsonIgnore
 	public boolean isInStack() {
 		return primary == Primary.STACK;
 	}
-	
+
 	@JsonIgnore
 	public boolean isScoredByCorp() {
 		return primary == Primary.CORPSCORE;
@@ -147,6 +145,12 @@ public class CardLocation {
 	@JsonIgnore
 	public boolean isInRunnerHand() {
 		return primary == Primary.GRIP;
+	}
+
+	@JsonIgnore
+	public boolean isInServer() {
+		return primary == Primary.SERVER;
+
 	}
 
 	@Override

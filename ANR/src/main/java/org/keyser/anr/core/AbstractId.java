@@ -38,8 +38,8 @@ public abstract class AbstractId extends AbstractCard {
 		setInstalled(true);
 		setRezzed(true);
 	}
-	
-	public int getMaxHandSize(){
+
+	public int getMaxHandSize() {
 		return 5;
 	}
 
@@ -103,15 +103,17 @@ public abstract class AbstractId extends AbstractCard {
 
 		game.fire(new AbstractCardActionChangedEvent(this));
 	}
-	
+
 	/**
 	 * Renvoles cartes en main
+	 * 
 	 * @return
 	 */
 	protected abstract AbstractCardList cardsInHands();
-	
+
 	/**
 	 * L'utilisateur doit choisir de defausser pour n'avoir que max cartes
+	 * 
 	 * @param max
 	 * @param next
 	 */
@@ -123,28 +125,28 @@ public abstract class AbstractId extends AbstractCard {
 
 			// on rajoute l'action de confirmation
 			UserActionConfirmSelection confirm = new UserActionConfirmSelection(this, this);
-			int limit = max - handSize;
+			int limit = handSize - max;
 
-			//il faut au moins limit cartes a defausser
+			// il faut au moins limit cartes a defausser
 			Cost cost = Cost.free();
 			for (int i = 0; i <= handSize; ++i)
 				confirm.addCost(cost, i >= limit);
-			
-			//on peut sélectionner tous les cartes en mains
+
+			// on peut sï¿½lectionner tous les cartes en mains
 			hands.forEach(c -> game.user(new UserActionSelectCard(this, c)));
-			
+
 			game.user(confirm.applyArg(this::trashOnDiscard), next);
-		}
-		else
+		} else
 			next.apply();
 	}
-	
+
 	/**
-	 * Défausse les cartes face cachee
+	 * Dï¿½fausse les cartes face cachee
+	 * 
 	 * @param toTrash
 	 * @param next
 	 */
-	private void trashOnDiscard(AbstractCardList toTrash, Flow next){
+	private void trashOnDiscard(AbstractCardList toTrash, Flow next) {
 		TrashList tl = new TrashList(TrashCause.DISCARD);
 		toTrash.forEach(tl::add);
 		tl.trash(next);

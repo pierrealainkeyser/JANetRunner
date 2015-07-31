@@ -241,10 +241,18 @@ RunBox, Point, ActionBus) {
 				this.turnTracker.corpScore.setScore(score.corp);
 				this.turnTracker.runnerScore.setScore(score.runner);
 			}
+
+			var actions = msg.actions;
+			if (actions) {
+				this.turnTracker.corpScore.setActive(actions.corp == true);
+				this.turnTracker.runnerScore.setActive(actions.runner == true);
+			}
+
 			var clicks = msg.clicks;
 			if (clicks) {
 				this.turnTracker.clicks.setClicks(clicks.active, clicks.used);
 			}
+
 			var turn = msg.turn;
 			if (turn) {
 				var player = turn.player;
@@ -340,8 +348,6 @@ RunBox, Point, ActionBus) {
 					}
 				}
 			}
-			
-			//TODO voir comment faire pour indiquer le joueur actif...
 		}
 
 		/**

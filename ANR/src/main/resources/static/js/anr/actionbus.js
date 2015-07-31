@@ -204,26 +204,30 @@ function(mix, _, ActionModel, SubModel, ObservableMixin, InnerSetMixin) {
 		 */
 		this.activateAction = function(action) {
 			if (this.lastActionId < action.id) {
-				var enc = action.encodeResponse();
-				console.log("activateAction", action, "------------", enc);
-				this.lastActionId = action.id;
 
-				// nettoyage de la sélections
-				_.each(this.actions, function(a) {
-					if (a.isSelectionAction()) {
-						a.setSelected(false);
-					}
+				if (action.isEnabled()) {
 
-					if (a.isDragEnabled()) {
-						a.disableDrag();
-					}
-				});
+					var enc = action.encodeResponse();
+					console.log("activateAction", action, "------------", enc);
+					this.lastActionId = action.id;
 
-				// nettoyage des actions
-				this.actions = [];
+					// nettoyage de la sélections
+					_.each(this.actions, function(a) {
+						if (a.isSelectionAction()) {
+							a.setSelected(false);
+						}
 
-				if (this.listener)
-					this.listener(enc);
+						if (a.isDragEnabled()) {
+							a.disableDrag();
+						}
+					});
+
+					// nettoyage des actions
+					this.actions = [];
+
+					if (this.listener)
+						this.listener(enc);
+				}
 			}
 		}
 

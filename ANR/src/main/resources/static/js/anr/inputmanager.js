@@ -50,8 +50,10 @@ define([ "mix", "mousetrap", "geometry/point" ], function(mix, Mousetrap, Point)
 		}
 
 		this.doneAction = function(evt) {
-			preventDefault(evt);
-			this.boardstate.doneAction();
+			preventDefault(evt);			
+			this.runLayout(function() {
+				this.boardstate.doneAction();
+			}.bind(this));
 		}
 
 		this.tab = function(e) {

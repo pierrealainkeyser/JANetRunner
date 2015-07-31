@@ -19,14 +19,14 @@ public class DetermineAgendaRequirement extends AbstractCardEvent implements Seq
 	}
 
 	public int getRequirement() {
-		return Math.abs(getPrimary().getRequirement() + getDelta());
+		return Math.max(getPrimary().getRequirement() + getDelta(), 0);
 	}
-	
-	public boolean isScorable(){
+
+	public boolean isScorable() {
 		Agenda agenda = getPrimary();
 		int adv = agenda.getToken(TokenType.ADVANCE);
 
-		int req = agenda.getRequirement();
+		int req = getRequirement();
 		return adv >= req;
 	}
 

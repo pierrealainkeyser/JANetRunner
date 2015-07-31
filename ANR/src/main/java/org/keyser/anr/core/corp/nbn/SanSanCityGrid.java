@@ -7,6 +7,7 @@ import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.corp.AssetUpgradeMetaCard;
+import org.keyser.anr.core.corp.DetermineAgendaRequirement;
 import org.keyser.anr.core.corp.Upgrade;
 
 public class SanSanCityGrid extends Upgrade {
@@ -16,18 +17,13 @@ public class SanSanCityGrid extends Upgrade {
 
 	protected SanSanCityGrid(int id, MetaCard meta) {
 		super(id, meta);
+
+		match(DetermineAgendaRequirement.class, em -> em.test(dar -> isInstalled() && isRezzed() && dar.getPrimary().getServer().equals(getServer())).call(this::updateRequirement));
 	}
 
-	/*
-	 * private void updateRequirement(DetermineAgendaRequirement dar) {
-	 * 
-	 * Agenda ag = dar.getAgenda(); CardLocationOnServer loc =
-	 * (CardLocationOnServer) ag.getLocation(); CorpServer server =
-	 * loc.getServer(); CorpServer myserver = ((CardLocationOnServer)
-	 * getLocation()).getServer(); if (server.getIndex() == myserver.getIndex())
-	 * {
-	 * 
-	 * int req = dar.getRequirement(); if (req > 0) dar.setRequirement(req - 1);
-	 * } }
-	 */
+	private void updateRequirement(DetermineAgendaRequirement dar) {
+		dar.setDelta(dar.getDelta() - 1);
+
+	}
+
 }

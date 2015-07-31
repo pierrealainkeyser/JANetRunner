@@ -23,6 +23,8 @@ public class GameDto {
 
 	private ScoreDto score;
 
+	private ActionIndicatorDto actions;
+
 	private TurnDTO turn;
 
 	private List<String> chats;
@@ -97,6 +99,14 @@ public class GameDto {
 
 	public void setChats(List<String> chats) {
 		this.chats = chats;
+	}
+
+	public ActionIndicatorDto getActions() {
+		return actions;
+	}
+
+	public void setActions(ActionIndicatorDto actions) {
+		this.actions = actions;
 	}
 
 }

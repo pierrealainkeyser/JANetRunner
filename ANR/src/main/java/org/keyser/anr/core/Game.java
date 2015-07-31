@@ -119,7 +119,7 @@ public class Game {
 				// TODO il faut préciser le contexte quelque part...
 				OrderEventsAction ask = new OrderEventsAction(to, null, new AbstractCardList(sources));
 
-				userContext(null, "Select matching order");
+				userContext(to, "Select matching order",Type.POP_CARD);
 				user(new FeedbackWithArgs<>(ask, this::orderSelected), next);
 			}
 		}

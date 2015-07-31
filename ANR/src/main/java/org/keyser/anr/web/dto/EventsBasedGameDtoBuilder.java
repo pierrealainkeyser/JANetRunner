@@ -205,8 +205,17 @@ public class EventsBasedGameDtoBuilder {
 		if (!scoreChanged.isEmpty())
 			dto.setScore(game.getCorp().getScore(), game.getRunner().getScore());
 
+		boolean corpAction = false;
+		boolean runnerAction = false;
+
 		// les actions sont à mapper sur les cartes...
 		for (UserAction ua : actionsContext.getUserActions()) {
+
+			PlayerType to = ua.getTo();
+			if (PlayerType.CORP == to)
+				corpAction = true;
+			else if (PlayerType.RUNNER == to)
+				runnerAction = true;
 
 			AbstractCard source = ua.getSource();
 			CorpServer server = ua.getServer();
@@ -221,8 +230,9 @@ public class EventsBasedGameDtoBuilder {
 				if (action != null)
 					sdto.addAction(action);
 			}
-
 		}
+
+		dto.setActions(new ActionIndicatorDto(corpAction, runnerAction));
 
 		if (!cards.isEmpty()) {
 			dto.setCards(new ArrayList<>(cards.values()));

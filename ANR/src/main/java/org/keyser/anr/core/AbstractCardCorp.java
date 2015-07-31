@@ -7,6 +7,7 @@ import java.util.function.Predicate;
 
 import org.keyser.anr.core.corp.AdvanceAbstractCardAction;
 import org.keyser.anr.core.corp.Agenda;
+import org.keyser.anr.core.corp.CorpServer;
 import org.keyser.anr.core.corp.RezzAbstractCardAction;
 import org.keyser.anr.core.corp.StealAgendaAction;
 import org.keyser.anr.core.corp.TrashAbstractCorpCardAction;
@@ -25,6 +26,14 @@ public class AbstractCardCorp extends AbstractCard {
 		match(CollectHabilities.class, em -> em.test(ch -> isInstalled() && ch.getType() == getOwner() && isRezzable() && !isRezzed()).call(this::registerRezz));
 
 		match(CollectHabilities.class, em -> em.test(ch -> isInstalled() && ch.getType() == getOwner() && isAdvanceable()).call(this::registerAdvance));
+	}
+
+	public Optional<CorpServer> getServer() {
+		CardLocation location = getLocation();
+		if (location.isInServer())
+			return Optional.of(getCorp().getOrCreate(location.getServerIndex()));
+		else
+			return Optional.empty();
 	}
 
 	/**
