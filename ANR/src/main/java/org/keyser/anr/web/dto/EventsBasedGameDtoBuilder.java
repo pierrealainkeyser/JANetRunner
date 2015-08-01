@@ -12,6 +12,7 @@ import java.util.Set;
 
 import org.keyser.anr.core.AbstractCard;
 import org.keyser.anr.core.AbstractCardActionChangedEvent;
+import org.keyser.anr.core.AbstractCardList;
 import org.keyser.anr.core.AbstractCardLocationEvent;
 import org.keyser.anr.core.AbstractCardRezzEvent;
 import org.keyser.anr.core.AbstractCardScoreChangedEvent;
@@ -27,6 +28,7 @@ import org.keyser.anr.core.FlowArg;
 import org.keyser.anr.core.Game;
 import org.keyser.anr.core.Game.ActionsContext;
 import org.keyser.anr.core.NoopUserAction;
+import org.keyser.anr.core.OrderEventsAction;
 import org.keyser.anr.core.PlayerType;
 import org.keyser.anr.core.Runner;
 import org.keyser.anr.core.Turn;
@@ -304,8 +306,12 @@ public class EventsBasedGameDtoBuilder {
 			UserDragAction<?> uda = (UserDragAction<?>) ua;
 			a.setType("drag");
 			a.setDragTo(uda.getDragTos());
-		} else if (ua instanceof NoopUserAction) {
+		} else if (ua instanceof NoopUserAction)
 			a.setType("noop");
+		else if (ua instanceof OrderEventsAction) {
+			AbstractCardList list = (AbstractCardList) ua.getData();
+			a.setType("ordering");
+			a.setOrdering(list.stream().map(AbstractCard::getId).collect(toList()));
 		}
 
 		return a;

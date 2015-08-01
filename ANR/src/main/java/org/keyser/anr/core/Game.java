@@ -116,10 +116,10 @@ public class Game {
 
 				AbstractId to = getId(active);
 
-				// TODO il faut préciser le contexte quelque part...
+				// il faut préciser le contexte quelque part...
 				OrderEventsAction ask = new OrderEventsAction(to, null, new AbstractCardList(sources));
 
-				userContext(to, "Select matching order",Type.POP_CARD);
+				userContext(to, "Select matching order", Type.POP_CARD);
 				user(new FeedbackWithArgs<>(ask, this::orderSelected), next);
 			}
 		}

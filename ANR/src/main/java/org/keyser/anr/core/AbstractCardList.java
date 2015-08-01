@@ -3,6 +3,7 @@ package org.keyser.anr.core;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Un ensemble de cards
@@ -43,5 +44,9 @@ public class AbstractCardList implements Iterable<AbstractCard> {
 
 	public int size() {
 		return cards.size();
+	}
+
+	public Stream<AbstractCard> stream() {
+		return cards.stream();
 	}
 }

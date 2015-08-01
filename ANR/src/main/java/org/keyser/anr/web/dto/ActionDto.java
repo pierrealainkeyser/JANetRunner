@@ -20,8 +20,10 @@ public class ActionDto {
 	private String type;
 
 	private Boolean enableDrag;
-	
-	private  List<UserDragActionTo> dragTo;
+
+	private List<UserDragActionTo> dragTo;
+
+	private List<Integer> ordering;
 
 	public int getId() {
 		return id;
@@ -85,6 +87,14 @@ public class ActionDto {
 
 	public void setDragTo(List<UserDragActionTo> dragTo) {
 		this.dragTo = dragTo;
+	}
+
+	public List<Integer> getOrdering() {
+		return ordering;
+	}
+
+	public void setOrdering(List<Integer> ordering) {
+		this.ordering = ordering;
 	}
 
 }
