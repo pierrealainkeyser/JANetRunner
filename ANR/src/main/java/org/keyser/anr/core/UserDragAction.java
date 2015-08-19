@@ -27,6 +27,10 @@ public class UserDragAction<T> extends UserActionArgs<T> {
 		this.dragTos.add(new UserDragActionTo("none", value, null));
 		return this;
 	}
+	
+	public boolean isEmpty(){
+		return dragTos.isEmpty();
+	}
 
 	public List<UserDragActionTo> getDragTos() {
 		return dragTos;

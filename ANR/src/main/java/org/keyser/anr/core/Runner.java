@@ -7,9 +7,10 @@ import java.util.function.Function;
 
 import org.keyser.anr.core.runner.Hardware;
 import org.keyser.anr.core.runner.Program;
+import org.keyser.anr.core.runner.ProgramsArea;
 import org.keyser.anr.core.runner.Resource;
 
-public class Runner extends AbstractId {
+public class Runner extends AbstractId implements ProgramsArea{
 
 	private final AbstractCardContainer<Resource> resources = new AbstractCardContainer<>(CardLocation::resources);
 
@@ -98,11 +99,24 @@ public class Runner extends AbstractId {
 	public AbstractCardContainer<AbstractCardRunner> getHeap() {
 		return heap;
 	}
+	
+	@Override
+	public void installProgram(Program program, Flow next) {
+		getPrograms().add(program);
+		runMemoryCheck(next);
+		
+	}
+
+	@Override
+	public void runMemoryCheck(Flow next) {
+		// TODO gestion de l'effet
+		next.apply();
+	}
 
 	public void alterMemory(int delta, Flow next) {
 
 		// TODO gestion de l'effet
-		next.apply();
+		runMemoryCheck(next);
 	}
 
 	/**
@@ -165,4 +179,6 @@ public class Runner extends AbstractId {
 		grip.stream().forEach(acl::add);
 		return acl;
 	}
+
+	
 }
