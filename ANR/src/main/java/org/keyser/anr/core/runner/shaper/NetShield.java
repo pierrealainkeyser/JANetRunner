@@ -20,13 +20,10 @@ import org.keyser.anr.core.runner.UseProgramAction;
 
 public class NetShield extends Program {
 
-	public final static ProgramMetaCard INSTANCE = new ProgramMetaCard(
-			"Net Shield", SHAPER.infl(1), credit(2), false, "01033", 1,
-			emptyList(), NetShield::new);
+	public final static ProgramMetaCard INSTANCE = new ProgramMetaCard("Net Shield", SHAPER.infl(1), credit(2), false, "01045", 1, emptyList(), NetShield::new);
 
 	protected NetShield(int id, MetaCard meta) {
 		super(id, (ProgramMetaCard) meta);
-
 		match(DoDamageEvent.class, emb -> doDamageEvent(emb));
 	}
 
@@ -39,9 +36,7 @@ public class NetShield extends Program {
 	}
 
 	private Feedback<?, ?> createFeedback(RunnerPreventibleEffect event) {
-		FlatDamagePreventionAction prevent = new FlatDamagePreventionAction(
-				this, new CostForAction(credit(1), new UseProgramAction(this)),
-				"Prevent 1 Net", 1);
+		FlatDamagePreventionAction prevent = new FlatDamagePreventionAction(this, new CostForAction(credit(1), new UseProgramAction(this)), "Prevent 1 Net", 1);
 		return prevent.feedback(event);
 	}
 }

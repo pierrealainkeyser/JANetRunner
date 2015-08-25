@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import org.keyser.anr.core.AbstractCardCorp;
-import org.keyser.anr.core.AbstractCardInstalledCleanup;
 import org.keyser.anr.core.AbstractCardList;
 import org.keyser.anr.core.CollectHabilities;
 import org.keyser.anr.core.Corp;
@@ -111,12 +110,6 @@ public abstract class Ice extends AbstractCardCorp {
 		corp.eachServers(install);
 	}
 
-	private void processCleanUp(Flow next) {
-
-		// cleanup et poursuite du traitement
-		getGame().apply(new AbstractCardInstalledCleanup(this), next);
-	}
-
 	/**
 	 * La liste des cartes sélectionnés par le client est transmise
 	 * 
@@ -139,7 +132,7 @@ public abstract class Ice extends AbstractCardCorp {
 		CostForAction cfa = new CostForAction(Cost.credit(icesCount - toRemove.size()), new PlayIceAction(this));
 		getCorp().spend(cfa, () -> {
 			// trash toutes les cartes
-				tl.trash(next.wrap(this::processCleanUp));
+				tl.trash(next.wrap(this::cleanupInstall));
 			});
 
 	}

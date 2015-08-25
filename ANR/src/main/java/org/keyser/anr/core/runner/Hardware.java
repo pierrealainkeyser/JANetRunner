@@ -15,12 +15,13 @@ public abstract class Hardware extends AbstractCardRunner {
 
 	@Override
 	public void playFeedback(CollectHabilities hab) {
-		UserAction playOperation = new UserAction(getRunner(), this, new CostForAction(getCostWithAction(), new InstallHardwareAction(this)), "Install");
+		UserAction playOperation = new UserAction(getRunner(), this, new CostForAction(getCostWithAction(), new InstallHardwareAction(this)), "Install").enabledDrag();
 		hab.add(playOperation.spendAndApply(this::install));
 	}
 
 	protected void install(Flow next) {
 		Runner runner = getRunner();
+		setRezzed(true);
 		runner.getHardwares().add(this);
 		cleanupInstall(next);
 	}

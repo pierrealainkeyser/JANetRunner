@@ -4,7 +4,6 @@ import java.util.function.Consumer;
 
 import org.keyser.anr.core.AbstractCardContainer;
 import org.keyser.anr.core.AbstractCardCorp;
-import org.keyser.anr.core.AbstractCardInstalledCleanup;
 import org.keyser.anr.core.AbstractCardList;
 import org.keyser.anr.core.CollectHabilities;
 import org.keyser.anr.core.Corp;
@@ -141,13 +140,6 @@ public abstract class InServerCorpCard extends AbstractCardCorp {
 		toRemove.forEach(tl::add);
 
 		// trash toutes les cartes
-		tl.trash(next.wrap(this::processCleanUp));
+		tl.trash(next.wrap(this::cleanupInstall));
 	}
-
-	private void processCleanUp(Flow next) {
-
-		// cleanup et poursuite du traitement
-		getGame().apply(new AbstractCardInstalledCleanup(this), next);
-	}
-
 }

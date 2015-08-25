@@ -219,18 +219,21 @@ public class EventsBasedGameDtoBuilder {
 			else if (PlayerType.RUNNER == to)
 				runnerAction = true;
 
-			AbstractCard source = ua.getSource();
-			CorpServer server = ua.getServer();
-			if (source != null) {
-				CardDto cdto = getOrCreate(source);
-				ActionDto action = convertAction(ua);
-				if (action != null)
-					cdto.addAction(action);
-			} else if (server != null) {
-				ServerDto sdto = getOrCreate(dto, server);
-				ActionDto action = convertAction(ua);
-				if (action != null)
-					sdto.addAction(action);
+			if (playerType == ua.getTo()) {
+
+				AbstractCard source = ua.getSource();
+				CorpServer server = ua.getServer();
+				if (source != null) {
+					CardDto cdto = getOrCreate(source);
+					ActionDto action = convertAction(ua);
+					if (action != null)
+						cdto.addAction(action);
+				} else if (server != null) {
+					ServerDto sdto = getOrCreate(dto, server);
+					ActionDto action = convertAction(ua);
+					if (action != null)
+						sdto.addAction(action);
+				}
 			}
 		}
 
@@ -250,27 +253,33 @@ public class EventsBasedGameDtoBuilder {
 	private void setZoomAndFace(PlayerType playerType, CardDto c) {
 		CardLocation location = c.getLocation();
 		if (location != null) {
-			if (PlayerType.CORP == playerType) {
-				if (location.isInCorpHand()) {
-					c.setLocation(location.toHandLocation());
-					c.setFace(Face.up);
+			CardType type = c.getType();
+			if (type == CardType.id) {
+				c.setFace(Face.up);
+			} else {
+
+				if (PlayerType.CORP == playerType) {
+					if (location.isInCorpHand()) {
+						c.setLocation(location.toHandLocation());
+						c.setFace(Face.up);
+					}
+
+					if (location.isInRD())
+						c.setZoomable(Face.down);
+					else if (c.getLocalFaction() == playerType)
+						c.setZoomable(Face.up);
+
+				} else if (PlayerType.RUNNER == playerType) {
+					if (location.isInRunnerHand()) {
+						c.setLocation(location.toHandLocation());
+						c.setFace(Face.up);
+					}
+
+					if (location.isInStack())
+						c.setZoomable(Face.down);
+					else if (c.getLocalFaction() == playerType)
+						c.setZoomable(Face.up);
 				}
-
-				if (location.isInRD())
-					c.setZoomable(Face.down);
-				else if (c.getLocalFaction() == playerType)
-					c.setZoomable(Face.up);
-
-			} else if (PlayerType.RUNNER == playerType) {
-				if (location.isInRunnerHand()) {
-					c.setLocation(location.toHandLocation());
-					c.setFace(Face.up);
-				}
-
-				if (location.isInStack())
-					c.setZoomable(Face.down);
-				else if (c.getLocalFaction() == playerType)
-					c.setZoomable(Face.up);
 			}
 		}
 

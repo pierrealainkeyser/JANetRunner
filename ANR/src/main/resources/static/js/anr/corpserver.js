@@ -80,6 +80,10 @@ function(mix, layout, ui, conf, CardContainerBox) {
 		 * Rajoute l'élément dans le container
 		 */
 		this.addToAssetsOrUpgrades = function(card, index) {
+			if (index < 0)
+				index = 999;
+			
+			
 			this.mainContainer.cards.addChild(card, index);
 		}
 

@@ -368,11 +368,11 @@ RunBox, Point, ActionBus) {
 				var host = this.card({ id : path.serverIndex });
 				card.setHost(host, path.index);
 				return true;
-			} else if ("resource" === first)
+			} else if ("resources" === first)
 				this.runner.addToResource(card.wrapped(), path.index);
-			else if ("hardware" === first)
+			else if ("hardwares" === first)
 				this.runner.addToHardwares(card.wrapped(), path.index);
-			else if ("program" === first)
+			else if ("programs" === first)
 				this.runner.addToPrograms(card.wrapped(), path.index);
 			else if ("grip" === first)
 				this.runner.addToGrip(card.wrapped(), path.index);

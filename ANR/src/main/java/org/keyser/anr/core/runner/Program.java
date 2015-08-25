@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.keyser.anr.core.AbstractCard;
-import org.keyser.anr.core.AbstractCardInstalledCleanup;
 import org.keyser.anr.core.AbstractCardRunner;
 import org.keyser.anr.core.CollectHabilities;
 import org.keyser.anr.core.CostForAction;
@@ -92,17 +91,7 @@ public abstract class Program extends AbstractCardRunner {
 	 * @param next
 	 */
 	private void installedOnArea(ProgramsArea selected, Flow next) {
-		selected.installProgram(this, next.wrap(this::processCleanUp));
+		this.setRezzed(true);
+		selected.installProgram(this, next.wrap(this::cleanupInstall));
 	}
-
-	/**
-	 * Notification de l'installation
-	 * 
-	 * @param next
-	 */
-	private void processCleanUp(Flow next) {
-		// cleanup et poursuite du traitement
-		getGame().apply(new AbstractCardInstalledCleanup(this), next);
-	}
-
 }

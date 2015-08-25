@@ -36,7 +36,7 @@ public class RemoteCardLoader implements InitializingBean {
 
 	private final Executor executor;
 
-	private String urlFormat = "http://netrunnerdb.com/web/bundles/netrunnerdbcards/images/cards/en/{0}.png";
+	private String urlFormat = "http://netrunnerdb.com/bundles/netrunnerdbcards/images/cards/en/{0}.png";
 
 	private String cacheFormat = "{0}.png";
 

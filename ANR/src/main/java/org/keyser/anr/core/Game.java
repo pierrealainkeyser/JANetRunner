@@ -410,7 +410,11 @@ public class Game {
 	}
 
 	public void start() {
-		turn = new Turn(PlayerType.CORP, this, 0);
+		startWith(PlayerType.CORP, 0);
+	}
+	
+	public void startWith(PlayerType type, int nb) {
+		turn = new Turn(type, this, nb);
 		turn.start(this::nextTurn);
 	}
 

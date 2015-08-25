@@ -17,7 +17,7 @@ public class GameController {
 	public ModelAndView play() {
 
 		ModelAndView mav = new ModelAndView("gsap_require");
-		mav.addObject("gameId", "123");
+		mav.addObject("gameId", "456");
 		return mav;
 	}
 

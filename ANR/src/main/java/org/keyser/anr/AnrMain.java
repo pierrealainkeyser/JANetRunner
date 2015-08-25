@@ -6,15 +6,15 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import org.keyser.anr.core.ANRMetaCards;
-import org.keyser.anr.core.AbstractCardCorp;
 import org.keyser.anr.core.Corp;
 import org.keyser.anr.core.Game;
 import org.keyser.anr.core.GameDef;
 import org.keyser.anr.core.OCTGNParser;
+import org.keyser.anr.core.PlayerType;
+import org.keyser.anr.core.Runner;
 import org.keyser.anr.core.TestOCTGNParser;
 import org.keyser.anr.core.TokenType;
 import org.keyser.anr.core.UserInputConverter;
-import org.keyser.anr.core.corp.Ice;
 import org.keyser.anr.web.AnrUserInputConverter;
 import org.keyser.anr.web.AnrWebSocketHandler;
 import org.keyser.anr.web.Endpoint;
@@ -111,7 +111,12 @@ public class AnrMain implements WebSocketConfigurer {
 
 		Corp corp = g.getCorp();
 		corp.setToken(TokenType.CREDIT, 5);
-		corp.draw(6, () -> {
+		corp.draw(1, () -> {
+		});
+
+		Runner runner = g.getRunner();
+		runner.setToken(TokenType.CREDIT, 5);
+		runner.draw(5, () -> {
 		});
 
 		GameDef gd = g.createDef();
@@ -120,7 +125,7 @@ public class AnrMain implements WebSocketConfigurer {
 		String dump = yaml.dump(gd);
 		System.out.println(dump);
 
-		g.start();
+		g.startWith(PlayerType.RUNNER, 1);
 
 		gameRepository.register(new Endpoint(endpointProcessor(), g, "123", "456"));
 
