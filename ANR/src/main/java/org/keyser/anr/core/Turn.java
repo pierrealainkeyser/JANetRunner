@@ -280,6 +280,11 @@ public class Turn {
 		// TODO
 		return false;
 	}
+	
+	public boolean mayUseIceBreaker() {
+		// TODO
+		return false;
+	}
 
 	public boolean mayPlayAction() {
 		return TurnPhase.ACTION == phase;

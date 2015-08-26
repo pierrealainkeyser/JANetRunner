@@ -1,5 +1,6 @@
 package org.keyser.anr.core.runner.shaper;
 
+import org.keyser.anr.core.TokenType;
 import org.keyser.anr.core.runner.IceBreaker;
 import org.keyser.anr.core.runner.IceBreakerMetaCard;
 
@@ -15,6 +16,9 @@ public abstract class PersistanceBoostBreaker extends IceBreaker {
 		super(id, meta);
 	}
 
-
+	@Override
+	public int getComputedStrength() {
+		return super.getComputedStrength() + getToken(TokenType.HABILITY);
+	}
 
 }
