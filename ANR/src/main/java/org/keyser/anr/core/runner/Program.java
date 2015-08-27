@@ -23,6 +23,14 @@ public abstract class Program extends AbstractCardRunner {
 	protected ProgramMetaCard getMeta() {
 		return (ProgramMetaCard) super.getMeta();
 	}
+	
+	/**
+	 * Calcul de l'utilisation mémoire d'un program
+	 * @return
+	 */
+	public int computeMemoryUsage(){
+		return getMeta().getMemoryUnit();
+	}
 
 	@Override
 	public void playFeedback(CollectHabilities hab) {

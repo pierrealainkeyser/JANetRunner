@@ -111,12 +111,13 @@ public class Runner extends AbstractId implements ProgramsArea {
 		runMemoryCheck(next);
 
 	}
-	
+
 	/**
 	 * Calcule la mémoire disponible
+	 * 
 	 * @return
 	 */
-	public int computeAvailableMemory(){
+	public int computeAvailableMemory() {
 		DetermineAvailableMemory dam = new DetermineAvailableMemory(this);
 		game.fire(dam);
 
@@ -127,12 +128,17 @@ public class Runner extends AbstractId implements ProgramsArea {
 	@Override
 	public void runMemoryCheck(Flow next) {
 		int memory = computeAvailableMemory();
-		
-		
-		
-		// TODO gestion de l'effet
-		next.apply();
-		
+
+		int used = programs.stream().mapToInt(Program::computeMemoryUsage).sum();
+		if (used <= memory) {
+
+			// La mémoire est suffisante
+			next.apply();
+		} else {
+			// il faut nettoyer le superflu
+			next.apply();
+		}
+
 	}
 
 	/**
