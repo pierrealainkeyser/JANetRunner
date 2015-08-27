@@ -3,9 +3,11 @@ package org.keyser.anr.core.runner.shaper;
 import static java.util.Collections.emptyList;
 import static org.keyser.anr.core.Faction.SHAPER;
 
+import java.util.function.Predicate;
+
 import org.keyser.anr.core.Cost;
-import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.MetaCard;
+import org.keyser.anr.core.runner.DetermineAvailableMemory;
 import org.keyser.anr.core.runner.Hardware;
 
 public class AkamatsuMemChip extends Hardware {
@@ -14,14 +16,12 @@ public class AkamatsuMemChip extends Hardware {
 
 	protected AkamatsuMemChip(int id, MetaCard meta) {
 		super(id, meta);
-		whileInstalled(this::installed, this::uninstalled);
+		Predicate<DetermineAvailableMemory> installed = installed();
+		match(DetermineAvailableMemory.class, em -> em.test(installed.and(rezzed())).call(this::increaseDelta));
 	}
 
-	private void installed(Flow next) {
-		getRunner().alterMemory(1, next);
+	private void increaseDelta(DetermineAvailableMemory dam) {
+		dam.setDelta(dam.getDelta() + 1);
 	}
 
-	private void uninstalled(Flow next) {
-		getRunner().alterMemory(-1, next);
-	}
 }

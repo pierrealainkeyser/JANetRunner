@@ -17,6 +17,7 @@ import org.keyser.anr.core.HostType;
 import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.SimpleFeedback;
 import org.keyser.anr.core.UserAction;
+import org.keyser.anr.core.runner.DetermineIceBreakerStrengthEvent;
 import org.keyser.anr.core.runner.Hardware;
 import org.keyser.anr.core.runner.IceBreaker;
 import org.keyser.anr.core.runner.InstallHardwareAction;
@@ -30,23 +31,26 @@ public class ThePersonalTouch extends Hardware {
 	protected ThePersonalTouch(int id, MetaCard meta) {
 		super(id, meta);
 
-		whileInstalled(null, this::uninstalled);
+		Predicate<DetermineIceBreakerStrengthEvent> match = i->i.getPrimary()==getHost();
+		match(DetermineIceBreakerStrengthEvent.class, em -> em.test(match.and(installed()).and(rezzed())).call(this::increaseDelta));
 	}
 
-	private void uninstalled(Flow next) {
-		AbstractCard host = getHost();
-		if (host != null) {
-			IceBreaker parent = (IceBreaker) host;
-			parent.setBonusStrength(parent.getBonusStrength() - 1);
-		}
-		next.apply();
+	private void increaseDelta(DetermineIceBreakerStrengthEvent d) {
+		d.setDelta(d.getDelta() + 1);
+	}
+
+	private void installed(UserAction ua, Flow next) {
+
+		IceBreaker p = (IceBreaker) ua.getSource();
+		p.hostCard(this, HostType.CARD);
+		cleanupInstall(next);
+
 	}
 
 	@Override
 	protected Predicate<CollectHabilities> customizePlayPredicate(Predicate<CollectHabilities> pred) {
 		pred = pred.and(p -> cards().anyMatch(IS_AN_INSTALLED_ICEBREAKER));
 		return pred;
-
 	}
 
 	@Override
@@ -64,12 +68,4 @@ public class ThePersonalTouch extends Hardware {
 		}
 	}
 
-	private void installed(UserAction ua, Flow next) {
-
-		IceBreaker p = (IceBreaker) ua.getSource();
-		p.hostCard(this, HostType.CARD);
-		p.setBonusStrength(p.getBonusStrength() + 1);
-		cleanupInstall(next);
-
-	}
 }

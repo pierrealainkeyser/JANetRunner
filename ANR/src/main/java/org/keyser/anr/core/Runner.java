@@ -5,12 +5,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
+import org.keyser.anr.core.runner.DetermineAvailableMemory;
 import org.keyser.anr.core.runner.Hardware;
 import org.keyser.anr.core.runner.Program;
 import org.keyser.anr.core.runner.ProgramsArea;
 import org.keyser.anr.core.runner.Resource;
 
-public class Runner extends AbstractId implements ProgramsArea{
+public class Runner extends AbstractId implements ProgramsArea {
 
 	private final AbstractCardContainer<Resource> resources = new AbstractCardContainer<>(CardLocation::resources);
 
@@ -28,6 +29,10 @@ public class Runner extends AbstractId implements ProgramsArea{
 
 	protected Runner(int id, MetaCard meta) {
 		super(id, meta, PlayerType.RUNNER, CardLocation::runnerScore);
+	}
+
+	public int getBaseMemory() {
+		return 4;
 	}
 
 	@Override
@@ -99,28 +104,40 @@ public class Runner extends AbstractId implements ProgramsArea{
 	public AbstractCardContainer<AbstractCardRunner> getHeap() {
 		return heap;
 	}
-	
+
 	@Override
 	public void installProgram(Program program, Flow next) {
 		getPrograms().add(program);
 		runMemoryCheck(next);
-		
+
+	}
+	
+	/**
+	 * Calcule la mémoire disponible
+	 * @return
+	 */
+	public int computeAvailableMemory(){
+		DetermineAvailableMemory dam = new DetermineAvailableMemory(this);
+		game.fire(dam);
+
+		int memory = dam.getComputedMemory();
+		return memory;
 	}
 
 	@Override
 	public void runMemoryCheck(Flow next) {
+		int memory = computeAvailableMemory();
+		
+		
+		
 		// TODO gestion de l'effet
 		next.apply();
-	}
-
-	public void alterMemory(int delta, Flow next) {
-
-		// TODO gestion de l'effet
-		runMemoryCheck(next);
+		
 	}
 
 	/**
 	 * Gestion des dommages
+	 * 
 	 * @param damage
 	 * @param next
 	 */
@@ -128,20 +145,20 @@ public class Runner extends AbstractId implements ProgramsArea{
 
 		int size = grip.size();
 		if (damage <= size) {
-			
-			AbstractCardList acl=cardsInHands();
+
+			AbstractCardList acl = cardsInHands();
 			List<AbstractCard> cards = acl.getCards();
-		
-			//on prend les cartes au hasard
-			Collections.shuffle(cards);			
+
+			// on prend les cartes au hasard
+			Collections.shuffle(cards);
 			TrashList tl = new TrashList(TrashCause.DAMAGE);
 			for (int i = 0; i < damage; i++)
 				tl.add(cards.get(i));
-			
+
 			tl.trash(next);
 
 		} else {
-			//TODO  runner flatline !!
+			// TODO runner flatline !!
 			next.apply();
 		}
 
@@ -180,5 +197,4 @@ public class Runner extends AbstractId implements ProgramsArea{
 		return acl;
 	}
 
-	
 }
