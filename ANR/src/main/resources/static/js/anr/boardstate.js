@@ -369,7 +369,7 @@ RunBox, Point, ActionBus) {
 				card.setHost(host, path.index);
 				return true;
 			} else if ("resources" === first)
-				this.runner.addToResource(card.wrapped(), path.index);
+				this.runner.addToResources(card.wrapped(), path.index);
 			else if ("hardwares" === first)
 				this.runner.addToHardwares(card.wrapped(), path.index);
 			else if ("programs" === first)

@@ -4,6 +4,7 @@
     <card qty="1" id="bc0f047c-01b1-427f-a439-d451eda01033">Kate &quot;Mac&quot; McCaffrey: Digital Tinker</card>
   </section>
   <section name="R&amp;D / Stack">
+  	<card qty="3" id="bc0f047c-01b1-427f-a439-d451eda01053">Armitage Codebusting</card>
     <card qty="2" id="bc0f047c-01b1-427f-a439-d451eda01045">Net Shield</card>
     <card qty="2" id="bc0f047c-01b1-427f-a439-d451eda01035">Modded</card>
     <card qty="3" id="bc0f047c-01b1-427f-a439-d451eda01034">Diesel</card>
@@ -23,7 +24,7 @@
     <card qty="3" id="bc0f047c-01b1-427f-a439-d451eda01050">Sure Gamble</card>
     <card qty="3" id="bc0f047c-01b1-427f-a439-d451eda01051">Crypsis</card>
     <card qty="3" id="bc0f047c-01b1-427f-a439-d451eda01052">Access to Globalsec</card>
-    <card qty="3" id="bc0f047c-01b1-427f-a439-d451eda01053">Armitage Codebusting</card>
+    
   </section>
   <notes><![CDATA[]]></notes>
 </deck>

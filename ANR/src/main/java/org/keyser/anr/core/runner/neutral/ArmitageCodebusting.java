@@ -3,6 +3,7 @@ package org.keyser.anr.core.runner.neutral;
 import static java.util.Collections.emptyList;
 
 import org.keyser.anr.core.AbstractCardAction;
+import org.keyser.anr.core.AbstractCardInstalledCleanup;
 import org.keyser.anr.core.CollectHabilities;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.CostForAction;
@@ -22,6 +23,13 @@ public class ArmitageCodebusting extends Resource {
 		super(id, meta);
 
 		addAction(this::configureAction);
+
+		ArmitageCodebusting me = this;
+		match(AbstractCardInstalledCleanup.class, em -> em.test(AbstractCardInstalledCleanup.with(ac -> ac == me)).call(this::addTokens));
+	}
+
+	private void addTokens(AbstractCardInstalledCleanup acic) {
+		addToken(TokenType.CREDIT, 12);
 	}
 
 	private void configureAction(CollectHabilities hab) {
