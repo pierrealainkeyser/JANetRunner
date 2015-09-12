@@ -25,7 +25,7 @@ public abstract class Program extends AbstractCardRunner {
 	}
 	
 	/**
-	 * Calcul de l'utilisation mémoire d'un program
+	 * Calcul de l'utilisation mï¿½moire d'un program
 	 * @return
 	 */
 	public int computeMemoryUsage(){
@@ -99,7 +99,8 @@ public abstract class Program extends AbstractCardRunner {
 	 * @param next
 	 */
 	private void installedOnArea(ProgramsArea selected, Flow next) {
-		this.setRezzed(true);
+		setRezzed(true);
+		setInstalled(true);
 		selected.installProgram(this, next.wrap(this::cleanupInstall));
 	}
 }

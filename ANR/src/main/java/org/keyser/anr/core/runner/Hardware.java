@@ -22,6 +22,7 @@ public abstract class Hardware extends AbstractCardRunner {
 	protected void install(Flow next) {
 		Runner runner = getRunner();
 		setRezzed(true);
+		setInstalled(true);
 		runner.getHardwares().add(this);
 		cleanupInstall(next);
 	}

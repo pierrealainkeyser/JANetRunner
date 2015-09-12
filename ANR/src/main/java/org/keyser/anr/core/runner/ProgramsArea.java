@@ -8,7 +8,7 @@ import org.keyser.anr.core.Flow;
 public interface ProgramsArea {
 
 	/**
-	 * Permet d'installer un nouveau program. Gère également la mémoire
+	 * Permet d'installer un nouveau program. Gï¿½re ï¿½galement la mï¿½moire
 	 * 
 	 * @param program
 	 * @param next
@@ -16,14 +16,25 @@ public interface ProgramsArea {
 	public void installProgram(Program program, Flow next);
 
 	/**
-	 * Permet de gérer la mémoire. De voir s'il faut supprimer
+	 * Permet de gÃ©rer la mÃ©moire. En excluant le program installe
+	 * 
+	 * 
+	 * @param next
+	 * @param justInstalled
+	 */
+	public void runMemoryCheck(Flow next, Optional<Program> justInstalled);
+
+	/**
+	 * Gestion de mÃ©moire
 	 * 
 	 * @param next
 	 */
-	public void runMemoryCheck(Flow next);
+	public default void runMemoryCheck(Flow next) {
+		runMemoryCheck(next, Optional.empty());
+	}
 
 	/**
-	 * Renvoi la carte associée à la zone
+	 * Renvoi la carte associÃ©e la zone
 	 * 
 	 * @return
 	 */

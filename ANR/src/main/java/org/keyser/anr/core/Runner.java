@@ -3,7 +3,9 @@ package org.keyser.anr.core;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import org.keyser.anr.core.runner.DetermineAvailableMemory;
 import org.keyser.anr.core.runner.Hardware;
@@ -108,12 +110,12 @@ public class Runner extends AbstractId implements ProgramsArea {
 	@Override
 	public void installProgram(Program program, Flow next) {
 		getPrograms().add(program);
-		runMemoryCheck(next);
+		runMemoryCheck(next, Optional.of(program));
 
 	}
 
 	/**
-	 * Calcule la mémoire disponible
+	 * Calcule la mï¿½moire disponible
 	 * 
 	 * @return
 	 */
@@ -126,19 +128,30 @@ public class Runner extends AbstractId implements ProgramsArea {
 	}
 
 	@Override
-	public void runMemoryCheck(Flow next) {
+	public void runMemoryCheck(Flow next, Optional<Program> justInstalled) {
 		int memory = computeAvailableMemory();
 
 		int used = programs.stream().mapToInt(Program::computeMemoryUsage).sum();
 		if (used <= memory) {
 
-			// La mémoire est suffisante
+			// La mÃ©moire est suffisante
 			next.apply();
 		} else {
-			// il faut nettoyer le superflu
-			next.apply();
-		}
 
+			Flow runMemoryCheck = () -> runMemoryCheck(next, justInstalled);
+
+			Game g = getGame();
+			g.userContext(this, "Out of memory !");
+
+			//filtre le program en cours d'installation
+			Stream<Program> stream = programs.stream();
+			if (justInstalled.isPresent())
+				stream = stream.filter(p -> p != justInstalled.get());
+
+			stream.forEach(p -> {
+				g.user(new UserAction(this, p, null, "Trash").enabledDrag().apply((ua, n) -> p.trash(TrashCause.MEMORY_CHECK, n)), runMemoryCheck);
+			});
+		}
 	}
 
 	/**
