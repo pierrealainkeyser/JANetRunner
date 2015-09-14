@@ -5,6 +5,7 @@ import static org.keyser.anr.core.Faction.SHAPER;
 
 import java.util.function.Predicate;
 
+import org.keyser.anr.core.AbstractDetermineValueSequential;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.runner.DetermineAvailableMemory;
@@ -20,7 +21,7 @@ public class AkamatsuMemChip extends Hardware {
 		match(DetermineAvailableMemory.class, em -> em.test(installed.and(rezzed())).call(this::increaseDelta));
 	}
 
-	private void increaseDelta(DetermineAvailableMemory dam) {
+	private void increaseDelta(AbstractDetermineValueSequential dam) {
 		dam.setDelta(dam.getDelta() + 1);
 	}
 

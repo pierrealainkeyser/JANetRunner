@@ -3,10 +3,10 @@ package org.keyser.anr.core.runner;
 import org.keyser.anr.core.AbstractDetermineValueSequential;
 import org.keyser.anr.core.Runner;
 
-public class DetermineAvailableMemory extends AbstractDetermineValueSequential {
+public class DetermineAvailableLink extends AbstractDetermineValueSequential {
 
-	public DetermineAvailableMemory(Runner runner) {
-		super(runner, runner.getBaseMemory());
+	public DetermineAvailableLink(Runner runner) {
+		super(runner, runner.getBaseLink());
 	}
 
 	@Override

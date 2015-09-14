@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import org.keyser.anr.core.runner.DetermineAvailableLink;
 import org.keyser.anr.core.runner.DetermineAvailableMemory;
 import org.keyser.anr.core.runner.Hardware;
 import org.keyser.anr.core.runner.Program;
@@ -27,14 +28,16 @@ public class Runner extends AbstractId implements ProgramsArea {
 
 	private final AbstractCardContainer<AbstractCardRunner> heap = new AbstractCardContainer<>(CardLocation::heap);
 
-	private int link;
-
 	protected Runner(int id, MetaCard meta) {
 		super(id, meta, PlayerType.RUNNER, CardLocation::runnerScore);
 	}
 
 	public int getBaseMemory() {
 		return 4;
+	}
+	
+	public int getBaseLink() {
+		return 0;
 	}
 
 	@Override
@@ -123,7 +126,20 @@ public class Runner extends AbstractId implements ProgramsArea {
 		DetermineAvailableMemory dam = new DetermineAvailableMemory(this);
 		game.fire(dam);
 
-		int memory = dam.getComputedMemory();
+		int memory = dam.getComputed();
+		return memory;
+	}
+	
+	/**
+	 * Calcule le lien disponible
+	 * 
+	 * @return
+	 */
+	public int computeAvailableLink() {
+		DetermineAvailableLink dam = new DetermineAvailableLink(this);
+		game.fire(dam);
+
+		int memory = dam.getComputed();
 		return memory;
 	}
 
@@ -180,20 +196,6 @@ public class Runner extends AbstractId implements ProgramsArea {
 			// TODO runner flatline !!
 			next.apply();
 		}
-
-	}
-
-	public void alterLink(int delta) {
-		setLink(getLink() + delta);
-	}
-
-	public int getLink() {
-		return link;
-	}
-
-	public void setLink(int link) {
-		this.link = link;
-		// TODO notification effect
 	}
 
 	@Override

@@ -19,7 +19,7 @@ public abstract class IceBreaker extends Program {
 	public void computeStrength() {
 		DetermineIceBreakerStrengthEvent evt = new DetermineIceBreakerStrengthEvent(this);
 		game.fire(evt);
-		int cpt = evt.computeStrength();
+		int cpt = evt.getComputed();
 		int strength = getStrength();
 		setToken(TokenType.STRENGTH, Math.max(cpt - strength, 0));
 	}

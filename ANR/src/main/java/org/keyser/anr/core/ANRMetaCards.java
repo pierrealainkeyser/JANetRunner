@@ -21,6 +21,7 @@ import org.keyser.anr.core.corp.neutral.PADCampaign;
 import org.keyser.anr.core.corp.neutral.PriorityRequisition;
 import org.keyser.anr.core.corp.neutral.PrivateSecurityForce;
 import org.keyser.anr.core.corp.neutral.WallOfStatic;
+import org.keyser.anr.core.runner.neutral.AccessToGlobalsec;
 import org.keyser.anr.core.runner.neutral.ArmitageCodebusting;
 import org.keyser.anr.core.runner.neutral.SureGamble;
 import org.keyser.anr.core.runner.shaper.AkamatsuMemChip;
@@ -45,6 +46,7 @@ public class ANRMetaCards {
 		// neutral
 		INSTANCE.add(SureGamble.INSTANCE);
 		INSTANCE.add(ArmitageCodebusting.INSTANCE);
+		INSTANCE.add(AccessToGlobalsec.INSTANCE);
 
 		// corp
 		// NBN

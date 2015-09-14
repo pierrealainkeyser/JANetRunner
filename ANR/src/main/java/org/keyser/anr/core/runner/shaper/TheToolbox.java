@@ -6,12 +6,14 @@ import static org.keyser.anr.core.Faction.SHAPER;
 
 import java.util.function.Predicate;
 
+import org.keyser.anr.core.AbstractDetermineValueSequential;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.MetaCard;
 import org.keyser.anr.core.Runner;
 import org.keyser.anr.core.TokenCreditsSource;
 import org.keyser.anr.core.TokenType;
+import org.keyser.anr.core.runner.DetermineAvailableLink;
 import org.keyser.anr.core.runner.DetermineAvailableMemory;
 import org.keyser.anr.core.runner.Hardware;
 import org.keyser.anr.core.runner.UseIceBreakerAction;
@@ -27,24 +29,24 @@ public class TheToolbox extends Hardware {
 		whileInstalled(this::installed, this::uninstalled);
 		addRecuringCredit(2);
 
-		Predicate<DetermineAvailableMemory> installed = installed();
-		match(DetermineAvailableMemory.class, em -> em.test(installed.and(rezzed())).call(this::increaseDelta));
+		Predicate<DetermineAvailableMemory> installedMemory = installed();
+		Predicate<DetermineAvailableLink> installedLink = installed();
+		match(DetermineAvailableMemory.class, em -> em.test(installedMemory.and(rezzed())).call(this::increaseDelta));
+		match(DetermineAvailableLink.class, em -> em.test(installedLink.and(rezzed())).call(this::increaseDelta));
 	}
 
-	private void increaseDelta(DetermineAvailableMemory dam) {
+	private void increaseDelta(AbstractDetermineValueSequential dam) {
 		dam.setDelta(dam.getDelta() + 2);
 	}
 
 	private void installed(Flow next) {
 		Runner runner = getRunner();
 		runner.addCreditsSource(creditsSource);
-		runner.alterLink(2);
 	}
 
 	private void uninstalled(Flow next) {
 		Runner runner = getRunner();
 		runner.removeCreditSource(creditsSource);
-		runner.alterLink(-2);
 	}
 
 }

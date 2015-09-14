@@ -1,7 +1,7 @@
 package org.keyser.anr.core.runner;
 
-import org.keyser.anr.core.AbstractCardEvent;
-import org.keyser.anr.core.SequentialEvent;
+import org.keyser.anr.core.AbstractDetermineValueSequential;
+
 
 /**
  * Permet de connaitre la taille maximum de la main
@@ -9,32 +9,20 @@ import org.keyser.anr.core.SequentialEvent;
  * @author pakeyser
  *
  */
-public class DetermineIceBreakerStrengthEvent extends AbstractCardEvent implements SequentialEvent {
+public class DetermineIceBreakerStrengthEvent extends AbstractDetermineValueSequential {
 
-	private int strength;
-
-	private int delta;
+	
 
 	public DetermineIceBreakerStrengthEvent(IceBreaker iceBreaker) {
-		super(iceBreaker, null);
-		this.strength = iceBreaker.getStrength();
+		super(iceBreaker, iceBreaker.getStrength());
 	}
 
-	public int computeStrength() {
-		return strength + delta;
-	}
-
+	
 	@Override
 	public IceBreaker getPrimary() {
 		return (IceBreaker) super.getPrimary();
 	}
 
-	public int getDelta() {
-		return delta;
-	}
-
-	public void setDelta(int delta) {
-		this.delta = delta;
-	}
+	
 
 }
