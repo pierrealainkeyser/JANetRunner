@@ -1,15 +1,51 @@
 package org.keyser.anr.core;
 
+import org.keyser.anr.core.corp.CorpServer;
+
 public class Run {
 
 	public static enum Status {
 		SUCCESFUL, UNSUCCESFUL, UNKNOW, IN_PROGRESS;
 	}
 
-	private Status status;
+	private boolean mayJackOff = true;
+
+	private Status status = Status.IN_PROGRESS;
+
+	private CorpServer server;
+
+	private int id;
 
 	public Status getStatus() {
 		return status;
+	}
+
+	public boolean isMayJackOff() {
+		return mayJackOff;
+	}
+
+	public void setMayJackOff(boolean mayJackOff) {
+		this.mayJackOff = mayJackOff;
+	}
+
+	public CorpServer getServer() {
+		return server;
+	}
+
+	public void setServer(CorpServer server) {
+		this.server = server;
+	}
+
+	public void setStatus(Status status) {
+		this.status = status;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 }

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import org.keyser.anr.core.corp.CorpServer;
 import org.keyser.anr.core.corp.Ice;
 import org.keyser.anr.core.runner.DoDamageEvent;
 import org.keyser.anr.core.runner.DoDamageEvent.DamageType;
@@ -50,7 +51,8 @@ public class Turn {
 			if (!action) {
 				if (hasFeedbacks || requireQuestion()) {
 					// TODO gestion de la carte primaire pour le done. Par
-					// défaut sur l'ID, mais c'est pas bon pour l'approche ou la
+					// défaut sur l'ID, mais c'est pas bon pour l'approche ou
+					// la
 					// rencontre d'une glace
 					AbstractId me = id;
 					game.user(noop(me, me, "Done"), next);
@@ -65,8 +67,8 @@ public class Turn {
 
 		/**
 		 * Si c'est à la corporation de jouer et qu'il y a des cartes face
-		 * cachées on peut les rezzers, en tout cas le runner ne doit pas savoir
-		 * que la corpo n'a pas le budget
+		 * cachées on peut les rezzers, en tout cas le runner ne doit pas
+		 * savoir que la corpo n'a pas le budget
 		 * 
 		 * @return
 		 */
@@ -189,6 +191,30 @@ public class Turn {
 		this.turn = turn;
 	}
 
+	public Run newRun(int id,CorpServer server) {
+		Run r = new Run();
+		r.setId(id);
+		r.setServer(server);
+		this.runs.add(r);
+
+		game.fire(new RunStatusEvent(r));
+		return r;
+	}
+	
+	public void changeRunServer(CorpServer server){
+		getRun().ifPresent(r->{
+			r.setServer(server);
+			game.fire(new RunStatusEvent(r));
+		});
+	}
+	
+	public void endTheRun(Run.Status status){
+		getRun().ifPresent(r->{
+			r.setStatus(status);
+			game.fire(new RunStatusEvent(r));
+		});
+	}
+
 	/**
 	 * Accéde au run en cours (le dernier)
 	 * 
@@ -257,7 +283,7 @@ public class Turn {
 
 	public void discardPhase() {
 		setPhase(TurnPhase.DISCARD);
-		
+
 		AbstractId id = game.getId(active);
 		DetermineMaxHandSizeEvent max = new DetermineMaxHandSizeEvent(id);
 		game.fire(max);
@@ -280,7 +306,7 @@ public class Turn {
 		// TODO
 		return false;
 	}
-	
+
 	public boolean mayUseIceBreaker() {
 		// TODO
 		return false;

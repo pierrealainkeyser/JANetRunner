@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.keyser.anr.core.UserActionContext.Type;
+import org.keyser.anr.core.corp.CorpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -213,6 +214,8 @@ public class Game {
 	private ActionsContext actionsContext = new ActionsContext();
 
 	private int nextAction;
+	
+	private int nextRun;
 
 	private Turn turn;
 
@@ -416,6 +419,10 @@ public class Game {
 	public void startWith(PlayerType type, int nb) {
 		turn = new Turn(type, this, nb);
 		turn.start(this::nextTurn);
+	}
+	
+	public Run newRun(CorpServer server) {
+		return getTurn().newRun(nextRun++, server);
 	}
 
 	private void nextTurn() {

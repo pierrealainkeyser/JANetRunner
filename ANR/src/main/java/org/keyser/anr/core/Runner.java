@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import org.keyser.anr.core.corp.CorpServer;
 import org.keyser.anr.core.runner.DetermineAvailableLink;
 import org.keyser.anr.core.runner.DetermineAvailableMemory;
 import org.keyser.anr.core.runner.Hardware;
@@ -30,12 +31,31 @@ public class Runner extends AbstractId implements ProgramsArea {
 
 	protected Runner(int id, MetaCard meta) {
 		super(id, meta, PlayerType.RUNNER, CardLocation::runnerScore);
+
+		addAction(this::registerRunAction);
+	}
+
+	private void registerRunAction(CollectHabilities ch) {
+
+		Cost oneClick = Cost.click(1);
+		game.getCorp().eachServers(cs -> {
+			UserAction ua = new UserAction(this, cs, new CostForAction(oneClick, new RunAction(cs)), "Run");
+			ch.add(ua.enabledDrag().spendAndApply(n -> startRun(cs, n)));
+		});
+	}
+
+	private void startRun(CorpServer server, Flow next) {
+		game.newRun(server);
+		
+		
+		//TODO gestion du run
+		next.apply();
 	}
 
 	public int getBaseMemory() {
 		return 4;
 	}
-	
+
 	public int getBaseLink() {
 		return 0;
 	}
@@ -129,7 +149,7 @@ public class Runner extends AbstractId implements ProgramsArea {
 		int memory = dam.getComputed();
 		return memory;
 	}
-	
+
 	/**
 	 * Calcule le lien disponible
 	 * 
@@ -159,7 +179,7 @@ public class Runner extends AbstractId implements ProgramsArea {
 			Game g = getGame();
 			g.userContext(this, "Out of memory !");
 
-			//filtre le program en cours d'installation
+			// filtre le program en cours d'installation
 			Stream<Program> stream = programs.stream();
 			if (justInstalled.isPresent())
 				stream = stream.filter(p -> p != justInstalled.get());
