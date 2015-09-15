@@ -214,7 +214,7 @@ public class Game {
 	private ActionsContext actionsContext = new ActionsContext();
 
 	private int nextAction;
-	
+
 	private int nextRun;
 
 	private Turn turn;
@@ -415,14 +415,14 @@ public class Game {
 	public void start() {
 		startWith(PlayerType.CORP, 0);
 	}
-	
+
 	public void startWith(PlayerType type, int nb) {
 		turn = new Turn(type, this, nb);
 		turn.start(this::nextTurn);
 	}
-	
-	public Run newRun(CorpServer server) {
-		return getTurn().newRun(nextRun++, server);
+
+	public void newRun(CorpServer server, Flow next) {
+		getTurn().newRun(nextRun++, server, next);
 	}
 
 	private void nextTurn() {

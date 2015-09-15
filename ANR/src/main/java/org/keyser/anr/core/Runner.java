@@ -40,16 +40,13 @@ public class Runner extends AbstractId implements ProgramsArea {
 		Cost oneClick = Cost.click(1);
 		game.getCorp().eachServers(cs -> {
 			UserAction ua = new UserAction(this, cs, new CostForAction(oneClick, new RunAction(cs)), "Run");
-			ch.add(ua.enabledDrag().spendAndApply(n -> startRun(cs, n)));
+			ch.add(ua.spendAndApply(n -> startRun(cs, n)));
 		});
 	}
 
 	private void startRun(CorpServer server, Flow next) {
-		game.newRun(server);
-		
-		
-		//TODO gestion du run
-		next.apply();
+		game.newRun(server, next);
+
 	}
 
 	public int getBaseMemory() {

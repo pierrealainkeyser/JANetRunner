@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import org.keyser.anr.core.Run.Status;
 import org.keyser.anr.core.corp.CorpServer;
 import org.keyser.anr.core.corp.Ice;
 import org.keyser.anr.core.runner.DoDamageEvent;
@@ -67,8 +68,8 @@ public class Turn {
 
 		/**
 		 * Si c'est à la corporation de jouer et qu'il y a des cartes face
-		 * cachées on peut les rezzers, en tout cas le runner ne doit pas
-		 * savoir que la corpo n'a pas le budget
+		 * cachées on peut les rezzers, en tout cas le runner ne doit pas savoir
+		 * que la corpo n'a pas le budget
 		 * 
 		 * @return
 		 */
@@ -191,40 +192,42 @@ public class Turn {
 		this.turn = turn;
 	}
 
-	public Run newRun(int id,CorpServer server) {
+	public void newRun(int id, CorpServer server, Flow next) {
 		Run r = new Run();
 		r.setId(id);
 		r.setServer(server);
+		r.setNext(next);
 		this.runs.add(r);
 
 		game.fire(new RunStatusEvent(r));
-		return r;
 	}
-	
-	public void changeRunServer(CorpServer server){
-		getRun().ifPresent(r->{
+
+	public void changeRunServer(CorpServer server) {
+		getRun().ifPresent(r -> {
 			r.setServer(server);
 			game.fire(new RunStatusEvent(r));
 		});
 	}
-	
-	public void endTheRun(Run.Status status){
-		getRun().ifPresent(r->{
+
+	public void endTheRun(Run.Status status) {
+		getRun().ifPresent(r -> {
 			r.setStatus(status);
 			game.fire(new RunStatusEvent(r));
 		});
 	}
 
 	/**
-	 * Accéde au run en cours (le dernier)
+	 * Accéde au run en cours (le dernier en cours)
 	 * 
 	 * @return
 	 */
 	public Optional<Run> getRun() {
-		if (runs.isEmpty())
-			return Optional.empty();
-		else
-			return Optional.of(runs.get(runs.size() - 1));
+		if (!runs.isEmpty()) {
+			Run last = runs.get(runs.size() - 1);
+			if (last.getStatus() == Status.IN_PROGRESS)
+				return Optional.of(last);
+		}
+		return Optional.empty();
 	}
 
 	/**
@@ -288,7 +291,7 @@ public class Turn {
 		DetermineMaxHandSizeEvent max = new DetermineMaxHandSizeEvent(id);
 		game.fire(max);
 
-		// le joueur doit d�fausser ce qu'il peut
+		// le joueur doit d�fausser ce qu'il peut
 		id.discardUntil(max.computeMaxHandSize(), this::terminate);
 
 	}

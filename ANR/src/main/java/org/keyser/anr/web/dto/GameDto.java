@@ -12,6 +12,8 @@ public class GameDto {
 	private List<ServerDto> servers;
 
 	private List<CardDto> cards;
+	
+	private List<RunDTO> runs;
 
 	private Clicks clicks;
 
@@ -107,6 +109,14 @@ public class GameDto {
 
 	public void setActions(ActionIndicatorDto actions) {
 		this.actions = actions;
+	}
+
+	public List<RunDTO> getRuns() {
+		return runs;
+	}
+
+	public void setRuns(List<RunDTO> runs) {
+		this.runs = runs;
 	}
 
 }

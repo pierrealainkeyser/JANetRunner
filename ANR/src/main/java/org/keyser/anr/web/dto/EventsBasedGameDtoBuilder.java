@@ -30,6 +30,8 @@ import org.keyser.anr.core.Game.ActionsContext;
 import org.keyser.anr.core.NoopUserAction;
 import org.keyser.anr.core.OrderEventsAction;
 import org.keyser.anr.core.PlayerType;
+import org.keyser.anr.core.Run;
+import org.keyser.anr.core.RunStatusEvent;
 import org.keyser.anr.core.Runner;
 import org.keyser.anr.core.Turn;
 import org.keyser.anr.core.UserAction;
@@ -54,6 +56,8 @@ public class EventsBasedGameDtoBuilder {
 
 	private List<String> chats = new ArrayList<>();
 
+	private List<RunDTO> runs = new ArrayList<>();
+
 	private final Game game;
 
 	public EventsBasedGameDtoBuilder(Game game) {
@@ -69,6 +73,7 @@ public class EventsBasedGameDtoBuilder {
 		match(AbstractCardActionChangedEvent.class, this::actions);
 		match(AbstractCardScoreChangedEvent.class, this::score);
 		match(ChatEvent.class, this::chats);
+		match(RunStatusEvent.class, this::run);
 		this.game.bind(matchers);
 
 		return this;
@@ -108,6 +113,10 @@ public class EventsBasedGameDtoBuilder {
 		with(card, dto -> dto.addToken(evt.getType(), card.getToken(evt.getType())));
 	}
 
+	private void run(RunStatusEvent evt) {
+		runs.add(toDTO(evt.getRun()));
+	}
+
 	private void actions(AbstractCardActionChangedEvent evt) {
 		actionsChanged.add(evt.getPrimary().getOwner());
 	}
@@ -134,7 +143,6 @@ public class EventsBasedGameDtoBuilder {
 	}
 
 	private ServerDto createServer(int id, Operation operation) {
-
 		return new ServerDto(id, operation);
 	}
 
@@ -185,7 +193,22 @@ public class EventsBasedGameDtoBuilder {
 			servers.add(serverDto = createServer(id, null));
 
 		return serverDto;
+	}
 
+	private RunDTO toDTO(Run r) {
+		RunDTO dto = new RunDTO();
+		dto.setId(r.getId());
+		dto.setServer(r.getServer().getId());
+		if (r.getStatus() != Run.Status.IN_PROGRESS)
+			dto.setOperation("remove");
+		return dto;
+	}
+
+	private void addRun(GameDto game, RunDTO run) {
+		List<RunDTO> runs = game.getRuns();
+		if (runs == null)
+			game.setRuns(runs = new ArrayList<>());
+		runs.add(run);
 	}
 
 	private void updateCommon(Game game, GameDto dto, PlayerType playerType) {
@@ -203,6 +226,9 @@ public class EventsBasedGameDtoBuilder {
 
 		if (!chats.isEmpty())
 			dto.setChats(chats);
+
+		Optional<Run> run = game.getTurn().getRun();
+		run.ifPresent(r -> addRun(dto, toDTO(r)));
 
 		if (!scoreChanged.isEmpty())
 			dto.setScore(game.getCorp().getScore(), game.getRunner().getScore());
@@ -337,6 +363,10 @@ public class EventsBasedGameDtoBuilder {
 		// TODO liste des nouveaux serveurs
 
 		updateCommon(game, dto, type);
+
+		// un run à changer d'état
+		if (!runs.isEmpty())
+			dto.setRuns(runs);
 
 		return dto;
 	}

@@ -13,6 +13,8 @@ public class Run {
 	private Status status = Status.IN_PROGRESS;
 
 	private CorpServer server;
+	
+	private Flow next;
 
 	private int id;
 
@@ -46,6 +48,14 @@ public class Run {
 
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	public Flow getNext() {
+		return next;
+	}
+
+	public void setNext(Flow next) {
+		this.next = next;
 	}
 
 }
