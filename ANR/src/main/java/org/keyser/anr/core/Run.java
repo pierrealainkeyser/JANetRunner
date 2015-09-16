@@ -1,6 +1,9 @@
 package org.keyser.anr.core;
 
+import java.util.Optional;
+
 import org.keyser.anr.core.corp.CorpServer;
+import org.keyser.anr.core.corp.Ice;
 
 public class Run {
 
@@ -8,21 +11,122 @@ public class Run {
 		SUCCESFUL, UNSUCCESFUL, UNKNOW, IN_PROGRESS;
 	}
 
+	public static enum Step {
+		APPROCHING_ICE, ENCOUTERING_ICE, PASSING_ICE, APPROCHING_SERVER, ACCESSING
+	}
+
 	private boolean mayJackOff = true;
 
 	private Status status = Status.IN_PROGRESS;
 
 	private CorpServer server;
-	
+
 	private final Flow next;
 
 	private final int id;
-	
-	private boolean cleared=false;
-	
-	public Run(int id, Flow next) {
+
+	private boolean cleared = false;
+
+	private final Game game;
+
+	private Step step;
+
+	private int depth;
+
+	private EncounteredIce ice;
+
+	public Run(Game game, int id, Flow next, CorpServer server) {
+		this.game = game;
 		this.id = id;
 		this.next = next;
+		setServer(server);
+	}
+
+	public Optional<EncounteredIce> getIce() {
+		return Optional.ofNullable(ice);
+	}
+
+	/**
+	 * Commence le run
+	 */
+	public void begin() {
+		depth = server.icesCount();
+		prepapreApprochCurrentIce();
+	}
+
+	private void setStep(Step step) {
+		this.step = step;
+	}
+
+	private void prepapreApprochCurrentIce() {
+		if (depth == 0) {
+			setStep(Step.APPROCHING_SERVER);
+			// TODO evt de début d'approche de serveur
+			game.apply(new Object(), this::approchServer);
+		} else {
+			setStep(Step.APPROCHING_ICE);
+
+			Ice ice = server.getIceAtHeight(depth - 1);
+			this.ice = new EncounteredIce(ice);
+
+			// TODO evt de début d'approche de glace
+			game.apply(new Object(), this::approchCurrentIce);
+		}
+	}
+
+	private void approchCurrentIce() {
+		// permet de rezzer la glace
+		this.game.getTurn().pingpong(this::prepareEncounterCurrentIce);
+	}
+
+	private void prepareEncounterCurrentIce() {
+		// on peut utiliser les icebreakers
+		setStep(Step.ENCOUTERING_ICE);
+
+		// TODO evenement de début de rencontre
+		game.apply(new Object(), this::encounterCurrentIce);
+	}
+
+	private void encounterCurrentIce() {
+		// TODO il est possible de casser les routines
+		if (ice.isBypassed()) {
+			passCurrentIce();
+		} else {
+			// ping pong pour breaker la glace
+			game.getTurn().pingpong(this::afterIceEncountered);
+		}
+
+	}
+
+	private void afterIceEncountered() {
+		if (ice.isBypassed()) {
+			passCurrentIce();
+		}
+
+		// TODO gestion des routines restantes
+	}
+
+	private void passCurrentIce() {
+		this.ice = null;
+		this.depth--;
+		prepapreApprochCurrentIce();
+	}
+
+	private void approchServer() {
+
+	}
+
+	/**
+	 * Nettoyage du run
+	 */
+	public void clear() {
+
+		cleared = true;
+		game.fire(new RunStatusEvent(this));
+
+		// on envoi la fin du run avec un evenement sur le run
+		game.apply(new CleanupTheRun(this), next);
+
 	}
 
 	public Status getStatus() {
@@ -61,8 +165,8 @@ public class Run {
 		return cleared;
 	}
 
-	public void setCleared(boolean cleared) {
-		this.cleared = cleared;
+	public Step getStep() {
+		return step;
 	}
 }
 

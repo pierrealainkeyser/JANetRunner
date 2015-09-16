@@ -67,8 +67,8 @@ public class Turn {
 
 		/**
 		 * Si c'est à la corporation de jouer et qu'il y a des cartes face
-		 * cachées on peut les rezzers, en tout cas le runner ne doit pas savoir
-		 * que la corpo n'a pas le budget
+		 * cachées on peut les rezzers, en tout cas le runner ne doit pas
+		 * savoir que la corpo n'a pas le budget
 		 * 
 		 * @return
 		 */
@@ -192,25 +192,11 @@ public class Turn {
 	}
 
 	public void newRun(int id, CorpServer server, Flow next) {
-		Run r = new Run(id,next);
-		r.setServer(server);
+		Run r = new Run(game, id, next, server);
 		this.runs.add(r);
 
-		game.fire(new RunStatusEvent(r));
-	}
+		game.apply(new RunStatusEvent(r), rse -> r.begin());
 
-	public void changeRunServer(CorpServer server) {
-		getRun().ifPresent(r -> {
-			r.setServer(server);
-			game.fire(new RunStatusEvent(r));
-		});
-	}
-
-	public void clearTheRun() {
-		getRun().ifPresent(r -> {
-			r.setCleared(true);
-			game.fire(new RunStatusEvent(r));
-		});
 	}
 
 	/**
