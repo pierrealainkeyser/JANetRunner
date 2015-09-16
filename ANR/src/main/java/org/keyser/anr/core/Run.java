@@ -42,6 +42,14 @@ public class Run {
 		setServer(server);
 	}
 
+	public boolean mayRezzIce() {
+		return Step.APPROCHING_ICE == step;
+	}
+
+	public boolean mayUseBreaker() {
+		return Step.ENCOUTERING_ICE == step;
+	}
+
 	public Optional<EncounteredIce> getIce() {
 		return Optional.ofNullable(ice);
 	}

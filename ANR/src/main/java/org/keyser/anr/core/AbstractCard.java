@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -438,6 +439,15 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	protected <T> Predicate<T> turn(Predicate<Turn> p) {
 		return (t) -> {
 			return p.test(game.getTurn());
+		};
+	}
+	
+	protected <T> Predicate<T> run(Predicate<Run> p) {
+		return (t) -> {
+			Optional<Run> run = game.getTurn().getRun();
+			if(run.isPresent())
+				return p.test(run.get());
+			return false;
 		};
 	}
 
