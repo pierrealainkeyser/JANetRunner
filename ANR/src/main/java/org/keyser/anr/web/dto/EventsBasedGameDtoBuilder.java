@@ -114,7 +114,11 @@ public class EventsBasedGameDtoBuilder {
 	}
 
 	private void run(RunStatusEvent evt) {
-		runs.add(toDTO(evt.getRun()));
+		// évite les doublons en se basant sur l'ID
+		Run run = evt.getRun();
+		if (!runs.stream().map(RunDTO::getId).anyMatch(id -> id == run.getId())) {
+			runs.add(toDTO(run));
+		}
 	}
 
 	private void actions(AbstractCardActionChangedEvent evt) {
@@ -199,7 +203,7 @@ public class EventsBasedGameDtoBuilder {
 		RunDTO dto = new RunDTO();
 		dto.setId(r.getId());
 		dto.setServer(r.getServer().getId());
-		if (r.getStatus() != Run.Status.IN_PROGRESS)
+		if (r.isCleared())
 			dto.setOperation("remove");
 		return dto;
 	}
@@ -208,7 +212,6 @@ public class EventsBasedGameDtoBuilder {
 		List<RunDTO> runs = game.getRuns();
 		if (runs == null)
 			game.setRuns(runs = new ArrayList<>());
-		runs.add(run);
 	}
 
 	private void updateCommon(Game game, GameDto dto, PlayerType playerType) {

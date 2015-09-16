@@ -14,9 +14,16 @@ public class Run {
 
 	private CorpServer server;
 	
-	private Flow next;
+	private final Flow next;
 
-	private int id;
+	private final int id;
+	
+	private boolean cleared=false;
+	
+	public Run(int id, Flow next) {
+		this.id = id;
+		this.next = next;
+	}
 
 	public Status getStatus() {
 		return status;
@@ -46,18 +53,17 @@ public class Run {
 		return id;
 	}
 
-	public void setId(int id) {
-		this.id = id;
-	}
-
 	public Flow getNext() {
 		return next;
 	}
 
-	public void setNext(Flow next) {
-		this.next = next;
+	public boolean isCleared() {
+		return cleared;
 	}
 
+	public void setCleared(boolean cleared) {
+		this.cleared = cleared;
+	}
 }
 
 // extends AbstractGameContent implements Flow {

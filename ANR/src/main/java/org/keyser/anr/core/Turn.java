@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-import org.keyser.anr.core.Run.Status;
 import org.keyser.anr.core.corp.CorpServer;
 import org.keyser.anr.core.corp.Ice;
 import org.keyser.anr.core.runner.DoDamageEvent;
@@ -193,10 +192,8 @@ public class Turn {
 	}
 
 	public void newRun(int id, CorpServer server, Flow next) {
-		Run r = new Run();
-		r.setId(id);
+		Run r = new Run(id,next);
 		r.setServer(server);
-		r.setNext(next);
 		this.runs.add(r);
 
 		game.fire(new RunStatusEvent(r));
@@ -209,22 +206,22 @@ public class Turn {
 		});
 	}
 
-	public void endTheRun(Run.Status status) {
+	public void clearTheRun() {
 		getRun().ifPresent(r -> {
-			r.setStatus(status);
+			r.setCleared(true);
 			game.fire(new RunStatusEvent(r));
 		});
 	}
 
 	/**
-	 * Accéde au run en cours (le dernier en cours)
+	 * Accéde au run en cours (le dernier en pas cleared)
 	 * 
 	 * @return
 	 */
 	public Optional<Run> getRun() {
 		if (!runs.isEmpty()) {
 			Run last = runs.get(runs.size() - 1);
-			if (last.getStatus() == Status.IN_PROGRESS)
+			if (!last.isCleared())
 				return Optional.of(last);
 		}
 		return Optional.empty();
