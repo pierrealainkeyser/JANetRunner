@@ -36,6 +36,7 @@ import org.keyser.anr.core.Runner;
 import org.keyser.anr.core.Turn;
 import org.keyser.anr.core.UserAction;
 import org.keyser.anr.core.UserActionConfirmSelection;
+import org.keyser.anr.core.UserActionContext;
 import org.keyser.anr.core.UserActionSelectCard;
 import org.keyser.anr.core.UserDragAction;
 import org.keyser.anr.core.VariableCost;
@@ -114,7 +115,7 @@ public class EventsBasedGameDtoBuilder {
 	}
 
 	private void run(RunStatusEvent evt) {
-		// �vite les doublons en se basant sur l'ID
+		// �vite les doublons en se basant sur l'ID
 		Run run = evt.getRun();
 		if (!runs.stream().map(RunDTO::getId).anyMatch(id -> id == run.getId())) {
 			runs.add(toDTO(run));
@@ -217,7 +218,6 @@ public class EventsBasedGameDtoBuilder {
 	private void updateCommon(Game game, GameDto dto, PlayerType playerType) {
 
 		ActionsContext actionsContext = game.getActionsContext();
-		dto.setPrimary(actionsContext.getContext());
 		Turn turn = game.getTurn();
 		dto.setTurn(new TurnDTO(turn.getActive(), turn.getPhase()));
 
@@ -239,7 +239,13 @@ public class EventsBasedGameDtoBuilder {
 		boolean corpAction = false;
 		boolean runnerAction = false;
 
+		// on reset les actions car la méthode peut-être utilisé plusieurs fois
+		for (CardDto cdto : cards.values()) {
+			cdto.setActions(null);
+		}
+
 		// les actions sont à mapper sur les cartes...
+		boolean basicClone = true;
 		for (UserAction ua : actionsContext.getUserActions()) {
 
 			PlayerType to = ua.getTo();
@@ -249,6 +255,7 @@ public class EventsBasedGameDtoBuilder {
 				runnerAction = true;
 
 			if (playerType == ua.getTo()) {
+				basicClone = false;
 
 				AbstractCard source = ua.getSource();
 				CorpServer server = ua.getServer();
@@ -265,6 +272,11 @@ public class EventsBasedGameDtoBuilder {
 				}
 			}
 		}
+
+		UserActionContext primary = actionsContext.getContext();
+		if (basicClone)
+			primary = primary.basicClone();
+		dto.setPrimary(primary);
 
 		dto.setActions(new ActionIndicatorDto(corpAction, runnerAction));
 
@@ -359,9 +371,12 @@ public class EventsBasedGameDtoBuilder {
 		return new VariableCostDto(vc.getCost().toString(), vc.isEnabled());
 	}
 
+	public void uninstallMatchers() {
+		matchers.uninstall();
+	}
+
 	public GameDto build(PlayerType type) {
 
-		matchers.uninstall();
 		GameDto dto = new GameDto();
 		// TODO liste des nouveaux serveurs
 

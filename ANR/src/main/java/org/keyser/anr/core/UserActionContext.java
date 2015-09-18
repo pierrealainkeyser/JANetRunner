@@ -17,13 +17,24 @@ public class UserActionContext {
 	private Integer id;
 
 	private Type type;
-	
+
 	private CardLocation expectedAt;
 
 	public UserActionContext(AbstractCard primary, String customText, Type type) {
 		this.id = primary != null ? primary.getId() : null;
 		this.text = customText;
 		this.type = type;
+	}
+
+	private UserActionContext(String text, Integer id, Type type, CardLocation expectedAt) {
+		super();
+		this.id = id;
+		this.type = type;
+		this.expectedAt = expectedAt;
+	}
+
+	public UserActionContext basicClone() {
+		return new UserActionContext(text, id, Type.BASIC, expectedAt);
 	}
 
 	public String getText() {

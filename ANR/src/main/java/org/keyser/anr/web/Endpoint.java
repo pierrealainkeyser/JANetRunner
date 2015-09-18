@@ -72,6 +72,8 @@ public class Endpoint {
 
 			// invocation de la reponse
 			game.invoke(message.getRid(), converter, message.getObject());
+			
+			builder.uninstallMatchers();
 
 			// broadcast du resultat
 			for (RemoteSuscriber suscriber : connected.values()) {

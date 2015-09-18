@@ -242,10 +242,13 @@ RunBox, Point, ActionBus) {
 				this.turnTracker.runnerScore.setScore(score.runner);
 			}
 
+			var corpAction = false;
+			var runnerAction = false;
+
 			var actions = msg.actions;
 			if (actions) {
-				this.turnTracker.corpScore.setActive(actions.corp == true);
-				this.turnTracker.runnerScore.setActive(actions.runner == true);
+				this.turnTracker.corpScore.setActive(corpAction = actions.corp == true);
+				this.turnTracker.runnerScore.setActive(runnerAction = actions.runner == true);
 			}
 
 			var clicks = msg.clicks;
@@ -261,12 +264,20 @@ RunBox, Point, ActionBus) {
 				else if ('RUNNER' === player)
 					this.turnTracker.activeFaction.setFaction(this.turnTracker.runnerScore.faction);
 
+				
+
 				this.turnTracker.gameStep.setText(turn.phase);
 			}
 
 			var primary = msg.primary;
 			if (primary) {
-				this.turnTracker.gamePhase.setText(primary.text);
+				
+				var text = primary.text;
+				if ((this.local == 'CORP' && !corpAction) || (this.local == 'RUNNER' && !runnerAction)) {
+					text = 'Waiting other player'
+				}
+				
+				this.turnTracker.gamePhase.setText(text);
 			}
 		}
 
