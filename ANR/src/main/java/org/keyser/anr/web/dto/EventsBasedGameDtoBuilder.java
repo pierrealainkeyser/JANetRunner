@@ -213,6 +213,7 @@ public class EventsBasedGameDtoBuilder {
 		List<RunDTO> runs = game.getRuns();
 		if (runs == null)
 			game.setRuns(runs = new ArrayList<>());
+		runs.add(run);
 	}
 
 	private void updateCommon(Game game, GameDto dto, PlayerType playerType) {
