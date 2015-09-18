@@ -38,7 +38,22 @@ public class Turn {
 				text = "Play an action";
 
 			AbstractId id = game.getId(active);
-			game.userContext(id, text);
+			AbstractCard source = id;
+			UserActionContext.Type type = UserActionContext.Type.BASIC;
+
+			Optional<Run> optRun = getRun();
+			if (optRun.isPresent()) {
+				Run r = optRun.get();
+				if (r.isIceBased()) {
+
+					// on se centre sur la glace
+					source = r.getIce().get().getIce();
+					type = UserActionContext.Type.POP_CARD;
+				}
+			}
+
+			game.userContext(source, text, type);
+
 			for (Feedback<?, ?> feedback : feedbacks) {
 				if (feedback.checkCost()) {
 					game.user(feedback, next.wrap(feedbackConsumer.wrap(feedback)));
@@ -54,8 +69,7 @@ public class Turn {
 					// défaut sur l'ID, mais c'est pas bon pour l'approche ou
 					// la
 					// rencontre d'une glace
-					AbstractId me = id;
-					game.user(noop(me, me, "Done"), next);
+					game.user(noop(id, source, "Done"), next);
 				} else
 					next.apply();
 			}
@@ -67,8 +81,8 @@ public class Turn {
 
 		/**
 		 * Si c'est à la corporation de jouer et qu'il y a des cartes face
-		 * cachées on peut les rezzers, en tout cas le runner ne doit pas
-		 * savoir que la corpo n'a pas le budget
+		 * cachées on peut les rezzers, en tout cas le runner ne doit pas savoir
+		 * que la corpo n'a pas le budget
 		 * 
 		 * @return
 		 */

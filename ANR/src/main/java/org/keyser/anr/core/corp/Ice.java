@@ -3,6 +3,7 @@ package org.keyser.anr.core.corp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.keyser.anr.core.AbstractCardCorp;
@@ -14,6 +15,7 @@ import org.keyser.anr.core.CostForAction;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.Game;
 import org.keyser.anr.core.MetaCard;
+import org.keyser.anr.core.Run;
 import org.keyser.anr.core.TrashCause;
 import org.keyser.anr.core.TrashList;
 import org.keyser.anr.core.UserAction;
@@ -40,7 +42,13 @@ public abstract class Ice extends AbstractCardCorp {
 
 	@Override
 	public boolean isRezzable() {
-		// TODO la glace peut -être rezzée à certains moments clés
+		// la glace peut -être rezzée à certains moments clés
+		Optional<Run> optRun = game.getTurn().getRun();
+		if (optRun.isPresent()) {
+
+			Run run = optRun.get();
+			return run.mayRezzIce(this);
+		}
 		return false;
 	}
 
@@ -54,7 +62,7 @@ public abstract class Ice extends AbstractCardCorp {
 
 		Corp corp = getCorp();
 		AbstractCardList list = new AbstractCardList();
-		selected.streamIces().forEach(list::add);		
+		selected.streamIces().forEach(list::add);
 
 		if (!list.isEmpty()) {
 			Game g = getGame();

@@ -15,6 +15,7 @@ import org.keyser.anr.core.Runner;
 import org.keyser.anr.core.TestOCTGNParser;
 import org.keyser.anr.core.TokenType;
 import org.keyser.anr.core.UserInputConverter;
+import org.keyser.anr.core.corp.Ice;
 import org.keyser.anr.web.AnrUserInputConverter;
 import org.keyser.anr.web.AnrWebSocketHandler;
 import org.keyser.anr.web.Endpoint;
@@ -113,6 +114,10 @@ public class AnrMain implements WebSocketConfigurer {
 		corp.setToken(TokenType.CREDIT, 5);
 		corp.draw(1, () -> {
 		});
+
+		Ice i = (Ice) corp.getHq().getStack().get(0);
+		corp.getRd().addIce(i, 0);
+		i.setInstalled(true);
 
 		Runner runner = g.getRunner();
 		runner.setToken(TokenType.CREDIT, 5);

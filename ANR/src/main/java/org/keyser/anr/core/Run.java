@@ -42,8 +42,16 @@ public class Run {
 		setServer(server);
 	}
 
-	public boolean mayRezzIce() {
+	public boolean isIceBased() {
+		return mayRezzIce() || mayUseBreaker();
+	}
+
+	private boolean mayRezzIce() {
 		return Step.APPROCHING_ICE == step;
+	}
+
+	public boolean mayRezzIce(Ice ice) {
+		return mayRezzIce() && this.ice.getIce() == ice;
 	}
 
 	public boolean mayUseBreaker() {
@@ -59,26 +67,26 @@ public class Run {
 	 */
 	public void begin() {
 		depth = server.icesCount();
-		prepapreApprochCurrentIce();
+		prepareApprochCurrentIce();
 	}
 
 	private void setStep(Step step) {
 		this.step = step;
 	}
 
-	private void prepapreApprochCurrentIce() {
+	private void prepareApprochCurrentIce() {
 		if (depth == 0) {
 			setStep(Step.APPROCHING_SERVER);
-			// TODO evt de dÈbut d'approche de serveur
-			game.apply(new Object(), this::approchServer);
+			// evt de d√©but d'approche de serveur
+			game.apply(new ApprochingServerEvent(server), this::approchServer);
 		} else {
 			setStep(Step.APPROCHING_ICE);
 
-			Ice ice = server.getIceAtHeight(depth - 1);
+			Ice ice = server.getIceAtHeight(depth);
 			this.ice = new EncounteredIce(ice);
 
-			// TODO evt de dÈbut d'approche de glace
-			game.apply(new Object(), this::approchCurrentIce);
+			// evt de d√©but d'approche de glace
+			game.apply(new ApprochingIceEvent(ice), this::approchCurrentIce);
 		}
 	}
 
@@ -91,12 +99,11 @@ public class Run {
 		// on peut utiliser les icebreakers
 		setStep(Step.ENCOUTERING_ICE);
 
-		// TODO evenement de dÈbut de rencontre
-		game.apply(new Object(), this::encounterCurrentIce);
+		// evenement de d√©but de rencontre
+		game.apply(new EncounteringIceEvent(this.ice), this::encounterCurrentIce);
 	}
 
 	private void encounterCurrentIce() {
-		// TODO il est possible de casser les routines
 		if (ice.isBypassed()) {
 			passCurrentIce();
 		} else {
@@ -117,11 +124,12 @@ public class Run {
 	private void passCurrentIce() {
 		this.ice = null;
 		this.depth--;
-		prepapreApprochCurrentIce();
+		prepareApprochCurrentIce();
 	}
 
 	private void approchServer() {
 
+		// TODO gestion des carte √† acc√©der
 	}
 
 	/**
