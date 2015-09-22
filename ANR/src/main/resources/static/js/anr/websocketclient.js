@@ -1,6 +1,6 @@
 define([ "mix" ],//
 function(mix) {
-	function WebSocketClient(wrapper) {
+	function WebSocketClient(wrapper, gameId) {
 		this.wrapper = wrapper;
 		this.socket = new WebSocket("ws://" + window.location.host + "/ws/play");
 

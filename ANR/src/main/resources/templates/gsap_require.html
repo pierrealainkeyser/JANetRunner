@@ -25,19 +25,9 @@
 	} //
 	});
 	
-	var gameId = [[${gameId}]];
-
-	require([ "jquery", "layout/package", "anr/boardstate", "anr/inputmanager","anr/websocketclient" ],//
-			function($, layout, BoardState, InputManager, WebSocketClient) {
-		$(function() {
-			var layoutManager = new layout.LayoutManager($("#main"));
-			layoutManager.runLayout(function() {
-				
-				var client=new WebSocketClient(layoutManager.runLayout.bind(layoutManager));				
-				client.board=new BoardState(layoutManager, client.sendAction.bind(client));
-				var im = new InputManager(client.board);
-			});
-		});
+	require([ "main" ],//
+	function(main) {
+		main([[${gameId}]]);
 	});
 	/*]]>*/
 </script>

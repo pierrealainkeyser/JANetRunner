@@ -32,7 +32,7 @@ jar {
 
 requireJs {
     source = javascript.source.dev.js.files
-    dest = file("${buildDir}/out.js")
+    dest = file("${buildDir}/main-built.js")
     requirejs.buildprofile = project.file("src/main/resources/build.js")
 }
 
