@@ -33,7 +33,22 @@ jar {
 requireJs {
     source = javascript.source.dev.js.files
     dest = file("${buildDir}/out.js")
-    requirejs.buildprofile = new File("src/main/resources/requirejs-config.js")
+    requirejs.options=[
+       baseUrl: "src/main/resources/static/js/",
+  	   name:"main",
+  	   paths : { //
+			jquery : [[@{/webjars/jquery/2.1.4/jquery.min}]],//
+			underscore : [[@{/webjars/underscorejs/1.8.3/underscore-min}]],//
+			tweenlite : [[@{/webjars/gsap-js/1.13.1/minified/TweenMax.min}]],//
+			mousetrap : [[@{/webjars/mousetrap/1.4.6/mousetrap.min}]],//
+			interact : [[@{/webjars/interact.js/1.2.4/interact.min}]],//	
+			conf : "./anr/conf" },//
+		shim : {//
+			tweenlite : { exports : 'TweenLite' }, //
+			mousetrap : { exports : 'Mousetrap' }, //
+		}
+	]
+    
 }
 
 repositories { jcenter() }
