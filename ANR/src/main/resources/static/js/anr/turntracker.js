@@ -257,6 +257,7 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox, CardsContaine
 		this.clicks = new ClickContainer(layoutManager);
 		this.gameStep = new GameStepBox(layoutManager, "label label-info");
 		this.gamePhase = new GameStepBox(layoutManager, "label label-success");
+		this.runInProgress = new GameStepBox(layoutManager, "label label-warning");
 
 		var trackingBox = new JQueryTrackingBox(layoutManager, $("<div class='statusrow'/>"));
 		trackingBox.trackAbstractBox(this);
@@ -275,6 +276,7 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox, CardsContaine
 		this.addChild(this.activeFaction);
 		this.addChild(this.gameStep);
 		this.addChild(this.gamePhase);
+		this.addChild(this.runInProgress);
 
 		this.setZIndex(config.zindex.status);
 	}

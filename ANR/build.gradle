@@ -2,6 +2,7 @@ buildscript {
     repositories { jcenter() }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.5.RELEASE")
+        classpath ("com.eriwen:gradle-js-plugin:1.12.1")
     }
 }
 
@@ -10,12 +11,29 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'spring-boot'
+apply plugin: 'com.eriwen.gradle.js'
+
+// Declare your sources
+javascript.source {
+    dev {
+        js {
+            srcDir "src/main/resources/static/js"
+            include "*.js"
+        }
+    }
+}
 
 [ compileJava, compileTestJava ]*.options*.encoding = 'UTF-8'
 
 jar {
     baseName = 'anrnetrunner'
     version =  '0.1.0'
+}
+
+requireJs {
+    source = javascript.source.dev.js.files
+    dest = file("${buildDir}/out.js")
+    requirejs.buildprofile = new File("src/main/resources/requirejs-config.js")
 }
 
 repositories { jcenter() }

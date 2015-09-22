@@ -406,6 +406,8 @@ RunBox, Point, ActionBus) {
 		 * Mise à jour des runs
 		 */
 		this.updateRuns = function(msg) {
+			
+			var noOldRuns=_.isEmpty(this.runs);
 
 			_.each(msg.runs, function(run) {
 
@@ -427,7 +429,16 @@ RunBox, Point, ActionBus) {
 				r.trackAbstractBox(s);
 
 			}.bind(this));
+			
+			var noNewRuns=_.isEmpty(this.runs);
 
+			//changement dans le run
+			if (noNewRuns != noOldRuns) {
+				var runText = "Run in progress";
+				if (noNewRuns)
+					runText = null;
+				this.turnTracker.runInProgress.setText(runText);
+			}
 		}
 
 		/**
