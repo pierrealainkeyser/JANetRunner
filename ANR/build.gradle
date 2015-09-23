@@ -13,7 +13,13 @@ apply plugin: 'idea'
 apply plugin: 'spring-boot'
 apply plugin: 'com.eriwen.gradle.js'
 
-// Declare your sources
+[ compileJava, compileTestJava ]*.options*.encoding = 'UTF-8'
+
+jar {
+    baseName = 'anrnetrunner'
+    version =  '0.1.0'
+}
+
 javascript.source {
     dev {
         js {
@@ -23,18 +29,25 @@ javascript.source {
     }
 }
 
-[ compileJava, compileTestJava ]*.options*.encoding = 'UTF-8'
-
-jar {
-    baseName = 'anrnetrunner'
-    version =  '0.1.0'
+sourceSets {
+    main {
+        resources {
+            exclude '**/js/*' 
+            exclude 'build.js'
+            exclude '*.xcf'         
+        }
+    }
 }
 
 requireJs {
     source = javascript.source.dev.js.files
-    dest = file("${buildDir}/main-built.js")
+    dest = file("${buildDir}/resources/main/static/js/main.js")
     requirejs.buildprofile = project.file("src/main/resources/build.js")
 }
+
+processResources.finalizedBy requireJs
+
+
 
 repositories { jcenter() }
 

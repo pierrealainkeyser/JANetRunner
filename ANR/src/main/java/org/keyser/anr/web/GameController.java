@@ -18,27 +18,26 @@ import org.springframework.web.servlet.resource.ResourceUrlProvider;
  */
 @Controller
 public class GameController {
-	
+
 	@Autowired
 	private ResourceUrlProvider provider;
-	
-	private final static Pattern mainJsPattern=Pattern.compile("^/js/(main-.*)\\.js$");
+
+	private final static Pattern mainJsPattern = Pattern.compile("^/js/(main-.*)\\.js$");
 
 	@RequestMapping(value = "gsap")
-	public ModelAndView play( @RequestParam(defaultValue="456") String id) {
+	public ModelAndView play(@RequestParam(defaultValue = "456") String id) {
 
 		ModelAndView mav = new ModelAndView("gsap_require");
 		mav.addObject("gameId", id);
-		
-		String main=provider.getForLookupPath("/js/main.js");
+
+		String main = provider.getForLookupPath("/js/main.js");
 		Matcher matcher = mainJsPattern.matcher(main);
-		if(matcher.matches()){
-			String mainVersion=matcher.group(1);
-			mav.addObject("mainJs",mainVersion);
-		}
-		else
-			mav.addObject("mainJs","main");
-		
+		if (matcher.matches()) {
+			String mainVersion = matcher.group(1);
+			mav.addObject("mainJs", mainVersion);
+		} else
+			mav.addObject("mainJs", "main");
+
 		return mav;
 	}
 

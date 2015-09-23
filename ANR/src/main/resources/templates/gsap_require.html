@@ -18,14 +18,16 @@
 	tweenlite : [[@{/webjars/gsap-js/1.13.1/minified/TweenMax.min}]],//
 	mousetrap : [[@{/webjars/mousetrap/1.4.6/mousetrap.min}]],//
 	interact : [[@{/webjars/interact.js/1.2.4/interact.min}]],//	
-	conf : "./anr/conf" },//
+	conf : "./anr/conf",
+	main: [[@{${mainJs}}]]
+	},//
 	shim : {//
 	tweenlite : { exports : 'TweenLite' }, //
 	mousetrap : { exports : 'Mousetrap' }, //
 	} //
 	});
 	
-	require([ [[${mainJs}]] ],//
+	require([ "main" ],//
 	function(main) {
 		main([[${gameId}]]);
 	});
