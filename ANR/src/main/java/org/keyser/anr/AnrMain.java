@@ -160,6 +160,12 @@ public class AnrMain extends WebMvcConfigurerAdapter implements WebSocketConfigu
 					.setCachePeriod(cachePeriod) //
 					.resourceChain(true).addResolver(versionResourceResolver);
 		}
+		
+		if (!registry.hasMappingForPattern("/webjars/**")) {
+			registry.addResourceHandler("/webjars/**")
+					.addResourceLocations("classpath:/META-INF/resources/webjars/")
+					.setCachePeriod(cachePeriod);
+		}
 	}
 
 	@Bean
