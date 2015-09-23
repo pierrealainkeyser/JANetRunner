@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.keyser.anr.core.ANRMetaCards;
 import org.keyser.anr.core.Corp;
@@ -29,6 +30,11 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.resource.ContentVersionStrategy;
+import org.springframework.web.servlet.resource.ResourceUrlEncodingFilter;
+import org.springframework.web.servlet.resource.VersionResourceResolver;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
@@ -45,7 +51,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @ComponentScan(basePackageClasses = { GameController.class })
 @EnableAutoConfiguration
 @EnableWebSocket
-public class AnrMain implements WebSocketConfigurer {
+public class AnrMain extends WebMvcConfigurerAdapter implements WebSocketConfigurer {
 
 	public static void main(String[] args) {
 		SpringApplication.run(AnrMain.class, args);
@@ -135,6 +141,25 @@ public class AnrMain implements WebSocketConfigurer {
 		gameRepository.register(new Endpoint(endpointProcessor(), g, "123", "456"));
 
 		return gameRepository;
+	}
+	
+	@Bean
+	public ResourceUrlEncodingFilter resourceUrlEncodingFilter() {
+		return new ResourceUrlEncodingFilter();
+	}
+	
+	@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+
+		VersionResourceResolver versionResourceResolver = new VersionResourceResolver().addVersionStrategy(new ContentVersionStrategy(), "/**");
+		int cachePeriod = (int) TimeUnit.DAYS.toSeconds(365);
+
+		if (!registry.hasMappingForPattern("/**")) {
+			registry.addResourceHandler("/**")//
+					.addResourceLocations("classpath:/static/")//
+					.setCachePeriod(cachePeriod) //
+					.resourceChain(true).addResolver(versionResourceResolver);
+		}
 	}
 
 	@Bean
