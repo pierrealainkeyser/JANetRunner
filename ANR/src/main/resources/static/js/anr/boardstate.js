@@ -434,7 +434,7 @@ RunBox, Point, ActionBus) {
 
 			//changement dans le run
 			if (noNewRuns != noOldRuns) {
-				var runText = "Run in progress";
+				var runText = "<i class='glyphicon glyphicon-fire'></i> Run in progress";
 				if (noNewRuns)
 					runText = null;
 				this.turnTracker.runInProgress.setText(runText);

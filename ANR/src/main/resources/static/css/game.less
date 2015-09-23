@@ -105,7 +105,7 @@ html , body , body > div#main {
 		background-position: 0 -@token-width * 3;
 	}
 
-	&.hability  {
+	&.hability {
 		background-position: -@token-width -@token-width * 3;
 	}
 
@@ -116,9 +116,9 @@ html , body , body > div#main {
 	&.clickused {
 		background-position: -@token-width * 2 -@token-width;
 	}
-	
+
 	&.agenda {
-		background-position: -@token-width * 2 -@token-width*2;
+		background-position: -@token-width * 2 -@token-width * 2;
 	}
 }
 
@@ -501,11 +501,24 @@ label.action {
 }
 
 //------------------------------
+.run-aspect () {
+	background: -webkit-linear-gradient(top, @run-light-color 0%, @run-dark-color 100%);
+	box-shadow: 0px 0px 1px 1px @run-dark-color;
+}
+
 .run {
 	.element ();
 	.unselectable ();
 	position: absolute;
-	background: -webkit-linear-gradient(top, @run-light-color 0%, @run-dark-color 100%);
-	box-shadow: 0px 0px 1px 1px @run-dark-color;
+	.run-aspect ();
+}
+
+.label.label-run {
+	.run-aspect ();
+	font-size: 100%;
+	font-weight: 500;
+	&:empty {
+		box-shadow: none;
+	}
 }
 

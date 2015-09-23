@@ -275,7 +275,7 @@ public class EventsBasedGameDtoBuilder {
 		}
 
 		UserActionContext primary = actionsContext.getContext();
-		if (basicClone)
+		if (basicClone && primary != null)
 			primary = primary.basicClone();
 		dto.setPrimary(primary);
 
