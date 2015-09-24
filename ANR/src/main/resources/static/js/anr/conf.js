@@ -57,6 +57,7 @@ function(Size, AnchorLayout, FlowLayout, TranslateLayout, GridLayout, HostLayout
 
 		// les niveau de positions en couches
 		this.zindex = {//
+		chat : 100000, //
 		card : 1000,//
 		zoom : 2000,//
 		status : 10,//

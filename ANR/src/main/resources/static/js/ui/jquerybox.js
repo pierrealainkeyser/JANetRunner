@@ -32,6 +32,11 @@ function(mix, AbstractBoxLeaf, TweenLiteSyncScreenMixin) {
 			var css = this.computeCssTween(this.cssTweenConfig);
 			var set = this.firstSyncScreen();
 
+						
+			// rajout un callback de position
+			if (this.onFirstSyncScreen)
+				set = this.onFirstSyncScreen(css);
+
 			var onComplete = null;
 			if (this.afterSyncCompleted)
 				onComplete = this.afterSyncCompleted;
