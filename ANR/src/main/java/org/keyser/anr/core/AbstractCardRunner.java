@@ -17,6 +17,7 @@ public class AbstractCardRunner extends AbstractCard {
 	 */
 	@Override
 	protected void setTrashCause(TrashCause ctx) {
+		setRezzed(true);
 		super.setTrashCause(ctx);
 		getRunner().getHeap().add(this);		
 	}

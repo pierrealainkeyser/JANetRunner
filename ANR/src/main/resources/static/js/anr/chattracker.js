@@ -1,6 +1,6 @@
-define([ "mix", "jquery", "underscore", "ui/jqueryboxsize", "geometry/size", "geometry/rectangle",// 
+define([ "mix", "jquery", "underscore", "conf", "ui/jqueryboxsize", "geometry/size", "geometry/rectangle",// 
 "layout/impl/flowlayout", "layout/abstractboxcontainer", "anr/anrtextmixin" ],// 
-function(mix, $, _, JQueryBoxSize, Size, Rectangle,//
+function(mix, $, _, config, JQueryBoxSize, Size, Rectangle,//
 FlowLayout, AbstractBoxContainer, AnrTextMixin) {
 
 	// ---------------------------------------------------
@@ -9,15 +9,11 @@ FlowLayout, AbstractBoxContainer, AnrTextMixin) {
 	 * Permet d'afficher les messages
 	 */
 	function BoxChat(layoutManager, text) {
-		JQueryBoxSize.call(this, layoutManager, $("<span class='chat'>" + text + "</span>"), {
-			zIndex : true,
-			rotation : false,
-			autoAlpha : true,
-			size : true
-		});
+		JQueryBoxSize
+				.call(this, layoutManager, $("<span class='chat'>" + text + "</span>"), { zIndex : true, rotation : false, autoAlpha : true, size : true });
 
 		// l'offset de début
-		this.deltaLeft = 0;
+		this.xOffset = config.chat.xOffset;
 	}
 
 	mix(BoxChat, JQueryBoxSize);
@@ -28,25 +24,19 @@ FlowLayout, AbstractBoxContainer, AnrTextMixin) {
 		 */
 		this.onFirstSyncScreen = function(css) {
 			var newCss = _.clone(css);
-			newCss.left -= this.deltaLeft;
-
+			newCss.left += this.xOffset;
+			
 			this.tweenElement(this.element, newCss, true);
 			return false;
 		}
 	});
 
 	// ---------------------------------------------------
-	function ChatTracker(layoutManager, limit) {
-		AbstractBoxContainer.call(this, layoutManager, {
-			addZIndex : true
-		}, new FlowLayout({
-			align : FlowLayout.Align.LAST,
-			direction : FlowLayout.Direction.BOTTOM,
-			spacing : 2,
-			padding : 1
-		}));
+	function ChatTracker(layoutManager) {
+		AbstractBoxContainer.call(this, layoutManager, { addZIndex : true }, new FlowLayout({ align : FlowLayout.Align.FIRST,
+			direction : FlowLayout.Direction.BOTTOM, spacing : 2, padding : 1 }));
 
-		this.limit = limit || 20;
+		this.limit = config.chat.limit || 10;
 		this.setZIndex(config.zindex.chat);
 	}
 	mix(ChatTracker, AbstractBoxContainer);
@@ -60,14 +50,14 @@ FlowLayout, AbstractBoxContainer, AnrTextMixin) {
 			var newsBcs = [];
 			for ( var c in chats) {
 				var bc = new BoxChat(this.layoutManager, this.interpolateString(chats[c]));
-				this.addChild(bc, 0);
+				this.addChild(bc);
 				newsBcs.push(bc);
 			}
 
 			// suppression des elements en trop
 			var size = 0;
 			while ((size = this.size()) > this.limit) {
-				var box = this.childs[size - 1];
+				var box = this.childs[0];
 				box.remove();
 				this.removeChild(box);
 			}

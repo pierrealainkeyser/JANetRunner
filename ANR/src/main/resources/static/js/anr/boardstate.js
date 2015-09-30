@@ -1,8 +1,8 @@
 define([ "mix", "jquery", "interact", "underscore", "conf", "layout/package", "layout/impl/handlayout", "anr/corp", "anr/runner", "anr/corpserver",
-		"anr/focus", "anr/card", "anr/turntracker", "anr/zoomcontainerbox", "anr/cardcontainerbox", "geometry/rectangle", "anr/actionmodel",//
+		"anr/focus", "anr/card", "anr/turntracker", "anr/chattracker", "anr/zoomcontainerbox", "anr/cardcontainerbox", "geometry/rectangle", "anr/actionmodel",//
 		"anr/runbox", "geometry/point", "anr/actionbus", ],//
 function(mix, $, interact, _, config, layout, HandLayout, Corp, Runner, CorpServer, FocusBox, Card,// 
-TurnTracker, ZoomContainerBox, CardContainerBox, Rectangle, ActionModel, //
+TurnTracker, ChatTracker, ZoomContainerBox, CardContainerBox, Rectangle, ActionModel, //
 RunBox, Point, ActionBus) {
 
 	/**
@@ -76,6 +76,9 @@ RunBox, Point, ActionBus) {
 
 		this.turnTracker = new TurnTracker(layoutManager);
 		this.turnTracker.local.moveTo({ x : 0, y : 0 });
+
+		this.chatTracker = new ChatTracker(layoutManager);
+		this.chatTracker.local.moveTo({ x : 0, y : 50 });
 
 		var showElement = this.activate.bind(this);
 
@@ -264,19 +267,22 @@ RunBox, Point, ActionBus) {
 				else if ('RUNNER' === player)
 					this.turnTracker.activeFaction.setFaction(this.turnTracker.runnerScore.faction);
 
-				
-
 				this.turnTracker.gameStep.setText(turn.phase);
+			}
+
+			var chats = msg.chats;
+			if (chats) {
+				this.chatTracker.addChats(chats);
 			}
 
 			var primary = msg.primary;
 			if (primary) {
-				
+
 				var text = primary.text;
 				if ((this.local == 'CORP' && !corpAction) || (this.local == 'RUNNER' && !runnerAction)) {
 					text = 'Waiting other player'
 				}
-				
+
 				this.turnTracker.gamePhase.setText(text);
 			}
 		}
@@ -406,8 +412,8 @@ RunBox, Point, ActionBus) {
 		 * Mise à jour des runs
 		 */
 		this.updateRuns = function(msg) {
-			
-			var noOldRuns=_.isEmpty(this.runs);
+
+			var noOldRuns = _.isEmpty(this.runs);
 
 			_.each(msg.runs, function(run) {
 
@@ -429,10 +435,10 @@ RunBox, Point, ActionBus) {
 				r.trackAbstractBox(s);
 
 			}.bind(this));
-			
-			var noNewRuns=_.isEmpty(this.runs);
 
-			//changement dans le run
+			var noNewRuns = _.isEmpty(this.runs);
+
+			// changement dans le run
 			if (noNewRuns != noOldRuns) {
 				var runText = "<i class='glyphicon glyphicon-fire'></i> Run in progress";
 				if (noNewRuns)

@@ -25,8 +25,8 @@
 		} //
 	});
 
-	require([ "jquery", "layout/layoutmanager", "anr/turntracker", "anr/card", "anr/cardsmodel" ],//
-	function($, LayoutManager, TurnTracker, Card, CardsModel) {
+	require([ "jquery", "layout/layoutmanager", "anr/turntracker", "anr/card", "anr/cardsmodel","anr/chattracker" ],//
+	function($, LayoutManager, TurnTracker, Card, CardsModel, ChatTracker) {
 		$(function() {
 
 			var layoutManager = new LayoutManager($("#main"));
@@ -34,6 +34,12 @@
 			layoutManager.runLayout(function() {
 				var turnTracker = new TurnTracker(layoutManager);
 				turnTracker.local.moveTo({ x : 0, y : 0 });
+				
+				
+				var chatTracker=new ChatTracker(layoutManager);
+				chatTracker.local.moveTo({ x : 0, y : 50 });
+				chatTracker.addChats(["yeah","trop bien","ncore"])
+				chatTracker.addChats(["yeah1","trop bien 2 ","ncore 3"])
 
 				var i = 0;
 				var cmRunner = new CardsModel();
@@ -59,6 +65,11 @@
 				turnTracker.gameStep.setText("machin truc");
 
 				setTimeout(layoutManager.withinLayout(function() {
+					
+					chatTracker.addChats(["yeah 6","trop bien 777 ","ncore 888"])
+					chatTracker.addChats(["yeah 6","trop bien 777 ","ncore 888"])
+					chatTracker.addChats(["trop bien 777 ","ncore 888"])
+					chatTracker.addChats([" vdf df df"," vdf df df"," vdf df df","yeah 6","trop bien 777 ","{1:click} ncore 888"])
 
 					turnTracker.corpScore.setActive(false);
 					cmCorp.add(new Card(layoutManager, { id : i++, url : "01088.png", faction : "corp" }));

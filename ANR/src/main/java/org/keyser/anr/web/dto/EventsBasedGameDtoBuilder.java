@@ -239,6 +239,8 @@ public class EventsBasedGameDtoBuilder {
 
 		boolean corpAction = false;
 		boolean runnerAction = false;
+		
+		//TODO il faut mapper la location et les actions spécifiquements
 
 		// on reset les actions car la méthode peut-être utilisé plusieurs fois
 		for (CardDto cdto : cards.values()) {
