@@ -265,19 +265,19 @@ public class EventsBasedGameDtoBuilder {
 				ActionDto convertAction = convertAction(ua);
 				if (source != null) {
 					List<CardDto> cardsDto = dto.getCards();
-					if (cardsDto != null) {
-						Optional<CardDto> first = cardsDto.stream().filter(c -> c.getId() == source.getId()).findFirst();
-						if (first.isPresent()) {
-							first.get().addAction(convertAction);
-						} else {
-							// la carte n'existe pas il faut la créer
-							CardDto cdto = buildDto.apply(getOrCreate(source));
-							cardsDto.add(cdto);
-							cdto.addAction(convertAction);
+					if (cardsDto == null)
+						dto.setCards(cardsDto = new ArrayList<>());
 
-						}
-
+					Optional<CardDto> first = cardsDto.stream().filter(c -> c.getId() == source.getId()).findFirst();
+					if (first.isPresent()) {
+						first.get().addAction(convertAction);
+					} else {
+						// la carte n'existe pas il faut la créer
+						CardDto cdto = buildDto.apply(new CardDtoBuilder(source));
+						cardsDto.add(cdto);
+						cdto.addAction(convertAction);
 					}
+
 				} else if (server != null) {
 					ServerDto sdto = getOrCreate(dto, server);
 					sdto.addAction(convertAction);
