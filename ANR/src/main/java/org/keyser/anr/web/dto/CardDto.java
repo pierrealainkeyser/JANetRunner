@@ -1,15 +1,11 @@
 package org.keyser.anr.web.dto;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.keyser.anr.core.CardLocation;
 import org.keyser.anr.core.PlayerType;
-import org.keyser.anr.core.TokenType;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class CardDto {
 
@@ -29,9 +25,6 @@ public class CardDto {
 
 	private PlayerType faction;
 
-	@JsonIgnore
-	private PlayerType localFaction;
-
 	private int id;
 
 	private CardType type;
@@ -41,29 +34,16 @@ public class CardDto {
 	private Map<String, Integer> tokens;
 
 	private String url;
-	
+
 	private boolean accessible;
 
 	public CardDto() {
-	}
-
-	public CardDto(int id, PlayerType localFaction) {
-		this.id = id;
-		this.localFaction = localFaction;
 	}
 
 	public void addAction(ActionDto dto) {
 		if (actions == null)
 			actions = new ArrayList<>();
 		actions.add(dto);
-	}
-
-	public void addToken(TokenType type, int value) {
-		if (tokens == null)
-			tokens = new LinkedHashMap<String, Integer>();
-
-		tokens.put(type.name().toLowerCase(), value);
-
 	}
 
 	public List<ActionDto> getActions() {
@@ -137,10 +117,6 @@ public class CardDto {
 
 	public void setZoomable(Face zoomable) {
 		this.zoomable = zoomable;
-	}
-
-	public PlayerType getLocalFaction() {
-		return localFaction;
 	}
 
 	public boolean isAccessible() {
