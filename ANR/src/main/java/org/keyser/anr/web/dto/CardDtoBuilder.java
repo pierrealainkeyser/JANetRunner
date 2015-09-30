@@ -42,14 +42,14 @@ public class CardDtoBuilder {
 		dto.setFace(face);
 		dto.setFaction(faction);
 		dto.setType(type);
-
+		dto.setTokens(tokens);
+		dto.setUrl(url);
+		dto.setZoomable(zoomable);
+		
 		if (location.isPresent()) {
 			dto.setLocation(location.get());
 			setZoomAndFace(currentPlayer, dto);
 		}
-		dto.setTokens(tokens);
-		dto.setUrl(url);
-		dto.setZoomable(zoomable);
 		return dto;
 	}
 

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.keyser.anr.core.AbstractCard;
@@ -243,8 +244,9 @@ public class EventsBasedGameDtoBuilder {
 		// les actions sont à mapper sur les cartes...
 		boolean basicClone = true;
 
+		Function<? super CardDtoBuilder, ? extends CardDto> buildDto = b -> b.build(playerType);
 		if (!cards.isEmpty()) {
-			List<CardDto> cardsDto = cards.values().stream().map(b -> b.build(playerType)).collect(Collectors.toList());
+			List<CardDto> cardsDto = cards.values().stream().map(buildDto).collect(Collectors.toList());
 			dto.setCards(cardsDto);
 		}
 
@@ -260,19 +262,25 @@ public class EventsBasedGameDtoBuilder {
 
 				AbstractCard source = ua.getSource();
 				CorpServer server = ua.getServer();
+				ActionDto convertAction = convertAction(ua);
 				if (source != null) {
 					List<CardDto> cardsDto = dto.getCards();
 					if (cardsDto != null) {
 						Optional<CardDto> first = cardsDto.stream().filter(c -> c.getId() == source.getId()).findFirst();
-						first.ifPresent(cdto -> {
-							ActionDto action = convertAction(ua);
-							cdto.addAction(action);
-						});
+						if (first.isPresent()) {
+							first.get().addAction(convertAction);
+						} else {
+							// la carte n'existe pas il faut la créer
+							CardDto cdto = buildDto.apply(getOrCreate(source));
+							cardsDto.add(cdto);
+							cdto.addAction(convertAction);
+
+						}
+
 					}
 				} else if (server != null) {
 					ServerDto sdto = getOrCreate(dto, server);
-					ActionDto action = convertAction(ua);
-					sdto.addAction(action);
+					sdto.addAction(convertAction);
 				}
 			}
 
@@ -285,8 +293,6 @@ public class EventsBasedGameDtoBuilder {
 
 		dto.setActions(new ActionIndicatorDto(corpAction, runnerAction));
 	}
-
-
 
 	/**
 	 * Gestion de la conversion

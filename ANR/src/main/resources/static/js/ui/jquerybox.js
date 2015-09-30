@@ -34,7 +34,7 @@ function(mix, AbstractBoxLeaf, TweenLiteSyncScreenMixin) {
 
 						
 			// rajout un callback de position
-			if (this.onFirstSyncScreen)
+			if (set && this.onFirstSyncScreen)
 				set = this.onFirstSyncScreen(css);
 
 			var onComplete = null;
