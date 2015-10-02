@@ -32,7 +32,7 @@ public class PADCampaign extends Asset {
 	private void gainOne(StartOfTurn s, Flow next) {
 
 		// notification de l'effet
-		game.chat("{0} gains {1}", this, Cost.credit(1));
+		game.chat("{0} gains {1} with {2}", this.getCorp(), Cost.credit(1),this);
 
 		getCorp().gainCredits(1);
 

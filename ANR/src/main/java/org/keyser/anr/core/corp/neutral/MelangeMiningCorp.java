@@ -36,7 +36,7 @@ public class MelangeMiningCorp extends Asset {
 		corp.gainCredits(7);
 
 		// notification de l'effet
-		game.chat("{0} gains {1} and looses {2}", corp, Cost.credit(7), ua.getCost());
+		game.chat("{0} uses {2} to gains {1}", corp, Cost.credit(7), ua.getCost(),this);
 		
 		next.apply();
 	}

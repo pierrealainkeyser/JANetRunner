@@ -61,7 +61,7 @@ public class AstroScriptPilotProgram extends Agenda {
 
 	private void putAdvanceToken(AbstractCardCorp acc, Flow next) {
 
-		game.chat("{0} use an Astroscript Pilot Program token on {1}", getCorp(), acc);
+		game.chat("{0} uses an Astroscript Pilot Program token on {1}", getCorp(), acc);
 
 		acc.addToken(TokenType.ADVANCE, 1);
 		addToken(TokenType.AGENDA, -1);

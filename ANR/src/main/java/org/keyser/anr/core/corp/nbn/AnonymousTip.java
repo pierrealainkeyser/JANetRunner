@@ -22,7 +22,7 @@ public class AnonymousTip extends Operation {
 	@Override
 	protected void invoke(UserAction ua, Flow next) {
 		Corp corp = getCorp();
-		game.chat("{0} plays {1}, loses {2} and draws 3 cards", corp, this, ua.getCost().getCost());
+		game.chat("{0} plays {1} and draws 3 cards", corp, this);
 		corp.draw(3, () -> trash(TrashCause.PLAY, next));
 	}
 }

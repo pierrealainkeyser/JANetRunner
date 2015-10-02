@@ -25,7 +25,7 @@ public class HedgeFund extends Operation {
 		Corp corp = getCorp();
 		corp.gainCredits(9);
 
-		game.chat("{0} plays {1}, loses {2} and gains {3}", corp, this, ua.getCost().getCost(), Cost.credit(9));
+		game.chat("{0} plays {1}", corp, this);
 		trash(TrashCause.PLAY, next);
 
 	}

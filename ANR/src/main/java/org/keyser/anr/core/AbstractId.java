@@ -77,12 +77,12 @@ public abstract class AbstractId extends AbstractCard {
 
 	private void gainOneCreditAction(Flow next) {
 		addToken(TokenType.CREDIT, 1);
-		game.chat("{0} clicks for {1} and loses {2}", this, Cost.credit(1), Cost.click(1));
+		game.chat("{0} clicks for {1}", this, Cost.credit(1));
 		next.apply();
 	}
 
 	private void drawOneCardAction(Flow next) {
-		game.chat("{0} clicks for a card and loses {1}", this, Cost.click(1));
+		game.chat("{0} clicks for a card ", this);
 		draw(1, next);
 	}
 

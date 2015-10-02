@@ -75,7 +75,7 @@ public class AbstractCardCorp extends AbstractCard {
 
 	private void doAdvance(UserAction ua, Flow next) {
 
-		game.chat("{0} advance {1} for {2}", getCorp(), this, ua.getCost().getCost());
+		game.chat("{0} advance {1}", getCorp(), this);
 		addToken(TokenType.ADVANCE, 1);
 		next.apply();
 
