@@ -17,8 +17,12 @@ public abstract class PersistanceBoostBreaker extends IceBreaker {
 	}
 
 	@Override
-	public int getComputedStrength() {
-		return super.getComputedStrength() + getToken(TokenType.HABILITY);
+	protected void boostStrength(int boost) {
+		addToken(TokenType.HABILITY, boost);
 	}
 
+	@Override
+	protected int getBoostedStrength() {
+		return getToken(TokenType.HABILITY);
+	}
 }

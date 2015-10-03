@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.keyser.anr.core.corp.CorpServer;
 import org.keyser.anr.core.corp.Ice;
+import org.keyser.anr.core.runner.IceBreaker;
 
 public class Run {
 
@@ -46,7 +47,7 @@ public class Run {
 		return mayRezzIce() || mayUseBreaker();
 	}
 
-	private boolean mayRezzIce() {
+	public boolean mayRezzIce() {
 		return Step.APPROCHING_ICE == step;
 	}
 
@@ -56,6 +57,14 @@ public class Run {
 
 	public boolean mayUseBreaker() {
 		return Step.ENCOUTERING_ICE == step;
+	}
+	
+	public boolean mayUseBreakerToBreak(IceBreaker breaker) {
+		if(mayUseBreaker()){
+			Ice i = this.ice.getIce();
+			return i.isBrokenBy(breaker) && i.hasEnoughtStrengthToBeBroke(breaker);
+		}
+		return false;
 	}
 
 	public Optional<EncounteredIce> getIce() {

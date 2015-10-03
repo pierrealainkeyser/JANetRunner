@@ -14,7 +14,7 @@ public class DetermineIceBreakerStrengthEvent extends AbstractDetermineValueSequ
 	
 
 	public DetermineIceBreakerStrengthEvent(IceBreaker iceBreaker) {
-		super(iceBreaker, iceBreaker.getStrength());
+		super(iceBreaker, iceBreaker.getBaseStrength());
 	}
 
 	

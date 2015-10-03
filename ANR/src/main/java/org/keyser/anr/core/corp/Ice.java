@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 
 import org.keyser.anr.core.AbstractCardCorp;
 import org.keyser.anr.core.AbstractCardList;
+import org.keyser.anr.core.CardSubType;
 import org.keyser.anr.core.CollectHabilities;
 import org.keyser.anr.core.Corp;
 import org.keyser.anr.core.Cost;
@@ -22,6 +23,7 @@ import org.keyser.anr.core.UserAction;
 import org.keyser.anr.core.UserActionConfirmSelection;
 import org.keyser.anr.core.UserActionSelectCard;
 import org.keyser.anr.core.UserDragAction;
+import org.keyser.anr.core.runner.IceBreaker;
 
 public abstract class Ice extends AbstractCardCorp {
 
@@ -38,6 +40,54 @@ public abstract class Ice extends AbstractCardCorp {
 
 	public final List<Routine> getRoutines() {
 		return Collections.unmodifiableList(routines);
+	}
+
+	@Override
+	protected IceMetaCard getMeta() {
+		return (IceMetaCard) super.getMeta();
+	}
+
+	protected boolean isBrokenByIA() {
+		return true;
+	}
+
+	/**
+	 * Permet de savoir si la glace est cassable par le breaker
+	 * 
+	 * @param breaker
+	 * @return
+	 */
+	public boolean isBrokenBy(IceBreaker breaker) {
+
+		if (hasAnySubTypes(CardSubType.BARRIER) && breaker.hasAnySubTypes(CardSubType.FRACTER))
+			return true;
+		else if (hasAnySubTypes(CardSubType.CODEGATE) && breaker.hasAnySubTypes(CardSubType.DECODER))
+			return true;
+		else if (hasAnySubTypes(CardSubType.SENTRY) && breaker.hasAnySubTypes(CardSubType.KILLER))
+			return true;
+
+		return breaker.hasAnySubTypes(CardSubType.IA) && isBrokenByIA();
+	}
+
+	public int getBaseStrength() {
+		return getMeta().getStrength();
+	}
+
+	/**
+	 * Calcul dynamique de la force de la glace
+	 */
+	public int computeStrength() {
+		DetermineIceStrengthEvent evt = new DetermineIceStrengthEvent(this);
+		game.fire(evt);
+		int cpt = evt.getComputed();
+		int strength = getBaseStrength();
+		return Math.max(cpt - strength, 0);
+	}
+
+	public boolean hasEnoughtStrengthToBeBroke(IceBreaker breaker) {
+		int strength = breaker.computeStrength();
+		int iceStrength = computeStrength();
+		return strength >= iceStrength;
 	}
 
 	@Override
@@ -117,7 +167,7 @@ public abstract class Ice extends AbstractCardCorp {
 		};
 		corp.eachServers(install);
 	}
-	
+
 	public void defaultPlayChat(CorpServer selected) {
 		game.chat("{0} installs an ice on {1}", getCorp(), selected);
 	}
@@ -135,7 +185,7 @@ public abstract class Ice extends AbstractCardCorp {
 
 		int icesCount = selected.icesCount();
 		selected.addIce(this, icesCount);
-		
+
 		defaultPlayChat(selected);
 
 		// on rajoute toutes les cates sélectionnées

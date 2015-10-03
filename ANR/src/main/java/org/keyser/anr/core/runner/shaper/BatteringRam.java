@@ -10,7 +10,7 @@ import org.keyser.anr.core.runner.IceBreakerMetaCard;
 
 public class BatteringRam extends PersistanceBoostBreaker {
 
-	public final static IceBreakerMetaCard INSTANCE = new IceBreakerMetaCard("Battering Ram", Faction.SHAPER.infl(2), Cost.credit(2), false, "01042", 2, Arrays.asList(CardSubType.FRACTER), 3, BatteringRam::new, u -> {
+	public final static IceBreakerMetaCard INSTANCE = new IceBreakerMetaCard("Battering Ram", Faction.SHAPER.infl(2), Cost.credit(5), false, "01042", 2, Arrays.asList(CardSubType.FRACTER), 3, BatteringRam::new, u -> {
 		u.boost(Cost.credit(1), 1);
 		u.sub(Cost.credit(2), 2);
 	});

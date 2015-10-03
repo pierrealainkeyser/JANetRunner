@@ -4,6 +4,7 @@
     <card qty="1" id="bc0f047c-01b1-427f-a439-d451eda01033">Kate &quot;Mac&quot; McCaffrey: Digital Tinker</card>
   </section>
   <section name="R&amp;D / Stack">
+    <card qty="2" id="bc0f047c-01b1-427f-a439-d451eda01042">Battering Ram</card>
   	<card qty="3" id="bc0f047c-01b1-427f-a439-d451eda01053">Armitage Codebusting</card>
     <card qty="2" id="bc0f047c-01b1-427f-a439-d451eda01045">Net Shield</card>
     <card qty="2" id="bc0f047c-01b1-427f-a439-d451eda01035">Modded</card>
@@ -14,7 +15,6 @@
     <card qty="2" id="bc0f047c-01b1-427f-a439-d451eda01039">Rabbit Hole</card>
     <card qty="2" id="bc0f047c-01b1-427f-a439-d451eda01040">The Personal Touch</card>
     <card qty="1" id="bc0f047c-01b1-427f-a439-d451eda01041">The Toolbox</card>
-    <card qty="2" id="bc0f047c-01b1-427f-a439-d451eda01042">Battering Ram</card>
     <card qty="3" id="bc0f047c-01b1-427f-a439-d451eda01043">Gordian Blade</card>
     <card qty="2" id="bc0f047c-01b1-427f-a439-d451eda01044">Magnum Opus</card>
     <card qty="2" id="bc0f047c-01b1-427f-a439-d451eda01046">Pipeline</card>

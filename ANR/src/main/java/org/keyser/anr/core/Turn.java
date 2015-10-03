@@ -12,6 +12,7 @@ import org.keyser.anr.core.corp.CorpServer;
 import org.keyser.anr.core.corp.Ice;
 import org.keyser.anr.core.runner.DoDamageEvent;
 import org.keyser.anr.core.runner.DoDamageEvent.DamageType;
+import org.keyser.anr.core.runner.IceBreaker;
 
 public class Turn {
 	private abstract class AbstractPingPong {
@@ -303,13 +304,23 @@ public class Turn {
 	}
 
 	public boolean mayRezzIce() {
-		// TODO
+		return testRun(Run::mayRezzIce);
+	}
+
+	public boolean testRun(Predicate<Run> pred) {
+		Optional<Run> run = getRun();
+		if (run.isPresent())
+			return pred.test(run.get());
+
 		return false;
 	}
 
 	public boolean mayUseIceBreaker() {
-		// TODO
-		return false;
+		return testRun(Run::mayUseBreaker);
+	}
+	
+	public boolean mayUseBreakerToBreak(IceBreaker breaker) {
+		return testRun(r->r.mayUseBreakerToBreak(breaker) );
 	}
 
 	public boolean mayPlayAction() {

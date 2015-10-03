@@ -25,6 +25,7 @@ import org.keyser.anr.core.runner.neutral.AccessToGlobalsec;
 import org.keyser.anr.core.runner.neutral.ArmitageCodebusting;
 import org.keyser.anr.core.runner.neutral.SureGamble;
 import org.keyser.anr.core.runner.shaper.AkamatsuMemChip;
+import org.keyser.anr.core.runner.shaper.BatteringRam;
 import org.keyser.anr.core.runner.shaper.KateMcCaffrey;
 import org.keyser.anr.core.runner.shaper.NetShield;
 import org.keyser.anr.core.runner.shaper.ThePersonalTouch;
@@ -42,6 +43,8 @@ public class ANRMetaCards {
 		INSTANCE.add(TheToolbox.INSTANCE);
 		INSTANCE.add(ThePersonalTouch.INSTANCE);
 		INSTANCE.add(NetShield.INSTANCE);
+		
+		INSTANCE.add(BatteringRam.INSTANCE);
 
 		// neutral
 		INSTANCE.add(SureGamble.INSTANCE);

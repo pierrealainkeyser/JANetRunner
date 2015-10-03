@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import org.keyser.anr.core.AbstractCardFactory;
 import org.keyser.anr.core.CardSubType;
 import org.keyser.anr.core.Cost;
+import org.keyser.anr.core.CostForAction;
 import org.keyser.anr.core.Influence;
 
 public class IceBreakerMetaCard extends ProgramMetaCard {
@@ -22,6 +23,10 @@ public class IceBreakerMetaCard extends ProgramMetaCard {
 		public Cost getCost() {
 			return cost;
 		}
+		
+		public CostForAction getCostForAction(){
+			return new CostForAction(getCost(), this);
+		}
 	}
 
 	public static class BoostUsage extends AbstractUsage {
@@ -32,7 +37,7 @@ public class IceBreakerMetaCard extends ProgramMetaCard {
 			this.boost = boost;
 		}
 
-		protected int getBoost() {
+		public int getBoost() {
 			return boost;
 		}
 

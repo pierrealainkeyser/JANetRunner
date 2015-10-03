@@ -126,7 +126,7 @@ public class AnrMain extends WebMvcConfigurerAdapter implements WebSocketConfigu
 		i.setInstalled(true);
 
 		Runner runner = g.getRunner();
-		runner.setToken(TokenType.CREDIT, 5);
+		runner.setToken(TokenType.CREDIT, 10);
 		runner.draw(5, () -> {
 		});
 
