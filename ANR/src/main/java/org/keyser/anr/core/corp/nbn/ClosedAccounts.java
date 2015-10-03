@@ -31,6 +31,7 @@ public class ClosedAccounts extends Operation {
 	@Override
 	protected void invoke(UserAction ua, Flow next) {
 
+		defaultPlayChat();
 		next.apply();
 
 	}

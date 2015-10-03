@@ -2,6 +2,7 @@ package org.keyser.anr.core.corp;
 
 import static org.keyser.anr.core.AbstractCard.createDefList;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -131,9 +132,9 @@ public class CorpServer {
 		return assetOrUpgrades.stream().anyMatch(c -> (c instanceof Agenda || c instanceof Asset) && c.isRezzed());
 	}
 
-
 	/**
 	 * Parcours tous les assets ou upgrades
+	 * 
 	 * @return
 	 */
 	public Stream<AbstractCardCorp> streamAssetsOrUpgrades() {
@@ -142,22 +143,22 @@ public class CorpServer {
 
 	/**
 	 * Parcours tous les assets/upgrades/ices
+	 * 
 	 * @return
 	 */
 	public Stream<AbstractCardCorp> streamInstalledCards() {
 		return Stream.concat(streamAssetsOrUpgrades(), streamIces());
 
 	}
-	
+
 	/**
 	 * Parcours toutes les ices
+	 * 
 	 * @return
 	 */
-	public Stream<Ice> streamIces(){
+	public Stream<Ice> streamIces() {
 		return ices.stream();
 	}
-
-	
 
 	public void addIce(Ice ice, int at) {
 		ices.addAt(ice, at);
@@ -203,9 +204,9 @@ public class CorpServer {
 				pred = pred.negate();
 
 			Predicate<AbstractCard> match = pred.and(a -> a != card);
-			
+
 			streamAssetsOrUpgrades().filter(match).forEach(consumer);
-					
+
 		}
 	}
 
@@ -215,6 +216,18 @@ public class CorpServer {
 
 	public void delete() {
 		game.getCorp().deleteServer(this);
+	}
+
+	@Override
+	public String toString() {
+		String type = "Remote " + (-id - 3);
+		if (id == -1)
+			type = "Archives";
+		else if (id == -2)
+			type = "R&D";
+		else if (id == -3)
+			type = "HQ";
+		return MessageFormat.format("|{0}|", type);
 	}
 
 	public int getId() {

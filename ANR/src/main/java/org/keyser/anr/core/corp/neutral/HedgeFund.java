@@ -2,7 +2,6 @@ package org.keyser.anr.core.corp.neutral;
 
 import static java.util.Collections.emptyList;
 
-import org.keyser.anr.core.Corp;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.Flow;
@@ -22,10 +21,9 @@ public class HedgeFund extends Operation {
 	@Override
 	protected void invoke(UserAction ua, Flow next) {
 
-		Corp corp = getCorp();
-		corp.gainCredits(9);
+		getCorp().gainCredits(9);
 
-		game.chat("{0} plays {1}", corp, this);
+		defaultPlayChat();
 		trash(TrashCause.PLAY, next);
 
 	}

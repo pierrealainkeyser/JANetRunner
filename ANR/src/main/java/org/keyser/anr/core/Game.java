@@ -422,6 +422,7 @@ public class Game {
 	}
 
 	public void newRun(CorpServer server, Flow next) {
+		chat("{0} starts a run on {1}", runner, server);
 		getTurn().newRun(nextRun++, server, next);
 	}
 

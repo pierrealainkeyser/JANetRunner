@@ -117,6 +117,10 @@ public abstract class Ice extends AbstractCardCorp {
 		};
 		corp.eachServers(install);
 	}
+	
+	public void defaultPlayChat(CorpServer selected) {
+		game.chat("{0} installs an ice on {1}", getCorp(), selected);
+	}
 
 	/**
 	 * La liste des cartes sélectionnés par le client est transmise
@@ -131,6 +135,8 @@ public abstract class Ice extends AbstractCardCorp {
 
 		int icesCount = selected.icesCount();
 		selected.addIce(this, icesCount);
+		
+		defaultPlayChat(selected);
 
 		// on rajoute toutes les cates sélectionnées
 		TrashList tl = new TrashList(TrashCause.OTHER_INSTALLED);

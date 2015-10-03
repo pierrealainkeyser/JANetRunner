@@ -12,6 +12,10 @@ public abstract class Event extends AbstractCardRunner {
 		super(id, meta);
 	}
 	
+	public void defaultPlayChat() {
+		game.chat("{0} plays {1}", getRunner(), this);
+	}
+	
 	/**
 	 * Enregistre les demandes d'action dans l'action. Public uniquement pour
 	 * les tests

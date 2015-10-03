@@ -10,6 +10,7 @@ import org.keyser.anr.core.CostForAction;
 import org.keyser.anr.core.Faction;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.MetaCard;
+import org.keyser.anr.core.Runner;
 import org.keyser.anr.core.TokenType;
 import org.keyser.anr.core.TrashCause;
 import org.keyser.anr.core.UserAction;
@@ -39,7 +40,11 @@ public class ArmitageCodebusting extends Resource {
 	}
 
 	private void take2CreditsAction(UserAction ua, Flow next) {
-		getRunner().addToken(TokenType.CREDIT, 2);
+		
+		Runner runner = getRunner();
+		game.chat("{0} uses {1} to gain {2}", runner, this, Cost.credit(2));
+		
+		runner.addToken(TokenType.CREDIT, 2);
 		addToken(TokenType.CREDIT, -2);
 		if (0 == getToken(TokenType.CREDIT))
 			trash(TrashCause.EXHAUSTED, next);

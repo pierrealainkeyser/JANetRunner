@@ -20,8 +20,9 @@ public class SureGamble extends Event {
 	@Override
 	protected void invoke(UserAction ua, Flow next) {
 		getRunner().gainCredits(9);
+		
+		defaultPlayChat();
 
-		// TODO gestion de l'evenement
 		next.apply();
 	}
 

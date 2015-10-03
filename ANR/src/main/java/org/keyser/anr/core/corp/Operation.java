@@ -13,6 +13,10 @@ public abstract class Operation extends AbstractCardCorp {
 		super(id, meta);
 	}
 
+	public void defaultPlayChat() {
+		game.chat("{0} plays {1}", getCorp(), this);
+	}
+
 	/**
 	 * Enregistre les demandes d'action dans l'action. Public uniquement pour
 	 * les tests
@@ -33,5 +37,5 @@ public abstract class Operation extends AbstractCardCorp {
 	 * @param next
 	 * @return
 	 */
-	protected abstract void invoke(UserAction action,Flow next);
+	protected abstract void invoke(UserAction action, Flow next);
 }

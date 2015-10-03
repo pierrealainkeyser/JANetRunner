@@ -115,6 +115,10 @@ public abstract class InServerCorpCard extends AbstractCardCorp {
 			removeAndInstall(selected, list, next);
 
 	}
+	
+	public void defaultPlayChat(CorpServer selected) {
+		game.chat("{0} installs a card on {1}", getCorp(), selected);
+	}
 
 	/**
 	 * La liste des cartes sélectionnés par le client est transmise
@@ -128,6 +132,8 @@ public abstract class InServerCorpCard extends AbstractCardCorp {
 	private void removeAndInstall(CorpServer selected, AbstractCardList toRemove, Flow next) {
 
 		this.setInstalled(true);
+		
+		defaultPlayChat(selected);
 
 		// installation dans la zone qui va bien
 		((AbstractCardContainer<InServerCorpCard>) selected.containerFor(this)).add(this);

@@ -13,6 +13,10 @@ public abstract class Resource extends AbstractCardRunner {
 		super(id, meta);
 	}
 	
+	public void defaultPlayChat() {
+		game.chat("{0} installs {1}", getRunner(), this);
+	}
+	
 
 	@Override
 	public void playFeedback(CollectHabilities hab) {
@@ -24,7 +28,8 @@ public abstract class Resource extends AbstractCardRunner {
 		Runner runner = getRunner();
 		setRezzed(true);
 		setInstalled(true);
-		runner.getResources().add(this);
+		defaultPlayChat();
+		runner.getResources().add(this);		
 		cleanupInstall(next);
 	}
 }

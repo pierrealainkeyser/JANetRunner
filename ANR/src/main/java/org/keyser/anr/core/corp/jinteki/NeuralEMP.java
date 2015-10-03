@@ -31,6 +31,7 @@ public class NeuralEMP extends Operation {
 
 	@Override
 	protected void invoke(UserAction ua, Flow next) {
+		defaultPlayChat();
 		new DoDamageEvent(this, 1, DamageType.NET).fire(next);
 	}
 }
