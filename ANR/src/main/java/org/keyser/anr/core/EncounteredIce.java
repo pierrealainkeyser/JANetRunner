@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.keyser.anr.core.corp.Ice;
+import org.keyser.anr.core.corp.ReadyedRoutine;
 import org.keyser.anr.core.corp.Routine;
 
 /**
@@ -15,46 +16,32 @@ import org.keyser.anr.core.corp.Routine;
  */
 public class EncounteredIce {
 
-	private List<Routine> toBeBrokens = new ArrayList<>();
-	private List<Routine> brokens = new ArrayList<>();
-	private List<Routine> all = new ArrayList<>();
+	private List<ReadyedRoutine> routines = new ArrayList<>();
+
 	private boolean bypassed;
 	private final Ice ice;
 
 	public EncounteredIce(Ice ice) {
 		this.ice = ice;
-		toBeBrokens.addAll(ice.getRoutines());
-		all.addAll(toBeBrokens);
+
+		ice.getRoutines().forEach(this::addRoutine);
 	}
 
+	private ReadyedRoutine ready(Routine r) {
+		return ice.getGame().createRoutine(r);
+	}
+
+	/**
+	 * Rajoute une rjoute
+	 * 
+	 * @param r
+	 */
 	public void addRoutine(Routine r) {
-		toBeBrokens.add(r);
-		all.add(r);
-	}
-
-	public void addBroken(Routine r) {
-		brokens.add(r);
-		toBeBrokens.remove(r);
-	}
-
-	public boolean isBroken(Routine r) {
-		return brokens.contains(r);
-	}
-
-	public int countBrokens() {
-		return brokens.size();
-	}
-
-	public int countUnbrokens() {
-		return toBeBrokens.size();
+		routines.add(ready(r));
 	}
 
 	public boolean isRezzed() {
 		return ice.isRezzed();
-	}
-
-	public boolean isAllRoutinesBroken() {
-		return toBeBrokens.isEmpty();
 	}
 
 	public boolean isBypassed() {
@@ -69,11 +56,7 @@ public class EncounteredIce {
 		return ice;
 	}
 
-	public List<Routine> getToBeBrokens() {
-		return Collections.unmodifiableList(toBeBrokens);
-	}
-
-	public List<Routine> getAll() {
-		return all;
+	public List<ReadyedRoutine> getRoutines() {
+		return Collections.unmodifiableList(routines);
 	}
 }

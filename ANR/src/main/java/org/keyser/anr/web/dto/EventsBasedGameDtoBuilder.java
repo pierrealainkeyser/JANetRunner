@@ -24,6 +24,7 @@ import org.keyser.anr.core.CardLocation;
 import org.keyser.anr.core.ChatEvent;
 import org.keyser.anr.core.Corp;
 import org.keyser.anr.core.CostForAction;
+import org.keyser.anr.core.EncounteredIce;
 import org.keyser.anr.core.EventMatcherBuilder;
 import org.keyser.anr.core.EventMatchers;
 import org.keyser.anr.core.FlowArg;
@@ -233,7 +234,16 @@ public class EventsBasedGameDtoBuilder {
 			dto.setChats(chats);
 
 		Optional<Run> run = game.getTurn().getRun();
-		run.ifPresent(r -> addRun(dto, toDTO(r)));
+		run.ifPresent(r -> {
+			addRun(dto, toDTO(r));
+
+			Optional<EncounteredIce> optIce = r.getIce();
+			if (optIce.isPresent()) {
+				EncounteredIce encountered = optIce.get();
+				CardDtoBuilder iceDto = getOrCreate(encountered.getIce());
+				iceDto.addSubs(encountered.getRoutines());
+			}
+		});
 
 		if (!scoreChanged.isEmpty())
 			dto.setScore(game.getCorp().getScore(), game.getRunner().getScore());

@@ -1,6 +1,8 @@
 package org.keyser.anr.web.dto;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -8,6 +10,7 @@ import org.keyser.anr.core.AbstractCard;
 import org.keyser.anr.core.CardLocation;
 import org.keyser.anr.core.PlayerType;
 import org.keyser.anr.core.TokenType;
+import org.keyser.anr.core.corp.ReadyedRoutine;
 import org.keyser.anr.web.dto.CardDto.CardType;
 import org.keyser.anr.web.dto.CardDto.Face;
 
@@ -24,6 +27,8 @@ public class CardDtoBuilder {
 	private CardType type;
 
 	private Optional<CardLocation> location = Optional.empty();
+
+	private List<RoutineDto> subs;
 
 	private Map<String, Integer> tokens;
 
@@ -45,7 +50,8 @@ public class CardDtoBuilder {
 		dto.setTokens(tokens);
 		dto.setUrl(url);
 		dto.setZoomable(zoomable);
-		
+		dto.setSubs(subs);
+
 		if (location.isPresent()) {
 			dto.setLocation(location.get());
 			setZoomAndFace(currentPlayer, dto);
@@ -83,6 +89,20 @@ public class CardDtoBuilder {
 					c.setZoomable(Face.up);
 			}
 		}
+	}
+
+	public void addSubs(List<ReadyedRoutine> routines) {
+		if (subs == null)
+			subs = new ArrayList<RoutineDto>();
+
+		for (ReadyedRoutine rr : routines) {
+			Boolean broken = null;
+			Optional<Boolean> br = rr.getBroken();
+			if (br.isPresent())
+				broken = br.get();
+			subs.add(new RoutineDto(rr.getId(), rr.toString(), broken));
+		}
+
 	}
 
 	public void addToken(TokenType type, int value) {

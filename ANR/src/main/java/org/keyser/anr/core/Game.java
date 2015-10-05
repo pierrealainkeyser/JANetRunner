@@ -16,6 +16,8 @@ import java.util.stream.Stream;
 
 import org.keyser.anr.core.UserActionContext.Type;
 import org.keyser.anr.core.corp.CorpServer;
+import org.keyser.anr.core.corp.ReadyedRoutine;
+import org.keyser.anr.core.corp.Routine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -216,6 +218,8 @@ public class Game {
 	private int nextAction;
 
 	private int nextRun;
+	
+	private int nextRoutine;
 
 	private Turn turn;
 
@@ -229,6 +233,10 @@ public class Game {
 
 		// implémentation spécifique
 		listener.add(e -> true, f -> new ANREventMatcher(f).apply());
+	}
+	
+	public ReadyedRoutine createRoutine(Routine routine){
+		return new ReadyedRoutine(nextRoutine++, routine);
 	}
 
 	/**

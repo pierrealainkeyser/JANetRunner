@@ -37,6 +37,8 @@ public class CardDto {
 
 	private boolean accessible;
 
+	private List<RoutineDto> subs;
+
 	public CardDto() {
 	}
 
@@ -125,6 +127,14 @@ public class CardDto {
 
 	public void setAccessible(boolean accessible) {
 		this.accessible = accessible;
+	}
+
+	public List<RoutineDto> getSubs() {
+		return subs;
+	}
+
+	public void setSubs(List<RoutineDto> subs) {
+		this.subs = subs;
 	}
 
 }

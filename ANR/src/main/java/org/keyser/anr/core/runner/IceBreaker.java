@@ -29,8 +29,10 @@ public abstract class IceBreaker extends Program {
 	private void configureBreak(CollectHabilities hab) {
 		Runner runner = getRunner();
 		for (BreakSubUsage us : getMeta().getBreaks()) {
-			UserAction action = new UserAction(runner, this, us.getCostForAction(), format("Break {0} sub(s)", us.getBroken()));
-
+			BreakSubUserAction action = new BreakSubUserAction(runner, this);
+			
+			//TODO gestion des couts
+			//action.addCost(cost, enabled)
 			// TODO il y a des parametres
 
 			hab.add(action.spendAndApply(next -> breakAction(us, next)));
