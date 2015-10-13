@@ -13,6 +13,16 @@ function(mix, $, layout, ui, geom, AnchorLayout, ActionModel, CardsModel, Card, 
 		layout.AbstractBoxContainer.call(this, layoutManager, hints, cardContainerLayout);
 	}
 	mix(InnerCardContainer, layout.AbstractBoxContainer);
+	mix(InnerCardContainer, function() {
+		this.computeChildZIndex = function(child) {
+			var zIndex = layout.AbstractBoxContainer.prototype.computeChildZIndex.call(this, child);
+			var owner = child.cardOwner();
+			if (owner.isId()) {
+				zIndex = 1500;
+			}
+			return zIndex;
+		};
+	})
 
 	/**
 	 * La vision du composant

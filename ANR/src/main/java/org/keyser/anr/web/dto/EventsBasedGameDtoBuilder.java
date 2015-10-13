@@ -240,8 +240,10 @@ public class EventsBasedGameDtoBuilder {
 			Optional<EncounteredIce> optIce = r.getIce();
 			if (optIce.isPresent()) {
 				EncounteredIce encountered = optIce.get();
-				CardDtoBuilder iceDto = getOrCreate(encountered.getIce());
-				iceDto.addSubs(encountered.getRoutines());
+				if (encountered.isRezzed()) {
+					CardDtoBuilder iceDto = getOrCreate(encountered.getIce());
+					iceDto.addSubs(encountered.getRoutines());
+				}
 			}
 		});
 

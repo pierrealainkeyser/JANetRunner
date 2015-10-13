@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.keyser.anr.core.AbstractCard;
 import org.keyser.anr.core.CardLocation;
@@ -28,7 +29,7 @@ public class CardDtoBuilder {
 
 	private Optional<CardLocation> location = Optional.empty();
 
-	private List<RoutineDto> subs;
+	private Optional<Supplier<List<RoutineDto>>> subs = Optional.empty();
 
 	private Map<String, Integer> tokens;
 
@@ -50,7 +51,9 @@ public class CardDtoBuilder {
 		dto.setTokens(tokens);
 		dto.setUrl(url);
 		dto.setZoomable(zoomable);
-		dto.setSubs(subs);
+		if (subs.isPresent()) {
+			dto.setSubs(subs.get().get());
+		}
 
 		if (location.isPresent()) {
 			dto.setLocation(location.get());
@@ -92,8 +95,8 @@ public class CardDtoBuilder {
 	}
 
 	public void addSubs(List<ReadyedRoutine> routines) {
-		if (subs == null)
-			subs = new ArrayList<RoutineDto>();
+
+		List<RoutineDto> subs = new ArrayList<>();
 
 		for (ReadyedRoutine rr : routines) {
 			Boolean broken = null;
@@ -102,6 +105,8 @@ public class CardDtoBuilder {
 				broken = br.get();
 			subs.add(new RoutineDto(rr.getId(), rr.toString(), broken));
 		}
+
+		this.subs = Optional.of(() -> subs);
 
 	}
 

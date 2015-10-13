@@ -193,6 +193,7 @@ interact) {
 			var ghost = new GhostCard(this.layoutManager, this);
 			this.ghosts.push(ghost);
 			this.container.replaceChild(this, ghost);
+			this.needSyncScreen();
 		}
 
 		/**
@@ -287,6 +288,11 @@ interact) {
 				me = me.host.card;
 			}
 			me.wrapper.addChild(this.unwrapped());
+		}
+	
+
+		this.isId = function() {
+			return "id" === this.def.type;
 		}
 
 		/**
