@@ -1,6 +1,7 @@
 package org.keyser.anr.web.dto;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.keyser.anr.core.Clicks;
 import org.keyser.anr.core.Faction;
@@ -12,7 +13,7 @@ public class GameDto {
 	private List<ServerDto> servers;
 
 	private List<CardDto> cards;
-	
+
 	private List<RunDTO> runs;
 
 	private Clicks clicks;
@@ -30,6 +31,15 @@ public class GameDto {
 	private TurnDTO turn;
 
 	private List<String> chats;
+
+	private CounterDto counter;
+
+	public void updateCounter(Consumer<CounterDto> c) {
+		if (counter == null)
+			counter = new CounterDto();
+
+		c.accept(counter);
+	}
 
 	public List<CardDto> getCards() {
 		return cards;
@@ -117,6 +127,14 @@ public class GameDto {
 
 	public void setRuns(List<RunDTO> runs) {
 		this.runs = runs;
+	}
+
+	public CounterDto getCounter() {
+		return counter;
+	}
+
+	public void setScore(ScoreDto score) {
+		this.score = score;
 	}
 
 }

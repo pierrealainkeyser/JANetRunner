@@ -284,7 +284,7 @@ RunBox, Point, ActionBus) {
 				}
 
 				this.turnTracker.gamePhase.setText(text);
-			}
+			}						
 		}
 
 		/**
@@ -293,6 +293,12 @@ RunBox, Point, ActionBus) {
 		this.prepareCardsAndServer = function(msg) {
 			_.each(msg.cards, this.card.bind(this));
 			_.each(msg.servers, this.server.bind(this));
+			
+			var counter=msg.counter;
+			if(counter){
+				this.corp.updateCardsCounter(counter);
+				this.runner.updateCardsCounter(counter);
+			}
 		}
 
 		/**

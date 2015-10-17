@@ -36,6 +36,25 @@ function(mix, config, AbstractBoxContainer, CardContainerBox, CardsModel) {
 	mix(Runner, AbstractBoxContainer)
 	mix(Runner, function() {
 
+		/**
+		 * Mise à jour des counteurs
+		 */
+		this.updateCardsCounter = function(counter) {
+			if (counter.grip !== undefined) {
+				this.grip.setCounter(counter.grip);
+			}
+
+			if (counter.stack !== undefined) {
+				this.stack.setCounter(counter.stack);
+
+			}
+
+			if (counter.heap !== undefined) {
+				this.heap.setCounter(counter.heap);
+
+			}
+		}
+
 		this.addToScore = function(card) {
 			this.scoreModel.add(card);
 		}

@@ -20,6 +20,26 @@ function(mix, config, AbstractBoxContainer, CorpServer, CardsModel) {
 	mix(Corp, AbstractBoxContainer)
 	mix(Corp, function() {
 
+		/**
+		 * Mise à jour des counteurs
+		 */
+		this.updateCardsCounter = function(counter) {
+
+			if (counter.archives !== undefined) {
+				this.getOrCreate(-1).setCounter(counter.archives);
+			}
+
+			if (counter.rd !== undefined) {
+				this.getOrCreate(-2).setCounter(counter.rd);
+
+			}
+
+			if (counter.hq !== undefined) {
+				this.getOrCreate(-3).setCounter(counter.hq);
+
+			}
+		}
+
 		this.addToScore = function(card) {
 			this.scoreModel.add(card);
 		}
@@ -39,6 +59,7 @@ function(mix, config, AbstractBoxContainer, CorpServer, CardsModel) {
 			if (!srv) {
 				srv = new CorpServer(this.layoutManager, { id : id }, this.actionListener);
 				this.serversArray.addChild(srv);
+				this.servers[id] = srv;
 			}
 			return srv;
 		}
