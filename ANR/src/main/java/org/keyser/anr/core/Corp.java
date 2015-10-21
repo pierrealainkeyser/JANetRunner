@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.keyser.anr.core.CardCounterChangedEvent.Counter;
 import org.keyser.anr.core.corp.CorpServer;
 import org.keyser.anr.core.corp.CorpServerCentral;
 import org.keyser.anr.core.corp.CorpServerDef;
@@ -40,10 +41,15 @@ public class Corp extends AbstractId {
 	 */
 	public void init() {
 		archives = new CorpServerCentral(game, nextServerId());
+		archives.getStack().setListener(ac -> game.fire(new CardCounterChangedEvent(Counter.ARCHIVES, ac.size())));
+
 		rd = new CorpServerCentral(game, nextServerId());
+		rd.getStack().setListener(ac -> game.fire(new CardCounterChangedEvent(Counter.RD, ac.size())));
+
 		hq = new CorpServerCentral(game, nextServerId());
+		hq.getStack().setListener(ac -> game.fire(new CardCounterChangedEvent(Counter.HQ, ac.size())));
 	}
-	
+
 	@Override
 	protected AbstractCardList cardsInHands() {
 		AbstractCardList acl = new AbstractCardList();
@@ -82,6 +88,7 @@ public class Corp extends AbstractId {
 
 	/**
 	 * Accède au serveur
+	 * 
 	 * @param serverId
 	 * @return
 	 */

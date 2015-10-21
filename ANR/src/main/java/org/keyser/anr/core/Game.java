@@ -218,7 +218,7 @@ public class Game {
 	private int nextAction;
 
 	private int nextRun;
-	
+
 	private int nextRoutine;
 
 	private Turn turn;
@@ -234,8 +234,8 @@ public class Game {
 		// implémentation spécifique
 		listener.add(e -> true, f -> new ANREventMatcher(f).apply());
 	}
-	
-	public ReadyedRoutine createRoutine(Routine routine){
+
+	public ReadyedRoutine createRoutine(Routine routine) {
 		return new ReadyedRoutine(nextRoutine++, routine);
 	}
 
@@ -402,6 +402,7 @@ public class Game {
 		} else if (ac instanceof Runner) {
 			runner = (Runner) ac;
 			runner.setLocation(CardLocation.grip(-1));
+			runner.init();
 		}
 
 		return ac;

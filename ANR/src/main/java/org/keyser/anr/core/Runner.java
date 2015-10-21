@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import org.keyser.anr.core.CardCounterChangedEvent.Counter;
 import org.keyser.anr.core.corp.CorpServer;
 import org.keyser.anr.core.runner.DetermineAvailableLink;
 import org.keyser.anr.core.runner.DetermineAvailableMemory;
@@ -33,6 +34,12 @@ public class Runner extends AbstractId implements ProgramsArea {
 		super(id, meta, PlayerType.RUNNER, CardLocation::runnerScore);
 
 		addAction(this::registerRunAction);
+	}
+
+	public void init() {
+		stack.setListener(ac -> game.fire(new CardCounterChangedEvent(Counter.STACK, ac.size())));
+		grip.setListener(ac -> game.fire(new CardCounterChangedEvent(Counter.GRIP, ac.size())));
+		heap.setListener(ac -> game.fire(new CardCounterChangedEvent(Counter.HEAP, ac.size())));
 	}
 
 	private void registerRunAction(CollectHabilities ch) {
