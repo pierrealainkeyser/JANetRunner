@@ -137,6 +137,7 @@ public class Run {
 
 	private void fireNextRoutine() {
 		if (isEnded()) {
+			fireSubsCleareds();
 			clear();
 		} else {
 			if (routinesToProcess.hasNext()) {
@@ -152,9 +153,18 @@ public class Run {
 	}
 
 	private void passCurrentIce() {
+		fireSubsCleareds();
+
 		this.ice = null;
 		this.depth--;
 		prepareApprochCurrentIce();
+	}
+
+	/**
+	 * Envoi un evenement de nettoyage des routines
+	 */
+	private void fireSubsCleareds() {
+		game.fire(new IceSubsClearedsEvent(this.ice.getIce()));
 	}
 
 	private void approchServer() {
@@ -223,5 +233,9 @@ public class Run {
 
 	public Step getStep() {
 		return step;
+	}
+
+	public Game getGame() {
+		return game;
 	}
 }

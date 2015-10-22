@@ -232,9 +232,5 @@ public class CorpServer {
 
 	public int getId() {
 		return id;
-	}
-
-	public Game getGame() {
-		return game;
-	}
+	}	
 }

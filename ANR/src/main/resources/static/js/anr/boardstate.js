@@ -325,6 +325,8 @@ RunBox, Point, ActionBus) {
 
 				if (def.subs)
 					card.setSubs(def.subs);
+				else
+					card.setSubs([]);
 
 				if (def.face)
 					card.setFace(def.face);

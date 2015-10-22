@@ -34,6 +34,7 @@ import org.keyser.anr.core.EventMatchers;
 import org.keyser.anr.core.FlowArg;
 import org.keyser.anr.core.Game;
 import org.keyser.anr.core.Game.ActionsContext;
+import org.keyser.anr.core.IceSubsClearedsEvent;
 import org.keyser.anr.core.NoopUserAction;
 import org.keyser.anr.core.OrderEventsAction;
 import org.keyser.anr.core.PlayerType;
@@ -77,6 +78,7 @@ public class EventsBasedGameDtoBuilder {
 		match(AbstractCardLocationEvent.class, this::location);
 		match(AbstractCardRezzEvent.class, this::rezzed);
 		match(AbstractCardTokenEvent.class, this::tokens);
+		match(IceSubsClearedsEvent.class, this::subsCleareds);
 		match(CardCounterChangedEvent.class, this.counters::add);
 
 		// notification des changements d'actions et du score
@@ -112,6 +114,11 @@ public class EventsBasedGameDtoBuilder {
 	private void rezzed(AbstractCardRezzEvent evt) {
 		AbstractCard card = evt.getPrimary();
 		with(card, dto -> updateFace(card, dto));
+	}
+
+	private void subsCleareds(IceSubsClearedsEvent evt) {
+		// rajoute le DTO pour mettre à jour les SUBS cote client
+		getOrCreate(evt.getPrimary());
 	}
 
 	private void updateFace(AbstractCard card, CardDtoBuilder dto) {
@@ -407,10 +414,9 @@ public class EventsBasedGameDtoBuilder {
 
 		GameDto dto = new GameDto();
 		// TODO liste des nouveaux serveurs
-	
-		//gestion des compteurs
+
+		// gestion des compteurs
 		counters.stream().map(this::counterConsumer).forEach(dto::updateCounter);
-		
 
 		updateCommon(game, dto, type);
 
