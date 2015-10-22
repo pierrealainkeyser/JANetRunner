@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -20,6 +22,8 @@ import org.keyser.anr.core.AbstractCardRezzEvent;
 import org.keyser.anr.core.AbstractCardScoreChangedEvent;
 import org.keyser.anr.core.AbstractCardTokenEvent;
 import org.keyser.anr.core.AbstractId;
+import org.keyser.anr.core.CardCounterChangedEvent;
+import org.keyser.anr.core.CardCounterChangedEvent.Counter;
 import org.keyser.anr.core.CardLocation;
 import org.keyser.anr.core.ChatEvent;
 import org.keyser.anr.core.Corp;
@@ -61,6 +65,8 @@ public class EventsBasedGameDtoBuilder {
 
 	private List<RunDTO> runs = new ArrayList<>();
 
+	private List<CardCounterChangedEvent> counters = new ArrayList<>();
+
 	private final Game game;
 
 	public EventsBasedGameDtoBuilder(Game game) {
@@ -71,6 +77,7 @@ public class EventsBasedGameDtoBuilder {
 		match(AbstractCardLocationEvent.class, this::location);
 		match(AbstractCardRezzEvent.class, this::rezzed);
 		match(AbstractCardTokenEvent.class, this::tokens);
+		match(CardCounterChangedEvent.class, this.counters::add);
 
 		// notification des changements d'actions et du score
 		match(AbstractCardActionChangedEvent.class, this::actions);
@@ -153,7 +160,13 @@ public class EventsBasedGameDtoBuilder {
 		return new ServerDto(id, operation);
 	}
 
-	public GameDto create(PlayerType playerType) {
+	/**
+	 * Renvoi tout l'état vu par le joueur
+	 * 
+	 * @param playerType
+	 * @return
+	 */
+	public GameDto refresh(PlayerType playerType) {
 		GameDto dto = new GameDto();
 		dto.setLocal(playerType);
 		dto.setClicks(game.getId(game.getActivePlayer()).getClicks());
@@ -166,6 +179,16 @@ public class EventsBasedGameDtoBuilder {
 		List<ServerDto> servers = new ArrayList<>();
 		corp.eachServers(cs -> servers.add(createServer(cs.getId(), Operation.create)));
 		dto.setServers(servers);
+
+		dto.updateCounter(c -> {
+			c.setArchives(corp.getArchives().getStack().size());
+			c.setHq(corp.getHq().getStack().size());
+			c.setRd(corp.getRd().getStack().size());
+
+			c.setHeap(runner.getHeap().size());
+			c.setStack(runner.getStack().size());
+			c.setGrip(runner.getGrip().size());
+		});
 
 		for (AbstractCard ac : game.getCards()) {
 			CardDtoBuilder cdto = getOrCreate(ac);
@@ -355,10 +378,39 @@ public class EventsBasedGameDtoBuilder {
 		matchers.uninstall();
 	}
 
+	private Consumer<CounterDto> counterConsumer(CardCounterChangedEvent c) {
+		BiConsumer<CounterDto, Integer> set = null;
+		if (Counter.ARCHIVES == c.getCounter())
+			set = CounterDto::setArchives;
+		else if (Counter.RD == c.getCounter())
+			set = CounterDto::setRd;
+		else if (Counter.HQ == c.getCounter())
+			set = CounterDto::setHq;
+		else if (Counter.HEAP == c.getCounter())
+			set = CounterDto::setHeap;
+		else if (Counter.GRIP == c.getCounter())
+			set = CounterDto::setGrip;
+		else if (Counter.STACK == c.getCounter())
+			set = CounterDto::setStack;
+
+		BiConsumer<CounterDto, Integer> fset = set;
+		return dto -> fset.accept(dto, c.getAmount());
+	}
+
+	/**
+	 * Création des éléments spécifique
+	 * 
+	 * @param type
+	 * @return
+	 */
 	public GameDto build(PlayerType type) {
 
 		GameDto dto = new GameDto();
 		// TODO liste des nouveaux serveurs
+	
+		//gestion des compteurs
+		counters.stream().map(this::counterConsumer).forEach(dto::updateCounter);
+		
 
 		updateCommon(game, dto, type);
 

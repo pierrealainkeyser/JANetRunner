@@ -56,7 +56,7 @@ public class Endpoint {
 	public void refresh(RemoteSuscriber suscriber) {
 		try {
 			PlayerType type = suscriber.getKey().getType();
-			GameDto dto = new EventsBasedGameDtoBuilder(game).create(type);
+			GameDto dto = new EventsBasedGameDtoBuilder(game).refresh(type);
 
 			suscriber.send(new TypedMessage(RemoteVerbs.VERB_REFRESH, dto));
 		} catch (Throwable t) {

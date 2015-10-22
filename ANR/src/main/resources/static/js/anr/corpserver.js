@@ -30,7 +30,8 @@ function(mix, layout, ui, conf, CardContainerBox) {
 		else if (def.id === -3)
 			type = "HQ";
 
-		this.mainContainer = new CardContainerBox(layoutManager, type, innerLayout, actionListener);
+		var excludeCounter = def.id < -3;
+		this.mainContainer = new CardContainerBox(layoutManager, type, innerLayout, actionListener, excludeCounter);
 		this.upgrades = new Upgrades(layoutManager, layouts.upgrades);
 		this.ices = new Ices(layoutManager, layouts.ices);
 
@@ -82,8 +83,7 @@ function(mix, layout, ui, conf, CardContainerBox) {
 		this.addToAssetsOrUpgrades = function(card, index) {
 			if (index < 0)
 				index = 999;
-			
-			
+
 			this.mainContainer.cards.addChild(card, index);
 		}
 
