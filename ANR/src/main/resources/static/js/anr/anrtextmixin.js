@@ -21,6 +21,8 @@ define([ "mix" ], function(mix) {
 						return "<strong>Trace<sup>" + nb + "</sup></strong> -";
 					else if ('credit' === str)
 						return nb + "<span class='icon icon-credit'></span>";
+					else if ('sub' === str)
+						return "<span class='icon icon-subroutine'></span>";
 					else if ('click' === str) {
 						var a = [];
 						for (var i = 0; i < nb; i++)

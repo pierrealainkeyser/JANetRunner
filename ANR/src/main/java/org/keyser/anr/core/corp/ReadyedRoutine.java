@@ -28,7 +28,14 @@ public class ReadyedRoutine {
 	}
 
 	public void trigger(Run run, Flow next) {
+
+		run.getServer().getGame().chat("{1}|{0}| is fired", routine.asString(), "{0:sub}");
+
 		routine.trigger(run, next);
+	}
+
+	public boolean isUnbroken() {
+		return !broken.isPresent() || !broken.get();
 	}
 
 	public Optional<Boolean> getBroken() {

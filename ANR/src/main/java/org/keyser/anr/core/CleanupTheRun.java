@@ -16,5 +16,13 @@ public class CleanupTheRun {
 	public Run getRun() {
 		return run;
 	}
+	
+	public boolean isSuccessful() {
+		return run.isSuccessful();
+	}
+
+	public boolean isFailed() {
+		return run.isFailed();
+	}
 
 }
