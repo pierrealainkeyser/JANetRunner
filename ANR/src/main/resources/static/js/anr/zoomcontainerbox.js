@@ -112,7 +112,7 @@ define([ "mix", "underscore", "jquery", "layout/abstractboxcontainer", "layout/i
 					}
 					this.subModel = subModel;
 					if (this.subModel) {
-						this.subModel.observe(this.watchFunction, [ SubModel.BROKEN, SubModel.ADDED ]);
+						this.subModel.observe(this.watchFunction, [ SubModel.BROKEN, SubModel.ADDED ,SubModel.REMOVED]);
 						this.subModel.eachSubs(this.createSubBox.bind(this));
 					}
 				}
