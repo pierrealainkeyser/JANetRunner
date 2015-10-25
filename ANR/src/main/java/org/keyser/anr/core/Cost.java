@@ -42,6 +42,13 @@ public class Cost {
 		return costs;
 	}
 
+	public Cost add(Cost cost) {
+		Cost c = clone();
+		c.basics.addAll(cost.basics);
+		c.additionnal.addAll(cost.additionnal);
+		return c;
+	}
+
 	private void extractTypes(List<CostElement> m, Set<CostType> types) {
 		m.stream().map(CostElement::getType).forEach(types::add);
 	}

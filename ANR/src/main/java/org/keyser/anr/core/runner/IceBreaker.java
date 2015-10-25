@@ -5,6 +5,9 @@ import static java.text.MessageFormat.format;
 import java.util.function.Predicate;
 
 import org.keyser.anr.core.CollectHabilities;
+import org.keyser.anr.core.Cost;
+import org.keyser.anr.core.CostForAction;
+import org.keyser.anr.core.EncounteredIce;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.FlowArg;
 import org.keyser.anr.core.Runner;
@@ -28,12 +31,18 @@ public abstract class IceBreaker extends Program {
 
 	private void configureBreak(CollectHabilities hab) {
 		Runner runner = getRunner();
+
+		EncounteredIce ice = game.getTurn().getRun().get().getIce().get();
+		int unbroken = ice.countUnbroken();
+
 		for (BreakSubUsage us : getMeta().getBreaks()) {
-			BreakSubUserAction action = new BreakSubUserAction(runner, this);
-			
-			//TODO gestion des couts
-			//action.addCost(cost, enabled)
-			// TODO il y a des parametres
+			CostForAction cfa = us.getCostForAction();
+			BreakSubUserAction action = new BreakSubUserAction(runner, cfa, this);
+			Cost cost = us.getCost();
+			for (int i = 0; i < unbroken; ++i) {
+				action.addCost(cost, runner.mayAfford(cfa.merge(cost)));
+				cost = cost.add(cost);
+			}
 
 			hab.add(action.spendAndApply(next -> breakAction(us, next)));
 		}

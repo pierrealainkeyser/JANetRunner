@@ -49,6 +49,7 @@ import org.keyser.anr.core.UserActionSelectCard;
 import org.keyser.anr.core.UserDragAction;
 import org.keyser.anr.core.VariableCost;
 import org.keyser.anr.core.corp.CorpServer;
+import org.keyser.anr.core.runner.BreakSubUserAction;
 import org.keyser.anr.web.dto.CardDto.CardType;
 import org.keyser.anr.web.dto.ServerDto.Operation;
 
@@ -372,6 +373,8 @@ public class EventsBasedGameDtoBuilder {
 			AbstractCardList list = (AbstractCardList) ua.getData();
 			a.setType("ordering");
 			a.setOrdering(list.stream().map(AbstractCard::getId).collect(toList()));
+		} else if (ua instanceof BreakSubUserAction) {
+			a.setType("break");
 		}
 
 		return a;

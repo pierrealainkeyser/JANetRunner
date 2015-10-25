@@ -31,6 +31,10 @@ public class EncounteredIce {
 		return ice.getGame().createRoutine(r);
 	}
 
+	public int countUnbroken() {
+		return (int) routines.stream().filter(ReadyedRoutine::isUnbroken).count();
+	}
+
 	/**
 	 * Rajoute une rjoute
 	 * 
