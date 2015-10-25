@@ -8,6 +8,6 @@ import org.keyser.anr.core.UserAction;
 public class BreakSubUserAction extends UserAction {
 
 	public BreakSubUserAction(AbstractId user, CostForAction cost, AbstractCard source) {
-		super(user, source, cost, "Break subs");
+		super(user, source, cost, "Break selecteds");
 	}
 }

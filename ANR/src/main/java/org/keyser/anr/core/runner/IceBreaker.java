@@ -39,6 +39,10 @@ public abstract class IceBreaker extends Program {
 			CostForAction cfa = us.getCostForAction();
 			BreakSubUserAction action = new BreakSubUserAction(runner, cfa, this);
 			Cost cost = us.getCost();
+			
+			//pas activer pour 0 routine
+			action.addCost(null, false);
+			
 			for (int i = 0; i < unbroken; ++i) {
 				action.addCost(cost, runner.mayAfford(cfa.merge(cost)));
 				cost = cost.add(cost);

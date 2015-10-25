@@ -27,6 +27,7 @@ import org.keyser.anr.core.CardCounterChangedEvent.Counter;
 import org.keyser.anr.core.CardLocation;
 import org.keyser.anr.core.ChatEvent;
 import org.keyser.anr.core.Corp;
+import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.CostForAction;
 import org.keyser.anr.core.EncounteredIce;
 import org.keyser.anr.core.EventMatcherBuilder;
@@ -381,7 +382,8 @@ public class EventsBasedGameDtoBuilder {
 	}
 
 	private VariableCostDto toVariableCostDto(VariableCost vc) {
-		return new VariableCostDto(vc.getCost().toString(), vc.isEnabled());
+		Cost cost = vc.getCost();
+		return new VariableCostDto(cost != null ? cost.toString() : null, vc.isEnabled());
 	}
 
 	public void uninstallMatchers() {
