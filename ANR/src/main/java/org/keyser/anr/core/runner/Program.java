@@ -101,6 +101,7 @@ public abstract class Program extends AbstractCardRunner {
 	private void installedOnArea(ProgramsArea selected, Flow next) {
 		setRezzed(true);
 		setInstalled(true);
+		defaultInstallChat();
 		selected.installProgram(this, next.wrap(this::cleanupInstall));
 	}
 }

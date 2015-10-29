@@ -12,7 +12,7 @@ public abstract class Event extends AbstractCardRunner {
 		super(id, meta);
 	}
 	
-	public void defaultPlayChat() {
+	public void defaultInstallChat() {
 		game.chat("{0} plays {1}", getRunner(), this);
 	}
 	

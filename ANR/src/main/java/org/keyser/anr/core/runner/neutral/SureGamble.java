@@ -21,7 +21,7 @@ public class SureGamble extends Event {
 	protected void invoke(UserAction ua, Flow next) {
 		getRunner().gainCredits(9);
 		
-		defaultPlayChat();
+		defaultInstallChat();
 
 		next.apply();
 	}

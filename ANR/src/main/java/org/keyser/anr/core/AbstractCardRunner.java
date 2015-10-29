@@ -10,6 +10,10 @@ public class AbstractCardRunner extends AbstractCard {
 		super(id, meta, CollectHabilities.RUNNER, CardLocation::isInRunnerHand);
 	}
 	
+	public void defaultInstallChat() {
+		game.chat("{0} installs {1}", getRunner(), this);
+	}
+	
 	/**
 	 * Déplacemement de la carte au heap
 	 * 

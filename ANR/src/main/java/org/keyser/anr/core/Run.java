@@ -125,7 +125,7 @@ public class Run {
 		});
 		game.user(SimpleFeedback.free(runner, runner, "Continue"), () -> {
 
-			game.chat("The run continue");
+			game.chat("The run continues");
 			onContinue.apply();
 		});
 	}
@@ -146,11 +146,21 @@ public class Run {
 	}
 
 	private void prepareEncounterCurrentIce() {
-		// on peut utiliser les icebreakers
-		setStep(Step.ENCOUTERING_ICE);
 
-		// evenement de début de rencontre
-		game.apply(new EncounteringIceEvent(this.ice), this::encounterCurrentIce);
+		Ice i = this.ice.getIce();
+		if (i.isRezzed()) {
+
+			// on peut utiliser les icebreakers
+			setStep(Step.ENCOUTERING_ICE);
+
+			game.chat("{0} encouters {1}", game.getRunner(), i);
+
+			// evenement de début de rencontre
+			game.apply(new EncounteringIceEvent(this.ice), this::encounterCurrentIce);
+		} else {
+			game.chat("{0} doesn't rezz the ice", game.getCorp());
+			passCurrentIce();
+		}
 	}
 
 	private void encounterCurrentIce() {

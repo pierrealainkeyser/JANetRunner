@@ -13,9 +13,7 @@ public abstract class Resource extends AbstractCardRunner {
 		super(id, meta);
 	}
 	
-	public void defaultPlayChat() {
-		game.chat("{0} installs {1}", getRunner(), this);
-	}
+
 	
 
 	@Override
@@ -28,7 +26,7 @@ public abstract class Resource extends AbstractCardRunner {
 		Runner runner = getRunner();
 		setRezzed(true);
 		setInstalled(true);
-		defaultPlayChat();
+		defaultInstallChat();
 		runner.getResources().add(this);		
 		cleanupInstall(next);
 	}

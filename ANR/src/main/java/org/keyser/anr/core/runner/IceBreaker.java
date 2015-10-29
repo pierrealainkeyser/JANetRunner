@@ -71,6 +71,7 @@ public abstract class IceBreaker extends Program {
 
 	/**
 	 * Casse toute les routines
+	 * 
 	 * @param us
 	 * @param selectedSubs
 	 * @param next
@@ -89,15 +90,18 @@ public abstract class IceBreaker extends Program {
 		}
 
 		CostForAction total = usageCost.merge(current);
-		game.getRunner().spend(total, () -> breakSelectedSubs(selectedSubs, next));
+		game.getRunner().spend(total, () -> breakSelectedSubs(selectedSubs, total, next));
 
 	}
 
-	private void breakSelectedSubs(SubList selectedSubs, Flow next) {
-		selectedSubs.getSelecteds().forEach(r ->{
+	private void breakSelectedSubs(SubList selectedSubs, CostForAction total, Flow next) {
+
+		game.chat("{0} spends {1} using {2}", game.getRunner(), total.getCost(), this);
+
+		selectedSubs.getSelecteds().forEach(r -> {
 			r.setBroken(true);
-			game.chat("{1}|{0}| is broken", r, "{0:sub}");
-			
+			game.chat("{2} breaks {1}|{0}|", r, "{0:sub}", game.getRunner());
+
 		});
 		next.apply();
 	}

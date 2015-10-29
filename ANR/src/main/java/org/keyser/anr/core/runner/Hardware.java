@@ -23,6 +23,7 @@ public abstract class Hardware extends AbstractCardRunner {
 		Runner runner = getRunner();
 		setRezzed(true);
 		setInstalled(true);
+		defaultInstallChat();
 		runner.getHardwares().add(this);
 		cleanupInstall(next);
 	}
