@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,7 +28,7 @@ public class Game {
 
 	public static class ActionsContext {
 
-		private Map<Integer, FeedbackHandler<?>> actions = new HashMap<>();
+		private Map<Integer, FeedbackHandler<?>> actions = new LinkedHashMap<>();
 
 		private UserActionContext context;
 

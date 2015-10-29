@@ -8,9 +8,11 @@ import org.keyser.anr.core.CollectHabilities;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.CostForAction;
 import org.keyser.anr.core.EncounteredIce;
+import org.keyser.anr.core.FeedbackWithArgs;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.FlowArg;
 import org.keyser.anr.core.Runner;
+import org.keyser.anr.core.SubList;
 import org.keyser.anr.core.TokenType;
 import org.keyser.anr.core.Turn;
 import org.keyser.anr.core.UserAction;
@@ -37,20 +39,19 @@ public abstract class IceBreaker extends Program {
 
 		for (BreakSubUsage us : getMeta().getBreaks()) {
 			CostForAction cfa = us.getCostForAction();
-			BreakSubUserAction action = new BreakSubUserAction(runner, cfa, this);
+			BreakSubUserAction action = new BreakSubUserAction(runner, us, cfa, this);
 			Cost cost = us.getCost();
-			
-			//pas activer pour 0 routine
+
+			// pas activer pour 0 routine
 			action.addCost(null, false);
-			
+
 			for (int i = 0; i < unbroken; ++i) {
 				action.addCost(cost, runner.mayAfford(cfa.merge(cost)));
 				cost = cost.add(cost);
 			}
+			hab.add(new FeedbackWithArgs<>(action, this::breakAction));
 
-			hab.add(action.spendAndApply(next -> breakAction(us, next)));
 		}
-
 	}
 
 	private void configurePump(CollectHabilities hab) {
@@ -68,8 +69,37 @@ public abstract class IceBreaker extends Program {
 		boostedStrength = 0;
 	}
 
-	private void breakAction(BreakSubUsage us, Flow next) {
+	/**
+	 * Casse toute les routines
+	 * @param us
+	 * @param selectedSubs
+	 * @param next
+	 */
+	private void breakAction(BreakSubUserAction us, SubList selectedSubs, Flow next) {
+		int remaining = selectedSubs.size();
 
+		BreakSubUsage subUsage = us.getSubUsage();
+
+		CostForAction usageCost = subUsage.getCostForAction();
+		Cost basicCost = usageCost.getCost();
+		Cost current = Cost.free();
+		while (remaining > 0) {
+			remaining -= subUsage.getBroken();
+			current = current.add(basicCost);
+		}
+
+		CostForAction total = usageCost.merge(current);
+		game.getRunner().spend(total, () -> breakSelectedSubs(selectedSubs, next));
+
+	}
+
+	private void breakSelectedSubs(SubList selectedSubs, Flow next) {
+		selectedSubs.getSelecteds().forEach(r ->{
+			r.setBroken(true);
+			game.chat("{1}|{0}| is broken", r, "{0:sub}");
+			
+		});
+		next.apply();
 	}
 
 	private void boostAction(BoostUsage us, Flow next) {

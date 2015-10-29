@@ -3,6 +3,7 @@ package org.keyser.anr.core;
 import java.util.Iterator;
 import java.util.Optional;
 
+import org.keyser.anr.core.UserActionContext.Type;
 import org.keyser.anr.core.corp.CorpServer;
 import org.keyser.anr.core.corp.Ice;
 import org.keyser.anr.core.corp.ReadyedRoutine;
@@ -39,6 +40,8 @@ public class Run {
 	private EncounteredIce ice;
 
 	private Iterator<ReadyedRoutine> routinesToProcess;
+
+	private boolean firstIce = true;
 
 	public Run(Game game, int id, Flow next, CorpServer server) {
 		this.game = game;
@@ -90,17 +93,51 @@ public class Run {
 	private void prepareApprochCurrentIce() {
 		if (depth == 0) {
 			setStep(Step.APPROCHING_SERVER);
-			// evt de début d'approche de serveur
-			game.apply(new ApprochingServerEvent(server), this::approchServer);
+			jackOffOr(this::prepareApprochServer);
 		} else {
-			setStep(Step.APPROCHING_ICE);
 
-			Ice ice = server.getIceAtHeight(depth);
-			this.ice = new EncounteredIce(ice);
+			if (!firstIce) {
+				if (isMayJackOff()) {
+					jackOffOr(this::doPrepareApprochCurrentIce);
+					return;
+				}
+			}
 
-			// evt de début d'approche de glace
-			game.apply(new ApprochingIceEvent(ice), this::approchCurrentIce);
+			firstIce = false;
+			doPrepareApprochCurrentIce();
 		}
+	}
+
+	private void prepareApprochServer() {
+		// evt de début d'approche de serveur
+		game.apply(new ApprochingServerEvent(server), this::checkApprochServer);
+	}
+
+	private void jackOffOr(Flow onContinue) {
+
+		Runner runner = game.getRunner();
+		game.userContext(runner, "Would you like to jack-off ?", Type.POP_CARD);
+
+		game.user(SimpleFeedback.noop(runner, runner, "Jack Off"), () -> {
+			game.chat("{0} jacks off", runner);
+			setStatus(Status.ENDED);
+			clear();
+		});
+		game.user(SimpleFeedback.free(runner, runner, "Continue"), () -> {
+
+			game.chat("The run continue");
+			onContinue.apply();
+		});
+	}
+
+	private void doPrepareApprochCurrentIce() {
+		setStep(Step.APPROCHING_ICE);
+
+		Ice ice = server.getIceAtHeight(depth);
+		this.ice = new EncounteredIce(ice);
+
+		// evt de début d'approche de glace
+		game.apply(new ApprochingIceEvent(ice), this::approchCurrentIce);
 	}
 
 	private void approchCurrentIce() {
@@ -136,16 +173,30 @@ public class Run {
 	}
 
 	private void fireNextRoutine() {
-		if (isEnded()) {
-			fireSubsCleareds();
-			clear();
-		} else {
+
+		endedOr(Optional.of(this::fireSubsCleareds), () -> {
 			if (routinesToProcess.hasNext()) {
 				ReadyedRoutine r = routinesToProcess.next();
 				r.trigger(this, this::fireNextRoutine);
 			} else
 				passCurrentIce();
-		}
+		});
+	}
+
+	/**
+	 * Vérifie si le run est fini
+	 * 
+	 * @param onEnded
+	 *            comportement supplémentaire si le run est fini
+	 * @param other
+	 *            comportement si le run n'es pas fini
+	 */
+	private void endedOr(Optional<Flow> onEnded, Flow other) {
+		if (isEnded()) {
+			onEnded.ifPresent(Flow::apply);
+			clear();
+		} else
+			other.apply();
 	}
 
 	private boolean isEnded() {
@@ -167,9 +218,18 @@ public class Run {
 		game.fire(new IceSubsClearedsEvent(this.ice.getIce()));
 	}
 
+	/**
+	 * Vérifie que le run continu apres le fait d'avoir approché le server
+	 */
+	private void checkApprochServer() {
+
+		endedOr(Optional.empty(), this::approchServer);
+
+	}
+
 	private void approchServer() {
 
-		// TODO gestion des carte à accéder
+		// TODO il faut demander le "plan daccès"
 
 		clear();
 	}

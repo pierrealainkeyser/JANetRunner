@@ -1,9 +1,13 @@
 package org.keyser.anr.web;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.keyser.anr.core.AbstractCardList;
+import org.keyser.anr.core.EncounteredIce;
 import org.keyser.anr.core.Game;
+import org.keyser.anr.core.Run;
+import org.keyser.anr.core.SubList;
 import org.keyser.anr.core.UserInputConverter;
 import org.keyser.anr.core.corp.CorpServer;
 
@@ -22,6 +26,8 @@ public class AnrUserInputConverter implements UserInputConverter {
 			return type.cast(acl);
 		} else if (CorpServer.class.equals(type) && input instanceof Integer) {
 			return type.cast(game.getCorp().getOrCreate((Integer) input));
+		} else if (SubList.class.equals(type)) {
+			return type.cast(createSubList(game, input));
 		}
 
 		// TODO Auto-generated method stub
@@ -38,6 +44,26 @@ public class AnrUserInputConverter implements UserInputConverter {
 				game.findById(i).ifPresent(acl::add);
 			}
 
+		}
+		return acl;
+	}
+
+	@SuppressWarnings("unchecked")
+	private SubList createSubList(Game game, Object input) {
+		SubList acl = new SubList();
+
+		if (input instanceof List) {
+			List<Integer> subs = (List<Integer>) input;
+			Optional<Run> run = game.getTurn().getRun();
+			if (run.isPresent()) {
+				Optional<EncounteredIce> opt = run.get().getIce();
+				if (opt.isPresent()) {
+					EncounteredIce ei = opt.get();
+
+					ei.getRoutines().stream().filter(rr -> subs.contains(rr.getId())).forEach(acl::add);
+
+				}
+			}
 		}
 		return acl;
 	}
