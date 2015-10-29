@@ -55,7 +55,7 @@ public class Run {
 	}
 
 	public boolean mayRezzIce() {
-		return Step.APPROCHING_ICE == step;
+		return Step.APPROCHING_ICE == step && !this.ice.getIce().isRezzed();
 	}
 
 	public boolean mayRezzIce(Ice ice) {
@@ -63,7 +63,7 @@ public class Run {
 	}
 
 	public boolean mayUseBreaker() {
-		return Step.ENCOUTERING_ICE == step;
+		return Step.ENCOUTERING_ICE == step && this.ice.countUnbroken() > 0;
 	}
 
 	public boolean mayUseBreakerToBreak(IceBreaker breaker) {
@@ -238,6 +238,9 @@ public class Run {
 	 * Nettoyage du run
 	 */
 	private void clear() {
+
+		if (isEnded())
+			setStatus(Status.UNSUCCESFUL);
 
 		cleared = true;
 		game.fire(new RunStatusEvent(this));
