@@ -15,6 +15,8 @@ import org.keyser.anr.core.AbstractCard;
 import org.keyser.anr.core.AbstractCardContainer;
 import org.keyser.anr.core.AbstractCardCorp;
 import org.keyser.anr.core.AbstractTokenContainerId;
+import org.keyser.anr.core.AccesPlanDecision;
+import org.keyser.anr.core.AccesPlanManager;
 import org.keyser.anr.core.CardLocation;
 import org.keyser.anr.core.CardSubType;
 import org.keyser.anr.core.Corp;
@@ -47,6 +49,18 @@ public class CorpServer {
 	public CorpServer(Game game, int id) {
 		this.game = game;
 		this.id = id;
+	}
+
+	/**
+	 * Création de l'accès
+	 * 
+	 * @param plan
+	 * @return
+	 */
+	public AccesPlanManager access(AccesPlanDecision plan) {
+		AccesPlanManager manager = new AccesPlanManager();
+		assetOrUpgrades.stream().forEach(manager::addUnordered);
+		return manager;
 	}
 
 	/**
@@ -232,5 +246,5 @@ public class CorpServer {
 
 	public int getId() {
 		return id;
-	}	
+	}
 }

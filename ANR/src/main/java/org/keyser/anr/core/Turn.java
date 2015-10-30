@@ -55,9 +55,10 @@ public class Turn {
 
 			game.userContext(source, text, type);
 
+			List<Feedback<?, ?>> checkeds = new ArrayList<>();
 			for (Feedback<?, ?> feedback : feedbacks) {
 				if (feedback.checkCost()) {
-					game.user(feedback, next.wrap(feedbackConsumer.wrap(feedback)));
+					checkeds.add(feedback);
 					hasFeedbacks = true;
 				}
 			}
@@ -74,6 +75,9 @@ public class Turn {
 				} else
 					next.apply();
 			}
+			
+			for (Feedback<?, ?> feedback : checkeds) 
+				game.user(feedback, next.wrap(feedbackConsumer.wrap(feedback)));
 		}
 
 		protected void collectFeedbacks(EventConsumer<Feedback<?, ?>> e, Flow next) {
@@ -318,9 +322,9 @@ public class Turn {
 	public boolean mayUseIceBreaker() {
 		return testRun(Run::mayUseBreaker);
 	}
-	
+
 	public boolean mayUseBreakerToBreak(IceBreaker breaker) {
-		return testRun(r->r.mayUseBreakerToBreak(breaker) );
+		return testRun(r -> r.mayUseBreakerToBreak(breaker));
 	}
 
 	public boolean mayPlayAction() {

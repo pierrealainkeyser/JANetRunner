@@ -11,6 +11,7 @@ import org.keyser.anr.core.EncounteredIce;
 import org.keyser.anr.core.FeedbackWithArgs;
 import org.keyser.anr.core.Flow;
 import org.keyser.anr.core.FlowArg;
+import org.keyser.anr.core.IceSubsClearedsEvent;
 import org.keyser.anr.core.Runner;
 import org.keyser.anr.core.SubList;
 import org.keyser.anr.core.TokenType;
@@ -27,7 +28,9 @@ public abstract class IceBreaker extends Program {
 		super(id, meta);
 
 		addBreakerHability(this::configureBreak, true);
-		addBreakerHability(this::configurePump, true);
+		addBreakerHability(this::configurePump, false);
+
+		match(IceSubsClearedsEvent.class, em -> em.run(this::clearBoostedStrength));
 
 	}
 
@@ -65,7 +68,7 @@ public abstract class IceBreaker extends Program {
 	/**
 	 * Permet de remetre à zero
 	 */
-	public void clearBoostedStrength() {
+	private void clearBoostedStrength() {
 		boostedStrength = 0;
 	}
 

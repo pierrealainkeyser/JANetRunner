@@ -1,15 +1,8 @@
 package org.keyser.anr.core;
 
-public class RunStatusEvent implements SequentialEvent {
-
-	private final Run run;
+public class RunStatusEvent extends AbstractRunEvent implements SequentialEvent {
 
 	public RunStatusEvent(Run run) {
-		this.run = run;
+		super(run);
 	}
-
-	public Run getRun() {
-		return run;
-	}
-
 }

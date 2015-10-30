@@ -120,8 +120,7 @@ public class Run {
 
 		game.user(SimpleFeedback.noop(runner, runner, "Jack Off"), () -> {
 			game.chat("{0} jacks off", runner);
-			setStatus(Status.ENDED);
-			clear();
+			failTheRun();
 		});
 		game.user(SimpleFeedback.free(runner, runner, "Continue"), () -> {
 
@@ -204,7 +203,7 @@ public class Run {
 	private void endedOr(Optional<Flow> onEnded, Flow other) {
 		if (isEnded()) {
 			onEnded.ifPresent(Flow::apply);
-			clear();
+			failTheRun();
 		} else
 			other.apply();
 	}
@@ -233,7 +232,7 @@ public class Run {
 	 */
 	private void checkApprochServer() {
 
-		endedOr(Optional.empty(), this::approchServer);
+		endedOr(Optional.empty(), this::winTherun);
 
 	}
 
@@ -241,16 +240,29 @@ public class Run {
 
 		// TODO il faut demander le "plan daccès"
 
-		clear();
+		cleanUp();
+	}
+
+	private void failTheRun() {
+		
+		game.chat("The run is failed");
+
+		setStatus(Status.UNSUCCESFUL);
+		game.apply(new RunIsFailed(this), this::cleanUp);
+	}
+
+	private void winTherun() {
+		
+		game.chat("The run is succesful");
+		
+		setStatus(Status.SUCCESFUL);
+		game.apply(new RunIsSuccessful(this), this::approchServer);
 	}
 
 	/**
 	 * Nettoyage du run
 	 */
-	private void clear() {
-
-		if (isEnded())
-			setStatus(Status.UNSUCCESFUL);
+	private void cleanUp() {
 
 		cleared = true;
 		game.fire(new RunStatusEvent(this));

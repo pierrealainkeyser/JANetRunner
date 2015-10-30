@@ -6,23 +6,9 @@ package org.keyser.anr.core;
  * @author pakeyser
  *
  */
-public class CleanupTheRun {
-	private final Run run;
-
+public class CleanupTheRun extends AbstractRunEvent {
 	public CleanupTheRun(Run run) {
-		this.run = run;
-	}
-
-	public Run getRun() {
-		return run;
-	}
-	
-	public boolean isSuccessful() {
-		return run.isSuccessful();
-	}
-
-	public boolean isFailed() {
-		return run.isFailed();
+		super(run);
 	}
 
 }

@@ -279,12 +279,14 @@ RunBox, Point, ActionBus) {
 			if (primary) {
 
 				var text = primary.text;
+				var success = true;
 				if ((this.local == 'CORP' && !corpAction) || (this.local == 'RUNNER' && !runnerAction)) {
 					text = 'Waiting other player'
+					success = false;
 				}
 
-				this.turnTracker.gamePhase.setText(text);
-			}						
+				this.turnTracker.gamePhase.setText(text, success);
+			}
 		}
 
 		/**
@@ -293,9 +295,9 @@ RunBox, Point, ActionBus) {
 		this.prepareCardsAndServer = function(msg) {
 			_.each(msg.cards, this.card.bind(this));
 			_.each(msg.servers, this.server.bind(this));
-			
-			var counter=msg.counter;
-			if(counter){
+
+			var counter = msg.counter;
+			if (counter) {
 				this.corp.updateCardsCounter(counter);
 				this.runner.updateCardsCounter(counter);
 			}

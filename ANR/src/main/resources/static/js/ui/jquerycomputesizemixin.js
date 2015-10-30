@@ -11,12 +11,8 @@ define([ "geometry/size" ], function(Size) {
 			var container = this.layoutManager.container;
 
 			element = element.clone();
-			element.css({
-				visibility : 'hidden',
-				display : 'block',
-				position : 'absolute'
-			}).insertAfter(container);
-			var size = new Size(element.outerWidth(true), element.outerHeight(true));
+			element.css({ visibility : 'hidden', display : 'block', position : 'absolute' }).insertAfter(container);
+			var size = new Size(element.outerWidth(true) + 1, element.outerHeight(true));
 			element.remove();
 			this.local.resizeTo(size);
 		}

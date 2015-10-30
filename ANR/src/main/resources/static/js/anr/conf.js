@@ -65,7 +65,7 @@ function(Size, AnchorLayout, FlowLayout, TranslateLayout, GridLayout, HostLayout
 		};
 
 		// le nombre d'élément dans le chat
-		this.chat = { limit : 20,//
+		this.chat = { limit : 10,//
 		xOffset : -200 //
 		};
 	}

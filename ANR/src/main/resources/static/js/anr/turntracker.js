@@ -229,9 +229,16 @@ FlowLayout, AnchorLayout, AbstractBoxContainer, JQueryTrackingBox, CardsContaine
 		/**
 		 * Mise à jour du texte
 		 */
-		this.setText = function(text) {
+		this.setText = function(text, success) {
 			var updateText = function() {
 				this.element.html(text);
+				if (success != null ) {
+					this.element.removeClass("label-success label-danger");
+					if (success)
+						this.element.addClass("label-success");
+					else
+						this.element.addClass("label-danger");
+				}
 				this.computeSize(this.element);
 				this.oldText = text;
 			}.bind(this);
