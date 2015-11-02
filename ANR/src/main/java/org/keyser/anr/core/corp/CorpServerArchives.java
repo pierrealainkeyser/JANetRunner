@@ -1,5 +1,6 @@
 package org.keyser.anr.core.corp;
 
+import org.keyser.anr.core.AbstractCardCorp;
 import org.keyser.anr.core.AccesPlanDecision;
 import org.keyser.anr.core.AccesPlanManager;
 import org.keyser.anr.core.Game;
@@ -15,7 +16,7 @@ public class CorpServerArchives extends CorpServerCentral {
 
 		AccesPlanManager access = super.access(plan);
 
-		getStack().stream().forEach(access::addSequential);
+		getStack().stream().filter(AbstractCardCorp::hasAccesInArchives).forEach(access::addUnordered);
 
 		return access;
 	}

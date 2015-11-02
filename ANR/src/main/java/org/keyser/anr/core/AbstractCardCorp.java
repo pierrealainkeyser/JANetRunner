@@ -28,6 +28,10 @@ public class AbstractCardCorp extends AbstractCard {
 		match(CollectHabilities.class, em -> em.test(habilities.and(installed()).and(ch -> isAdvanceable())).call(this::registerAdvance));
 	}
 
+	public boolean hasAccesInArchives() {
+		return false;
+	}
+
 	public Optional<CorpServer> getServer() {
 		CardLocation location = getLocation();
 		if (location.isInServer())

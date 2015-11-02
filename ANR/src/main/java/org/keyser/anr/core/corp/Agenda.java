@@ -24,6 +24,11 @@ public abstract class Agenda extends AssetOrAgenda {
 		match(CollectHabilities.class, em -> em.test(scorablePredicate).call(this::registerScore));
 	}
 
+	@Override
+	public boolean hasAccesInArchives() {
+		return true;
+	}
+
 	public int getRequirement() {
 		return getMeta().getRequirement();
 	}
