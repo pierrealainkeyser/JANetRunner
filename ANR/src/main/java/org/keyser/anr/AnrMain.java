@@ -118,7 +118,7 @@ public class AnrMain extends WebMvcConfigurerAdapter implements WebSocketConfigu
 
 		Corp corp = g.getCorp();
 		corp.setToken(TokenType.CREDIT, 5);
-		corp.draw(1, () -> {
+		corp.draw(2, () -> {
 		});
 
 		Ice i = (Ice) corp.getHq().getStack().get(0);

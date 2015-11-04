@@ -4,35 +4,55 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.keyser.anr.core.corp.CorpServer;
+
+/**
+ * Les cartes à accéder
+ * 
+ * @author PAF
+ *
+ */
 public class AccesPlanManager {
 
-	private LinkedList<AbstractCardCorp> sequential = new LinkedList<>();
+	private LinkedList<AccesSingleCard> sequential = new LinkedList<>();
 
-	private List<AbstractCardCorp> unordered = new LinkedList<AbstractCardCorp>();
+	private List<AccesSingleCard> unordered = new LinkedList<>();
+
+	private List<AbstractCardCorp> accededs = new LinkedList<>();
+
+	/**
+	 * Renvoi la position de la prochain carte accédée
+	 * 
+	 * @return
+	 */
+	public CardLocation getNextAcceded() {
+		return CardLocation.accedeed(accededs.size());
+	}
 
 	public void addUnordered(AbstractCardCorp card) {
-		unordered.add(card);
+		unordered.add(new AccesSingleCard(card));
 	}
 
 	public void addSequential(AbstractCardCorp card) {
-		sequential.add(card);
+		sequential.add(new AccesSingleCard(card));
 	}
 
-	public void access(AbstractCardCorp card) {
+	public void addSequential(AbstractCardCorp card, CorpServer serverSource) {
+		sequential.add(new AccesSingleCard(card, serverSource));
+	}
+
+	public void access(AccesSingleCard card) {
 		sequential.remove(card);
 		unordered.remove(card);
+		accededs.add(card.getAcceded());
 	}
 
-	public int sequentialSize() {
-		return sequential.size();
-	}
-
-	public List<AbstractCardCorp> getAccessible() {
-		List<AbstractCardCorp> accessible = new ArrayList<>();
-		accessible.addAll(unordered);
+	public List<AccesSingleCard> getAccessibles() {
+		List<AccesSingleCard> accessibles = new ArrayList<>();
+		accessibles.addAll(unordered);
 		if (!sequential.isEmpty())
-			accessible.add(sequential.getFirst());
+			accessibles.add(sequential.getFirst());
 
-		return accessible;
+		return accessibles;
 	}
 }

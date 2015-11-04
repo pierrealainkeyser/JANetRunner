@@ -24,7 +24,7 @@ public class CorpServerHQ extends CorpServerCentral {
 
 		int nb = Math.min(plan.getInStack(), l.size());
 		for (int i = 0; i < nb; ++i)
-			access.addSequential(l.get(i));
+			access.addSequential(l.get(i), this);
 
 		return access;
 	}

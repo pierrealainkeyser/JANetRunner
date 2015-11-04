@@ -11,11 +11,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class CardLocation {
 
 	public enum Primary {
-		SERVER, GRIP, HEAP, STACK, RUNNERSCORE, CORPSCORE, HARDWARES, PROGRAMS, RESOURCES, HOSTED, HAND;
+		SERVER, GRIP, HEAP, STACK, RUNNERSCORE, CORPSCORE, HARDWARES, PROGRAMS, RESOURCES, HOSTED, HAND, ACCEDEED;
 	}
 
 	public enum Secondary {
 		ICES, ASSETORUPGRADES, UPGRADES, STACK
+	}
+	
+	public static CardLocation accedeed(int index) {
+		return new CardLocation(Primary.ACCEDEED, null, null, index);
 	}
 
 	public static CardLocation corpScore(int index) {

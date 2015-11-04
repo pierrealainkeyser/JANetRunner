@@ -45,6 +45,8 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 
 	private boolean rezzed;
 
+	private boolean visible;
+
 	private final List<CardSubType> subTypes;
 
 	protected Map<TokenType, Integer> tokens = new EnumMap<>(TokenType.class);
@@ -348,6 +350,7 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 
 	/**
 	 * Indique que l'on joue maintenant
+	 * 
 	 * @return
 	 */
 	protected Predicate<CollectHabilities> habilities() {
@@ -398,10 +401,19 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	}
 
 	public void setRezzed(boolean rezzed) {
-		boolean old = this.rezzed;
 		this.rezzed = rezzed;
-		if (old != rezzed && game != null)
-			game.fire(new AbstractCardRezzEvent(this));
+		this.setVisible(rezzed);
+	}
+
+	public void resetVisible() {
+		setVisible(rezzed);
+	}
+
+	public void setVisible(boolean visible) {
+		boolean old = this.visible;
+		this.visible = visible;
+		if (old != visible && game != null)
+			game.fire(new AbstractCardVisibleEvent(this));
 	}
 
 	/**
@@ -441,11 +453,11 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 			return p.test(game.getTurn());
 		};
 	}
-	
+
 	protected <T> Predicate<T> run(Predicate<Run> p) {
 		return (t) -> {
 			Optional<Run> run = game.getTurn().getRun();
-			if(run.isPresent())
+			if (run.isPresent())
 				return p.test(run.get());
 			return false;
 		};
@@ -475,4 +487,9 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	public void setHostedAs(HostType hostedAs) {
 		this.hostedAs = hostedAs;
 	}
+
+	public boolean isVisible() {
+		return visible;
+	}
+
 }

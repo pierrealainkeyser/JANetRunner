@@ -9,18 +9,20 @@ import java.util.function.Function;
 
 import org.keyser.anr.core.CardCounterChangedEvent.Counter;
 import org.keyser.anr.core.corp.CorpServer;
-import org.keyser.anr.core.corp.CorpServerCentral;
+import org.keyser.anr.core.corp.CorpServerArchives;
 import org.keyser.anr.core.corp.CorpServerDef;
+import org.keyser.anr.core.corp.CorpServerHQ;
+import org.keyser.anr.core.corp.CorpServerRD;
 
 public class Corp extends AbstractId {
 
 	private List<CorpServer> remotes = new ArrayList<>();
 
-	private CorpServerCentral archives;
+	private CorpServerArchives archives;
 
-	private CorpServerCentral rd;
+	private CorpServerRD rd;
 
-	private CorpServerCentral hq;
+	private CorpServerHQ hq;
 
 	public Corp(int id, MetaCard meta) {
 		super(id, meta, PlayerType.CORP, CardLocation::corpScore);
@@ -40,13 +42,13 @@ public class Corp extends AbstractId {
 	 * Création des serveurs qui vont bien
 	 */
 	public void init() {
-		archives = new CorpServerCentral(game, nextServerId());
+		archives = new CorpServerArchives(game, nextServerId());
 		archives.getStack().setListener(ac -> game.fire(new CardCounterChangedEvent(Counter.ARCHIVES, ac.size())));
 
-		rd = new CorpServerCentral(game, nextServerId());
+		rd = new CorpServerRD(game, nextServerId());
 		rd.getStack().setListener(ac -> game.fire(new CardCounterChangedEvent(Counter.RD, ac.size())));
 
-		hq = new CorpServerCentral(game, nextServerId());
+		hq = new CorpServerHQ(game, nextServerId());
 		hq.getStack().setListener(ac -> game.fire(new CardCounterChangedEvent(Counter.HQ, ac.size())));
 	}
 
@@ -181,15 +183,15 @@ public class Corp extends AbstractId {
 
 	}
 
-	public CorpServerCentral getArchives() {
+	public CorpServerArchives getArchives() {
 		return archives;
 	}
 
-	public CorpServerCentral getRd() {
+	public CorpServerRD getRd() {
 		return rd;
 	}
 
-	public CorpServerCentral getHq() {
+	public CorpServerHQ getHq() {
 		return hq;
 	}
 

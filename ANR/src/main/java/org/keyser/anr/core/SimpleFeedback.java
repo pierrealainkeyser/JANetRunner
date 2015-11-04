@@ -1,5 +1,7 @@
 package org.keyser.anr.core;
 
+import org.keyser.anr.core.corp.CorpServer;
+
 /**
  * Permet de regrouper une action et un evenement
  * 
@@ -33,6 +35,17 @@ public class SimpleFeedback<UA extends UserAction> implements Feedback<UA, Void>
 	 * @return
 	 */
 	public static SimpleFeedback<UserAction> free(AbstractId to, AbstractCard source, String description) {
+		return new SimpleFeedback<UserAction>(new FreeUserAction(to, source, description), (ua, next) -> next.apply());
+	}
+	
+	/**
+	 * Renvoi d'un action gratuite
+	 * @param to
+	 * @param source
+	 * @param description
+	 * @return
+	 */
+	public static SimpleFeedback<UserAction> free(AbstractId to, CorpServer source, String description) {
 		return new SimpleFeedback<UserAction>(new FreeUserAction(to, source, description), (ua, next) -> next.apply());
 	}
 

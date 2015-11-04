@@ -12,7 +12,7 @@ public class CorpServerRD extends CorpServerCentral {
 	public CorpServerRD(Game game, int id) {
 		super(game, id);
 	}
-	
+
 	@Override
 	public AccesPlanManager access(AccesPlanDecision plan) {
 
@@ -21,7 +21,7 @@ public class CorpServerRD extends CorpServerCentral {
 
 		int nb = Math.min(plan.getInStack(), l.size());
 		for (int i = 0; i < nb; ++i)
-			access.addSequential(l.get(i));
+			access.addSequential(l.get(i), this);
 
 		return access;
 	}

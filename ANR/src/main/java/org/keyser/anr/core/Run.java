@@ -1,6 +1,7 @@
 package org.keyser.anr.core;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 
 import org.keyser.anr.core.UserActionContext.Type;
@@ -230,21 +231,61 @@ public class Run {
 	/**
 	 * Vérifie que le run continu apres le fait d'avoir approché le server
 	 */
-	private void checkApprochServer() {
+	private void checkApprochServer(ApprochingServerEvent evt) {
 
 		endedOr(Optional.empty(), this::winTherun);
 
 	}
 
-	private void approchServer() {
+	/**
+	 * Détermination du plan d'accès
+	 */
+	private void prepareToCommitAccess() {
 
-		// TODO il faut demander le "plan daccès"
+		game.apply(new AccesPlanDecision(server), this::commitAccess);
 
-		cleanUp();
+	}
+
+	private void commitAccess(AccesPlanDecision accessPlan) {
+		game.chat("{0} access {1}", game.getRunner(), server);
+		doCommitAccess(server.access(accessPlan));
+	}
+
+	private void doCommitAccess(AccesPlanManager manager) {
+		List<AccesSingleCard> accessibles = manager.getAccessibles();
+
+		if (accessibles.isEmpty()) {
+			// fin des acces
+			cleanUp();
+		} else {
+			Runner runner = game.getRunner();
+			game.userContext(runner, "Choose cards to access", Type.POP_CARD);
+
+			for (AccesSingleCard accessible : accessibles) {
+				Flow commit = () -> prepareAccessCard(manager, accessible);
+
+				CorpServer serverSource = accessible.getServerSource();
+				if (serverSource == null)
+					game.user(SimpleFeedback.free(runner, accessible.getAcceded(), "Access"), commit);
+				else
+					game.user(SimpleFeedback.free(runner, serverSource, "Access a card"), commit);
+			}
+		}
+	}
+
+	private void prepareAccessCard(AccesPlanManager manager, AccesSingleCard accessed) {
+
+		// déplacement dans la zone d'acces
+		AbstractCardCorp card = accessed.getAcceded();
+		card.setVisible(true);
+		card.setLocation(manager.getNextAcceded());
+
+		// TODO suite de l'accès
+
 	}
 
 	private void failTheRun() {
-		
+
 		game.chat("The run is failed");
 
 		setStatus(Status.UNSUCCESFUL);
@@ -252,11 +293,11 @@ public class Run {
 	}
 
 	private void winTherun() {
-		
+
 		game.chat("The run is succesful");
-		
+
 		setStatus(Status.SUCCESFUL);
-		game.apply(new RunIsSuccessful(this), this::approchServer);
+		game.apply(new RunIsSuccessful(this), this::prepareToCommitAccess);
 	}
 
 	/**

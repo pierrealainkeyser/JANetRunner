@@ -18,7 +18,7 @@ import org.keyser.anr.core.AbstractCard;
 import org.keyser.anr.core.AbstractCardActionChangedEvent;
 import org.keyser.anr.core.AbstractCardList;
 import org.keyser.anr.core.AbstractCardLocationEvent;
-import org.keyser.anr.core.AbstractCardRezzEvent;
+import org.keyser.anr.core.AbstractCardVisibleEvent;
 import org.keyser.anr.core.AbstractCardScoreChangedEvent;
 import org.keyser.anr.core.AbstractCardTokenEvent;
 import org.keyser.anr.core.AbstractId;
@@ -78,7 +78,7 @@ public class EventsBasedGameDtoBuilder {
 
 	public EventsBasedGameDtoBuilder listen() {
 		match(AbstractCardLocationEvent.class, this::location);
-		match(AbstractCardRezzEvent.class, this::rezzed);
+		match(AbstractCardVisibleEvent.class, this::rezzed);
 		match(AbstractCardTokenEvent.class, this::tokens);
 		match(IceSubsClearedsEvent.class, this::subsCleareds);
 		match(CardCounterChangedEvent.class, this.counters::add);
@@ -113,7 +113,7 @@ public class EventsBasedGameDtoBuilder {
 		act.apply(dto);
 	}
 
-	private void rezzed(AbstractCardRezzEvent evt) {
+	private void rezzed(AbstractCardVisibleEvent evt) {
 		AbstractCard card = evt.getPrimary();
 		with(card, dto -> updateFace(card, dto));
 	}
