@@ -248,10 +248,10 @@ public class Run {
 
 	private void commitAccess(AccesPlanDecision accessPlan) {
 		game.chat("{0} access {1}", game.getRunner(), server);
-		doCommitAccess(server.access(accessPlan));
+		selectNextCardToAccess(server.access(accessPlan));
 	}
 
-	private void doCommitAccess(AccesPlanManager manager) {
+	private void selectNextCardToAccess(AccesPlanManager manager) {
 		List<AccesSingleCard> accessibles = manager.getAccessibles();
 
 		if (accessibles.isEmpty()) {
@@ -281,6 +281,7 @@ public class Run {
 		card.setLocation(manager.getNextAcceded());
 
 		// TODO suite de l'accès
+		selectNextCardToAccess(manager);
 
 	}
 
