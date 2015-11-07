@@ -14,9 +14,9 @@ public class CorpServerRD extends CorpServerCentral {
 	}
 
 	@Override
-	public AccesPlanManager access(AccesPlanDecision plan) {
+	public AccesPlanManager access(AccesPlanDecision plan, AccesPlanManager manager) {
 
-		AccesPlanManager access = super.access(plan);
+		AccesPlanManager access = super.access(plan, manager);
 		List<AbstractCardCorp> l = getStack().getContents();
 
 		int nb = Math.min(plan.getInStack(), l.size());

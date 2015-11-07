@@ -12,12 +12,10 @@ public class CorpServerArchives extends CorpServerCentral {
 	}
 
 	@Override
-	public AccesPlanManager access(AccesPlanDecision plan) {
+	public AccesPlanManager access(AccesPlanDecision plan, AccesPlanManager manager) {
 
-		AccesPlanManager access = super.access(plan);
-
+		AccesPlanManager access = super.access(plan, manager);
 		getStack().stream().filter(AbstractCardCorp::hasAccesInArchives).forEach(access::addUnordered);
-
 		return access;
 	}
 

@@ -16,9 +16,9 @@ public class CorpServerHQ extends CorpServerCentral {
 	}
 
 	@Override
-	public AccesPlanManager access(AccesPlanDecision plan) {
+	public AccesPlanManager access(AccesPlanDecision plan, AccesPlanManager manager) {
 
-		AccesPlanManager access = super.access(plan);
+		AccesPlanManager access = super.access(plan, manager);
 		List<AbstractCardCorp> l = new ArrayList<>(getStack().getContents());
 		Collections.shuffle(l);
 

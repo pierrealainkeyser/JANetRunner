@@ -1,7 +1,6 @@
 package org.keyser.anr.core;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Optional;
 
 import org.keyser.anr.core.UserActionContext.Type;
@@ -248,41 +247,8 @@ public class Run {
 
 	private void commitAccess(AccesPlanDecision accessPlan) {
 		game.chat("{0} access {1}", game.getRunner(), server);
-		selectNextCardToAccess(server.access(accessPlan));
-	}
-
-	private void selectNextCardToAccess(AccesPlanManager manager) {
-		List<AccesSingleCard> accessibles = manager.getAccessibles();
-
-		if (accessibles.isEmpty()) {
-			// fin des acces
-			cleanUp();
-		} else {
-			Runner runner = game.getRunner();
-			game.userContext(runner, "Choose cards to access", Type.POP_CARD);
-
-			for (AccesSingleCard accessible : accessibles) {
-				Flow commit = () -> prepareAccessCard(manager, accessible);
-
-				CorpServer serverSource = accessible.getServerSource();
-				if (serverSource == null)
-					game.user(SimpleFeedback.free(runner, accessible.getAcceded(), "Access"), commit);
-				else
-					game.user(SimpleFeedback.free(runner, serverSource, "Access a card"), commit);
-			}
-		}
-	}
-
-	private void prepareAccessCard(AccesPlanManager manager, AccesSingleCard accessed) {
-
-		// déplacement dans la zone d'acces
-		AbstractCardCorp card = accessed.getAcceded();
-		card.setVisible(true);
-		card.setLocation(manager.getNextAcceded());
-
-		// TODO suite de l'accès
-		selectNextCardToAccess(manager);
-
+		AccesPlanManager access = server.access(accessPlan, new AccesPlanManager(game, this::cleanUp));
+		access.commit();
 	}
 
 	private void failTheRun() {

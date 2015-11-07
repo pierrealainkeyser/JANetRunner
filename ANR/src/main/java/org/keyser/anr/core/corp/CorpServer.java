@@ -57,8 +57,7 @@ public class CorpServer {
 	 * @param plan
 	 * @return
 	 */
-	public AccesPlanManager access(AccesPlanDecision plan) {
-		AccesPlanManager manager = new AccesPlanManager();
+	public AccesPlanManager access(AccesPlanDecision plan, AccesPlanManager manager) {
 		assetOrUpgrades.stream().forEach(manager::addUnordered);
 		return manager;
 	}
