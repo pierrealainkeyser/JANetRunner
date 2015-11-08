@@ -42,7 +42,7 @@ public class Runner extends AbstractId implements ProgramsArea {
 		heap.setListener(ac -> game.fire(new CardCounterChangedEvent(Counter.HEAP, ac.size())));
 	}
 
-	private void registerRunAction(CollectHabilities ch) {
+	private void registerRunAction(CollectAbstractHabilites ch) {
 
 		Cost oneClick = Cost.click(1);
 		game.getCorp().eachServers(cs -> {

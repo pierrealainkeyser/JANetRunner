@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import org.keyser.anr.core.AbstractCardCorp;
+import org.keyser.anr.core.CollectAbstractHabilites;
 import org.keyser.anr.core.CollectHabilities;
 import org.keyser.anr.core.Corp;
 import org.keyser.anr.core.Cost;
@@ -30,7 +31,7 @@ public class AstroScriptPilotProgram extends Agenda {
 		match(CollectHabilities.class, em -> em.test(myTurn.and(ch -> isScored() && hasAnyToken(TokenType.AGENDA))).call(this::registerPutAnAdvanceToken));
 	}
 
-	private void registerPutAnAdvanceToken(CollectHabilities ch) {
+	private void registerPutAnAdvanceToken(CollectAbstractHabilites ch) {
 
 		List<AbstractCardCorp> advanceables = new ArrayList<>();
 		Corp corp = getCorp();

@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 import org.keyser.anr.core.AbstractCardContainer;
 import org.keyser.anr.core.AbstractCardCorp;
 import org.keyser.anr.core.AbstractCardList;
-import org.keyser.anr.core.CollectHabilities;
+import org.keyser.anr.core.CollectAbstractHabilites;
 import org.keyser.anr.core.Corp;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.CostForAction;
@@ -29,7 +29,7 @@ public abstract class InServerCorpCard extends AbstractCardCorp {
 	protected abstract PlayCardAction<? extends AbstractCardCorp> playAction();
 
 	@Override
-	public void playFeedback(CollectHabilities hab) {
+	public void playFeedback(CollectAbstractHabilites hab) {
 		CostForAction cost = new CostForAction(Cost.free().withAction(1), playAction());
 		Corp corp = getCorp();
 		UserAction playOperation = new UserAction(corp, this, cost, "Install");

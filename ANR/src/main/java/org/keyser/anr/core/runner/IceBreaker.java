@@ -4,6 +4,7 @@ import static java.text.MessageFormat.format;
 
 import java.util.function.Predicate;
 
+import org.keyser.anr.core.CollectAbstractHabilites;
 import org.keyser.anr.core.CollectHabilities;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.CostForAction;
@@ -34,7 +35,7 @@ public abstract class IceBreaker extends Program {
 
 	}
 
-	private void configureBreak(CollectHabilities hab) {
+	private void configureBreak(CollectAbstractHabilites hab) {
 		Runner runner = getRunner();
 
 		EncounteredIce ice = game.getTurn().getRun().get().getIce().get();
@@ -57,7 +58,7 @@ public abstract class IceBreaker extends Program {
 		}
 	}
 
-	private void configurePump(CollectHabilities hab) {
+	private void configurePump(CollectAbstractHabilites hab) {
 		Runner runner = getRunner();
 		for (BoostUsage us : getMeta().getBoosts()) {
 			UserAction action = new UserAction(runner, this, us.getCostForAction(), format("Boost by {0} ", us.getBoost()));

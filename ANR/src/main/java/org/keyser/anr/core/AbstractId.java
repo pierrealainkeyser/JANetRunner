@@ -66,7 +66,7 @@ public abstract class AbstractId extends AbstractCard {
 	}
 
 	@Override
-	public void playFeedback(CollectHabilities hab) {
+	public void playFeedback(CollectAbstractHabilites hab) {
 		Cost oneAction = Cost.free().withAction(1);
 		UserAction gainOne = new UserAction(this, this, new CostForAction(oneAction, new Gain1CreditAction(this)), "Gain {1:credit}");
 		hab.add(gainOne.spendAndApply(this::gainOneCreditAction));

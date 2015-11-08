@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.keyser.anr.core.AbstractCard;
 import org.keyser.anr.core.AbstractCardRunner;
-import org.keyser.anr.core.CollectHabilities;
+import org.keyser.anr.core.CollectAbstractHabilites;
 import org.keyser.anr.core.CostForAction;
 import org.keyser.anr.core.EventConsumer;
 import org.keyser.anr.core.Flow;
@@ -33,7 +33,7 @@ public abstract class Program extends AbstractCardRunner {
 	}
 
 	@Override
-	public void playFeedback(CollectHabilities hab) {
+	public void playFeedback(CollectAbstractHabilites hab) {
 		Runner r = getRunner();
 		Game g = getGame();
 		CollectPossibleProgramsArea cppa = new CollectPossibleProgramsArea(this).addArea(r);

@@ -28,7 +28,7 @@ public class Turn {
 			// création d'un serveur vide au besoin
 			game.getCorp().ensureEmptyServer();
 
-			CollectHabilities collect = new CollectHabilities(active, action);
+			CollectAbstractHabilites collect = new CollectHabilities(active, action);
 			game.fire(collect);
 
 			Collection<Feedback<?, ?>> feedbacks = collect.getFeedbacks();

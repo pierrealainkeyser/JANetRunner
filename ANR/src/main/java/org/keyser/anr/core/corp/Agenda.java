@@ -3,6 +3,7 @@ package org.keyser.anr.core.corp;
 import java.util.function.Predicate;
 
 import org.keyser.anr.core.AbstractCardCorp;
+import org.keyser.anr.core.CollectAbstractHabilites;
 import org.keyser.anr.core.CollectHabilities;
 import org.keyser.anr.core.Corp;
 import org.keyser.anr.core.Cost;
@@ -42,7 +43,7 @@ public abstract class Agenda extends AssetOrAgenda {
 		return (AgendaMetaCard) super.getMeta();
 	}
 
-	private void registerScore(CollectHabilities collect) {
+	private void registerScore(CollectAbstractHabilites collect) {
 		UserAction scoreAgenda = new UserAction(getCorp(), this, createScoringCost(), "Score");
 		collect.add(scoreAgenda.spendAndApply(this::prepareScore));
 	}

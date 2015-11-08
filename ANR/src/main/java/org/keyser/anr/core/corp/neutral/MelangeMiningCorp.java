@@ -3,7 +3,7 @@ package org.keyser.anr.core.corp.neutral;
 import static java.util.Collections.emptyList;
 
 import org.keyser.anr.core.AbstractCardAction;
-import org.keyser.anr.core.CollectHabilities;
+import org.keyser.anr.core.CollectAbstractHabilites;
 import org.keyser.anr.core.Corp;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.CostForAction;
@@ -25,7 +25,7 @@ public class MelangeMiningCorp extends Asset {
 		addAction(this::configureAction);
 	}
 
-	private void configureAction(CollectHabilities hab) {
+	private void configureAction(CollectAbstractHabilites hab) {
 		Cost threeActions = Cost.free().withAction(3);
 		UserAction gain7 = new UserAction(getCorp(), this, new CostForAction(threeActions, new AbstractCardAction<>(this)), "Gains {7:credit}");
 		hab.add(gain7.spendAndApply(this::gain7creditsAction));

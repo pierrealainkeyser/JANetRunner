@@ -4,7 +4,7 @@ import static java.util.Collections.emptyList;
 
 import org.keyser.anr.core.AbstractCardAction;
 import org.keyser.anr.core.AbstractCardInstalledCleanup;
-import org.keyser.anr.core.CollectHabilities;
+import org.keyser.anr.core.CollectAbstractHabilites;
 import org.keyser.anr.core.Cost;
 import org.keyser.anr.core.CostForAction;
 import org.keyser.anr.core.Faction;
@@ -33,7 +33,7 @@ public class ArmitageCodebusting extends Resource {
 		addToken(TokenType.CREDIT, 12);
 	}
 
-	private void configureAction(CollectHabilities hab) {
+	private void configureAction(CollectAbstractHabilites hab) {
 		Cost oneAction = Cost.free().withAction(1);
 		UserAction take2credits = new UserAction(getRunner(), this, new CostForAction(oneAction, new AbstractCardAction<>(this)), "Take {2:credit}");
 		hab.add(take2credits.spendAndApply(this::take2CreditsAction));

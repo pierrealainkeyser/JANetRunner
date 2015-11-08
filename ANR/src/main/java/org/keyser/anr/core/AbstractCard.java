@@ -344,7 +344,7 @@ public abstract class AbstractCard extends AbstractCardContainer<AbstractCard> {
 	 * 
 	 * @param hab
 	 */
-	public void playFeedback(CollectHabilities hab) {
+	public void playFeedback(CollectAbstractHabilites hab) {
 
 	}
 
