@@ -1,8 +1,9 @@
 define([ "mix", "jquery", "interact", "underscore", "conf", "layout/package", "layout/impl/handlayout", "anr/corp", "anr/runner", "anr/corpserver",
-		"anr/focus", "anr/card", "anr/turntracker", "anr/chattracker", "anr/zoomcontainerbox", "anr/cardcontainerbox", "geometry/rectangle", "anr/actionmodel",//
+		"anr/focus", "anr/card", "anr/turntracker", "anr/chattracker", "anr/zoomcontainerbox", "anr/cardcontainerbox", "anr/accesscontainerbox",
+		"geometry/rectangle", "anr/actionmodel",//
 		"anr/runbox", "geometry/point", "anr/actionbus", ],//
 function(mix, $, interact, _, config, layout, HandLayout, Corp, Runner, CorpServer, FocusBox, Card,// 
-TurnTracker, ChatTracker, ZoomContainerBox, CardContainerBox, Rectangle, ActionModel, //
+TurnTracker, ChatTracker, ZoomContainerBox, CardContainerBox, AccessContainerBox, Rectangle, ActionModel, //
 RunBox, Point, ActionBus) {
 
 	/**
@@ -90,6 +91,8 @@ RunBox, Point, ActionBus) {
 		this.local = null;
 
 		this.focus = new FocusBox(layoutManager);
+
+		this.accessbox = new AccessContainerBox(layoutManager);
 
 		layoutManager.afterFirstMerge = this.afterFirstMerge.bind(this);
 		layoutManager.afterSecondMerge = this.afterSecondMerge.bind(this);
@@ -411,6 +414,8 @@ RunBox, Point, ActionBus) {
 				this.hand.addChild(card.unwrapped(), path.index);
 			else if ("corpscore" === first)
 				this.corp.addToScore(card);
+			else if ("access" === first)
+				this.access.addChild(card.unwrapped(), path.index);
 
 			// suppression de l'hote
 			card.setHost(null);
@@ -762,6 +767,8 @@ RunBox, Point, ActionBus) {
 
 			var hsize = this.hand.layoutFunction.bounds;
 			this.hand.local.moveTo({ x : container.width() - hsize.width - 5, y : container.height() - hsize.height - 5 });
+
+			// gestion de la position central
 		}
 
 		/**

@@ -42,77 +42,71 @@
 				score : { corp : 0, runner : 0 }, //
 				servers : [ { id : -1 }, { id : -2 }, { id : -3, actions : [ { id : 1, cost : "{1:click}", text : "Run" } ] }, { id : -4 } ], });
 
-				board
-						.consumeMsg({//
-							primary : { id : 60, text : "Begining of turn" , type:'POP_CARD'},//
-							clicks : { active : 1, used : 2 },//
-							counter:{
-								hq:5
-							},
-							cards : [//
-									{ id : 0, url : "01080.png", faction : "corp", type : "id",
-										location : { primary : "server", serverIndex : -3, secondary : "stack", index : 0 }, tokens : { credit : 3 } },//
-									{ id : 60, url : "01033.png", faction : "runner", type : "id", location : { primary : "grip", index : 0 },
-										tokens : { credit : 5 } },//
+				board.consumeMsg({//
+					primary : { id : 60, text : "Begining of turn", type : 'POP_CARD' },//
+					clicks : { active : 1, used : 2 },//
+					counter : { hq : 5 },
+					cards : [//
+							{ id : 0, url : "01080.png", faction : "corp", type : "id", face : 'up',
+								location : { primary : "server", serverIndex : -3, secondary : "stack", index : 0 }, tokens : { credit : 3 } },//
+							{ id : 60, url : "01033.png", faction : "runner", type : "id", face : 'up', location : { primary : "grip", index : 0 },
+								tokens : { credit : 5 } },//
 
-									{
-										id : 1,
-										url : "01088.png",
-										faction : "corp",
-										location : { primary : "server", serverIndex : -3, secondary : "ices", index : 0 },
-										tokens : { power : 1 },//
-										actions : [
-												{ id : 2, type : 'break', costs : [ { enabled : false }, { cost : "{3:credit}", enabled : true } ],
-													text : "Break selected" },
-												{ id : 3, type : 'selection' },//
-												{ id : 4, type : 'confirmselection', text : "Confirm",
-													costs : [ { enabled : true, cost : "{1:credit}" }, { enabled : true } ] },//
-												{ id : 5, type : 'trace', base : 0, max : 5, text : "Bid" } //
+							{
+								id : 1,
+								url : "01088.png",
+								faction : "corp",
+								zoomable : 'up',
+								location : { primary : "server", serverIndex : -3, secondary : "ices", index : 0 },
+								tokens : { power : 1 },//
+								actions : [
+										{ id : 2, type : 'break', costs : [ { enabled : false }, { cost : "{3:credit}", enabled : true } ],
+											text : "Break selected" },
+										{ id : 3, type : 'selection' },//
+										{ id : 4, type : 'confirmselection', text : "Confirm",
+											costs : [ { enabled : true, cost : "{1:credit}" }, { enabled : true } ] },//
+										{ id : 5, type : 'trace', base : 0, max : 5, text : "Bid" } //
 
-										],//
-										subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on |Data Raven|" } ] //
-									},//
-									{ id : 2, url : "01110.png", face : 'up', faction : "corp", location : { primary : "hand", index : 3 },
-										actions : [ { id : 17, text : "Play", cost : "{1:click}, {5:credit}", enableDrag : true } ] //											
-									},//
-									{
-										id : 232,
-										url : "01089.png",
-										face : 'up',
-										faction : "corp",
-										location : { primary : "hand", index : 0 },
-										actions : [ {
-											id : 18,
-											type : 'drag',
-											dragTo : [
-													{ value : -1, action : "add",
-														location : { primary : "server", serverIndex : -1, secondary : "ices", index : 0 } },//
-													{ value : -2, action : "add",
-														location : { primary : "server", serverIndex : -2, secondary : "ices", index : 0 } },//
-													{ value : -3, action : "add",
-														location : { primary : "server", serverIndex : -3, secondary : "ices", index : 1 } },//
-													{ value : -4, action : "add",
-														location : { primary : "server", serverIndex : -4, secondary : "ices", index : 0 } } //
-											] } ] },//
+								],//
+								subs : [ { id : 1, text : "{3:trace} If successful, place 1 power counter on |Data Raven|" } ] //
+							},//
+							{ id : 2, url : "01110.png", face : 'up', faction : "corp", location : { primary : "hand", index : 3 },
+								actions : [ { id : 17, text : "Play", cost : "{1:click}, {5:credit}", enableDrag : true } ] //											
+							},//
+							{
+								id : 232,
+								url : "01089.png",
+								face : 'up',
+								faction : "corp",
+								location : { primary : "hand", index : 0 },
+								actions : [ {
+									id : 18,
+									type : 'drag',
+									dragTo : [
+											{ value : -1, action : "add", location : { primary : "server", serverIndex : -1, secondary : "ices", index : 0 } },//
+											{ value : -2, action : "add", location : { primary : "server", serverIndex : -2, secondary : "ices", index : 0 } },//
+											{ value : -3, action : "add", location : { primary : "server", serverIndex : -3, secondary : "ices", index : 1 } },//
+											{ value : -4, action : "add", location : { primary : "server", serverIndex : -4, secondary : "ices", index : 0 } } //
+									] } ] },//
 
-									{
-										id : 3,
-										url : "01091.png",
-										face : 'up',
-										faction : "corp",
-										location : { primary : "hand", index : 1 },//
-										actions : [ {
-											id : 18,
-											type : 'drag',
-											dragTo : [ { value : -4, action : "add",
-												location : { primary : "server", serverIndex : -4, secondary : "assetorupgrades", index : 0 } } ] } ] //
-									}, //
-									{ id : 4, url : "01086.png", faction : "corp", face : "down", zoomable : "up", accessible : true,
-										location : { primary : "server", serverIndex : -1, secondary : "stack", index : 0 } }, //
-									{ id : 5, url : "01085.png", faction : "corp", face : "down", zoomable : "down", accessible : true,
-										location : { primary : "server", serverIndex : -1, secondary : "stack", index : 1 } } //
-							] //
-						});
+							{
+								id : 3,
+								url : "01091.png",
+								face : 'up',
+								faction : "corp",
+								location : { primary : "hand", index : 1 },//
+								actions : [ {
+									id : 18,
+									type : 'drag',
+									dragTo : [ { value : -4, action : "add",
+										location : { primary : "server", serverIndex : -4, secondary : "assetorupgrades", index : 0 } } ] } ] //
+							}, //
+							{ id : 4, url : "01086.png", faction : "corp", face : "down", zoomable : "up", accessible : true,
+								location : { primary : "server", serverIndex : -1, secondary : "stack", index : 0 } }, //
+							{ id : 5, url : "01085.png", faction : "corp", face : "down", zoomable : "down", accessible : true,
+								location : { primary : "server", serverIndex : -1, secondary : "stack", index : 1 } } //
+					] //
+				});
 
 				setTimeout(layoutManager.withinLayout(function() {
 					board.consumeMsg({//

@@ -12,7 +12,8 @@ function(Size, AnchorLayout, FlowLayout, TranslateLayout, GridLayout, HostLayout
 		zoom : new Size(w * 2, h * 2),//
 		selected : new Size(w * 1.75, h * 1.75),//		
 		layouts : { tokens : new GridLayout({ maxCols : 3, padding : 2 }),//
-		wrapper : new HostLayout({}) //
+		wrapper : new HostLayout({}), //
+		access : new GridLayout({  maxCols : 6, padding : 2 }) //
 		} // 
 		};
 
