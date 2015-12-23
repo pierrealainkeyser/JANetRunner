@@ -1,0 +1,167 @@
+
+html , body , body > div#main {
+	height: 100%;
+	overflow: hidden;
+	font-family: sans-serif;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+}
+
+@card-width: 80px;
+@card-height: 111px;
+@card-border-radius: 5px;
+@card-spacing: 5px;
+@hosted-card-spacing: 5px;
+@card-overlay-factor: 0.66;
+//un server
+.server {
+	display: flex;
+	flex-direction: column-reverse;
+	align-items: center;
+	.ices {
+		order: 2;
+		&:not(:empty) {
+			margin-bottom: @card-spacing;
+		}
+	}
+
+	.assets {
+		order: 1;
+		margin-bottom: @card-spacing;
+		height: @card-height;
+	}
+
+	.upgrades {
+		order: 0;
+		height: @card-height;
+	}
+}
+
+//un card-container vers le haut
+.ices {
+	.card-container ('right');
+	flex-direction: column-reverse;
+	align-items: center;
+	.cardwrapper {
+		margin-top: @card-spacing;
+	}
+}
+
+//un card-container vers la droite, qui place les cartes hotes sous la carte courante
+.upgrades , .assets {
+	.card-container ('bottom');
+	flex-direction: row;
+	.card-horizontal-overlay ();
+}
+
+//rajoute un overlay pour les card-container 
+.card-horizontal-overlay () {
+	//TODO il faut voir comment faire mieux que ca
+	padding-left: -@card-width * @card-overlay-factor;
+	.cardwrapper {
+		margin-right: -@card-width * @card-overlay-factor;
+	}
+}
+
+//un conteneur de carte
+.card-container (@direction) {
+	display: flex;
+	.cardwrapper {
+		.cardwrapper-hosteds-card (@direction);
+		.card {
+			position: relative;
+			& when (@direction='right') {
+				height: @card-width;
+				width: @card-height;
+				left: @card-height;
+				.inner {
+					transform-origin: top left;
+					transform: rotate(90deg);
+					width: @card-width;
+					height: @card-height;
+				}
+			}
+
+			& when not (@direction='right') {
+				.inner {
+					height: @card-height;
+					width: @card-width;
+				}
+			}
+		}
+	}
+}
+
+//contient la carte, ainsi que des hotes
+.cardwrapper {
+	display: flex;
+	align-items: center;
+	.card {
+		order: 1;
+	}
+
+	.cardwrapper-hosteds-card ('top');
+	.hosteds {
+		display: flex;
+		order: 2;
+	}
+}
+
+//le mixin qui permet de gérer les cartes hotes en fonction de l'alignement
+.cardwrapper-hosteds-card (@direction) {
+	.hosteds {
+		& when (@direction='up') {
+			.card-horizontal-overlay ();
+			flex-direction: row;
+			&:not(:empty) {
+				margin-bottom: @hosted-card-spacing;
+			}
+		}
+
+		& when (@direction='bottom') {
+			.card-horizontal-overlay ();
+			flex-direction: row;
+			&:not(:empty) {
+				margin-top: @hosted-card-spacing;
+			}
+		}
+
+		& when (@direction='right') {
+			.card-horizontal-overlay ();
+			flex-direction: column;
+			&:not(:empty) {
+				margin-left: @hosted-card-spacing;
+			}
+		}
+	}
+}
+
+//la position d'une carte
+.view {
+	.card {
+		position: absolute;
+		transform-origin: top left;
+		&.corp img.back {
+			content: url(/img/back-corp.png);
+		}
+
+		&.runner img.back {
+			content: url(/img/back-runner.png);
+		}
+
+		border-radius: @card-border-radius;
+		img {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			border-radius: @card-border-radius;
+			&.front {
+				backface-visibility: hidden;
+			}
+		}
+	}
+}
+
