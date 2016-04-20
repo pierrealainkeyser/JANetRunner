@@ -21,7 +21,9 @@ define([], function() {
 			// parametres facultatif
 			this.rotation = view.rotation || 0;
 			this.zindex = view.zindex || 0;
-			this.visible = view.visible || true;
+			this.opacity = view.opacity || (view.visible ? 1:0);
+			
+			this.scale=view.scale||1;
 		}
 		
 		/**
@@ -36,9 +38,9 @@ define([], function() {
 		 *            la position dans la TimelineLite
 		 */
 		tween(tl, duration, position) {
-			tl.to(this.$element, duration, { zIndex : this.zindex, left : this.left, top : this.top, autoAlpha : this.visible ? 1 : 0, ease : Strong.easeOut },
+			tl.to(this.$element, duration, { zIndex : this.zindex, left : this.left, top : this.top, autoAlpha : this.opacity, ease : Strong.easeOut },
 					position);
-			tl.to(this.$element, duration, { width : this.width, height : this.height, ease : Elastic.easeInOut }, position);
+			tl.to(this.$element, duration, {scaleX : this.scale, scaleY : this.scale, width : this.width, height : this.height, ease : Elastic.easeInOut }, position);
 			tl.to(this.$element, duration * 0.66, { rotation : this.rotation }, position);
 		}
 	}

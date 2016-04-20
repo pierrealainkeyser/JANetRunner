@@ -13,6 +13,16 @@ define(["jquery", "anr/Wrapped", "anr/snapshot", "anr/virtual"], function($, Wra
 			// l'état de la carte
 			this.faceup = false;
 			this.visible = true;
+			
+			// la définition
+			this.def = def;
+		}
+		
+		/**
+		 * Duplique la carte
+		 */
+		clone(){
+			return new Card(this.def);
 		}
 		
 		/**
@@ -26,7 +36,9 @@ define(["jquery", "anr/Wrapped", "anr/snapshot", "anr/virtual"], function($, Wra
 			if(card)
 				$element = card.$element;
 			
-			return new CardSnapshot(this, this.computeView(), $element);
+			var snap=this.computeView();
+			snap.visible=this.visible;
+			return new CardSnapshot(this, snap, $element);
 		}
 	
 	}
@@ -36,7 +48,7 @@ define(["jquery", "anr/Wrapped", "anr/snapshot", "anr/virtual"], function($, Wra
 	 * La vue virtuelle d'une carte
 	 */
 	class VirtualCard extends Virtual{
-		constructor() {
+		constructor(card) {
 			super( $("<div class='cardwrapper'><div class='card'><div class='inner'/></div><div class='hosteds'/></div>"));
 			
 			this.$card =  this.wrapper.find(".card");

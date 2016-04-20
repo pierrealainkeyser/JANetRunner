@@ -13,10 +13,12 @@ html , body , body > div#main {
 @card-width: 80px;
 @card-height: 111px;
 @card-border-radius: 5px;
-@card-spacing: 15px;
+@card-spacing: 8px;
 @hosted-card-spacing: 5px;
 @card-overlay-factor: 0.57;
-@card-wrapper-factor: 0.10;
+@card-vertical-wrapper-factor: 0.10;
+@primary: #2199e8;
+@primary-dark: #1583cc;
 //un server
 .server {
 	display: flex;
@@ -98,14 +100,26 @@ html , body , body > div#main {
 	}
 
 	.card-templatewrapper {
+		opacity: 0;
+		&.visible {
+			opacity: 0.5;
+		}
+
 		& when (@direction='right') {
 			width: @card-height;
-			height: @card-width * @card-wrapper-factor;
+			height: @card-width * @card-vertical-wrapper-factor;
+			&.over {
+				height: @card-width;
+			}
 		}
 
 		& when not (@direction='right') {
-			width: @card-height * @card-wrapper-factor;
-			height: @card-width;
+			width: @card-width * @card-overlay-factor;
+			height: @card-height;
+			
+			&.over {
+				width: @card-width;
+			}
 		}
 	}
 }
@@ -184,7 +198,8 @@ html , body , body > div#main {
 
 	.card-template {
 		position: absolute;
-		border-radius: @card-border-radius;
+		background-color: @primary;
+		box-shadow: 0px 0px 2px 0px @primary-dark;
 	}
 }
 

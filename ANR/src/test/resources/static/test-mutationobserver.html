@@ -38,8 +38,6 @@
 			var c1 = new Card({ url : "01080.png", faction : "corp" });
 			c1.appendTo(body);
 			c1.wrapperAt(1).appendTo(ices);
-			
-			
 
 			var c2 = new Card({ url : "01081.png", faction : "corp" });
 			c2.appendTo(body);
@@ -55,8 +53,8 @@
 			tl.addLabel("unvisible", "0")
 			tl.addLabel("visible", "0.25")
 			tl.addLabel("middle", "0.5")
-			tl.addLabel("after", "0.75")
-			tl.addLabel("clear", "1")
+			tl.addLabel("after", "middle+=1")
+			tl.addLabel("clear", "after+=0.5")
 
 			var v1 = c1.snapshot();
 			v1.visible = false;
@@ -88,8 +86,8 @@
 				c2.wrapperAt(1).appendTo(upgrades);
 				c3.wrapperAt(1).appendTo(ices);
 
+				c2.faceup = true;
 				cv2 = c2.snapshot();
-				cv2.faceup = true;
 				cv2.tween(tl, duration, "after")
 
 				cv3 = c3.snapshot();
@@ -98,30 +96,47 @@
 				c2.wrapperAt(1).appendTo(ices);
 				c1.wrapperAt(2).appendTo(upgrades);
 				c3.wrapperAt(1).appendTo(upgrades);
-				
-				var ct1=new CardTemplate();
+
+				var ct1 = new CardTemplate();
 				ct1.appendTo(body);
 				ct1.wrapperAt(0).appendTo(ices);
+
+				var ct2 = new CardTemplate();
+				ct2.appendTo(body);
+				ct2.wrapperAt(2).appendTo(ices);
+
+				var ct3 = new CardTemplate();
+				ct3.appendTo(body);
+				ct3.wrapperAt(3).appendTo(upgrades);
 
 				sortCard(upgrades);
 				sortCard(ices);
 
-				cv2 = c2.snapshot();
-				cv2.faceup = true;
-				cv2.tween(tl, duration, "clear")
+				
+				c2.faceup = true;
+				c1.faceup = true;
+				c3.faceup = true;
+				
+				tween(tl, duration, "clear",ct1,ct2,ct3,c1,c2,c3);
 
-				v1 = c1.snapshot();
-				v1.faceup = true;
-				v1.tween(tl, duration, "clear")
-
-				cv3 = c3.snapshot();
-				cv3.faceup = true;
-				cv3.tween(tl, duration, "clear")
+				//ct3.over(true);
+				ct2.over(true);
+				
+				tween(tl, 1, "clear+=1",ct1,ct2,ct3,c1,c2,c3);
 			}
 
 			tl.play()
 
 		});
+		
+		function tween(tl, duration, position, ...wrapped){
+			var snaps=[];
+			for(var i in wrapped)
+				snaps.push(wrapped[i].snapshot());
+			
+			for(var i in snaps)
+				snaps[i].tween(tl,duration,position);
+		}
 	});
 </script>
 
