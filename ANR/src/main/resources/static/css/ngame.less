@@ -90,7 +90,14 @@ html , body , body > div#main {
 				}
 			}
 
-			& when not (@direction='right') {
+			& when (@direction='bottom') {
+				.inner {
+					height: @card-height;
+					width: @card-width;
+				}
+			}
+
+			& when (@direction='top') {
 				.inner {
 					height: @card-height;
 					width: @card-width;
@@ -113,10 +120,17 @@ html , body , body > div#main {
 			}
 		}
 
-		& when not (@direction='right') {
+		& when (@direction='bottom') {
 			width: @card-width * @card-overlay-factor;
 			height: @card-height;
-			
+			&.over {
+				width: @card-width;
+			}
+		}
+
+		& when (@direction='top') {
+			width: @card-width * @card-overlay-factor;
+			height: @card-height;
 			&.over {
 				width: @card-width;
 			}
