@@ -13,9 +13,10 @@ html , body , body > div#main {
 @card-width: 80px;
 @card-height: 111px;
 @card-border-radius: 5px;
-@card-spacing: 5px;
+@card-spacing: 15px;
 @hosted-card-spacing: 5px;
-@card-overlay-factor: 0.66;
+@card-overlay-factor: 0.57;
+@card-wrapper-factor: 0.10;
 //un server
 .server {
 	display: flex;
@@ -45,7 +46,7 @@ html , body , body > div#main {
 	.card-container ('right');
 	flex-direction: column-reverse;
 	align-items: center;
-	.cardwrapper {
+	> div {
 		margin-top: @card-spacing;
 	}
 }
@@ -55,14 +56,16 @@ html , body , body > div#main {
 	.card-container ('bottom');
 	flex-direction: row;
 	.card-horizontal-overlay ();
+	justify-content: center;
 }
 
 //rajoute un overlay pour les card-container 
 .card-horizontal-overlay () {
-	//TODO il faut voir comment faire mieux que ca
-	padding-left: -@card-width * @card-overlay-factor;
 	.cardwrapper {
-		margin-right: -@card-width * @card-overlay-factor;
+		width: @card-width * @card-overlay-factor;
+		&:last-child {
+			width: @card-width;
+		}
 	}
 }
 
@@ -91,6 +94,18 @@ html , body , body > div#main {
 					width: @card-width;
 				}
 			}
+		}
+	}
+
+	.card-templatewrapper {
+		& when (@direction='right') {
+			width: @card-height;
+			height: @card-width * @card-wrapper-factor;
+		}
+
+		& when not (@direction='right') {
+			width: @card-height * @card-wrapper-factor;
+			height: @card-width;
 		}
 	}
 }
@@ -139,17 +154,16 @@ html , body , body > div#main {
 	}
 }
 
-//la position d'une carte
 .view {
 	.card {
 		position: absolute;
 		transform-origin: top left;
 		&.corp img.back {
-			content: url(/img/back-corp.png);
+			content: url(/src/main/resources/static/img/back-corp.png);
 		}
 
 		&.runner img.back {
-			content: url(/img/back-runner.png);
+			content: url(/src/main/resources/static/img/back-runner.png);
 		}
 
 		border-radius: @card-border-radius;
@@ -161,7 +175,16 @@ html , body , body > div#main {
 			&.front {
 				backface-visibility: hidden;
 			}
+
+			&.back {
+				box-shadow: 1px 1px 1px 1px rgba(100, 100, 100, 0.90);
+			}
 		}
+	}
+
+	.card-template {
+		position: absolute;
+		border-radius: @card-border-radius;
 	}
 }
 

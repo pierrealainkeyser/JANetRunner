@@ -1,108 +1,96 @@
-define([ 'mix' ], function(mix) {
-
-	function Card(def) {
-
-		this.virtual = new VirtualCard();
-		this.faction = def.faction;
-		this.url = def.url;
-
-		this.element = $("<div class='card " + this.faction + "'>" + //
-		"<img class='back'/>" + //
-		"<img class='front' src='/card-img/" + this.url + "'/>" + // 
-		"</div>");
-
-		this.front = this.element.find(".front");
-		this.back = this.element.find(".back");
-	}
-
-	/**
-	 * Création de la vue {@link CardView} de la carte à un moment donnée
-	 */
-	Card.prototype.view = function() {
-		return new CardView(this);
-	}
-
-	/**
-	 * renvoi le wrapper en placant l'attribut CSS order
-	 */
-	Card.prototype.wrapper = function(order) {
-		var wrapper = this.virtual.wrapper;
-		wrapper.css("order", order || 0);
-		return wrapper;
-	}
-
-	/**
-	 * Une carte virtuel
-	 */
-	function VirtualCard() {
-		this.wrapper = $("<div class='cardwrapper'><div class='card'><div class='inner'/></div><div class='hosteds'/></div>");
-		this.card = this.wrapper.find(".card");
-		this.inner = this.card.find(".inner");
-		this.hosteds = this.wrapper.find(".hosteds");
-	}
-
-	/**
-	 * Renvoi la vue utilisable dans {@link CardView}
-	 */
-	VirtualCard.prototype.computeView = function() {
-		var view = {};
-
-		var angle = 0
-		var matrix = this.inner.css("transform");
-		if (matrix != 'none') {
-			var values = matrix.split('(')[1].split(')')[0].split(',');
-			var a = values[0];
-			var b = values[1];
-			angle = Math.round(Math.atan2(b, a) * (180 / Math.PI));
+define(["jquery", "anr/Wrapped", "anr/snapshot", "anr/virtual"], function($, Wrapped, Snapshot, Virtual) {
+	
+	class Card extends Wrapped {
+		constructor(def){
+			super(new VirtualCard(), $("<div class='card " + def.faction + "'>" + // 
+					"<img class='back'/>" + //
+					"<img class='front' src='/cache/" + def.url + "'/>" + // 
+					"</div>"));
+			
+			this.$front = this.$element.find(".front");
+			this.$back = this.$element.find(".back");
+			
+			// l'état de la carte
+			this.faceup = false;
+			this.visible = true;
 		}
+		
+		/**
+		 * Création de la vue {@link CardSnapshot} de la carte à un moment donné
+		 * 
+		 * @param card
+		 *            la carte qui doit subir la position
+		 */
+		snapshot (card) {
+			var $element = this.$element;
+			if(card)
+				$element = card.$element;
+			
+			return new CardSnapshot(this, this.computeView(), $element);
+		}
+	
+	}
 
-		view.zindex = this.wrapper.css("order") || 0;
-		view.rotation = angle;
-		view.width = this.inner.width();
-		view.height = this.inner.height();
 
-		var bounds = this.card.get(0).getBoundingClientRect();
-		view.top = bounds.top;
-		view.left = bounds.left;
-		return view;
+	/**
+	 * La vue virtuelle d'une carte
+	 */
+	class VirtualCard extends Virtual{
+		constructor() {
+			super( $("<div class='cardwrapper'><div class='card'><div class='inner'/></div><div class='hosteds'/></div>"));
+			
+			this.$card =  this.wrapper.find(".card");
+			this.$inner = this.$card.find(".inner");
+			this.$hosteds = this.wrapper.find(".hosteds");
+		}
+		
+		/**
+		 * Renvoi la vue utilisable dans {@link CardSnapshot}
+		 */
+		computeView () {
+			var snap = {};
+
+			snap.zindex = this.wrapper.prop('order') || 0;
+			this.rotationAndSize(this.$inner, snap);
+			this.location(this.$card.get(0),snap);
+			
+			return snap;
+		}
 	}
 
 	/**
-	 * La vue d'une {@link Card}
+	 * La capture d'une {@link Card} obtenu à partir de la vue
 	 */
-	function CardView(card) {
-		this.element = card.element;
-		this.front = card.front;
-		this.back = card.back;
+	class CardSnapshot extends Snapshot {
+		/**
+		 * Passe la carte à afficher
+		 * 
+		 * @param card
+		 *            la carte {@link Card}
+		 * @param view
+		 *            la vue issue de {@link Virtual#computeView}
+		 * @param $element
+		 *            l'élément ou null pour prendre celui de la carte
+		 */
+		constructor(card, view, $element) {
+			super($element, view);
+	
+			this.$front = card.$front;
+			this.$back = card.$back;
+	
+			this.faceup = card.faceup;
+			this.visible = card.visible;
+		}
+	
+		tween (tl, duration, position) {
 
-		this.faceup = false;
-		this.visible = true;
-
-		// gestion des parametres
-		var view = card.virtual.computeView();
-		this.width = view.width;
-		this.height = view.height;
-		this.rotation = view.rotation;
-		this.top = view.top;
-		this.left = view.left;
-		this.zindex = view.zindex;
-	}
-
-	/**
-	 * Enregistrement de actions dans la TimelineLite tl, pour la durée duration
-	 * à la position donnée.
-	 */
-	CardView.prototype.tween = function(tl, duration, position) {
-
-		var rotationY = this.faceup ? 0 : -180;
-
-		tl.to(this.element, duration, { zIndex : this.zindex, left : this.left, top : this.top, autoAlpha : this.visible ? 1 : 0, ease : Strong.easeOut },
-				position);
-		tl.to(this.element, duration * 1.25, { width : this.width, height : this.height, ease : Elastic.easeInOut }, position);
-		tl.to(this.element, duration / 2, { rotation : this.rotation }, position);
-
-		tl.to(this.front, duration, { rotationY : rotationY, ease : Bounce.easeInOut }, position);
-		tl.to(this.back, duration, { rotationY : rotationY, ease : Bounce.easeInOut }, position);
+			// utilisation de la fonction parente
+			super.tween(tl, duration, position);
+	
+			var rotationY = this.faceup ? 0 : -180;
+			tl.to(this.$front, duration, { rotationY : rotationY, ease : Bounce.easeInOut }, position);
+			tl.to(this.$back, duration, { rotationY : rotationY, ease : Bounce.easeInOut }, position);
+		}
 	}
 
 	return Card;

@@ -1,14 +1,14 @@
 <html>
 <head>
-<link rel="stylesheet/less" type="text/css" href="../../../main/resources/static/css/ngame.less" />
-<link rel="stylesheet" type="text/css" href="../../../main/resources/static/css/icons.css" />
+<link rel="stylesheet/less" type="text/css" href="/src/main/resources/static/css/ngame.less" />
+<link rel="stylesheet" type="text/css" href="/src/main/resources/static/css/icons.css" />
 
 <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/less.js/2.4.0/less.js"></script>
 
 <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.16/require.min.js"></script>
 <script type="text/javascript">
 	require.config({
-		baseUrl : "../../../main/resources/static/js/",
+		baseUrl : "/src/main/resources/static/js/",
 		paths : { jquery : "http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min",
 			underscore : "http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min",
 			tweenmax : "http://cdnjs.cloudflare.com/ajax/libs/gsap/1.16.1/TweenMax.min",//
@@ -21,8 +21,14 @@
 		} //
 	});
 
-	require([ "jquery", "TimelineLite", "anr/ncard" ],//
-	function($, TimelineLite, Card) {
+	require([ "jquery", "TimelineLite", "anr/ncard", "anr/ncardtemplate" ],//
+	function($, TimelineLite, Card, CardTemplate) {
+
+		function sortCard($container) {
+			$container.children().sort(function(a, b) {
+				return +$(a).prop('order') - $(b).prop('order');
+			}).appendTo($container);
+		}
 
 		$(function() {
 			var body = $('.view');
@@ -30,35 +36,37 @@
 			var upgrades = $('#virtual .upgrades');
 
 			var c1 = new Card({ url : "01080.png", faction : "corp" });
-			c1.element.appendTo(body);
-			c1.wrapper(1).appendTo(ices);
+			c1.appendTo(body);
+			c1.wrapperAt(1).appendTo(ices);
+			
+			
 
 			var c2 = new Card({ url : "01081.png", faction : "corp" });
-			c2.element.appendTo(body);
-			c2.wrapper(0).appendTo(ices);
+			c2.appendTo(body);
+			c2.wrapperAt(0).appendTo(ices);
 
 			var c3 = new Card({ url : "01082.png", faction : "corp" });
-			c3.element.appendTo(body);
-			c3.wrapper(0).appendTo(upgrades);
+			c3.appendTo(body);
+			c3.wrapperAt(0).appendTo(upgrades);
 
-			var duration = 0.75;
+			var duration = 0.125;
 
 			var tl = new TimelineLite();
-			tl.addLabel("unvisible", "=0")
-			tl.addLabel("visible", "=0.5")
-			tl.addLabel("middle", "=1")
-			tl.addLabel("after", "=2")
-			tl.addLabel("clear", "=3")
+			tl.addLabel("unvisible", "0")
+			tl.addLabel("visible", "0.25")
+			tl.addLabel("middle", "0.5")
+			tl.addLabel("after", "0.75")
+			tl.addLabel("clear", "1")
 
-			var v1 = c1.view();
+			var v1 = c1.snapshot();
 			v1.visible = false;
 			v1.tween(tl, 0, "unvisible")
 
-			var cv2 = c2.view()
+			var cv2 = c2.snapshot()
 			cv2.faceup = true;
 			cv2.tween(tl, 0, "unvisible")
 
-			var cv3 = c3.view()
+			var cv3 = c3.snapshot()
 			cv3.faceup = true;
 			cv3.tween(tl, 0, "unvisible")
 
@@ -66,42 +74,47 @@
 				v1.visible = true;
 				v1.tween(tl, duration, "visible")
 
-				var v2 = c1.view();
+				var v2 = c1.snapshot();
 				v2.rotation = 0;
-				v2.faceup = true;
+				v2.faceup = false;
 				v2.height *= 2;
 				v2.width *= 2;
 				v2.left = 400;
 				v2.tween(tl, duration, "middle")
 
-				c1.wrapper(0).appendTo(upgrades);
-				c2.wrapper(1).appendTo(upgrades);
-				c3.wrapper(1).appendTo(ices);
+				v2.faceup = true;
+				v2.tween(tl, duration, "middle")
 
-				cv2 = c2.view();
-				cv2.faceup = false;
+				c2.wrapperAt(1).appendTo(upgrades);
+				c3.wrapperAt(1).appendTo(ices);
+
+				cv2 = c2.snapshot();
+				cv2.faceup = true;
 				cv2.tween(tl, duration, "after")
 
-				v1 = c1.view();
-				v1.faceup = true;
-				v1.tween(tl, duration, "after")
-
-				cv3 = c3.view();
+				cv3 = c3.snapshot();
 				cv3.tween(tl, duration, "after")
 
-				c2.wrapper(0).appendTo(ices);
-				c1.wrapper(2).appendTo(upgrades);
-				c3.wrapper(1).appendTo(upgrades);
+				c2.wrapperAt(1).appendTo(ices);
+				c1.wrapperAt(2).appendTo(upgrades);
+				c3.wrapperAt(1).appendTo(upgrades);
+				
+				var ct1=new CardTemplate();
+				ct1.appendTo(body);
+				ct1.wrapperAt(0).appendTo(ices);
 
-				cv2 = c2.view();
+				sortCard(upgrades);
+				sortCard(ices);
+
+				cv2 = c2.snapshot();
 				cv2.faceup = true;
 				cv2.tween(tl, duration, "clear")
 
-				v1 = c1.view();
+				v1 = c1.snapshot();
 				v1.faceup = true;
 				v1.tween(tl, duration, "clear")
 
-				cv3 = c3.view();
+				cv3 = c3.snapshot();
 				cv3.faceup = true;
 				cv3.tween(tl, duration, "clear")
 			}
